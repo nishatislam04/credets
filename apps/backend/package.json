@@ -1,0 +1,21 @@
+{
+	"name": "backend",
+	"version": "1.0.0",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"clean": "rm -rf dist && echo 'Done.'",
+		"dev": "bun run --hot --console-depth 10 index.ts",
+		"build": "bun build index.ts --outdir ./dist",
+		"start": "bun run dist/index.js",
+		"type-check": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.13",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
+}
