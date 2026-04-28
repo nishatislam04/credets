@@ -7,7 +7,7 @@
 		"packages/*"
 	],
 	"scripts": {
-		"dev": "bun run dev:backend & bun run dev:frontend",
+		"dev": "concurrently --names \"BACK,FRONT\" --prefix-colors \"green,pink\" \"bun run dev:backend\" \"bun run dev:frontend\"",
 		"dev:backend": "cd apps/backend && bun run dev",
 		"dev:frontend": "cd apps/frontend && bun run dev",
 		"build": "bun run build:backend && bun run build:frontend",
@@ -16,7 +16,8 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.13",
-		"@types/bun": "latest"
+		"@types/bun": "latest",
+		"concurrently": "^9.2.1"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
