@@ -25,10 +25,15 @@ services:
     container_name: prisma-studio
     image: timothyjmiller/prisma-studio:latest
     restart: unless-stopped
-    env_file:
-      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_URL: postgres://nishat:nishat004@db:5432/credets_db
     ports:
       - ${PRISMA_STUDIO_PORT}:5555
+    volumes:
+      - ./apps/backend/prisma/schema.prisma:/app/prisma/schema.prisma
     networks:
       - credets-network
 

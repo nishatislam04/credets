@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS credentials(
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	type credential_type NOT NULL,
-	data JSON NOT NULL,
-	images JSON,
+	data JSONB NOT NULL,
+	images JSONB,
 	created_at TIMESTAMPTZ DEFAULT NOW(),
 	updated_at TIMESTAMPTZ DEFAULT NOW()
 );
