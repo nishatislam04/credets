@@ -7,7 +7,7 @@ import { credentialUpdate } from "./services/credentials/update";
 
 Bun.serve({
 	development: true,
-	port: "8080",
+	port: "8000",
 	idleTimeout: 35,
 	routes: {
 		"/": indexHtml,
