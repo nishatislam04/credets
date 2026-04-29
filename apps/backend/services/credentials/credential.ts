@@ -1,10 +1,10 @@
 import type { BunRequest, Server } from "bun";
 import { ResponseFactory } from "../../utils/response";
 
-export function credentialPage(req: BunRequest, server: Server<unknown>) {
+export async function credentialPage(req: BunRequest, server: Server<unknown>) {
 	try {
-		console.log("credential single page -req", req);
-		console.log("credential single page -server", server);
+		// console.log("credential single page -req", req);
+		// console.log("credential single page -server", server);
 
 		const { credentialId } = req.params;
 		const credentialData = {

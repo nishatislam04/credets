@@ -10,6 +10,7 @@
 		"dev": "concurrently --names \"BACK,FRONT\" --prefix-colors \"green,pink\" \"bun run dev:backend\" \"bun run dev:frontend\"",
 		"dev:backend": "cd apps/backend && bun run dev",
 		"dev:frontend": "cd apps/frontend && bun run dev",
+		"seed": "bun run apps/backend/db/seed.ts",
 		"build": "bun run build:backend && bun run build:frontend",
 		"build:backend": "cd apps/backend && bun run build",
 		"build:frontend": "cd apps/frontend && bun run build"
