@@ -21,11 +21,14 @@ services:
     networks:
       - credets-network
 
-  adminer:
-    image: adminer
-    restart: always
+  prisma-studio:
+    container_name: prisma-studio
+    image: timothyjmiller/prisma-studio:latest
+    restart: unless-stopped
+    env_file:
+      - .env
     ports:
-      - 8080:8080
+      - ${PRISMA_STUDIO_PORT}:5555
     networks:
       - credets-network
 

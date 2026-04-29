@@ -103,10 +103,10 @@ http://localhost:8000
 http://localhost:3000
 ```
 
-### 3. the adminer (database viewer)
+### 3. the prisma studio (database viewer)
 
 ```bash
-http://localhost:8080
+http://localhost:5555
 ```
 
 # conclusion
