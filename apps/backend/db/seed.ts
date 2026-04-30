@@ -37,6 +37,36 @@ const images = {
 	],
 };
 
+// Generate titles based on type
+const generateTitle = (type: string, index: number): string => {
+	const titles = {
+		credentials: [`Login ${index}`, `Account ${index}`, `Service ${index}`],
+		key: [`API Key ${index}`, `SSH Key ${index}`, `License ${index}`],
+		api: [
+			`API Token ${index}`,
+			`Service Account ${index}`,
+			`Platform Key ${index}`,
+		],
+		media: [`Media Asset ${index}`, `Content ${index}`, `Resource ${index}`],
+		game_loadout: [`Loadout ${index}`, `Build ${index}`, `Character ${index}`],
+		misc: [`Note ${index}`, `Config ${index}`, `Info ${index}`],
+	};
+	return randomPick(titles[type as keyof typeof titles] || [`Item ${index}`]);
+};
+
+// Generate short description
+const generateShortDescription = (type: string): string => {
+	const descriptions = {
+		credentials: "Login credentials for online service",
+		key: "Security key and access credentials",
+		api: "API authentication and tokens",
+		media: "Digital media and content assets",
+		game_loadout: "Gaming configuration and loadout",
+		misc: "Miscellaneous information and notes",
+	};
+	return descriptions[type as keyof typeof descriptions] || "Credential item";
+};
+
 // Credential generators by type
 const generators = {
 	credentials: (i: number) => ({
@@ -84,6 +114,18 @@ const generators = {
 			null,
 			[randomPick(images.tech)],
 			[randomPick(images.tech), randomPick(images.notes)],
+		]),
+		tags: randomPick([
+			null,
+			["work", "personal"],
+			["important", "frequent"],
+			["archive"],
+		]),
+		notes: randomPick([
+			null,
+			"Update password every 90 days",
+			"Shared with team",
+			"Requires 2FA",
 		]),
 	}),
 
@@ -134,6 +176,8 @@ const generators = {
 			},
 		]),
 		images: randomPick([null, [randomPick(images.keys)]]),
+		tags: randomPick([null, ["security", "encryption"], ["production"]]),
+		notes: randomPick([null, "Store in secure vault", "Rotate annually"]),
 	}),
 
 	api: (i: number) => ({
@@ -175,6 +219,8 @@ const generators = {
 			},
 		]),
 		images: randomPick([null, [randomPick(images.api)]]),
+		tags: randomPick([null, ["api", "integration"], ["third-party"]]),
+		notes: randomPick([null, "Keep secret!", "Don't commit to git"]),
 	}),
 
 	media: (i: number) => ({
@@ -198,12 +244,6 @@ const generators = {
 					"DevGuru",
 					"SysAdminPro",
 				]),
-				tags: randomPick([
-					["programming"],
-					["devops"],
-					["database"],
-					["frontend"],
-				]),
 			},
 			{
 				collection: randomPick([
@@ -219,6 +259,8 @@ const generators = {
 			},
 		]),
 		images: [[randomPick(images.media), randomPick(images.media)]],
+		tags: randomPick([null, ["media", "assets"], ["tutorial"]]),
+		notes: randomPick([null, "Watch later", "Important resource"]),
 	}),
 
 	game_loadout: (i: number) => ({
@@ -288,6 +330,8 @@ const generators = {
 			},
 		]),
 		images: [[randomPick(images.games), randomPick(images.games)]],
+		tags: randomPick([null, ["gaming", "loadout"], ["competitive"]]),
+		notes: randomPick([null, "Current main loadout", "Testing new build"]),
 	}),
 
 	misc: (i: number) => ({
@@ -303,7 +347,6 @@ const generators = {
 					"Update dependencies to latest versions",
 				]),
 				priority: randomPick(["low", "medium", "high", "urgent"]),
-				tags: randomPick(["reminder", "todo", "meeting", "maintenance"]),
 			},
 			{
 				category: randomPick(["WiFi", "Server IPs", "Ports", "Configurations"]),
@@ -321,6 +364,8 @@ const generators = {
 			[randomPick(images.notes)],
 			[randomPick(images.tech), randomPick(images.notes)],
 		]),
+		tags: randomPick([null, ["note", "reminder"], ["config"]]),
+		notes: randomPick([null, "Review later", "Needs update"]),
 	}),
 };
 
@@ -332,6 +377,28 @@ async function seed() {
 	await sql`DELETE FROM credentials`;
 	await sql`DELETE FROM session`;
 	await sql`DELETE FROM users`;
+	await sql`DELETE FROM types`;
+
+	console.log("📂 Inserting credential types...");
+
+	// Insert types (will be used by credentials)
+	const typesResult = await sql`
+        INSERT INTO types (label, description) VALUES
+            ('credentials', 'Standard login credentials for websites, apps, and services'),
+            ('key', 'SSH keys, API keys, license keys, and encryption keys'),
+            ('api', 'API tokens, service accounts, and platform credentials'),
+            ('media', 'Media assets, collections, and content references'),
+            ('game_loadout', 'Gaming configurations, loadouts, and character builds'),
+            ('misc', 'Miscellaneous notes, configurations, and quick references')
+        ON CONFLICT (label) DO NOTHING
+        RETURNING id, label
+    `;
+
+	// Create mapping from label to id
+	const typeMap = new Map();
+	for (const type of typesResult) {
+		typeMap.set(type.label, type.id);
+	}
 
 	console.log("👤 Creating test user...");
 
@@ -340,16 +407,16 @@ async function seed() {
 	const specialPasswordHash = await Bun.password.hash("SpecialPass456!");
 
 	const [user] = await sql`
-    INSERT INTO users (name, username, email, password, special_password)
-    VALUES (
-      'John Doe',
-      'johndoe',
-      'john@example.com',
-      ${passwordHash},
-      ${specialPasswordHash}
-    )
-    RETURNING id
-  `;
+        INSERT INTO users (name, username, email, password, special_password)
+        VALUES (
+            'John Doe',
+            'johndoe',
+            'john@example.com',
+            ${passwordHash},
+            ${specialPasswordHash}
+        )
+        RETURNING id
+    `;
 
 	console.log(`   User created with ID: ${user.id}`);
 
@@ -361,14 +428,14 @@ async function seed() {
 	expiresAt.setDate(expiresAt.getDate() + 30); // 30 days from now
 
 	await sql`
-    INSERT INTO session (user_id, token, expires_at)
-    VALUES (${user.id}, ${sessionToken}, ${expiresAt})
-  `;
+        INSERT INTO session (user_id, token, expires_at)
+        VALUES (${user.id}, ${sessionToken}, ${expiresAt})
+    `;
 
 	console.log("   Session token:", sessionToken);
 
-	// Create 500 credentials
-	console.log("📦 Creating 500 credentials...");
+	// Create credentials
+	console.log("📦 Creating credentials...");
 
 	const types = [
 		"credentials",
@@ -380,55 +447,78 @@ async function seed() {
 	] as const;
 	const batchSize = 50;
 	let created = 0;
+	const totalCredentials = 500;
 
-	for (let i = 0; i < 500; i += batchSize) {
+	for (let i = 0; i < totalCredentials; i += batchSize) {
 		const batch = [];
-		const currentBatchSize = Math.min(batchSize, 500 - i);
+		const currentBatchSize = Math.min(batchSize, totalCredentials - i);
 
 		for (let j = 0; j < currentBatchSize; j++) {
 			const index = i + j + 1;
-			const type = types[index % types.length]; // Distribute types evenly
-			const generator = generators[type];
+			const typeLabel = types[index % types.length];
+			const generator = generators[typeLabel];
 			const credData = generator(index);
+			const typeId = typeMap.get(typeLabel);
+
+			if (!typeId) {
+				console.error(`Type not found: ${typeLabel}`);
+				continue;
+			}
 
 			batch.push({
 				user_id: user.id,
-				type: credData.type,
+				types_id: typeId,
+				title: generateTitle(typeLabel, index),
+				short_description: generateShortDescription(typeLabel),
+				long_description: `Detailed information about this ${typeLabel} item. Created for demonstration purposes.`,
+				thumbnail: credData.images?.[0]
+					? JSON.stringify(credData.images[0])
+					: null,
 				data: JSON.stringify(credData.data),
 				images: credData.images ? JSON.stringify(credData.images) : null,
+				tags: credData.tags ? JSON.stringify(credData.tags) : null,
+				notes: credData.notes,
 			});
 		}
 
-		// Insert batch
+		// Insert batch one by one (could be optimized with multi-insert)
 		for (const cred of batch) {
 			await sql`
-        INSERT INTO credentials (user_id, type, data, images)
-        VALUES (${cred.user_id}, ${cred.type}, ${cred.data}, ${cred.images || null})
-      `;
+                INSERT INTO credentials (
+                    user_id, types_id, title, short_description,
+                    long_description, thumbnail, data, images, tags, notes
+                ) VALUES (
+                    ${cred.user_id}, ${cred.types_id}, ${cred.title}, ${cred.short_description},
+                    ${cred.long_description}, ${cred.thumbnail}, ${cred.data},
+                    ${cred.images}, ${cred.tags}, ${cred.notes}
+                )
+            `;
 			created++;
 		}
 
-		console.log(`   Created ${created}/500 credentials...`);
+		console.log(`   Created ${created}/${totalCredentials} credentials...`);
 	}
 
 	console.log("\n✅ Seed completed successfully!");
 	console.log("📊 Summary:");
 	console.log("   - 1 User (john@example.com / TestPass123!)");
 	console.log("   - 1 Active Session (30 days)");
-	console.log("   - 500 Credentials across all types");
+	console.log(`   - ${totalCredentials} Credentials across all types`);
+	console.log("   - 6 Credential Types");
 
 	// Show distribution
 	const distribution = await sql`
-    SELECT type, COUNT(*) as count
-    FROM credentials
-    GROUP BY type
-    ORDER BY type
-  `;
+        SELECT t.label, COUNT(c.id) as count
+        FROM credentials c
+        JOIN types t ON c.types_id = t.id
+        GROUP BY t.label
+        ORDER BY t.label
+    `;
 
 	console.log("\n📈 Credentials Distribution:");
-	distribution.forEach((row: any) => {
-		console.log(`   - ${row.type}: ${row.count}`);
-	});
+	for (const row of distribution) {
+		console.log(`   - ${row.label}: ${row.count}`);
+	}
 
 	process.exit(0);
 }
