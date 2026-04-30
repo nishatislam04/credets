@@ -1,9 +1,9 @@
+import { credentialCreate } from "./http/credentials/create";
+import { credentialPage } from "./http/credentials/credential";
+import { credentailDelete } from "./http/credentials/delete";
+import { credentialListings } from "./http/credentials/listings";
+import { credentialUpdate } from "./http/credentials/update";
 import indexHtml from "./index.html";
-import { credentialCreate } from "./services/credentials/create";
-import { credentialPage } from "./services/credentials/credential";
-import { credentailDelete } from "./services/credentials/delete";
-import { credentialListings } from "./services/credentials/listings";
-import { credentialUpdate } from "./services/credentials/update";
 
 Bun.serve({
 	development: true,

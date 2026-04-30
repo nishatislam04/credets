@@ -6,7 +6,7 @@
 	"private": true,
 	"scripts": {
 		"clean": "rm -rf dist && echo 'Done.'",
-		"dev": "bun run --hot --console-depth 10 index.ts",
+		"dev": "bun run --watch --no-clear-screen --console-depth 10 index.ts",
 		"build": "bun build index.ts --outdir ./dist",
 		"start": "bun run dist/index.js",
 		"type-check": "tsc --noEmit"
