@@ -14,7 +14,7 @@
 3. usename
 4. email
 5. password -hash
-6. specialPassword -raw for now. soon enc it
+6. special_password -raw for now. soon enc it
 7. createdAt
 8. updatedAt
 

@@ -30,7 +30,8 @@
 		"paths": {
 			"@repo/shared": ["./packages/shared/src/index.ts"],
 			"@repo/shared/*": ["./packages/shared/src/*"],
-			"@db/*": ["./apps/backend/db/*"]
+			"@db/*": ["./apps/backend/db/*"],
+			"@backend/*": ["./apps/backend/*"]
 		}
 	},
 	"include": ["apps/*/src/**/*", "apps/*/*.ts", "packages/*/src/**/*"],

@@ -18,21 +18,17 @@ and it is pure.
 then proceed with user request!
 > we wont set `Max-Age` or `Expires` attribute on the session cookies.
 
-## special-password
-
-our special-password contains 2 part. static and dynamic part.
-FOR NOW, we will raw store it in db and check if they are valid
-@@ ! SOON, we will add encrypt decrypt system. 
-@@ ! it seems like enc and dec are too complex. LOL
-then dynamic part will be like todays full date -- "2026-04-29"
 
 ### generate the special-password-encrypt-key
 
 ```bash
 openssl rand -hex 32
+# then on the .env
+ENC_KEY=VALUE
 ```
 
 store this in env and use this key to decrypt the special-password static part.
+
 
 ## Sign up Form
 
@@ -41,6 +37,43 @@ store this in env and use this key to decrypt the special-password static part.
 3. email
 4. password
 5. special-password (which will be used for the `special-password` static part)
+
+
+
+## special-password
+
+our special-password contains 2 part. static and dynamic part.
+FOR NOW, we will raw store it in db and check if they are valid
+@@ ! SOON, we will add encrypt decrypt system.
+@@ ! it seems like enc and dec are too complex. LOL
+then dynamic part will be like todays full date -- "2026-04-29"
+
+### special-password-encryption
+
+we have created a utilz function at `backend/utls/encrypt.ts` to encrypt any text.
+
+```ts
+const payload = "data to encrypt"
+const sealedValue = await encrypt(payload);
+```
+
+then we can store this encrypted data on db.
+
+
+### special-password-decryption
+
+we also have a decryption utilz at `backend/utils/decrypt.ts`
+
+```ts
+ const fetchedUser =
+ await sql`SELECT id, name, username, email, password, special_password 
+ FROM users WHERE username='nishat004'`;
+
+ const decryptSpecialKey = await decrypt(fetchedUser[0].special_password);
+```
+
+so, first fetch the encrypted data from the db.
+then run the `decrypt()`  to decrypt it
 
 
 ## forget-password

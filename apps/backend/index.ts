@@ -11,11 +11,11 @@ Bun.serve({
 	idleTimeout: 35,
 	routes: {
 		"/": indexHtml,
-		"/credentials": (req, server) => credentialListings(req, server),
+		"/credentials": (req) => credentialListings(req),
 		"/credentials/:credentialId": (req, server) => credentialPage(req, server),
 
-		"/credentials/create": (req, server) => credentialCreate(req, server),
-		"/credentials/update": (req, server) => credentialUpdate(req, server),
+		"/credentials/create": () => credentialCreate(),
+		"/credentials/update": () => credentialUpdate(),
 		"/credentials/delete": (req, server) => credentailDelete(req, server),
 	},
 
@@ -27,6 +27,12 @@ Bun.serve({
 			);
 		}
 		return new Response("Unknown client");
+	},
+	websocket: {
+		// Required for this overload
+		message: (ws, message) => {
+			console.log(message);
+		},
 	},
 	error(error) {
 		return new Response(`<pre>${error}\n${error.stack}</pre>`, {
