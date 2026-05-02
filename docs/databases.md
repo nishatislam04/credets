@@ -1,16 +1,16 @@
-this is where we will lay out information about our databases tables
+# this is where we will lay out information about our databases tables
 
-# database table columns
+## database table columns
 
 1. user (only one)
 2. session (for simple auth)
-3. credentials (our main resource table)
+3. types
+4. credentials (our main resource table)
 
-
-# user table
+### user table
 
 1. id
-2. name 
+2. name
 3. usename
 4. email
 5. password -hash
@@ -19,7 +19,7 @@ this is where we will lay out information about our databases tables
 8. updatedAt
 
 
-# session
+### session
 
 1. id -the actual sessionId attached to user each req
 2. userId -foreignKey
@@ -28,24 +28,32 @@ this is where we will lay out information about our databases tables
 5. createdAt
 
 
-# credentials
+### types
 
-1. id 
-2. type -enum supported
-3. data -json
-4. images -url or urls (maybe another json?)
-5. createdAt
-6. updatedAt
+1. label - varchar
+2. description - text
 
+### credentials
 
-# access database in docker from terminal
+1. id
+2. title - text
+3. short description - text
+4. long description - text
+5. thumbnail - jsonB
+6. data -jsonB
+7. images -jsonB
+8. notes - text
+9. tags - jsonB
+10. types_id - refer to types table
+
+#### access database in docker from terminal
 
 ```bash
 docker compose exec db bash
 psql -U nishat -d credets_db
 ```
 
-# use db instance to write query
+#### use db instance to write query
 
 ```bash
 import { sql } from "@db/connection" // sadly we need to manually type this out
@@ -63,4 +71,5 @@ docker compose down -v
 docker compose up 
 ```
 
-when we update our sql file to change db structure, just flush down the docker volume and run it up!
+when we update our sql file to change db structure,
+just flush down the docker volume and run it up!
