@@ -1,25 +1,24 @@
-import type { BunRequest, Server } from "bun";
-import { ResponseFactory } from "../../utils/response";
+import { ResponseFactory } from "@backend/utils/response";
+import { sql } from "@db/connection";
+import type { BunRequest } from "bun";
 
-export async function credentialPage(req: BunRequest, server: Server<unknown>) {
+export async function credentialPage(req: BunRequest) {
 	try {
-		// console.log("credential single page -req", req);
-		// console.log("credential single page -server", server);
-
 		const { credentialId } = req.params;
-		const credentialData = {
-			id: credentialId,
-			name: "AWS Access Key",
-			type: "api-key",
-			createdAt: "2024-01-01T00:00:00Z",
-			lastUsed: "2024-01-15T10:30:00Z",
+		const [credential] =
+			await sql`SELECT id, title, short_description long_description, thumbnail, data, images, notes, tags, created_at FROM credentials WHERE id=${credentialId}`;
+		const parsedCredential = {
+			...credential,
+			data: credential.data ? JSON.parse(credential.data) : null,
+			images: credential.images ? JSON.parse(credential.images) : null,
+			thumbnail: credential.thumbnail ? JSON.parse(credential.thumbnail) : null,
+			tags: credential.tags ? JSON.parse(credential.tags) : null,
+			created_at: credential.created_at.toLocaleString(),
 		};
 
 		return ResponseFactory.success({
-			data: credentialData,
-			message: "credentail retrieved success",
-			path: req.url,
-			status: 202,
+			data: parsedCredential,
+			path: req,
 		});
 	} catch (error) {
 		return ResponseFactory.error({

@@ -1,7 +1,7 @@
 # our workflow
 
 - [x] create db and tables
-- [ ] create an api endpoint and success return
-- [ ] pagination setup
+- [X] create an api endpoint and success return
+- [X] pagination setup
 - [ ] single view api endpoint
 - [ ] build the create ui page

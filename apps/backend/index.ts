@@ -12,7 +12,7 @@ Bun.serve({
 	routes: {
 		"/": indexHtml,
 		"/credentials": (req) => credentialListings(req),
-		"/credentials/:credentialId": (req, server) => credentialPage(req, server),
+		"/credentials/:credentialId": (req) => credentialPage(req),
 
 		"/credentials/create": () => credentialCreate(),
 		"/credentials/update": () => credentialUpdate(),
