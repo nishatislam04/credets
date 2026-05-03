@@ -76,7 +76,59 @@ so, first fetch the encrypted data from the db.
 then run the `decrypt()`  to decrypt it
 
 
-## forget-password
+### special-password-dynamic-date-part-matching
 
-we will seek `EMAIL` and send a link to reset the password. 
-this endpoint should be short-lived. like after 5 minutes, this link wont work anymore
+now i am going to show you how to match the full special password logic!
+first we fetch the encrypted data from database and then decrypt it with our
+`decrypt()` util function. now we have the special password static part!
+
+in the special password verify logic, there are couple of things to do.
+after we make sure, all the username, email, password are valid then
+we will proceed to special password verfication
+
+### 1. extract the input date and parse it
+
+we strictly need to follow this date format which we will recive from the user.
+otherwise system will break! *dd/MM/yyyy* *(03/05/2026)* or *(3/5/2026)*
+
+```ts
+import { parseLocalDate } from "@backend/utils/parseLocalDate";
+
+const inputSpecialPassword = "nishat islam 004. 3/5/2026";
+const [_, inputDate] = inputSpecialPassword.split(". ");
+// verify date and early return on error
+const parsedLocalDate = parseLocalDate(inputDate); 
+```
+
+### 2. then parse the server date
+
+```ts
+const serverDate = format(new Date(), "yyyy-MM-dd");
+```
+
+### 3. check if local and server date match
+
+```ts
+const dateCheckPassed = parsedLocalDate === serverDate;
+```
+
+### 4. now decrypt the special key from above section
+
+### 5. now construct both server and local special password
+
+```ts
+const serverFullSpecialPassword = `${decodedSpecialPassword} ${serverDate}`;
+const localFullSpecialPassword = `${inputSpecialPassword.split(".")[0]}. ${parsedLocalDate}`;
+```
+
+here `inputSpecialPassword` is the full special-password from the user.
+then we append our parsed date to make sure, it looks same and then we check
+
+### 6. match both password
+
+```ts
+const isFullPasswordMatch = serverFullSpecialPassword ===
+`${inputSpecialPassword.split(".")[0]}. ${parsedLocalDate}`;
+```
+
+## for now this is how we will implement special-password check

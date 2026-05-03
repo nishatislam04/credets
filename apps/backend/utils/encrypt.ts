@@ -2,8 +2,8 @@ import * as Iron from "iron-webcrypto";
 
 /**
  * only provide the payload to encrypt it
- * @param $dataToEncrypt: string - the payload
- * @returns string or encryption required message
+ * @param {string} dataToEncrypt - the payload
+ * @returns {string | {success: false, message:"encryption key is required" }}
  */
 export async function encrypt(
 	dataToEncrypt: string,
