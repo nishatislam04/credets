@@ -25,9 +25,9 @@ export async function credentialPage(req: BunRequest) {
 			error: "database error",
 			message: "failed to fetch credentials",
 			status: 500,
-			path: req.url,
+			path: req,
 			details: {
-				origininError: error instanceof Error ? error.message : "unknown error",
+				originError: error instanceof Error ? error.message : "unknown error",
 			},
 			data: {},
 		});

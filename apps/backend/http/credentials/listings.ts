@@ -1,3 +1,4 @@
+import { ResponseFactory } from "@backend/utils/response";
 import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
 
@@ -59,15 +60,22 @@ export async function credentialListings(req: BunRequest) {
 			},
 		};
 
-		return new Response(JSON.stringify(response), {
+		return ResponseFactory.success({
+			data: response,
+			path: req,
+			message: "credentials listings",
 			status: 200,
-			headers: {
-				"Content-Type": "application/json",
-			},
 		});
 	} catch (error) {
-		console.log("error in credential listings", error);
+		return ResponseFactory.error({
+			error: "database or server side error",
+			data: {},
+			message: "failed to fetch credentials listings",
+			path: req,
+			details: {
+				originError:
+					error instanceof Error ? error.message : "unknown server error",
+			},
+		});
 	}
-
-	return new Response("credentials listings page");
 }

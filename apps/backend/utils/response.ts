@@ -2,6 +2,7 @@ import type { ErrorParamsType } from "@backend/types/error-param-type-response";
 import type { ErrorResponse } from "@backend/types/error-response";
 import type { SuccessParamsType } from "@backend/types/success-param-type-response";
 import type { SuccessResponse } from "@backend/types/success-response";
+import type { BunRequest } from "bun";
 
 /**
  * this is the class we will use to send the response from backend to frontend
@@ -37,7 +38,15 @@ export class ResponseFactory {
 	/**
 	 * error response api
 	 *
-	 * usage: ResponseFactory.error()
+	 * usage: ResponseFactory.error({
+	 *	error: "some error message",
+	 *	message: "some other message",
+	 *	path: req,
+	 *	details: {
+	 *		error instanceof Error ? error.message : "server error"
+	 *	}
+	 *
+	 * })
 	 *
 	 * @param {ErrorParamsType} params - error params payload
 	 * @returns {Bun.Response}
@@ -46,11 +55,12 @@ export class ResponseFactory {
 		const {
 			error = "database or server side error",
 			message = "failed to fetch data or some else error occured",
-			status = 400,
+			status = 500,
 			path,
 			details,
 			data,
 		} = params;
+		// const url = new URL(path as BunRequest)
 		const response: ErrorResponse<T> = {
 			success: false,
 			error,
@@ -58,7 +68,7 @@ export class ResponseFactory {
 			timestamp: new Date().toISOString(),
 			details,
 			data,
-			path: path || "unknown",
+			path: path.url || "unknown",
 		};
 
 		return Response.json({ ...response, status });
