@@ -471,9 +471,7 @@ async function seed() {
 				title: generateTitle(typeLabel, index),
 				short_description: generateShortDescription(typeLabel),
 				long_description: `Detailed information about this ${typeLabel} item. Created for demonstration purposes.`,
-				thumbnail: credData.images?.[0]
-					? JSON.stringify(credData.images[0])
-					: null,
+				thumbnail: null,
 				data: JSON.stringify(credData.data),
 				images: credData.images ? JSON.stringify(credData.images) : null,
 				tags: credData.tags ? JSON.stringify(credData.tags) : null,

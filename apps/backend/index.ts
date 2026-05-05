@@ -14,12 +14,12 @@ Bun.serve({
 		"/credentials": (req) => credentialListings(req),
 		"/credentials/:credentialId": (req) => credentialPage(req),
 
-		"/credentials/create": () => credentialCreate(),
+		"/credentials/create": (req) => credentialCreate(req),
 		"/credentials/update": () => credentialUpdate(),
 		"/credentials/delete": (req, server) => credentailDelete(req, server),
 	},
 
-	fetch(req, server) {
+	async fetch(req, server) {
 		const address = server.requestIP(req);
 		if (address) {
 			return new Response(

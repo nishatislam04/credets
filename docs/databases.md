@@ -39,7 +39,7 @@
 2. title - text
 3. short description - text
 4. long description - text
-5. thumbnail - jsonB
+5. thumbnail - BYTEA - we will store as binary data
 6. data -jsonB
 7. images -jsonB
 8. notes - text

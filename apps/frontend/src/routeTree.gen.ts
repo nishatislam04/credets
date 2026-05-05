@@ -10,33 +10,91 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CredentialsIndexRouteImport } from './routes/credentials/index'
+import { Route as CredentialsCreateIndexRouteImport } from './routes/credentials/create/index'
+import { Route as CredentialsCredentialIdIndexRouteImport } from './routes/credentials/$credentialId/index'
+import { Route as CredentialsCredentialIdUpdateIndexRouteImport } from './routes/credentials/$credentialId/update/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CredentialsIndexRoute = CredentialsIndexRouteImport.update({
+  id: '/credentials/',
+  path: '/credentials/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CredentialsCreateIndexRoute = CredentialsCreateIndexRouteImport.update({
+  id: '/credentials/create/',
+  path: '/credentials/create/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CredentialsCredentialIdIndexRoute =
+  CredentialsCredentialIdIndexRouteImport.update({
+    id: '/credentials/$credentialId/',
+    path: '/credentials/$credentialId/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CredentialsCredentialIdUpdateIndexRoute =
+  CredentialsCredentialIdUpdateIndexRouteImport.update({
+    id: '/credentials/$credentialId/update/',
+    path: '/credentials/$credentialId/update/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/credentials/': typeof CredentialsIndexRoute
+  '/credentials/$credentialId/': typeof CredentialsCredentialIdIndexRoute
+  '/credentials/create/': typeof CredentialsCreateIndexRoute
+  '/credentials/$credentialId/update/': typeof CredentialsCredentialIdUpdateIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/credentials': typeof CredentialsIndexRoute
+  '/credentials/$credentialId': typeof CredentialsCredentialIdIndexRoute
+  '/credentials/create': typeof CredentialsCreateIndexRoute
+  '/credentials/$credentialId/update': typeof CredentialsCredentialIdUpdateIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/credentials/': typeof CredentialsIndexRoute
+  '/credentials/$credentialId/': typeof CredentialsCredentialIdIndexRoute
+  '/credentials/create/': typeof CredentialsCreateIndexRoute
+  '/credentials/$credentialId/update/': typeof CredentialsCredentialIdUpdateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/credentials/'
+    | '/credentials/$credentialId/'
+    | '/credentials/create/'
+    | '/credentials/$credentialId/update/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/credentials'
+    | '/credentials/$credentialId'
+    | '/credentials/create'
+    | '/credentials/$credentialId/update'
+  id:
+    | '__root__'
+    | '/'
+    | '/credentials/'
+    | '/credentials/$credentialId/'
+    | '/credentials/create/'
+    | '/credentials/$credentialId/update/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CredentialsIndexRoute: typeof CredentialsIndexRoute
+  CredentialsCredentialIdIndexRoute: typeof CredentialsCredentialIdIndexRoute
+  CredentialsCreateIndexRoute: typeof CredentialsCreateIndexRoute
+  CredentialsCredentialIdUpdateIndexRoute: typeof CredentialsCredentialIdUpdateIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +106,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/credentials/': {
+      id: '/credentials/'
+      path: '/credentials'
+      fullPath: '/credentials/'
+      preLoaderRoute: typeof CredentialsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/credentials/create/': {
+      id: '/credentials/create/'
+      path: '/credentials/create'
+      fullPath: '/credentials/create/'
+      preLoaderRoute: typeof CredentialsCreateIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/credentials/$credentialId/': {
+      id: '/credentials/$credentialId/'
+      path: '/credentials/$credentialId'
+      fullPath: '/credentials/$credentialId/'
+      preLoaderRoute: typeof CredentialsCredentialIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/credentials/$credentialId/update/': {
+      id: '/credentials/$credentialId/update/'
+      path: '/credentials/$credentialId/update'
+      fullPath: '/credentials/$credentialId/update/'
+      preLoaderRoute: typeof CredentialsCredentialIdUpdateIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CredentialsIndexRoute: CredentialsIndexRoute,
+  CredentialsCredentialIdIndexRoute: CredentialsCredentialIdIndexRoute,
+  CredentialsCreateIndexRoute: CredentialsCreateIndexRoute,
+  CredentialsCredentialIdUpdateIndexRoute:
+    CredentialsCredentialIdUpdateIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
