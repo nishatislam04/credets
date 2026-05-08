@@ -1,4 +1,5 @@
 import { ResponseFactory } from "@backend/utils/response";
+import type { CredentialsType } from "@credets/shared-types/credentials-listings";
 import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
 
@@ -16,7 +17,7 @@ export async function credentialListings(req: BunRequest) {
 		year: "numeric",
 		month: "long",
 		day: "numeric",
-	};
+	} as const;
 
 	try {
 		const totalCountResult =
@@ -24,15 +25,17 @@ export async function credentialListings(req: BunRequest) {
 		const totalItems = parseInt(totalCountResult[0].count);
 		const credentials =
 			await sql`SELECT id, data, images, created_at FROM credentials ORDER BY created_at DESC LIMIT ${validLimit} OFFSET ${offset}`;
-		const parseedCredentials = credentials.map((credential) => ({
-			id: credential.id,
-			data: credential.data ? JSON.parse(credential.data) : null,
-			images: credential.images ? JSON.parse(credential.images) : null,
-			created_at: credential.created_at.toLocaleDateString(
-				"en-BD",
-				dateOptions,
-			),
-		}));
+		const parseedCredentials = credentials.map(
+			(credential: CredentialsType) => ({
+				id: credential.id,
+				data: credential.data ? JSON.parse(credential.data) : null,
+				images: credential.images ? JSON.parse(credential.images) : null,
+				created_at: credential.created_at.toLocaleDateString(
+					"en-BD",
+					dateOptions,
+				),
+			}),
+		);
 		const totalPages = Math.ceil(totalItems / validLimit);
 		const hasNextPage = validPage < totalPages;
 		const hasPreviousPage = validPage > 1;

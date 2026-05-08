@@ -28,12 +28,16 @@
 
 		// Monorepo path mapping
 		"paths": {
-			"@repo/shared": ["./packages/shared/src/index.ts"],
-			"@repo/shared/*": ["./packages/shared/src/*"],
+			"@credets/shared-types/*": ["./packages/shared-types/src/*"],
+			"@credets/shared-utils/*": ["./packages/shared-utils/src/*"],
 			"@db/*": ["./apps/backend/db/*"],
 			"@backend/*": ["./apps/backend/*"]
 		}
 	},
-	"include": ["apps/*/src/**/*", "apps/*/*.ts", "packages/*/src/**/*"],
-	"exclude": ["node_modules", "dist", "build", ".turbo"]
+	"include": [
+		"apps/backend/**/*",
+		"apps/frontend/src/**/*",
+		"packages/*/src/**/*"
+	],
+	"exclude": ["node_modules", "dist", "build", ".turbo", "public"]
 }

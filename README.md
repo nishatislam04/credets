@@ -19,7 +19,7 @@ read the `docs/` for fully understanding the app goal and feature
 ### 1. clone repo
 
 ```bash
-git clone git@github.com:nishatislam04/my-credets.git
+git clone git@github.com:nishatislam04/credets.git
 ```
 
 ### 2. install
@@ -29,14 +29,14 @@ we need to install in 3 directory (probbably)
 ### 2.1. at root directory
 
 ```bash
-  cd my-credets
+  cd credets
   bun i
 ```
 
 ### 2.2. at backend directory
 
 ```bash
-  cd my-credets/app/backend/
+  cd credets/app/backend/
   bun i
 ```
 
@@ -46,7 +46,7 @@ i dont know if we need to do something similar like in production.
 ### 2.3. at frontend directory
 
 ```bash
-  cd my-credets/app/frontend/
+  cd credets/app/frontend/
   bun i
 ```
 
@@ -93,7 +93,7 @@ bun run dev
 in a new terminal!
 
 ```bash
-cd my-credets
+cd credets
 make db-up
 ```
 

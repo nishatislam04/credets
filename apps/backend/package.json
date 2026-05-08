@@ -1,5 +1,5 @@
 {
-	"name": "backend",
+	"name": "@credets/backend",
 	"version": "1.0.0",
 	"module": "index.ts",
 	"type": "module",
@@ -11,11 +11,13 @@
 		"start": "bun run dist/index.js",
 		"type-check": "tsc --noEmit"
 	},
-	"devDependencies": {
-		"@biomejs/biome": "2.4.13",
-		"@types/bun": "latest"
+	"dependencies": {
+		"date-fns": "^4.1.0",
+		"iron-webcrypto": "^2.0.0"
 	},
-	"peerDependencies": {
-		"typescript": "^5"
+	"devDependencies": {
+		"@credets/shared-types": "workspace:*",
+		"@credets/shared-utils": "workspace:*",
+		"typescript": "catalog:"
 	}
 }
