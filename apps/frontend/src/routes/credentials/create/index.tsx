@@ -8,11 +8,7 @@ export const Route = createFileRoute("/credentials/create/")({
 
 const singleLabelSchema = z.object({
 	type: z.literal("single_label"),
-	value: z
-		.string()
-		.trim()
-		.min(1, "label value can not be empty")
-		.or(z.literal("")),
+	value: z.string().trim().min(1, "label value can not be empty").or(z.literal("")),
 });
 
 const keyValueSchema = z.object({
@@ -23,7 +19,7 @@ const keyValueSchema = z.object({
 
 const informationSchema = z.object({
 	type: z.literal("information"),
-	text: z.string().trim().min(1, "information text can not be empty"),
+	value: z.string().trim().min(1, "information text can not be empty"),
 });
 
 const dataBlockSchema = z.discriminatedUnion("type", [
@@ -41,10 +37,7 @@ const credentialsCreateSchema = z.object({
 	short_description: z
 		.string()
 		.min(5, "credentials short description can not be less than 5 characters")
-		.max(
-			50,
-			"credentials short description can not be grater than 50 characters",
-		)
+		.max(50, "credentials short description can not be grater than 50 characters")
 		.optional()
 		.or(z.literal("")),
 	long_description: z
@@ -77,6 +70,108 @@ const defaultCredentialValues: CredentialCreateType = {
 	tags: "",
 };
 
+function DataBlockItem({ item, idx, form }) {
+	console.log(item);
+	return (
+		<div className="p-4 border rounded mb-3 relative">
+			{item.type === "single_label" && (
+				<form.Field
+					name={`data.${idx}.value`}
+					children={(field) => (
+						<div>
+							<label htmlFor={field.name}>value</label>
+							<input
+								type="text"
+								id={field.name}
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								className="p-2 w-full"
+							/>
+							{field.state.meta.errors.map((error, i) => (
+								<p key={i} className="text-red-600 text-sm mt-1">
+									{error?.message}
+								</p>
+							))}
+						</div>
+					)}
+				/>
+			)}
+
+			{item.type === "key_value" && (
+				<div className="grid grid-cols-2 gap-2">
+					<form.Field
+						name={`data.${idx}.key`}
+						children={(field) => (
+							<div>
+								<label htmlFor={field.name}>key</label>
+								<input
+									id={field.name}
+									name={field.name}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
+								{field.state.meta.errors.map((error, i) => (
+									<p key={i} className="text-red-500 text-sm mt-1">
+										{error?.message}
+									</p>
+								))}
+							</div>
+						)}
+					/>
+
+					<form.Field
+						name={`data.${idx}.value`}
+						children={(field) => (
+							<div>
+								<label htmlFor={field.name}>value</label>
+								<input
+									id={field.name}
+									name={field.name}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
+								{field.state.meta.errors.map((error, i) => (
+									<p key={i} className="text-red-500 text-sm mt-1">
+										{error?.message}
+									</p>
+								))}
+							</div>
+						)}
+					/>
+				</div>
+			)}
+
+			{item.type === "information" && (
+				<form.Field
+					name={`data.${idx}.value`}
+					children={(field) => (
+						<div>
+							<label htmlFor={field.name}>information</label>
+							<textarea
+								id={field.name}
+								name={field.name}
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								rows={8}
+								cols={60}
+							/>
+							{field.state.meta.errors.map((error, i) => (
+								<p key={i} className="text-red-500 text-sm mt-1">
+									{error?.message}
+								</p>
+							))}
+						</div>
+					)}
+				/>
+			)}
+		</div>
+	);
+}
+
 function RouteComponent() {
 	const form = useForm({
 		defaultValues: defaultCredentialValues,
@@ -96,14 +191,13 @@ function RouteComponent() {
 				},
 			);
 			const data = await response.json();
-			console.log(data);
+			console.log("server response", data);
 		},
 	});
+
 	return (
 		<main>
-			<p className="capitalize text-4xl text-center my-8">
-				creadential create form
-			</p>
+			<p className="capitalize text-4xl text-center my-8">creadential create form</p>
 
 			<form
 				onSubmit={(e) => {
@@ -202,8 +296,60 @@ function RouteComponent() {
 				/>
 
 				{/* data placeholder*/}
-				<div className="text-3xl my-12 text-center italic">
-					data placeholder
+				<div className="mt-4">
+					<label htmlFor="data">Data items</label>
+					<div className="mt-2">
+						<form.Field
+							name="data"
+							mode="array"
+							children={(arrayField) => (
+								<>
+									{arrayField.state.value.map((data, idx) => (
+										<div key={idx}>
+											<DataBlockItem item={data} idx={idx} form={form} />
+											<button
+												type="button"
+												onClick={() => arrayField.removeValue(idx)}
+												className="text-red-500 text-sm"
+											>
+												remove
+											</button>
+										</div>
+									))}
+									{/* actions btm */}
+									<div className="flex gap-2 mt-4">
+										<button
+											type="button"
+											onClick={() =>
+												arrayField.pushValue({ type: "single_label", value: "" })
+											}
+											className="bg-gray-200 px-4 py-2 rounded-md"
+										>
+											singel label
+										</button>
+										<button
+											type="button"
+											onClick={() =>
+												arrayField.pushValue({ type: "key_value", key: "", value: "" })
+											}
+											className="bg-gray-200 px-4 py-2 rounded-md"
+										>
+											key value
+										</button>
+										<button
+											type="button"
+											onClick={() =>
+												arrayField.pushValue({ type: "information", value: "" })
+											}
+											className="bg-gray-200 px-4 py-2 rounded-md"
+										>
+											information
+										</button>
+									</div>
+								</>
+							)}
+						/>
+					</div>
 				</div>
 				{/*images*/}
 				<form.Field
@@ -211,23 +357,45 @@ function RouteComponent() {
 					children={(field) => (
 						<>
 							<div>
-								<label htmlFor="images">
-									images (to describe the data as image)
-								</label>
+								<label htmlFor="images">images (to describe the data as image)</label>
 								<input
+									key={field.state.value?.length}
 									id="images"
 									name="images"
 									type="file"
 									onBlur={field.handleBlur}
 									onChange={(e) => {
-										const files = e.target.files
-											? Array.from(e.target.files)
-											: [];
-										field.handleChange(files);
+										const newFiles = e.target.files ? Array.from(e.target.files) : [];
+										const currentFiles = field.state.value || [];
+										field.handleChange([...currentFiles, ...newFiles]);
+										e.target.value = "";
 									}}
 									multiple
 									className="ring-1 ml-2 w-80"
 								/>
+								{field.state.value && field.state.value.length > 0 && (
+									<div className="mt-2">
+										<p className="text-sm font-semibold">Selected files:</p>
+										<ul className="text-sm text-gray-600">
+											{field.state.value.map((file, index) => (
+												<li key={index} className="flex items-center gap-2 mt-1">
+													<span>{file.name}</span>
+													<button
+														type="button"
+														onClick={() => {
+															const newFiles = [...field.state.value];
+															newFiles.splice(index, 1);
+															field.handleChange(newFiles);
+														}}
+														className="text-red-500 text-xs"
+													>
+														remove
+													</button>
+												</li>
+											))}
+										</ul>
+									</div>
+								)}
 							</div>
 						</>
 					)}
