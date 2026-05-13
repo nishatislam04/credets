@@ -23,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
  * ! we will also manually type out 'item' params later
  */
 
-export function DataBlockItem({
+export function DataBlock({
 	item,
 	idx,
 	form,

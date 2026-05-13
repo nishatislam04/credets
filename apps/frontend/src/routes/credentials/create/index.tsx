@@ -1,4 +1,4 @@
-import { isGlobalFormValidationError, useForm } from "@tanstack/react-form";
+import { useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { Field, FieldError, FieldGroup, FieldLabel } from "#/components/ui/field";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { DataBlockItem } from "./-components/Datablock";
+import { DataBlock } from "./-components/Datablock";
 import {
 	type CredentialCreateType,
 	credentialsCreateSchema,
@@ -70,7 +70,9 @@ function RouteComponent() {
 
 	return (
 		<main>
-			<p className="capitalize text-4xl text-center my-8">creadential create form</p>
+			<p className="capitalize text-4xl text-center my-8 mb-18">
+				creadential create form
+			</p>
 
 			<Form
 				onSubmit={(e) => {
@@ -181,7 +183,7 @@ function RouteComponent() {
 							children={(arrayField) => (
 								<div className="space-y-4">
 									{arrayField.state.value.map((data, idx) => (
-										<DataBlockItem
+										<DataBlock
 											key={`${crypto.randomUUID()}`}
 											item={data}
 											idx={idx}
@@ -354,7 +356,7 @@ function RouteComponent() {
 						size="lg"
 						className="my-3 flex justify-center items-center w-full"
 					>
-						Add new credential data
+						create
 					</Button>
 				</FieldGroup>
 			</Form>
