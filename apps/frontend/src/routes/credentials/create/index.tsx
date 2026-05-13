@@ -1,6 +1,17 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import {
+	Form,
+	FormControl,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { DataBlockItem } from "./-components/Datablock";
 
 export const Route = createFileRoute("/credentials/create/")({
 	component: RouteComponent,
@@ -70,107 +81,107 @@ const defaultCredentialValues: CredentialCreateType = {
 	tags: "",
 };
 
-function DataBlockItem({ item, idx, form }) {
-	console.log(item);
-	return (
-		<div className="p-4 border rounded mb-3 relative">
-			{item.type === "single_label" && (
-				<form.Field
-					name={`data.${idx}.value`}
-					children={(field) => (
-						<div>
-							<label htmlFor={field.name}>value</label>
-							<input
-								type="text"
-								id={field.name}
-								value={field.state.value}
-								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-								className="p-2 w-full"
-							/>
-							{field.state.meta.errors.map((error, i) => (
-								<p key={i} className="text-red-600 text-sm mt-1">
-									{error?.message}
-								</p>
-							))}
-						</div>
-					)}
-				/>
-			)}
+// function DataBlockItem({ item, idx, form }) {
+// 	console.log(item);
+// 	return (
+// 		<div className="p-4 border rounded mb-3 relative">
+// 			{item.type === "single_label" && (
+// 				<form.Field
+// 					name={`data.${idx}.value`}
+// 					children={(field) => (
+// 						<div>
+// 							<label htmlFor={field.name}>value</label>
+// 							<input
+// 								type="text"
+// 								id={field.name}
+// 								value={field.state.value}
+// 								onBlur={field.handleBlur}
+// 								onChange={(e) => field.handleChange(e.target.value)}
+// 								className="p-2 w-full"
+// 							/>
+// 							{field.state.meta.errors.map((error, i) => (
+// 								<p key={i} className="text-red-600 text-sm mt-1">
+// 									{error?.message}
+// 								</p>
+// 							))}
+// 						</div>
+// 					)}
+// 				/>
+// 			)}
 
-			{item.type === "key_value" && (
-				<div className="grid grid-cols-2 gap-2">
-					<form.Field
-						name={`data.${idx}.key`}
-						children={(field) => (
-							<div>
-								<label htmlFor={field.name}>key</label>
-								<input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error, i) => (
-									<p key={i} className="text-red-500 text-sm mt-1">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					/>
+// 			{item.type === "key_value" && (
+// 				<div className="grid grid-cols-2 gap-2">
+// 					<form.Field
+// 						name={`data.${idx}.key`}
+// 						children={(field) => (
+// 							<div>
+// 								<label htmlFor={field.name}>key</label>
+// 								<input
+// 									id={field.name}
+// 									name={field.name}
+// 									value={field.state.value}
+// 									onBlur={field.handleBlur}
+// 									onChange={(e) => field.handleChange(e.target.value)}
+// 								/>
+// 								{field.state.meta.errors.map((error, i) => (
+// 									<p key={i} className="text-red-500 text-sm mt-1">
+// 										{error?.message}
+// 									</p>
+// 								))}
+// 							</div>
+// 						)}
+// 					/>
 
-					<form.Field
-						name={`data.${idx}.value`}
-						children={(field) => (
-							<div>
-								<label htmlFor={field.name}>value</label>
-								<input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error, i) => (
-									<p key={i} className="text-red-500 text-sm mt-1">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					/>
-				</div>
-			)}
+// 					<form.Field
+// 						name={`data.${idx}.value`}
+// 						children={(field) => (
+// 							<div>
+// 								<label htmlFor={field.name}>value</label>
+// 								<input
+// 									id={field.name}
+// 									name={field.name}
+// 									value={field.state.value}
+// 									onBlur={field.handleBlur}
+// 									onChange={(e) => field.handleChange(e.target.value)}
+// 								/>
+// 								{field.state.meta.errors.map((error, i) => (
+// 									<p key={i} className="text-red-500 text-sm mt-1">
+// 										{error?.message}
+// 									</p>
+// 								))}
+// 							</div>
+// 						)}
+// 					/>
+// 				</div>
+// 			)}
 
-			{item.type === "information" && (
-				<form.Field
-					name={`data.${idx}.value`}
-					children={(field) => (
-						<div>
-							<label htmlFor={field.name}>information</label>
-							<textarea
-								id={field.name}
-								name={field.name}
-								value={field.state.value}
-								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-								rows={8}
-								cols={60}
-							/>
-							{field.state.meta.errors.map((error, i) => (
-								<p key={i} className="text-red-500 text-sm mt-1">
-									{error?.message}
-								</p>
-							))}
-						</div>
-					)}
-				/>
-			)}
-		</div>
-	);
-}
+// 			{item.type === "information" && (
+// 				<form.Field
+// 					name={`data.${idx}.value`}
+// 					children={(field) => (
+// 						<div>
+// 							<label htmlFor={field.name}>information</label>
+// 							<textarea
+// 								id={field.name}
+// 								name={field.name}
+// 								value={field.state.value}
+// 								onBlur={field.handleBlur}
+// 								onChange={(e) => field.handleChange(e.target.value)}
+// 								rows={8}
+// 								cols={60}
+// 							/>
+// 							{field.state.meta.errors.map((error, i) => (
+// 								<p key={i} className="text-red-500 text-sm mt-1">
+// 									{error?.message}
+// 								</p>
+// 							))}
+// 						</div>
+// 					)}
+// 				/>
+// 			)}
+// 		</div>
+// 	);
+// }
 
 function RouteComponent() {
 	const form = useForm({
@@ -199,256 +210,253 @@ function RouteComponent() {
 		<main>
 			<p className="capitalize text-4xl text-center my-8">creadential create form</p>
 
-			<form
+			<Form
 				onSubmit={(e) => {
 					e.preventDefault();
 					form.handleSubmit();
 				}}
-				className="flex flex-col gap-4"
+				className="space-y-6"
 			>
-				{/*title field*/}
+				{/*title*/}
 				<form.Field
 					name="title"
 					children={(field) => (
-						<>
-							<div>
-								<label htmlFor="title">title</label>
-								<input
+						<FormItem>
+							<FormLabel htmlFor="title">Title</FormLabel>
+							<FormControl>
+								<Input
 									id="title"
-									name="title"
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
-									className="ring-1 ml-2 w-80"
+									placeholder="Enter credential title"
 								/>
-							</div>
-						</>
+							</FormControl>
+							<FormMessage
+								errors={field.state.meta.errors.map((e) => e?.message || "")}
+							/>
+						</FormItem>
 					)}
 				/>
 				{/*side-by-side short and long desciption*/}
-				<div className="flex gap-4 justify-between">
-					{/*short description*/}
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 					<form.Field
 						name="short_description"
 						children={(field) => (
-							<>
-								<div className="flex flex-col w-full">
-									<label htmlFor="short_description">short description</label>
-									<textarea
-										rows={6}
-										cols={33}
+							<FormItem>
+								<FormLabel htmlFor="short_description">Short description</FormLabel>
+								<FormControl>
+									<Textarea
 										id="short_description"
-										name="short_description"
-										value={field.state.value}
+										value={field.state.value ?? ""}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
-										className="ring-1 mx-1"
+										rows={4}
+										placeholder="Brief summary"
 									/>
-								</div>
-							</>
+								</FormControl>
+								<FormMessage
+									errors={field.state.meta.errors.map((e) => e?.message || "")}
+								/>
+							</FormItem>
 						)}
 					/>
-					{/*long description*/}
 					<form.Field
 						name="long_description"
 						children={(field) => (
-							<>
-								<div className="flex flex-col w-full">
-									<label htmlFor="long_description">long description</label>
-									<textarea
-										rows={6}
-										cols={33}
+							<FormItem>
+								<FormLabel htmlFor="long_description">Long description</FormLabel>
+								<FormControl>
+									<Textarea
 										id="long_description"
-										name="long_description"
-										value={field.state.value}
+										value={field.state.value ?? ""}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
-										className="ring-1 mx-1"
+										rows={4}
+										placeholder="Detailed description"
 									/>
-								</div>
-							</>
+								</FormControl>
+								<FormMessage
+									errors={field.state.meta.errors.map((e) => e?.message || "")}
+								/>
+							</FormItem>
 						)}
 					/>
 				</div>
-				{/*thumbnail*/}
+
+				{/* Thumbnail file */}
 				<form.Field
 					name="thumbnail"
 					children={(field) => (
-						<>
-							<div>
-								<label htmlFor="thumbnail">
-									thumbnail (to describe the data as image)
-								</label>
-								<input
+						<FormItem>
+							<FormLabel htmlFor="thumbnail">Thumbnail (image)</FormLabel>
+							<FormControl>
+								<Input
 									id="thumbnail"
-									name="thumbnail"
 									type="file"
+									accept="image/jpeg,image/png,image/webp"
 									onBlur={field.handleBlur}
 									onChange={(e) => {
 										const file = e.target.files?.[0] || null;
 										field.handleChange(file);
 									}}
-									className="ring-1 ml-2 w-80"
 								/>
-							</div>
-						</>
+							</FormControl>
+							<FormMessage
+								errors={field.state.meta.errors.map((e) => e?.message || "")}
+							/>
+						</FormItem>
 					)}
 				/>
 
-				{/* data placeholder*/}
-				<div className="mt-4">
-					<label htmlFor="data">Data items</label>
-					<div className="mt-2">
-						<form.Field
-							name="data"
-							mode="array"
-							children={(arrayField) => (
-								<>
-									{arrayField.state.value.map((data, idx) => (
-										<div key={idx}>
-											<DataBlockItem item={data} idx={idx} form={form} />
-											<button
-												type="button"
-												onClick={() => arrayField.removeValue(idx)}
-												className="text-red-500 text-sm"
-											>
-												remove
-											</button>
-										</div>
-									))}
-									{/* actions btm */}
-									<div className="flex gap-2 mt-4">
-										<button
-											type="button"
-											onClick={() =>
-												arrayField.pushValue({ type: "single_label", value: "" })
-											}
-											className="bg-gray-200 px-4 py-2 rounded-md"
-										>
-											singel label
-										</button>
-										<button
-											type="button"
-											onClick={() =>
-												arrayField.pushValue({ type: "key_value", key: "", value: "" })
-											}
-											className="bg-gray-200 px-4 py-2 rounded-md"
-										>
-											key value
-										</button>
-										<button
-											type="button"
-											onClick={() =>
-												arrayField.pushValue({ type: "information", value: "" })
-											}
-											className="bg-gray-200 px-4 py-2 rounded-md"
-										>
-											information
-										</button>
-									</div>
-								</>
-							)}
-						/>
-					</div>
+				{/* Data array */}
+				<div>
+					<h2 className="text-lg font-semibold mb-3">Data items</h2>
+					<form.Field
+						name="data"
+						mode="array"
+						children={(arrayField) => (
+							<div className="space-y-4">
+								{arrayField.state.value.map((data, idx) => (
+									<DataBlockItem key={idx} item={data} idx={idx} form={form} />
+								))}
+
+								<div className="flex flex-wrap gap-2">
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() =>
+											arrayField.pushValue({ type: "single_label", value: "" })
+										}
+									>
+										+ Single label
+									</Button>
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() =>
+											arrayField.pushValue({ type: "key_value", key: "", value: "" })
+										}
+									>
+										+ Key / Value
+									</Button>
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() =>
+											arrayField.pushValue({ type: "information", value: "" })
+										}
+									>
+										+ Information
+									</Button>
+								</div>
+							</div>
+						)}
+					/>
 				</div>
-				{/*images*/}
+
+				{/* Images multi-file */}
 				<form.Field
 					name="images"
 					children={(field) => (
-						<>
-							<div>
-								<label htmlFor="images">images (to describe the data as image)</label>
-								<input
-									key={field.state.value?.length}
+						<FormItem>
+							<FormLabel htmlFor="images">Images (multi)</FormLabel>
+							<FormControl>
+								<Input
+									key={field.state.value?.length ?? 0}
 									id="images"
-									name="images"
 									type="file"
+									multiple
+									accept="image/*"
 									onBlur={field.handleBlur}
 									onChange={(e) => {
 										const newFiles = e.target.files ? Array.from(e.target.files) : [];
-										const currentFiles = field.state.value || [];
-										field.handleChange([...currentFiles, ...newFiles]);
+										const current = field.state.value ?? [];
+										field.handleChange([...current, ...newFiles]);
 										e.target.value = "";
 									}}
-									multiple
-									className="ring-1 ml-2 w-80"
 								/>
-								{field.state.value && field.state.value.length > 0 && (
-									<div className="mt-2">
-										<p className="text-sm font-semibold">Selected files:</p>
-										<ul className="text-sm text-gray-600">
-											{field.state.value.map((file, index) => (
-												<li key={index} className="flex items-center gap-2 mt-1">
-													<span>{file.name}</span>
-													<button
-														type="button"
-														onClick={() => {
-															const newFiles = [...field.state.value];
-															newFiles.splice(index, 1);
-															field.handleChange(newFiles);
-														}}
-														className="text-red-500 text-xs"
-													>
-														remove
-													</button>
-												</li>
-											))}
-										</ul>
-									</div>
-								)}
-							</div>
-						</>
+							</FormControl>
+							{field.state.value && field.state.value.length > 0 && (
+								<div className="mt-2 text-sm">
+									<p className="font-medium">Selected files:</p>
+									<ul className="list-disc list-inside">
+										{field.state.value.map((file, index) => (
+											<li key={index} className="flex items-center gap-2">
+												<span>{file.name}</span>
+												<Button
+													type="button"
+													variant="ghost"
+													size="sm"
+													className="text-destructive h-auto px-1"
+													onClick={() => {
+														const updated = [...field.state.value];
+														updated.splice(index, 1);
+														field.handleChange(updated);
+													}}
+												>
+													Remove
+												</Button>
+											</li>
+										))}
+									</ul>
+								</div>
+							)}
+							<FormMessage
+								errors={field.state.meta.errors.map((e) => e?.message || "")}
+							/>
+						</FormItem>
 					)}
 				/>
-				{/*side-by-side notes and tags*/}
-				<div className="flex justify-between w-full gap-4">
-					{/*notes*/}
+
+				{/* Notes & Tags side by side */}
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 					<form.Field
 						name="notes"
 						children={(field) => (
-							<>
-								<div className="flex flex-col w-full">
-									<label htmlFor="notes">notes</label>
-									<textarea
-										rows={6}
-										cols={33}
+							<FormItem>
+								<FormLabel htmlFor="notes">Notes</FormLabel>
+								<FormControl>
+									<Textarea
 										id="notes"
-										name="notes"
-										value={field.state.value}
+										value={field.state.value ?? ""}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
-										className="ring-1 mx-1"
+										rows={4}
 									/>
-								</div>
-							</>
+								</FormControl>
+								<FormMessage
+									errors={field.state.meta.errors.map((e) => e?.message || "")}
+								/>
+							</FormItem>
 						)}
 					/>
-					{/*tags*/}
 					<form.Field
 						name="tags"
 						children={(field) => (
-							<>
-								<div className="flex flex-col w-full">
-									<label htmlFor="tags">tags</label>
-									<textarea
-										rows={6}
-										cols={33}
+							<FormItem>
+								<FormLabel htmlFor="tags">Tags</FormLabel>
+								<FormControl>
+									<Textarea
 										id="tags"
-										name="tags"
-										value={field.state.value}
+										value={field.state.value ?? ""}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
-										className="ring-1 mx-1"
+										rows={4}
 									/>
-								</div>
-							</>
+								</FormControl>
+								<FormMessage
+									errors={field.state.meta.errors.map((e) => e?.message || "")}
+								/>
+							</FormItem>
 						)}
 					/>
 				</div>
-				<button type="submit" className="my-4 text-2xl">
-					add new credential data
-				</button>
-			</form>
+
+				<Button type="submit" size="lg" className="w-full">
+					Add new credential data
+				</Button>
+			</Form>
 		</main>
 	);
 }
