@@ -1,4 +1,4 @@
-import { useForm } from "@tanstack/react-form";
+import { isGlobalFormValidationError, useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { Field, FieldError, FieldGroup, FieldLabel } from "#/components/ui/field";
@@ -39,18 +39,31 @@ function RouteComponent() {
 			submitAction: "continue",
 		},
 		onSubmit: async ({ value }) => {
-			// we will construct the FormData here and append files manually
-			// and omit content-type totally???
-			// const response = await fetch(
-			// 	`${import.meta.env.VITE_BACKEND_APP}/credentials/create`,
-			// 	{
-			// 		method: "POST",
-			// 		headers: { "Content-Type": "application/json" },
-			// 		body: JSON.stringify(value),
-			// 	},
-			// );
-			// const data = await response.json();
-			// console.log("server response", data);
+			const formdata = new FormData();
+
+			formdata.append("title", value.title);
+			value.short_description &&
+				formdata.append("short_description", value.short_description || "");
+			value.long_description &&
+				formdata.append("long_description", value.long_description || "");
+			value.thumbnail && formdata.append("thumbnail", value.thumbnail);
+			value.data?.length && formdata.append("data", JSON.stringify(value.data));
+			value.notes && formdata.append("notes", value.notes || "");
+			value.tags && formdata.append("tags", value.tags || "");
+			value.images?.length &&
+				value.images.forEach((image, idx) => {
+					formdata.append(`images[${idx}]`, image);
+				});
+
+			const response = await fetch(
+				`${import.meta.env.VITE_BACKEND_APP}/credentials/create`,
+				{
+					method: "POST",
+					body: formdata,
+				},
+			);
+			const data = await response.json();
+			console.log("server response: ", data);
 			console.log("form data's: ", value);
 		},
 	});

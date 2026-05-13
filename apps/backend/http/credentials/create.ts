@@ -22,16 +22,46 @@ export async function credentialCreate(req: BunRequest) {
 		});
 	}
 
-	const body = await req.json();
+	const formData = await req.formData();
+	// Extract fields
+	const title = formData.get("title")?.toString() || "";
+	const short_description = formData.get("short_description")?.toString() || "";
+	const long_description = formData.get("long_description")?.toString() || "";
+	const notes = formData.get("notes")?.toString() || "";
+	const tags = formData.get("tags")?.toString() || "";
 
-	const response = new Response(JSON.stringify({ success: true, data: body }), {
+	// Extract files
+	const thumbnail = formData.get("thumbnail") as File | null;
+
+	// Extract images array (Bun returns multiple entries with same key)
+	const images: File[] = [];
+	for (const [key, value] of formData.entries()) {
+		if (key.startsWith("images[") && value instanceof File) {
+			images.push(value);
+		}
+	}
+
+	// Parse data JSON string
+	let data = [];
+	const dataStr = formData.get("data")?.toString();
+	if (dataStr) {
+		try {
+			data = JSON.parse(dataStr);
+		} catch (e) {
+			console.error("Invalid JSON in data field", e);
+		}
+	}
+
+	// Log or process files
+	console.log("Received:", { title, short_description, long_description, notes, tags });
+	console.log("Thumbnail:", thumbnail?.name, thumbnail?.size);
+	console.log("Images count:", images.length);
+
+	const response = new Response(JSON.stringify({ success: true, data: { title } }), {
 		status: 200,
 		headers: { "Content-Type": "application/json" },
 	});
-	response.headers.set(
-		"Access-Control-Allow-Origin",
-		process.env.FRONTEND_APP!,
-	);
+	response.headers.set("Access-Control-Allow-Origin", process.env.FRONTEND_APP!);
 	return response;
 	// try {
 	// 	const key = Bun.env.ENC_KEY;
