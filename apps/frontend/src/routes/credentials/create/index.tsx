@@ -1,6 +1,5 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -12,63 +11,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DataBlockItem } from "./-components/Datablock";
+import {
+	type CredentialCreateType,
+	credentialsCreateSchema,
+} from "./-types/create-types";
 
 export const Route = createFileRoute("/credentials/create/")({
 	component: RouteComponent,
 });
-
-const singleLabelSchema = z.object({
-	type: z.literal("single_label"),
-	value: z.string().trim().min(1, "label value can not be empty").or(z.literal("")),
-});
-
-const keyValueSchema = z.object({
-	type: z.literal("key_value"),
-	key: z.string().min(1, "key is required"),
-	value: z.string().trim().min(1, "value is required"),
-});
-
-const informationSchema = z.object({
-	type: z.literal("information"),
-	value: z.string().trim().min(1, "information text can not be empty"),
-});
-
-const dataBlockSchema = z.discriminatedUnion("type", [
-	singleLabelSchema,
-	keyValueSchema,
-	informationSchema,
-]);
-
-const credentialsCreateSchema = z.object({
-	title: z
-		.string()
-		.trim()
-		.min(4, "credentials title need to be at least 4 characters")
-		.max(30, "credentials title can not be grater than 30 characters"),
-	short_description: z
-		.string()
-		.min(5, "credentials short description can not be less than 5 characters")
-		.max(50, "credentials short description can not be grater than 50 characters")
-		.optional()
-		.or(z.literal("")),
-	long_description: z
-		.string()
-		.min(5, "credentials long description can not be less than 5 characters")
-		.optional()
-		.or(z.literal("")),
-	thumbnail: z
-		.file()
-		.max(3_000_000, "Max 3mb")
-		.mime(["image/jpg", "image/jpeg", "image/png", "image/webp"])
-		.nullable()
-		.optional(),
-	data: z.array(dataBlockSchema),
-	images: z.array(z.file()).default([]).nullable().optional(),
-	notes: z.string().trim().optional(),
-	tags: z.string().trim().optional(),
-});
-
-type CredentialCreateType = z.infer<typeof credentialsCreateSchema>;
 
 const defaultCredentialValues: CredentialCreateType = {
 	title: "",
@@ -80,108 +30,6 @@ const defaultCredentialValues: CredentialCreateType = {
 	notes: "",
 	tags: "",
 };
-
-// function DataBlockItem({ item, idx, form }) {
-// 	console.log(item);
-// 	return (
-// 		<div className="p-4 border rounded mb-3 relative">
-// 			{item.type === "single_label" && (
-// 				<form.Field
-// 					name={`data.${idx}.value`}
-// 					children={(field) => (
-// 						<div>
-// 							<label htmlFor={field.name}>value</label>
-// 							<input
-// 								type="text"
-// 								id={field.name}
-// 								value={field.state.value}
-// 								onBlur={field.handleBlur}
-// 								onChange={(e) => field.handleChange(e.target.value)}
-// 								className="p-2 w-full"
-// 							/>
-// 							{field.state.meta.errors.map((error, i) => (
-// 								<p key={i} className="text-red-600 text-sm mt-1">
-// 									{error?.message}
-// 								</p>
-// 							))}
-// 						</div>
-// 					)}
-// 				/>
-// 			)}
-
-// 			{item.type === "key_value" && (
-// 				<div className="grid grid-cols-2 gap-2">
-// 					<form.Field
-// 						name={`data.${idx}.key`}
-// 						children={(field) => (
-// 							<div>
-// 								<label htmlFor={field.name}>key</label>
-// 								<input
-// 									id={field.name}
-// 									name={field.name}
-// 									value={field.state.value}
-// 									onBlur={field.handleBlur}
-// 									onChange={(e) => field.handleChange(e.target.value)}
-// 								/>
-// 								{field.state.meta.errors.map((error, i) => (
-// 									<p key={i} className="text-red-500 text-sm mt-1">
-// 										{error?.message}
-// 									</p>
-// 								))}
-// 							</div>
-// 						)}
-// 					/>
-
-// 					<form.Field
-// 						name={`data.${idx}.value`}
-// 						children={(field) => (
-// 							<div>
-// 								<label htmlFor={field.name}>value</label>
-// 								<input
-// 									id={field.name}
-// 									name={field.name}
-// 									value={field.state.value}
-// 									onBlur={field.handleBlur}
-// 									onChange={(e) => field.handleChange(e.target.value)}
-// 								/>
-// 								{field.state.meta.errors.map((error, i) => (
-// 									<p key={i} className="text-red-500 text-sm mt-1">
-// 										{error?.message}
-// 									</p>
-// 								))}
-// 							</div>
-// 						)}
-// 					/>
-// 				</div>
-// 			)}
-
-// 			{item.type === "information" && (
-// 				<form.Field
-// 					name={`data.${idx}.value`}
-// 					children={(field) => (
-// 						<div>
-// 							<label htmlFor={field.name}>information</label>
-// 							<textarea
-// 								id={field.name}
-// 								name={field.name}
-// 								value={field.state.value}
-// 								onBlur={field.handleBlur}
-// 								onChange={(e) => field.handleChange(e.target.value)}
-// 								rows={8}
-// 								cols={60}
-// 							/>
-// 							{field.state.meta.errors.map((error, i) => (
-// 								<p key={i} className="text-red-500 text-sm mt-1">
-// 									{error?.message}
-// 								</p>
-// 							))}
-// 						</div>
-// 					)}
-// 				/>
-// 			)}
-// 		</div>
-// 	);
-// }
 
 function RouteComponent() {
 	const form = useForm({
@@ -215,7 +63,7 @@ function RouteComponent() {
 					e.preventDefault();
 					form.handleSubmit();
 				}}
-				className="space-y-6"
+				className="space-y-6 px-4 md:px-12"
 			>
 				{/*title*/}
 				<form.Field
@@ -251,7 +99,7 @@ function RouteComponent() {
 										value={field.state.value ?? ""}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
-										rows={4}
+										rows={8}
 										placeholder="Brief summary"
 									/>
 								</FormControl>
@@ -272,7 +120,7 @@ function RouteComponent() {
 										value={field.state.value ?? ""}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
-										rows={4}
+										rows={8}
 										placeholder="Detailed description"
 									/>
 								</FormControl>
@@ -318,7 +166,13 @@ function RouteComponent() {
 						children={(arrayField) => (
 							<div className="space-y-4">
 								{arrayField.state.value.map((data, idx) => (
-									<DataBlockItem key={idx} item={data} idx={idx} form={form} />
+									<DataBlockItem
+										key={`${crypto.randomUUID()}`}
+										item={data}
+										idx={idx}
+										form={form}
+										onRemove={() => arrayField.removeValue(idx)}
+									/>
 								))}
 
 								<div className="flex flex-wrap gap-2">
@@ -381,24 +235,30 @@ function RouteComponent() {
 								<div className="mt-2 text-sm">
 									<p className="font-medium">Selected files:</p>
 									<ul className="list-disc list-inside">
-										{field.state.value.map((file, index) => (
-											<li key={index} className="flex items-center gap-2">
-												<span>{file.name}</span>
-												<Button
-													type="button"
-													variant="ghost"
-													size="sm"
-													className="text-destructive h-auto px-1"
-													onClick={() => {
-														const updated = [...field.state.value];
-														updated.splice(index, 1);
-														field.handleChange(updated);
-													}}
+										{field.state.value.map((file, index) => {
+											const imageFiles: File[] = (field.state.value as File[]) ?? [];
+
+											return (
+												<li
+													key={`${crypto.randomUUID()}`}
+													className="flex items-center gap-2"
 												>
-													Remove
-												</Button>
-											</li>
-										))}
+													<span>{file.name}</span>
+													<Button
+														type="button"
+														variant="ghost"
+														size="sm"
+														className="text-destructive h-auto px-1"
+														onClick={() => {
+															const updated = imageFiles.filter((_, i) => i !== index);
+															field.handleChange(updated);
+														}}
+													>
+														Remove
+													</Button>
+												</li>
+											);
+										})}
 									</ul>
 								</div>
 							)}
@@ -422,7 +282,7 @@ function RouteComponent() {
 										value={field.state.value ?? ""}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
-										rows={4}
+										rows={10}
 									/>
 								</FormControl>
 								<FormMessage
@@ -442,7 +302,7 @@ function RouteComponent() {
 										value={field.state.value ?? ""}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
-										rows={4}
+										rows={10}
 									/>
 								</FormControl>
 								<FormMessage
@@ -453,7 +313,11 @@ function RouteComponent() {
 					/>
 				</div>
 
-				<Button type="submit" size="lg" className="w-full">
+				<Button
+					type="submit"
+					size="lg"
+					className="my-3 flex justify-center items-center w-full"
+				>
 					Add new credential data
 				</Button>
 			</Form>

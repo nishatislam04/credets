@@ -3,7 +3,34 @@ import { FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/f
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export function DataBlockItem({ item, idx, form }) {
+/**
+ * ! we will later type the form params with 'FormApi'
+ * i dont know how it fully works... but here is a sample
+ *
+ * import { FormApi } from '@tanstack/react-form'
+ *
+ * interface MyFormData {
+ *  email: string
+ * }
+ *
+ * params -- { form }: { form: FormApi<MyFormData, any> }
+ */
+
+/**
+ * ! we will also manually type out 'item' params later
+ */
+
+export function DataBlockItem({
+	item,
+	idx,
+	form,
+	onRemove,
+}: {
+	item: any;
+	idx: number;
+	form: any;
+	onRemove?: () => void;
+}) {
 	return (
 		<div className="rounded-lg border p-4 mb-3 relative space-y-4">
 			{item.type === "single_label" && (
@@ -20,7 +47,11 @@ export function DataBlockItem({ item, idx, form }) {
 									onChange={(e) => field.handleChange(e.target.value)}
 								/>
 							</FormControl>
-							<FormMessage errors={field.state.meta.errors.map((e) => e?.message)} />
+							<FormMessage
+								errors={field.state.meta.errors.map(
+									(e: { message?: string }) => e?.message,
+								)}
+							/>
 						</FormItem>
 					)}
 				/>
@@ -41,7 +72,11 @@ export function DataBlockItem({ item, idx, form }) {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 								</FormControl>
-								<FormMessage errors={field.state.meta.errors.map((e) => e?.message)} />
+								<FormMessage
+									errors={field.state.meta.errors.map(
+										(e: { message?: string }) => e?.message,
+									)}
+								/>
 							</FormItem>
 						)}
 					/>
@@ -58,7 +93,11 @@ export function DataBlockItem({ item, idx, form }) {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 								</FormControl>
-								<FormMessage errors={field.state.meta.errors.map((e) => e?.message)} />
+								<FormMessage
+									errors={field.state.meta.errors.map(
+										(e: { message?: string }) => e?.message,
+									)}
+								/>
 							</FormItem>
 						)}
 					/>
@@ -80,18 +119,17 @@ export function DataBlockItem({ item, idx, form }) {
 									rows={8}
 								/>
 							</FormControl>
-							<FormMessage errors={field.state.meta.errors.map((e) => e?.message)} />
+							<FormMessage
+								errors={field.state.meta.errors.map(
+									(e: { message?: string }) => e?.message,
+								)}
+							/>
 						</FormItem>
 					)}
 				/>
 			)}
 
-			<Button
-				type="button"
-				variant="destructive"
-				size="sm"
-				onClick={() => form.removeValue?.(idx)}
-			>
+			<Button type="button" variant="destructive" size="sm" onClick={onRemove}>
 				Remove
 			</Button>
 		</div>
