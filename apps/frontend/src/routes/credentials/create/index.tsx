@@ -214,13 +214,32 @@ function RouteComponent() {
 					{/* Images multi-file */}
 					<form.Field
 						name="images"
+						validators={{
+							onChange: ({ value }) => {
+								if (!value || value.length === 0) return undefined;
+
+								// Check each file
+								for (const file of value) {
+									if (file.size > 3_000_000) {
+										return { message: `File "${file.name}" is larger than 3MB` };
+									}
+									if (
+										!["image/jpg", "image/jpeg", "image/png", "image/webp"].includes(
+											file.type,
+										)
+									) {
+										return { message: `File "${file.name}" is not a valid image type` };
+									}
+								}
+								return undefined;
+							},
+						}}
 						children={(field) => {
 							const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 							return (
 								<Field data-invalid={isinvalid}>
 									<FieldLabel htmlFor="images">Images (multi)</FieldLabel>
 									<Input
-										key={field.state.value?.length ?? 0}
 										id="images"
 										type="file"
 										multiple
@@ -229,7 +248,8 @@ function RouteComponent() {
 										onChange={(e) => {
 											const newFiles = e.target.files ? Array.from(e.target.files) : [];
 											const current = field.state.value ?? [];
-											field.handleChange([...current, ...newFiles]);
+											const updated = [...current, ...newFiles];
+											field.handleChange(updated);
 											e.target.value = "";
 										}}
 										aria-invalid={isinvalid}
@@ -240,7 +260,6 @@ function RouteComponent() {
 											<ul className="list-disc list-inside">
 												{field.state.value.map((file, index) => {
 													const imageFiles: File[] = (field.state.value as File[]) ?? [];
-
 													return (
 														<li
 															key={`${crypto.randomUUID()}`}

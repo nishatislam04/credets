@@ -46,7 +46,7 @@ export const credentialsCreateSchema = z.object({
 		.nullable()
 		.optional(),
 	data: z.array(dataBlockSchema),
-	images: z.array(z.file()).default([]).nullable().optional(),
+	images: z.array(z.any()).default([]).nullable().optional(), // we are validating size on the element itself!
 	notes: z.string().trim().optional(),
 	tags: z.string().trim().optional(),
 });
