@@ -15,6 +15,7 @@ function RootComponent() {
 			<Outlet />
 			<TanStackDevtools
 				config={{
+					theme: "light",
 					position: "bottom-right",
 				}}
 				plugins={[

@@ -11,3 +11,7 @@ auto focus on those input.
 - [] 3. in `DataBlock` component, add manual types for `item`, `form`
 
 - [] 4. add proper props for submit button. like loading and etc
+
+- [] 5. when no data block exist, show a placeholder text
+
+- [] 6. show server validation error in frontend form

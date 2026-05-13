@@ -11,6 +11,7 @@ import {
 	type CredentialCreateType,
 	credentialsCreateSchema,
 } from "./-types/create-types";
+import { isDatablockEmpty } from "./-utils/isDatablockEmpty";
 
 export const Route = createFileRoute("/credentials/create/")({
 	component: RouteComponent,
@@ -47,7 +48,10 @@ function RouteComponent() {
 			value.long_description &&
 				formdata.append("long_description", value.long_description || "");
 			value.thumbnail && formdata.append("thumbnail", value.thumbnail);
-			value.data?.length && formdata.append("data", JSON.stringify(value.data));
+
+			const cleanedDataBlock = value.data.filter((block) => !isDatablockEmpty(block));
+			formdata.append("data", JSON.stringify(cleanedDataBlock));
+
 			value.notes && formdata.append("notes", value.notes || "");
 			value.tags && formdata.append("tags", value.tags || "");
 			value.images?.length &&
@@ -64,7 +68,10 @@ function RouteComponent() {
 			);
 			const data = await response.json();
 			console.log("server response: ", data);
-			console.log("form data's: ", value);
+
+			// # todo: we need to show server validation err here
+
+			// success
 		},
 	});
 
@@ -86,7 +93,8 @@ function RouteComponent() {
 					<form.Field
 						name="title"
 						children={(field) => {
-							const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							const isInvalid = !field.state.meta.isValid;
+							console.log("title field: ", field);
 							return (
 								<Field data-invalid={isInvalid}>
 									<FieldLabel htmlFor="title">Title</FieldLabel>
@@ -108,7 +116,7 @@ function RouteComponent() {
 						<form.Field
 							name="short_description"
 							children={(field) => {
-								const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+								const isInvalid = !field.state.meta.isValid;
 								return (
 									<Field data-invalid={isInvalid}>
 										<FieldLabel htmlFor="short_description">Short description</FieldLabel>
@@ -129,7 +137,7 @@ function RouteComponent() {
 						<form.Field
 							name="long_description"
 							children={(field) => {
-								const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+								const isInvalid = !field.state.meta.isValid;
 								return (
 									<Field data-invalid={isInvalid}>
 										<FieldLabel htmlFor="long_description">Long description</FieldLabel>
@@ -153,7 +161,7 @@ function RouteComponent() {
 					<form.Field
 						name="thumbnail"
 						children={(field) => {
-							const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							const isinvalid = !field.state.meta.isValid;
 							return (
 								<Field data-invalid={isinvalid}>
 									<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
@@ -250,7 +258,7 @@ function RouteComponent() {
 							},
 						}}
 						children={(field) => {
-							const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							const isinvalid = !field.state.meta.isValid;
 							return (
 								<Field data-invalid={isinvalid}>
 									<FieldLabel htmlFor="images">Images (multi)</FieldLabel>
@@ -312,7 +320,7 @@ function RouteComponent() {
 						<form.Field
 							name="notes"
 							children={(field) => {
-								const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+								const isinvalid = !field.state.meta.isValid;
 								return (
 									<Field data-invalid={isinvalid}>
 										<FieldLabel htmlFor="notes">Notes</FieldLabel>
@@ -332,7 +340,7 @@ function RouteComponent() {
 						<form.Field
 							name="tags"
 							children={(field) => {
-								const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+								const isinvalid = !field.state.meta.isValid;
 								return (
 									<Field data-invalid={isinvalid}>
 										<FieldLabel htmlFor="tags">Tags</FieldLabel>
@@ -351,13 +359,19 @@ function RouteComponent() {
 						/>
 					</div>
 
-					<Button
-						type="submit"
-						size="lg"
-						className="my-3 flex justify-center items-center w-full"
-					>
-						create
-					</Button>
+					<form.Subscribe
+						selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
+						children={([canSubmit, isSubmitting, isPristine]) => (
+							<Button
+								type="submit"
+								size="lg"
+								className="my-3 flex justify-center items-center w-full"
+								disabled={!canSubmit || isPristine}
+							>
+								{isSubmitting ? "..." : "Submit"}
+							</Button>
+						)}
+					/>
 				</FieldGroup>
 			</Form>
 		</main>
