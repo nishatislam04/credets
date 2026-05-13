@@ -1,5 +1,8 @@
+import { Trash2 } from "lucide-react";
+import { Card } from "#/components/ui/card";
+import { Field, FieldError } from "#/components/ui/field";
+import { Label } from "#/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -32,74 +35,68 @@ export function DataBlockItem({
 	onRemove?: () => void;
 }) {
 	return (
-		<div className="rounded-lg border p-4 mb-3 relative space-y-4">
+		<Card className="rounded-lg border p-4 mb-3 relative space-y-4">
 			{item.type === "single_label" && (
 				<form.Field
 					name={`data.${idx}.value`}
-					children={(field) => (
-						<FormItem>
-							<FormLabel htmlFor={field.name}>Value</FormLabel>
-							<FormControl>
+					children={(field) => {
+						const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isinvalid}>
+								<Label htmlFor={field.name}>Value</Label>
 								<Input
 									id={field.name}
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
+									aria-invalid={isinvalid}
 								/>
-							</FormControl>
-							<FormMessage
-								errors={field.state.meta.errors.map(
-									(e: { message?: string }) => e?.message,
-								)}
-							/>
-						</FormItem>
-					)}
+								{isinvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				/>
 			)}
 
 			{item.type === "key_value" && (
-				<div className="grid grid-cols-2 gap-4">
+				<div className="grid grid-cols-2 gap-8">
 					<form.Field
 						name={`data.${idx}.key`}
-						children={(field) => (
-							<FormItem>
-								<FormLabel htmlFor={field.name}>Key</FormLabel>
-								<FormControl>
+						children={(field) => {
+							const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isinvalid}>
+									<Label htmlFor={field.name}>Key</Label>
 									<Input
 										id={field.name}
 										value={field.state.value}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
+										aria-invalid={isinvalid}
 									/>
-								</FormControl>
-								<FormMessage
-									errors={field.state.meta.errors.map(
-										(e: { message?: string }) => e?.message,
-									)}
-								/>
-							</FormItem>
-						)}
+									{isinvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
 					/>
 					<form.Field
 						name={`data.${idx}.value`}
-						children={(field) => (
-							<FormItem>
-								<FormLabel htmlFor={field.name}>Value</FormLabel>
-								<FormControl>
+						children={(field) => {
+							const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isinvalid}>
+									<Label htmlFor={field.name}>Value</Label>
 									<Input
 										id={field.name}
 										value={field.state.value}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
+										aria-invalid={isinvalid}
 									/>
-								</FormControl>
-								<FormMessage
-									errors={field.state.meta.errors.map(
-										(e: { message?: string }) => e?.message,
-									)}
-								/>
-							</FormItem>
-						)}
+									{isinvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
 					/>
 				</div>
 			)}
@@ -107,31 +104,35 @@ export function DataBlockItem({
 			{item.type === "information" && (
 				<form.Field
 					name={`data.${idx}.value`}
-					children={(field) => (
-						<FormItem>
-							<FormLabel htmlFor={field.name}>Information</FormLabel>
-							<FormControl>
+					children={(field) => {
+						const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isinvalid}>
+								<Label htmlFor={field.name}>Information</Label>
 								<Textarea
 									id={field.name}
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
 									rows={8}
+									aria-invalid={isinvalid}
 								/>
-							</FormControl>
-							<FormMessage
-								errors={field.state.meta.errors.map(
-									(e: { message?: string }) => e?.message,
-								)}
-							/>
-						</FormItem>
-					)}
+								{isinvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				/>
 			)}
 
-			<Button type="button" variant="destructive" size="sm" onClick={onRemove}>
-				Remove
+			<Button
+				type="button"
+				variant="destructive"
+				size="sm"
+				onClick={onRemove}
+				className="self-end"
+			>
+				<Trash2 />
 			</Button>
-		</div>
+		</Card>
 	);
 }

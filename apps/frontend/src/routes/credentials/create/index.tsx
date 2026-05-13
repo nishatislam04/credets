@@ -1,13 +1,9 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
+import { Trash2 } from "lucide-react";
+import { Field, FieldError, FieldGroup, FieldLabel } from "#/components/ui/field";
 import { Button } from "@/components/ui/button";
-import {
-	Form,
-	FormControl,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DataBlockItem } from "./-components/Datablock";
@@ -31,6 +27,10 @@ const defaultCredentialValues: CredentialCreateType = {
 	tags: "",
 };
 
+/**
+ * ! we will implement image preview later
+ */
+
 function RouteComponent() {
 	const form = useForm({
 		defaultValues: defaultCredentialValues,
@@ -41,16 +41,17 @@ function RouteComponent() {
 		onSubmit: async ({ value }) => {
 			// we will construct the FormData here and append files manually
 			// and omit content-type totally???
-			const response = await fetch(
-				`${import.meta.env.VITE_BACKEND_APP}/credentials/create`,
-				{
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(value),
-				},
-			);
-			const data = await response.json();
-			console.log("server response", data);
+			// const response = await fetch(
+			// 	`${import.meta.env.VITE_BACKEND_APP}/credentials/create`,
+			// 	{
+			// 		method: "POST",
+			// 		headers: { "Content-Type": "application/json" },
+			// 		body: JSON.stringify(value),
+			// 	},
+			// );
+			// const data = await response.json();
+			// console.log("server response", data);
+			console.log("form data's: ", value);
 		},
 	});
 
@@ -63,263 +64,267 @@ function RouteComponent() {
 					e.preventDefault();
 					form.handleSubmit();
 				}}
-				className="space-y-6 px-4 md:px-12"
+				className="px-4 md:px-12"
 			>
-				{/*title*/}
-				<form.Field
-					name="title"
-					children={(field) => (
-						<FormItem>
-							<FormLabel htmlFor="title">Title</FormLabel>
-							<FormControl>
-								<Input
-									id="title"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									placeholder="Enter credential title"
-								/>
-							</FormControl>
-							<FormMessage
-								errors={field.state.meta.errors.map((e) => e?.message || "")}
-							/>
-						</FormItem>
-					)}
-				/>
-				{/*side-by-side short and long desciption*/}
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<FieldGroup>
+					{/*title*/}
 					<form.Field
-						name="short_description"
-						children={(field) => (
-							<FormItem>
-								<FormLabel htmlFor="short_description">Short description</FormLabel>
-								<FormControl>
-									<Textarea
-										id="short_description"
-										value={field.state.value ?? ""}
+						name="title"
+						children={(field) => {
+							const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isInvalid}>
+									<FieldLabel htmlFor="title">Title</FieldLabel>
+									<Input
+										id="title"
+										value={field.state.value}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
-										rows={8}
-										placeholder="Brief summary"
+										placeholder="Enter credential title"
+										aria-invalid={isInvalid}
 									/>
-								</FormControl>
-								<FormMessage
-									errors={field.state.meta.errors.map((e) => e?.message || "")}
-								/>
-							</FormItem>
-						)}
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
 					/>
+					{/*side-by-side short and long desciption*/}
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
+						<form.Field
+							name="short_description"
+							children={(field) => {
+								const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor="short_description">Short description</FieldLabel>
+										<Textarea
+											id="short_description"
+											value={field.state.value ?? ""}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											rows={8}
+											placeholder="Brief summary"
+											aria-invalid={isInvalid}
+										/>
+										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+									</Field>
+								);
+							}}
+						/>
+						<form.Field
+							name="long_description"
+							children={(field) => {
+								const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor="long_description">Long description</FieldLabel>
+										<Textarea
+											id="long_description"
+											value={field.state.value ?? ""}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											rows={8}
+											placeholder="Detailed description"
+											aria-invalid={isInvalid}
+										/>
+										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+									</Field>
+								);
+							}}
+						/>
+					</div>
+
+					{/* Thumbnail file */}
 					<form.Field
-						name="long_description"
-						children={(field) => (
-							<FormItem>
-								<FormLabel htmlFor="long_description">Long description</FormLabel>
-								<FormControl>
-									<Textarea
-										id="long_description"
-										value={field.state.value ?? ""}
+						name="thumbnail"
+						children={(field) => {
+							const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isinvalid}>
+									<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
+									<Input
+										id="thumbnail"
+										type="file"
+										accept="image/jpeg,image/png,image/webp"
 										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										rows={8}
-										placeholder="Detailed description"
+										onChange={(e) => {
+											const file = e.target.files?.[0] || null;
+											field.handleChange(file);
+										}}
+										aria-invalid={isinvalid}
 									/>
-								</FormControl>
-								<FormMessage
-									errors={field.state.meta.errors.map((e) => e?.message || "")}
-								/>
-							</FormItem>
-						)}
+									{isinvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
 					/>
-				</div>
 
-				{/* Thumbnail file */}
-				<form.Field
-					name="thumbnail"
-					children={(field) => (
-						<FormItem>
-							<FormLabel htmlFor="thumbnail">Thumbnail (image)</FormLabel>
-							<FormControl>
-								<Input
-									id="thumbnail"
-									type="file"
-									accept="image/jpeg,image/png,image/webp"
-									onBlur={field.handleBlur}
-									onChange={(e) => {
-										const file = e.target.files?.[0] || null;
-										field.handleChange(file);
-									}}
-								/>
-							</FormControl>
-							<FormMessage
-								errors={field.state.meta.errors.map((e) => e?.message || "")}
-							/>
-						</FormItem>
-					)}
-				/>
+					{/* Data array */}
+					<div className="my-6">
+						<h2 className="text-lg font-semibold mb-3">Data items</h2>
+						<form.Field
+							name="data"
+							mode="array"
+							children={(arrayField) => (
+								<div className="space-y-4">
+									{arrayField.state.value.map((data, idx) => (
+										<DataBlockItem
+											key={`${crypto.randomUUID()}`}
+											item={data}
+											idx={idx}
+											form={form}
+											onRemove={() => arrayField.removeValue(idx)}
+										/>
+									))}
 
-				{/* Data array */}
-				<div>
-					<h2 className="text-lg font-semibold mb-3">Data items</h2>
-					<form.Field
-						name="data"
-						mode="array"
-						children={(arrayField) => (
-							<div className="space-y-4">
-								{arrayField.state.value.map((data, idx) => (
-									<DataBlockItem
-										key={`${crypto.randomUUID()}`}
-										item={data}
-										idx={idx}
-										form={form}
-										onRemove={() => arrayField.removeValue(idx)}
-									/>
-								))}
-
-								<div className="flex flex-wrap gap-2">
-									<Button
-										type="button"
-										variant="outline"
-										onClick={() =>
-											arrayField.pushValue({ type: "single_label", value: "" })
-										}
-									>
-										+ Single label
-									</Button>
-									<Button
-										type="button"
-										variant="outline"
-										onClick={() =>
-											arrayField.pushValue({ type: "key_value", key: "", value: "" })
-										}
-									>
-										+ Key / Value
-									</Button>
-									<Button
-										type="button"
-										variant="outline"
-										onClick={() =>
-											arrayField.pushValue({ type: "information", value: "" })
-										}
-									>
-										+ Information
-									</Button>
-								</div>
-							</div>
-						)}
-					/>
-				</div>
-
-				{/* Images multi-file */}
-				<form.Field
-					name="images"
-					children={(field) => (
-						<FormItem>
-							<FormLabel htmlFor="images">Images (multi)</FormLabel>
-							<FormControl>
-								<Input
-									key={field.state.value?.length ?? 0}
-									id="images"
-									type="file"
-									multiple
-									accept="image/*"
-									onBlur={field.handleBlur}
-									onChange={(e) => {
-										const newFiles = e.target.files ? Array.from(e.target.files) : [];
-										const current = field.state.value ?? [];
-										field.handleChange([...current, ...newFiles]);
-										e.target.value = "";
-									}}
-								/>
-							</FormControl>
-							{field.state.value && field.state.value.length > 0 && (
-								<div className="mt-2 text-sm">
-									<p className="font-medium">Selected files:</p>
-									<ul className="list-disc list-inside">
-										{field.state.value.map((file, index) => {
-											const imageFiles: File[] = (field.state.value as File[]) ?? [];
-
-											return (
-												<li
-													key={`${crypto.randomUUID()}`}
-													className="flex items-center gap-2"
-												>
-													<span>{file.name}</span>
-													<Button
-														type="button"
-														variant="ghost"
-														size="sm"
-														className="text-destructive h-auto px-1"
-														onClick={() => {
-															const updated = imageFiles.filter((_, i) => i !== index);
-															field.handleChange(updated);
-														}}
-													>
-														Remove
-													</Button>
-												</li>
-											);
-										})}
-									</ul>
+									<div className="grid grid-cols-3 gap-2">
+										<Button
+											type="button"
+											variant="outline"
+											onClick={() =>
+												arrayField.pushValue({ type: "single_label", value: "" })
+											}
+										>
+											+ Single label
+										</Button>
+										<Button
+											type="button"
+											variant="outline"
+											onClick={() =>
+												arrayField.pushValue({ type: "key_value", key: "", value: "" })
+											}
+										>
+											+ Key / Value
+										</Button>
+										<Button
+											type="button"
+											variant="outline"
+											onClick={() =>
+												arrayField.pushValue({ type: "information", value: "" })
+											}
+										>
+											+ Information
+										</Button>
+									</div>
 								</div>
 							)}
-							<FormMessage
-								errors={field.state.meta.errors.map((e) => e?.message || "")}
-							/>
-						</FormItem>
-					)}
-				/>
+						/>
+					</div>
 
-				{/* Notes & Tags side by side */}
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+					{/* Images multi-file */}
 					<form.Field
-						name="notes"
-						children={(field) => (
-							<FormItem>
-								<FormLabel htmlFor="notes">Notes</FormLabel>
-								<FormControl>
-									<Textarea
-										id="notes"
-										value={field.state.value ?? ""}
+						name="images"
+						children={(field) => {
+							const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isinvalid}>
+									<FieldLabel htmlFor="images">Images (multi)</FieldLabel>
+									<Input
+										key={field.state.value?.length ?? 0}
+										id="images"
+										type="file"
+										multiple
+										accept="image/*"
 										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										rows={10}
+										onChange={(e) => {
+											const newFiles = e.target.files ? Array.from(e.target.files) : [];
+											const current = field.state.value ?? [];
+											field.handleChange([...current, ...newFiles]);
+											e.target.value = "";
+										}}
+										aria-invalid={isinvalid}
 									/>
-								</FormControl>
-								<FormMessage
-									errors={field.state.meta.errors.map((e) => e?.message || "")}
-								/>
-							</FormItem>
-						)}
-					/>
-					<form.Field
-						name="tags"
-						children={(field) => (
-							<FormItem>
-								<FormLabel htmlFor="tags">Tags</FormLabel>
-								<FormControl>
-									<Textarea
-										id="tags"
-										value={field.state.value ?? ""}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										rows={10}
-									/>
-								</FormControl>
-								<FormMessage
-									errors={field.state.meta.errors.map((e) => e?.message || "")}
-								/>
-							</FormItem>
-						)}
-					/>
-				</div>
+									{field.state.value && field.state.value.length > 0 && (
+										<div className="mt-2 text-sm">
+											<p className="font-medium">Selected files:</p>
+											<ul className="list-disc list-inside">
+												{field.state.value.map((file, index) => {
+													const imageFiles: File[] = (field.state.value as File[]) ?? [];
 
-				<Button
-					type="submit"
-					size="lg"
-					className="my-3 flex justify-center items-center w-full"
-				>
-					Add new credential data
-				</Button>
+													return (
+														<li
+															key={`${crypto.randomUUID()}`}
+															className="flex items-center gap-2"
+														>
+															<span>{file.name}</span>
+															<Button
+																type="button"
+																variant="ghost"
+																size="sm"
+																className="text-destructive h-auto px-1"
+																onClick={() => {
+																	const updated = imageFiles.filter(
+																		(_, i) => i !== index,
+																	);
+																	field.handleChange(updated);
+																}}
+															>
+																<Trash2 />
+															</Button>
+														</li>
+													);
+												})}
+											</ul>
+										</div>
+									)}
+									{isinvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
+					/>
+
+					{/* Notes & Tags side by side */}
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
+						<form.Field
+							name="notes"
+							children={(field) => {
+								const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isinvalid}>
+										<FieldLabel htmlFor="notes">Notes</FieldLabel>
+										<Textarea
+											id="notes"
+											value={field.state.value ?? ""}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											rows={10}
+											aria-invalid={isinvalid}
+										/>
+										{isinvalid && <FieldError errors={field.state.meta.errors} />}
+									</Field>
+								);
+							}}
+						/>
+						<form.Field
+							name="tags"
+							children={(field) => {
+								const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isinvalid}>
+										<FieldLabel htmlFor="tags">Tags</FieldLabel>
+										<Textarea
+											id="tags"
+											value={field.state.value ?? ""}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											rows={10}
+											aria-invalid={isinvalid}
+										/>
+										{isinvalid && <FieldError errors={field.state.meta.errors} />}
+									</Field>
+								);
+							}}
+						/>
+					</div>
+
+					<Button
+						type="submit"
+						size="lg"
+						className="my-3 flex justify-center items-center w-full"
+					>
+						Add new credential data
+					</Button>
+				</FieldGroup>
 			</Form>
 		</main>
 	);
