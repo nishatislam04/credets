@@ -107,7 +107,16 @@ export async function credentialCreate(req: BunRequest) {
 
 	const validatedData = credentialsCreateSchema.safeParse(validateDisData);
 	if (!validatedData.success) {
-		const errors = validatedData.error.flatten().fieldErrors;
+		const errors: Record<string, { message: string }[]> = {};
+
+		for (const issue of validatedData.error.issues) {
+			const fieldName = issue.path.join(".");
+			if (!errors[fieldName]) {
+				errors[fieldName] = [];
+			}
+			errors[fieldName].push({ message: issue.message });
+		}
+
 		return new Response(JSON.stringify({ success: false, errors }), {
 			status: 400,
 			headers: {

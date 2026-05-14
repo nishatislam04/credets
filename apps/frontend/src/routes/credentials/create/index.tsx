@@ -35,7 +35,44 @@ const defaultCredentialValues: CredentialCreateType = {
 function RouteComponent() {
 	const form = useForm({
 		defaultValues: defaultCredentialValues,
-		validators: { onBlur: credentialsCreateSchema },
+		validators: {
+			onBlur: credentialsCreateSchema,
+			onSubmitAsync: async ({ value }) => {
+				const formdata = new FormData();
+
+				formdata.append("title", value.title);
+				value.short_description &&
+					formdata.append("short_description", value.short_description || "");
+				value.long_description &&
+					formdata.append("long_description", value.long_description || "");
+				value.thumbnail && formdata.append("thumbnail", value.thumbnail);
+
+				const cleanedDataBlock = value.data.filter((block) => !isDatablockEmpty(block));
+				formdata.append("data", JSON.stringify(cleanedDataBlock));
+
+				value.notes && formdata.append("notes", value.notes || "");
+				value.tags && formdata.append("tags", value.tags || "");
+				value.images?.length &&
+					value.images.forEach((image, idx) => {
+						formdata.append(`images[${idx}]`, image);
+					});
+
+				const response = await fetch(
+					`${import.meta.env.VITE_BACKEND_APP}/credentials/create`,
+					{
+						method: "POST",
+						body: formdata,
+					},
+				);
+				const data = await response.json();
+
+				if (!data.success) {
+					return { fields: data.errors };
+				}
+
+				return null;
+			},
+		},
 		onSubmitMeta: {
 			submitAction: "continue",
 		},
@@ -67,11 +104,10 @@ function RouteComponent() {
 				},
 			);
 			const data = await response.json();
-			console.log("server response: ", data);
 
-			// # todo: we need to show server validation err here
-
-			// success
+			if (data.success) {
+				// show a toast
+			}
 		},
 	});
 
@@ -94,7 +130,7 @@ function RouteComponent() {
 						name="title"
 						children={(field) => {
 							const isInvalid = !field.state.meta.isValid;
-							console.log("title field: ", field);
+
 							return (
 								<Field data-invalid={isInvalid}>
 									<FieldLabel htmlFor="title">Title</FieldLabel>
