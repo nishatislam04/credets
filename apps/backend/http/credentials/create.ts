@@ -117,13 +117,16 @@ export async function credentialCreate(req: BunRequest) {
 			errors[fieldName].push({ message: issue.message });
 		}
 
-		return new Response(JSON.stringify({ success: false, errors }), {
-			status: 400,
-			headers: {
-				"Content-Type": "application/json",
-				"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
+		return new Response(
+			JSON.stringify({ success: false, type: "form-validation", errors }),
+			{
+				status: 400,
+				headers: {
+					"Content-Type": "application/json",
+					"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
+				},
 			},
-		});
+		);
 	}
 	// Log or process files
 	console.log("Received string:", {
@@ -133,13 +136,6 @@ export async function credentialCreate(req: BunRequest) {
 		notes,
 		tags,
 	});
-	console.log("recived parsed data: ", validatedData.data);
-	console.log(
-		"Thumbnail:",
-		validatedData.data.thumbnail?.name,
-		validatedData.data.thumbnail?.size,
-	);
-	console.log("Images count:", validatedData.data?.images?.length);
 
 	const response = new Response(JSON.stringify({ success: true, data: { title } }), {
 		status: 200,

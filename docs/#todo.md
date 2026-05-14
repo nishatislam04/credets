@@ -15,3 +15,8 @@ auto focus on those input.
 - [] 5. when no data block exist, show a placeholder text
 
 - [] 6. show server validation error in frontend form
+
+
+### other
+
+1. fix gooey toast header title height [text being cut like 'g' bottom part]

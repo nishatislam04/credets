@@ -2,6 +2,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { FormDevtoolsPanel } from "@tanstack/react-form-devtools";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { GooeyToaster } from "@/components/ui/goey-toaster";
 
 import "../styles.css";
 
@@ -13,6 +14,7 @@ function RootComponent() {
 	return (
 		<>
 			<Outlet />
+			<GooeyToaster />
 			<TanStackDevtools
 				config={{
 					theme: "light",

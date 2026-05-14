@@ -2,16 +2,17 @@ import { useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { Field, FieldError, FieldGroup, FieldLabel } from "#/components/ui/field";
+import { gooeyToast } from "#/components/ui/goey-toaster";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { createCredentialAction } from "./-actions/createCredentialAction";
 import { DataBlock } from "./-components/Datablock";
 import {
 	type CredentialCreateType,
 	credentialsCreateSchema,
 } from "./-types/create-types";
-import { isDatablockEmpty } from "./-utils/isDatablockEmpty";
 
 export const Route = createFileRoute("/credentials/create/")({
 	component: RouteComponent,
@@ -38,76 +39,49 @@ function RouteComponent() {
 		validators: {
 			onBlur: credentialsCreateSchema,
 			onSubmitAsync: async ({ value }) => {
-				const formdata = new FormData();
+				try {
+					const data = await createCredentialAction(value);
 
-				formdata.append("title", value.title);
-				value.short_description &&
-					formdata.append("short_description", value.short_description || "");
-				value.long_description &&
-					formdata.append("long_description", value.long_description || "");
-				value.thumbnail && formdata.append("thumbnail", value.thumbnail);
+					if (!data.success && data.type === "form-validation") {
+						gooeyToast.error("Validation failed", {
+							description: "Please fix all the form errors and try again.",
+						});
 
-				const cleanedDataBlock = value.data.filter((block) => !isDatablockEmpty(block));
-				formdata.append("data", JSON.stringify(cleanedDataBlock));
-
-				value.notes && formdata.append("notes", value.notes || "");
-				value.tags && formdata.append("tags", value.tags || "");
-				value.images?.length &&
-					value.images.forEach((image, idx) => {
-						formdata.append(`images[${idx}]`, image);
+						return { fields: data.errors };
+					}
+				} catch (error) {
+					gooeyToast.error("something went on wrong", {
+						description:
+							error instanceof Error
+								? error.message
+								: "something went wrong on our server. please try again later",
 					});
 
-				const response = await fetch(
-					`${import.meta.env.VITE_BACKEND_APP}/credentials/create`,
-					{
-						method: "POST",
-						body: formdata,
-					},
-				);
-				const data = await response.json();
-
-				if (!data.success) {
-					return { fields: data.errors };
+					return { message: "something went wrong" };
 				}
-
-				return null;
 			},
 		},
-		onSubmitMeta: {
-			submitAction: "continue",
-		},
+
 		onSubmit: async ({ value }) => {
-			const formdata = new FormData();
-
-			formdata.append("title", value.title);
-			value.short_description &&
-				formdata.append("short_description", value.short_description || "");
-			value.long_description &&
-				formdata.append("long_description", value.long_description || "");
-			value.thumbnail && formdata.append("thumbnail", value.thumbnail);
-
-			const cleanedDataBlock = value.data.filter((block) => !isDatablockEmpty(block));
-			formdata.append("data", JSON.stringify(cleanedDataBlock));
-
-			value.notes && formdata.append("notes", value.notes || "");
-			value.tags && formdata.append("tags", value.tags || "");
-			value.images?.length &&
-				value.images.forEach((image, idx) => {
-					formdata.append(`images[${idx}]`, image);
-				});
-
-			const response = await fetch(
-				`${import.meta.env.VITE_BACKEND_APP}/credentials/create`,
-				{
-					method: "POST",
-					body: formdata,
+			gooeyToast.promise(createCredentialAction(value), {
+				loading: "creating...",
+				success: "created a new credential",
+				error: "failed to create the credential",
+				description: {
+					success: "the new credential has been saved on the list",
+					error: "Please try again later.",
 				},
-			);
-			const data = await response.json();
-
-			if (data.success) {
-				// show a toast
-			}
+				action: {
+					error: {
+						label: "Retry",
+						onClick: () => null,
+					},
+					success: {
+						label: "go back to listings",
+						onClick: () => null,
+					},
+				},
+			});
 		},
 	});
 
