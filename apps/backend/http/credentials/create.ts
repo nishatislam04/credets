@@ -80,19 +80,30 @@ export async function credentialCreate(req: BunRequest) {
 		);
 	}
 
-	return new Response(JSON.stringify({ success: true, data: { title } }), {
-		status: 200,
-		headers: {
-			"Content-Type": "application/json",
-			"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
+	const payload = validatedData.data;
+	// TODO: process tags
+	// TODO: process images
+	// TODO: process thumbnail
+
+	await sql`INSERT INTO credentials (title, short_description, long_description, thumbnail, data, images, notes, tags, user_id, types_id) VALUES (${payload.title}, ${payload.short_description}, ${payload.long_description}, ${payload.thumbnail}, ${payload.data}, ${payload.images}, ${payload.notes}, ${payload.tags}, 'daababcd-7f2a-4256-812b-ad11ce79c89f', '1ce7cad5-8c2c-4b2b-bda5-ba00381e9d30')`;
+
+	return new Response(
+		JSON.stringify({ success: true, message: "a new credentials added" }),
+		{
+			status: 200,
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
+			},
 		},
-	});
+	);
+
 	// try {
 	// 	const key = Bun.env.ENC_KEY;
 	// 	if (!key) return new Response("key is required to encrypt");
 
-	// 	const payload = "nishat islam 004.";
-	// 	const sealed = await encrypt(payload);
+	// 	const validatedData = "nishat islam 004.";
+	// 	const sealed = await encrypt(validatedData);
 
 	// 	const password = await Bun.password.hash("nishatislam3108200204");
 
