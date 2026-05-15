@@ -32,29 +32,13 @@ const defaultCredentialValues = (csrfToken: string): CredentialCreateType => ({
 	tags: "",
 });
 
-/**
- * ! we will implement image preview later
- */
-
 function RouteComponent() {
-	const { data: csrfToken, isLoading: isCsrfLoading } = useQuery({
+	const { data: csrfToken, isLoading: csrfTokenLoading } = useQuery({
 		queryKey: ["_csrf"],
 		queryFn: async () => {
-			try {
-				const res = await getCSRFtoken();
-				return res.data.token;
-			} catch (error) {
-				gooeyToast.error(
-					error instanceof Error ? error.message : "failed to generate csrf token",
-					{
-						description: "please reload the page",
-					},
-				);
-			}
+			const res = await getCSRFtoken();
+			return res.data.token;
 		},
-		staleTime: 0,
-		gcTime: 0,
-		refetchOnMount: true,
 	});
 
 	const form = useForm({
@@ -113,7 +97,7 @@ function RouteComponent() {
 		},
 	});
 
-	if (isCsrfLoading) gooeyToast.info("fetching csrf token in the background...");
+	if (csrfTokenLoading) return <p>fetching csrf token. please wait a moment</p>;
 
 	return (
 		<main>

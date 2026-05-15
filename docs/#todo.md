@@ -19,6 +19,4 @@ auto focus on those input.
 
 ### other
 
-1. fix gooey toast header title height [text being cut like 'g' bottom part]
-2. make sure, the title does not overflow out of the main container.
-so increase the main width if the title is too long
+1. hide timestamp from gooey toast
