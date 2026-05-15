@@ -59,23 +59,7 @@ export const credentialsCreateSchema = z.object({
 });
 
 export async function credentialCreate(req: BunRequest) {
-	if (
-		req.method === "OPTIONS" &&
-		req.headers.get("origin") === process.env.FRONTEND_APP
-	) {
-		return new Response(null, {
-			status: 204,
-			headers: {
-				"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
-				"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-				"Access-Control-Allow-Headers": "Content-Type",
-				"Access-Control-Allow-Credentials": "true",
-			},
-		});
-	}
-
 	const formData = await req.formData();
-	// Extract fields
 	const csrfToken = formData.get("_csrf")?.toString() || "";
 
 	const isValidCsrf = verifyCSRF(csrfToken);
@@ -103,7 +87,6 @@ export async function credentialCreate(req: BunRequest) {
 	// Extract files
 	const thumbnail = formData.get("thumbnail") as File | null;
 
-	// Extract images array (Bun returns multiple entries with same key)
 	const images: File[] = [];
 	for (const [key, value] of formData.entries()) {
 		if (key.startsWith("images[") && value instanceof File) {
@@ -111,7 +94,6 @@ export async function credentialCreate(req: BunRequest) {
 		}
 	}
 
-	// ! validation
 	const validateDisData = {
 		title,
 		short_description,
@@ -147,12 +129,13 @@ export async function credentialCreate(req: BunRequest) {
 		);
 	}
 
-	const response = new Response(JSON.stringify({ success: true, data: { title } }), {
+	return new Response(JSON.stringify({ success: true, data: { title } }), {
 		status: 200,
-		headers: { "Content-Type": "application/json" },
+		headers: {
+			"Content-Type": "application/json",
+			"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
+		},
 	});
-	response.headers.set("Access-Control-Allow-Origin", process.env.FRONTEND_APP!);
-	return response;
 	// try {
 	// 	const key = Bun.env.ENC_KEY;
 	// 	if (!key) return new Response("key is required to encrypt");

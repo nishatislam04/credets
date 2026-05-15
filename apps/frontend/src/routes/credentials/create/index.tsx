@@ -36,8 +36,14 @@ function RouteComponent() {
 	const { data: csrfToken, isLoading: csrfTokenLoading } = useQuery({
 		queryKey: ["_csrf"],
 		queryFn: async () => {
-			const res = await getCSRFtoken();
-			return res.data.token;
+			try {
+				const res = await getCSRFtoken();
+				return res.data.token;
+			} catch (error) {
+				gooeyToast.error(
+					error instanceof Error ? error.message : "failed to fetch csrf token",
+				);
+			}
 		},
 	});
 

@@ -17,6 +17,7 @@ export async function generateCSRF() {
 			status: 200,
 			headers: {
 				"content-type": "application/json",
+				"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
 			},
 		});
 	} catch (error) {
