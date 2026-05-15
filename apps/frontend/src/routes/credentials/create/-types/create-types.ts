@@ -23,6 +23,7 @@ const dataBlockSchema = z.discriminatedUnion("type", [
 ]);
 
 export const credentialsCreateSchema = z.object({
+	_csrf: z.string().min(1, "csrf token can not be misssing. please reload the page"),
 	title: z
 		.string()
 		.trim()

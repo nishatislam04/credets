@@ -10,10 +10,16 @@ export const Route = createRootRoute({
 	component: RootComponent,
 });
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
 function RootComponent() {
 	return (
 		<>
-			<Outlet />
+			<QueryClientProvider client={queryClient}>
+				<Outlet />
+			</QueryClientProvider>
 			<GooeyToaster />
 			<TanStackDevtools
 				config={{

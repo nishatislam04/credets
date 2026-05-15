@@ -2,6 +2,7 @@ import { encrypt } from "@backend/utils/encrypt";
 import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
 import { z } from "zod";
+import { verifyCSRF } from "../csrf/verifyCSRF";
 
 /**
  * this is our POST endpoint to create credentials
@@ -58,7 +59,6 @@ export const credentialsCreateSchema = z.object({
 });
 
 export async function credentialCreate(req: BunRequest) {
-	// console.log("credentials create req", req);
 	if (
 		req.method === "OPTIONS" &&
 		req.headers.get("origin") === process.env.FRONTEND_APP
@@ -76,6 +76,24 @@ export async function credentialCreate(req: BunRequest) {
 
 	const formData = await req.formData();
 	// Extract fields
+	const csrfToken = formData.get("_csrf")?.toString() || "";
+
+	const isValidCsrf = verifyCSRF(csrfToken);
+	if (!isValidCsrf)
+		return new Response(
+			JSON.stringify({
+				success: false,
+				type: "csrf-expired",
+				message: "csrf token expired",
+			}),
+			{
+				status: 500,
+				headers: {
+					"content-type": "application/json",
+				},
+			},
+		);
+
 	const title = formData.get("title")?.toString() || "";
 	const short_description = formData.get("short_description")?.toString() || "";
 	const long_description = formData.get("long_description")?.toString() || "";
@@ -128,14 +146,6 @@ export async function credentialCreate(req: BunRequest) {
 			},
 		);
 	}
-	// Log or process files
-	console.log("Received string:", {
-		title,
-		short_description,
-		long_description,
-		notes,
-		tags,
-	});
 
 	const response = new Response(JSON.stringify({ success: true, data: { title } }), {
 		status: 200,

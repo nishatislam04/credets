@@ -1,4 +1,5 @@
 import { useForm } from "@tanstack/react-form";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { Field, FieldError, FieldGroup, FieldLabel } from "#/components/ui/field";
@@ -8,6 +9,7 @@ import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createCredentialAction } from "./-actions/createCredentialAction";
+import { getCSRFtoken } from "./-actions/getCSRFtoken";
 import { DataBlock } from "./-components/Datablock";
 import {
 	type CredentialCreateType,
@@ -18,7 +20,8 @@ export const Route = createFileRoute("/credentials/create/")({
 	component: RouteComponent,
 });
 
-const defaultCredentialValues: CredentialCreateType = {
+const defaultCredentialValues = (csrfToken: string): CredentialCreateType => ({
+	_csrf: csrfToken || "",
 	title: "",
 	short_description: undefined,
 	long_description: undefined,
@@ -27,15 +30,35 @@ const defaultCredentialValues: CredentialCreateType = {
 	images: [],
 	notes: "",
 	tags: "",
-};
+});
 
 /**
  * ! we will implement image preview later
  */
 
 function RouteComponent() {
+	const { data: csrfToken, isLoading: isCsrfLoading } = useQuery({
+		queryKey: ["_csrf"],
+		queryFn: async () => {
+			try {
+				const res = await getCSRFtoken();
+				return res.data.token;
+			} catch (error) {
+				gooeyToast.error(
+					error instanceof Error ? error.message : "failed to generate csrf token",
+					{
+						description: "please reload the page",
+					},
+				);
+			}
+		},
+		staleTime: 0,
+		gcTime: 0,
+		refetchOnMount: true,
+	});
+
 	const form = useForm({
-		defaultValues: defaultCredentialValues,
+		defaultValues: defaultCredentialValues(csrfToken),
 		validators: {
 			onBlur: credentialsCreateSchema,
 			onSubmitAsync: async ({ value }) => {
@@ -48,6 +71,11 @@ function RouteComponent() {
 						});
 
 						return { fields: data.errors };
+					}
+
+					if (!data.success) {
+						gooeyToast.error(data.message);
+						return { message: "something went wrong on server side" };
 					}
 				} catch (error) {
 					gooeyToast.error("something went on wrong", {
@@ -85,6 +113,8 @@ function RouteComponent() {
 		},
 	});
 
+	if (isCsrfLoading) gooeyToast.info("fetching csrf token in the background...");
+
 	return (
 		<main>
 			<p className="capitalize text-4xl text-center my-8 mb-18">
@@ -99,6 +129,25 @@ function RouteComponent() {
 				className="px-4 md:px-12"
 			>
 				<FieldGroup>
+					{/* csrf */}
+					<form.Field
+						name="_csrf"
+						children={(field) => {
+							const isInvalid = !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isInvalid}>
+									<Input
+										id="_csrf"
+										value={field.state.value}
+										type="hidden"
+										aria-invalid={isInvalid}
+									/>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
+					/>
+
 					{/*title*/}
 					<form.Field
 						name="title"

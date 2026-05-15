@@ -3,6 +3,7 @@ import { credentialPage } from "./http/credentials/credential";
 import { credentailDelete } from "./http/credentials/delete";
 import { credentialListings } from "./http/credentials/listings";
 import { credentialUpdate } from "./http/credentials/update";
+import { generateCSRF } from "./http/csrf/generateCSRF";
 import indexHtml from "./index.html";
 
 Bun.serve({
@@ -11,6 +12,8 @@ Bun.serve({
 	idleTimeout: 35,
 	routes: {
 		"/": indexHtml,
+		"/get-csrf": () => generateCSRF(),
+
 		"/credentials": (req) => credentialListings(req),
 		"/credentials/:credentialId": (req) => credentialPage(req),
 
@@ -22,9 +25,7 @@ Bun.serve({
 	async fetch(req, server) {
 		const address = server.requestIP(req);
 		if (address) {
-			return new Response(
-				`Client IP: ${address.address}, Port: ${address.port}`,
-			);
+			return new Response(`Client IP: ${address.address}, Port: ${address.port}`);
 		}
 		return new Response("Unknown client");
 	},

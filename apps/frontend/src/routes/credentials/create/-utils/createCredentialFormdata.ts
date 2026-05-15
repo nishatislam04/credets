@@ -3,6 +3,7 @@ import { isDatablockEmpty } from "./isDatablockEmpty";
 export function createCredentialFormdata(value) {
 	const formdata = new FormData();
 
+	formdata.append("_csrf", value._csrf);
 	formdata.append("title", value.title);
 	value.short_description &&
 		formdata.append("short_description", value.short_description || "");
