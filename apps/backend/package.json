@@ -19,6 +19,7 @@
 	"devDependencies": {
 		"@credets/shared-types": "workspace:*",
 		"@credets/shared-utils": "workspace:*",
+		"@credets/shared-schema": "workspace:*",
 		"typescript": "catalog:"
 	}
 }

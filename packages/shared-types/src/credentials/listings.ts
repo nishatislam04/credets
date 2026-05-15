@@ -2,7 +2,7 @@ type DataJson = string | null;
 
 type ImagesJson = string | null;
 
-export type CredentialsType = {
+export type CredentialType = {
 	id: string;
 	data: DataJson;
 	images: ImagesJson;

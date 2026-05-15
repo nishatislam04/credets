@@ -1,5 +1,5 @@
 import { ResponseFactory } from "@backend/utils/response";
-import type { CredentialsType } from "@credets/shared-types/credentials-listings";
+import type { CredentialType } from "@credets/shared-types/listings";
 import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
 
@@ -20,22 +20,16 @@ export async function credentialListings(req: BunRequest) {
 	} as const;
 
 	try {
-		const totalCountResult =
-			await sql`SELECT COUNT(*) as count FROM credentials`;
+		const totalCountResult = await sql`SELECT COUNT(*) as count FROM credentials`;
 		const totalItems = parseInt(totalCountResult[0].count);
 		const credentials =
 			await sql`SELECT id, data, images, created_at FROM credentials ORDER BY created_at DESC LIMIT ${validLimit} OFFSET ${offset}`;
-		const parseedCredentials = credentials.map(
-			(credential: CredentialsType) => ({
-				id: credential.id,
-				data: credential.data ? JSON.parse(credential.data) : null,
-				images: credential.images ? JSON.parse(credential.images) : null,
-				created_at: credential.created_at.toLocaleDateString(
-					"en-BD",
-					dateOptions,
-				),
-			}),
-		);
+		const parseedCredentials = credentials.map((credential: CredentialType) => ({
+			id: credential.id,
+			data: credential.data ? JSON.parse(credential.data) : null,
+			images: credential.images ? JSON.parse(credential.images) : null,
+			created_at: credential.created_at.toLocaleDateString("en-BD", dateOptions),
+		}));
 		const totalPages = Math.ceil(totalItems / validLimit);
 		const hasNextPage = validPage < totalPages;
 		const hasPreviousPage = validPage > 1;
@@ -76,8 +70,7 @@ export async function credentialListings(req: BunRequest) {
 			message: "failed to fetch credentials listings",
 			path: req,
 			details: {
-				originError:
-					error instanceof Error ? error.message : "unknown server error",
+				originError: error instanceof Error ? error.message : "unknown server error",
 			},
 		});
 	}

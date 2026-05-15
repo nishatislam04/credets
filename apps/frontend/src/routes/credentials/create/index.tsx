@@ -1,3 +1,5 @@
+import { credentialsCreateSchema } from "@credets/shared-schema/credentials/create";
+import type { CredentialCreateType } from "@credets/shared-types/credentials/create";
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -11,10 +13,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { createCredentialAction } from "./-actions/createCredentialAction";
 import { getCSRFtoken } from "./-actions/getCSRFtoken";
 import { DataBlock } from "./-components/Datablock";
-import {
-	type CredentialCreateType,
-	credentialsCreateSchema,
-} from "./-types/create-types";
 
 export const Route = createFileRoute("/credentials/create/")({
 	component: RouteComponent,

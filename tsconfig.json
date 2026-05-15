@@ -30,14 +30,11 @@
 		"paths": {
 			"@credets/shared-types/*": ["./packages/shared-types/src/*"],
 			"@credets/shared-utils/*": ["./packages/shared-utils/src/*"],
+			"@credets/shared-schema/*": ["./packages/shared-schema/src/*"],
 			"@db/*": ["./apps/backend/db/*"],
 			"@backend/*": ["./apps/backend/*"]
 		}
 	},
-	"include": [
-		"apps/backend/**/*",
-		"apps/frontend/src/**/*",
-		"packages/*/src/**/*"
-	],
+	"include": ["apps/backend/**/*", "apps/frontend/src/**/*", "packages/*/src/**/*"],
 	"exclude": ["node_modules", "dist", "build", ".turbo", "public"]
 }

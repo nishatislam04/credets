@@ -51,5 +51,3 @@ export const credentialsCreateSchema = z.object({
 	notes: z.string().trim().optional(),
 	tags: z.string().trim().optional(),
 });
-
-export type CredentialCreateType = z.infer<typeof credentialsCreateSchema>;
