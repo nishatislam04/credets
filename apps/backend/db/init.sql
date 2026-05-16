@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS credential_images(
 	byte_size INT NULL,
 	sort_order INT DEFAULT 0,
 	created_at TIMESTAMPTZ DEFAULT NOW(),
-	updated_at TIMESTAMPTZ DEFAULT NOW(),
+	updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- INDEXES

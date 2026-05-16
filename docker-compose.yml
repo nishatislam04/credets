@@ -1,45 +1,47 @@
 services:
-  db:
-    image: postgres:18.3
-    container_name: "credets-db"
-    restart: unless-stopped
-    shm_size: 128mb
-    ports:
-      - 5432:5432
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - pgdata:/var/lib/postgresql
-      - ./apps/backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - credets-network
+    db:
+        image: postgres:18.3
+        container_name: "credets-db"
+        restart: unless-stopped
+        shm_size: 128mb
+        ports:
+            - 5432:5432
+        environment:
+            POSTGRES_USER: ${DB_USER}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_NAME}
+        volumes:
+            - pgdata:/var/lib/postgresql
+            - ./apps/backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            - credets-network
 
-  prisma-studio:
-    container_name: prisma-studio
-    image: timothyjmiller/prisma-studio:latest
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      POSTGRES_URL: postgres://nishat:nishat004@db:5432/credets_db
-    ports:
-      - ${PRISMA_STUDIO_PORT}:5555
-    volumes:
-      - ./apps/backend/prisma/schema.prisma:/app/prisma/schema.prisma
-    networks:
-      - credets-network
+    prisma-studio:
+        image: node:22-alpine
+        container_name: prisma-studio
+        restart: unless-stopped
+        volumes:
+            - npm-cache:/root/.npm
+        command: npx prisma studio --port 5555 --browser none --url 'postgres://$DB_USER:$DB_PASSWORD@db:5432/$DB_NAME'
+        ports:
+            - ${PRISMA_STUDIO_PORT:-5555}:5555
+        environment:
+            DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public
+        depends_on:
+            db:
+                condition: service_healthy
+        networks:
+            - credets-network
 
 volumes:
-  pgdata:
+    pgdata:
+    npm-cache:
 
 networks:
-  credets-network:
-    driver: bridge
+    credets-network:
+        driver: bridge
