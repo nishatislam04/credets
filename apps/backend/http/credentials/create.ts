@@ -81,11 +81,42 @@ export async function credentialCreate(req: BunRequest) {
 	}
 
 	const payload = validatedData.data;
+	console.log("payload: ", payload);
 	// TODO: process tags
-	// TODO: process images
+	function proccessTags(payload: string | undefined) {
+		if (payload === undefined) return null;
+		if (payload.length === 0) return null;
+		if (payload.length === 1) return JSON.stringify(payload);
+		return JSON.stringify(payload.split(",").map((p) => p.trim()));
+	}
+	const processedTags = proccessTags(payload.tags);
+	console.log(processedTags);
 	// TODO: process thumbnail
+	async function processThumbnail(
+		payload: File | null | undefined,
+	): Promise<{ buffer: Buffer } | null> {
+		if (payload === null || payload === undefined) return null;
 
-	await sql`INSERT INTO credentials (title, short_description, long_description, thumbnail, data, images, notes, tags, user_id, types_id) VALUES (${payload.title}, ${payload.short_description}, ${payload.long_description}, ${payload.thumbnail}, ${payload.data}, ${payload.images}, ${payload.notes}, ${payload.tags}, 'daababcd-7f2a-4256-812b-ad11ce79c89f', '1ce7cad5-8c2c-4b2b-bda5-ba00381e9d30')`;
+		const inputBuffer = await payload.arrayBuffer();
+
+		const compressed = await new Bun.Image(inputBuffer)
+			.resize(800, 800, {
+				fit: "inside",
+				withoutEnlargement: true,
+			})
+			.webp({ quality: 50 })
+			.bytes();
+
+		return compressed;
+	}
+	const thumbnailBuffer = await processThumbnail(payload.thumbnail);
+
+	const thumbnailSafeBuffer = thumbnailBuffer
+		? Buffer.from(thumbnailBuffer.buffer)
+		: null;
+	// TODO: process images
+
+	await sql`INSERT INTO credentials (title, short_description, long_description, thumbnail, thumbnail_file_type, data, images, notes, tags, user_id, types_id) VALUES (${payload.title}, ${payload.short_description}, ${payload.long_description}, ${thumbnailSafeBuffer}, 'webp', ${payload.data}, ${payload.images}, ${payload.notes}, ${processedTags}, '325a740b-91fd-4496-9724-ff116149416b', '4fd1898c-6889-4982-a832-1953b4421b97')`;
 
 	return new Response(
 		JSON.stringify({ success: true, message: "a new credentials added" }),

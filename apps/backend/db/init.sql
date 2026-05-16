@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS credentials(
 	short_description TEXT NULL,
 	long_description TEXT NULL,
 	thumbnail BYTEA NULL,
+	thumbnail_file_type TEXT NULL,
 	data JSONB NOT NULL,
 	images JSONB NULL,
 	notes TEXT NULL,
