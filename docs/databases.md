@@ -46,14 +46,14 @@
 9. tags - jsonB
 10. types_id - refer to types table
 
-#### access database in docker from terminal
+## access database in docker from terminal
 
 ```bash
 docker compose exec db bash
 psql -U nishat -d credets_db
 ```
 
-#### use db instance to write query
+## use db instance to write query
 
 ```bash
 import { sql } from "@db/connection" // sadly we need to manually type this out
@@ -64,7 +64,7 @@ const users = sql`SELECT * FROM users`
 > note! it is still buggy! i dont know why! lol
 
 
-### clear out db for reset purpose
+## clear out db for reset purpose
 
 ```bash
 docker compose down -v

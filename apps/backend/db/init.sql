@@ -48,16 +48,38 @@ CREATE TABLE IF NOT EXISTS credentials(
 	types_id UUID NOT NULL REFERENCES types(id) ON DELETE SET NULL
 );
 
+CREATE TABLE IF NOT EXISTS credential_images(
+	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+	credential_id UUID NOT NULL REFERENCES credentials(id) ON DELETE CASCADE,
+	image_data BYTEA NULL,
+	file_type TEXT NULL,
+	width INT NULL,
+	height INT NULL,
+	byte_size INT NULL,
+	sort_order INT DEFAULT 0,
+	created_at TIMESTAMPTZ DEFAULT NOW(),
+	updated_at TIMESTAMPTZ DEFAULT NOW(),
+);
+
 -- INDEXES
-CREATE INDEX idx_user_username ON users(username);
-CREATE INDEX idx_user_email ON users(email);
+CREATE UNIQUE INDEX IF NOT EXISTS users_username_idx ON users(username);
+CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email);
 
-CREATE INDEX idx_credentials_userId ON credentials(user_id);
-CREATE INDEX idx_types_typesId ON credentials(types_id);
+CREATE INDEX IF NOT EXISTS credentials_title_idx ON credentials USING GIN (title);
+CREATE INDEX IF NOT EXISTS credentials_short_description_idx ON credentials USING GIN (short_description);
+CREATE INDEX IF NOT EXISTS credentials_long_description_idx ON credentials USING GIN (long_description);
+CREATE INDEX IF NOT EXISTS credentials_data_idx ON credentials USING GIN (data);
+CREATE INDEX IF NOT EXISTS credentials_notes_idx ON credentials USING GIN (notes);
+CREATE INDEX IF NOT EXISTS credentials_tags_idx ON credentials USING GIN (tags);
+CREATE INDEX IF NOT EXISTS credentials_created_at_idx ON credentials(created_at);
+CREATE INDEX IF NOT EXISTS credentials_user_id_idx ON credentials(user_id);
+CREATE INDEX IF NOT EXISTS credentials_types_id_idx ON credentials(types_id);
 
-CREATE INDEX idx_session_userId ON session(user_id);
-CREATE INDEX idx_session_token ON session(token);
-CREATE INDEX idx_session_expiresAt ON session(expires_at);
+CREATE INDEX IF NOT EXISTS credential_images_credential_id_idx ON credential_images(credential_id);
+
+CREATE INDEX IF NOT EXISTS session_user_id_idx ON session(user_id);
+CREATE INDEX IF NOT EXISTS session_token_idx ON session(token);
+CREATE INDEX IF NOT EXISTS session_expires_at_idx ON session(expires_at);
 
 
 -- Function to update updated_at timestamp
