@@ -1,4 +1,5 @@
 import { encrypt } from "@backend/utils/encrypt";
+import { processImage } from "@backend/utils/processImage";
 import { credentialsCreateSchema } from "@credets/shared-schema/credentials/create";
 import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
@@ -81,33 +82,39 @@ export async function credentialCreate(req: BunRequest) {
 	}
 
 	const payload = validatedData.data;
+	// console.log(payload.data);
 
-	// TODO: process thumbnail
-	async function processThumbnail(
-		payload: File | null | undefined,
-	): Promise<{ buffer: Buffer } | null> {
-		if (payload === null || payload === undefined) return null;
+	const thumbnailResult = await processImage({
+		file: payload.thumbnail,
+		outputQuality: 50,
+		resizeInWidth: 800,
+	});
+	const {
+		buffer: thumbnail_image_data = null,
+		format: thumbnail_format = null,
+		width: thumbnail_width = null,
+		height: thumbnail_height = null,
+	} = thumbnailResult ?? {};
 
-		const inputBuffer = await payload.arrayBuffer();
+	const processedImages = await Promise.all(
+		images.map((file) =>
+			processImage({
+				file,
+				outputQuality: 75,
+				resizeInWidth: 1400,
+			}),
+		),
+	);
 
-		const compressed = await new Bun.Image(inputBuffer)
-			.resize(800, 800, {
-				fit: "inside",
-				withoutEnlargement: true,
-			})
-			.webp({ quality: 50 })
-			.bytes();
+	const validImages = processedImages.filter(
+		(img): img is NonNullable<typeof img> => img !== null,
+	);
 
-		return compressed;
-	}
-	const thumbnailBuffer = await processThumbnail(payload.thumbnail);
+	// ! will format these images for db insert later
 
-	const thumbnailSafeBuffer = thumbnailBuffer
-		? Buffer.from(thumbnailBuffer.buffer)
-		: null;
-	// TODO: process images
+	const processedData = JSON.stringify(payload.data);
 
-	await sql`INSERT INTO credentials (title, short_description, long_description, thumbnail, thumbnail_file_type, data, images, notes, tags, user_id, types_id) VALUES (${payload.title}, ${payload.short_description}, ${payload.long_description}, ${thumbnailSafeBuffer}, 'webp', ${payload.data}, ${payload.images}, ${payload.notes}, ${payload.tags}, '325a740b-91fd-4496-9724-ff116149416b', '4fd1898c-6889-4982-a832-1953b4421b97')`;
+	// await sql`INSERT INTO credentials (title, short_description, long_description, thumbnail_image_data, thumbnail_format, thumbnail_width, thumbnail_height, data, images, notes, tags, user_id, types_id) VALUES (${payload.title}, ${payload.short_description}, ${payload.long_description}, ${thumbnail_image_data}, ${thumbnail_format}, ${thumbnail_width}, ${thumbnail_height}, ${processedData}, ${payload.images}, ${payload.notes}, ${payload.tags}, '325a740b-91fd-4496-9724-ff116149416b', '4fd1898c-6889-4982-a832-1953b4421b97')`;
 
 	return new Response(
 		JSON.stringify({ success: true, message: "a new credentials added" }),
