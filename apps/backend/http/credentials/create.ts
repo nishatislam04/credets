@@ -81,16 +81,7 @@ export async function credentialCreate(req: BunRequest) {
 	}
 
 	const payload = validatedData.data;
-	console.log("payload: ", payload);
-	// TODO: process tags
-	function proccessTags(payload: string | undefined) {
-		if (payload === undefined) return null;
-		if (payload.length === 0) return null;
-		if (payload.length === 1) return JSON.stringify(payload);
-		return JSON.stringify(payload.split(",").map((p) => p.trim()));
-	}
-	const processedTags = proccessTags(payload.tags);
-	console.log(processedTags);
+
 	// TODO: process thumbnail
 	async function processThumbnail(
 		payload: File | null | undefined,
@@ -116,7 +107,7 @@ export async function credentialCreate(req: BunRequest) {
 		: null;
 	// TODO: process images
 
-	await sql`INSERT INTO credentials (title, short_description, long_description, thumbnail, thumbnail_file_type, data, images, notes, tags, user_id, types_id) VALUES (${payload.title}, ${payload.short_description}, ${payload.long_description}, ${thumbnailSafeBuffer}, 'webp', ${payload.data}, ${payload.images}, ${payload.notes}, ${processedTags}, '325a740b-91fd-4496-9724-ff116149416b', '4fd1898c-6889-4982-a832-1953b4421b97')`;
+	await sql`INSERT INTO credentials (title, short_description, long_description, thumbnail, thumbnail_file_type, data, images, notes, tags, user_id, types_id) VALUES (${payload.title}, ${payload.short_description}, ${payload.long_description}, ${thumbnailSafeBuffer}, 'webp', ${payload.data}, ${payload.images}, ${payload.notes}, ${payload.tags}, '325a740b-91fd-4496-9724-ff116149416b', '4fd1898c-6889-4982-a832-1953b4421b97')`;
 
 	return new Response(
 		JSON.stringify({ success: true, message: "a new credentials added" }),
