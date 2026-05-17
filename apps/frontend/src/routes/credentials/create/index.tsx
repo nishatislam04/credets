@@ -11,6 +11,7 @@ import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createCredentialAction } from "./-actions/createCredentialAction";
+import { createCredentialValidation } from "./-actions/createCredentialValidation";
 import { getCSRFtoken } from "./-actions/getCSRFtoken";
 import { DataBlock } from "./-components/Datablock";
 
@@ -48,10 +49,10 @@ function RouteComponent() {
 	const form = useForm({
 		defaultValues: defaultCredentialValues(csrfToken),
 		validators: {
-			onBlur: credentialsCreateSchema,
+			// onBlur: credentialsCreateSchema,
 			onSubmitAsync: async ({ value }) => {
 				try {
-					const data = await createCredentialAction(value);
+					const data = await createCredentialValidation(value);
 
 					if (!data.success && data.type === "form-validation") {
 						gooeyToast.error("Validation failed", {
@@ -63,7 +64,10 @@ function RouteComponent() {
 
 					if (!data.success) {
 						gooeyToast.error(data.message);
-						return { message: "something went wrong on server side" };
+						return {
+							message:
+								"something went wrong on server side while validating credential data",
+						};
 					}
 				} catch (error) {
 					gooeyToast.error("something went on wrong", {

@@ -5,6 +5,7 @@ import { credentialListings } from "./http/credentials/listings";
 import { credentialUpdate } from "./http/credentials/update";
 import { generateCSRF } from "./http/csrf/generateCSRF";
 import indexHtml from "./index.html";
+import { createCredentialValidation } from "./validation/credential/create";
 
 Bun.serve({
 	development: true,
@@ -20,6 +21,8 @@ Bun.serve({
 		"/credentials/create": (req) => credentialCreate(req),
 		"/credentials/update": () => credentialUpdate(),
 		"/credentials/delete": (req, server) => credentailDelete(req, server),
+
+		"/credentials/create/validation": (req) => createCredentialValidation(req),
 	},
 
 	async fetch(req, server) {

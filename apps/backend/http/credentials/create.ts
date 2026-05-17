@@ -1,3 +1,4 @@
+import { formatZodError } from "@backend/types/formatZodError";
 import { encrypt } from "@backend/utils/encrypt";
 import { processImage } from "@backend/utils/processImage";
 import { credentialsCreateSchema } from "@credets/shared-schema/credentials/create";
@@ -58,16 +59,9 @@ export async function credentialCreate(req: BunRequest) {
 	};
 
 	const validatedData = credentialsCreateSchema.safeParse(validateDisData);
-	if (!validatedData.success) {
-		const errors: Record<string, { message: string }[]> = {};
 
-		for (const issue of validatedData.error.issues) {
-			const fieldName = issue.path.join(".");
-			if (!errors[fieldName]) {
-				errors[fieldName] = [];
-			}
-			errors[fieldName].push({ message: issue.message });
-		}
+	if (!validatedData.success) {
+		const errors = formatZodError(validatedData);
 
 		return new Response(
 			JSON.stringify({ success: false, type: "form-validation", errors }),
