@@ -47,7 +47,12 @@ export const credentialsCreateSchema = z.object({
 		.nullable()
 		.optional(),
 	data: z.array(dataBlockSchema),
-	images: z.array(z.any()).default([]).nullable().optional(), // we are validating size on the element itself!
+	images: z
+		.array(z.any())
+		.max(6, "maximum 6 images allowed")
+		.default([])
+		.nullable()
+		.optional(), // we are validating images size on the form element! not on the schema
 	notes: z.string().trim().optional(),
 	tags: z.string().trim().optional(),
 });

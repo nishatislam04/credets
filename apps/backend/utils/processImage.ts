@@ -4,6 +4,12 @@ type ProcessImageType = {
 	outputQuality: number;
 };
 
+/**
+ * TODO: OPTIMIZE LATER
+ * for now we keep this as simple as props
+ * later we will add profile (thumbnail or images)
+ * then additonal optioal options support when invoking
+ */
 export async function processImage({
 	file,
 	resizeInWidth,

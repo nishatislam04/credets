@@ -288,6 +288,11 @@ function RouteComponent() {
 							onChange: ({ value }) => {
 								if (!value || value.length === 0) return undefined;
 
+								// MAX IMAGES CHECK
+								if (value.length > 6) {
+									return { message: "Maximum 6 images allowed" };
+								}
+
 								// Check each file
 								for (const file of value) {
 									if (file.size > 3_000_000) {
@@ -318,6 +323,17 @@ function RouteComponent() {
 										onChange={(e) => {
 											const newFiles = e.target.files ? Array.from(e.target.files) : [];
 											const current = field.state.value ?? [];
+
+											// Prevent exceeding 6 images
+											const available = 6 - current.length;
+											if (available <= 0) {
+												gooeyToast.error("max 6 images support", {
+													description: "you can choose only 6 images",
+												});
+												e.target.value = "";
+												return;
+											}
+
 											const updated = [...current, ...newFiles];
 											field.handleChange(updated);
 											e.target.value = "";
