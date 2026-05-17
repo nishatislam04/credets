@@ -7,35 +7,6 @@ const randomInt = (min: number, max: number) =>
 // Helper to pick random item from array
 const randomPick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
-// Real image URLs from Unsplash (free to use)
-const images = {
-	tech: [
-		"https://images.unsplash.com/photo-1518770660439-4636190af475?w=800",
-		"https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800",
-		"https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800",
-	],
-	keys: [
-		"https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800",
-		"https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=800",
-	],
-	notes: [
-		"https://images.unsplash.com/photo-1517842645767-c639042777db?w=800",
-		"https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800",
-	],
-	games: [
-		"https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800",
-		"https://images.unsplash.com/photo-1552820728-8b83bb6b2cf2?w=800",
-	],
-	media: [
-		"https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=800",
-		"https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800",
-	],
-	api: [
-		"https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800",
-		"https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800",
-	],
-};
-
 // Generate titles based on type
 const generateTitle = (type: string, index: number): string => {
 	const titles = {
@@ -96,11 +67,6 @@ const generators = {
 				notes: "Primary account",
 			},
 		]),
-		images: randomPick([
-			null,
-			[randomPick(images.tech)],
-			[randomPick(images.tech), randomPick(images.notes)],
-		]),
 		tags: randomPick([
 			null,
 			["work", "personal"],
@@ -155,7 +121,6 @@ const generators = {
 				rotation_period_days: randomPick([30, 60, 90, 180]),
 			},
 		]),
-		images: randomPick([null, [randomPick(images.keys)]]),
 		tags: randomPick([null, ["security", "encryption"], ["production"]]),
 		notes: randomPick([null, "Store in secure vault", "Rotate annually"]),
 	}),
@@ -179,7 +144,6 @@ const generators = {
 				created_at: new Date(2024, randomInt(0, 11), randomInt(1, 28)).toISOString(),
 			},
 		]),
-		images: randomPick([null, [randomPick(images.api)]]),
 		tags: randomPick([null, ["api", "integration"], ["third-party"]]),
 		notes: randomPick([null, "Keep secret!", "Don't commit to git"]),
 	}),
@@ -214,7 +178,6 @@ const generators = {
 				notes: "Saved for later reference",
 			},
 		]),
-		images: [[randomPick(images.media), randomPick(images.media)]],
 		tags: randomPick([null, ["media", "assets"], ["tutorial"]]),
 		notes: randomPick([null, "Watch later", "Important resource"]),
 	}),
@@ -256,7 +219,6 @@ const generators = {
 				},
 			},
 		]),
-		images: [[randomPick(images.games), randomPick(images.games)]],
 		tags: randomPick([null, ["gaming", "loadout"], ["competitive"]]),
 		notes: randomPick([null, "Current main loadout", "Testing new build"]),
 	}),
@@ -286,11 +248,6 @@ const generators = {
 				notes: "Network configuration",
 			},
 		]),
-		images: randomPick([
-			null,
-			[randomPick(images.notes)],
-			[randomPick(images.tech), randomPick(images.notes)],
-		]),
 		tags: randomPick([null, ["note", "reminder"], ["config"]]),
 		notes: randomPick([null, "Review later", "Needs update"]),
 	}),
@@ -301,6 +258,7 @@ async function seed() {
 	console.log("🗑️  Clearing existing data...");
 
 	// Clear existing data in correct order (respect foreign keys)
+	await sql`DELETE FROM credential_images`;
 	await sql`DELETE FROM credentials`;
 	await sql`DELETE FROM session`;
 	await sql`DELETE FROM users`;
@@ -308,7 +266,7 @@ async function seed() {
 
 	console.log("📂 Inserting credential types...");
 
-	// Insert types (will be used by credentials)
+	// Insert types
 	const typesResult = await sql`
         INSERT INTO types (label, description) VALUES
             ('credentials', 'Standard login credentials for websites, apps, and services'),
@@ -361,7 +319,7 @@ async function seed() {
 
 	console.log("   Session token:", sessionToken);
 
-	// Create credentials
+	// Create credentials (no images, thumbnails left null)
 	console.log("📦 Creating credentials...");
 
 	const types = ["credentials", "key", "api", "media", "game_loadout", "misc"] as const;
@@ -391,24 +349,22 @@ async function seed() {
 				title: generateTitle(typeLabel, index),
 				short_description: generateShortDescription(typeLabel),
 				long_description: `Detailed information about this ${typeLabel} item. Created for demonstration purposes.`,
-				thumbnail: null,
 				data: JSON.stringify(credData.data),
-				images: credData.images ? JSON.stringify(credData.images) : null,
 				tags: credData.tags ? JSON.stringify(credData.tags) : null,
 				notes: credData.notes,
 			});
 		}
 
-		// Insert batch one by one (could be optimized with multi-insert)
+		// Insert batch one by one
 		for (const cred of batch) {
 			await sql`
                 INSERT INTO credentials (
                     user_id, types_id, title, short_description,
-                    long_description, data, images, tags, notes
+                    long_description, data, tags, notes
                 ) VALUES (
                     ${cred.user_id}, ${cred.types_id}, ${cred.title}, ${cred.short_description},
                     ${cred.long_description}, ${cred.data},
-                    ${cred.images}, ${cred.tags}, ${cred.notes}
+                    ${cred.tags}, ${cred.notes}
                 )
             `;
 			created++;
@@ -423,6 +379,7 @@ async function seed() {
 	console.log("   - 1 Active Session (30 days)");
 	console.log(`   - ${totalCredentials} Credentials across all types`);
 	console.log("   - 6 Credential Types");
+	console.log("   - No images or thumbnails inserted (as requested)");
 
 	// Show distribution
 	const distribution = await sql`

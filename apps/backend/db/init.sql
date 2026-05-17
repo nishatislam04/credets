@@ -41,18 +41,18 @@ CREATE TABLE IF NOT EXISTS credentials(
 	thumbnail_width INT NULL,
 	thumbnail_height INT NULL,
 	data JSONB NOT NULL,
-	images JSONB NULL,
 	notes TEXT NULL,
 	tags JSONB NULL,
 	created_at TIMESTAMPTZ DEFAULT NOW(),
 	updated_at TIMESTAMPTZ DEFAULT NOW(),
-	user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-	types_id UUID NOT NULL REFERENCES types(id) ON DELETE SET NULL
+	user_id UUID NULL,
+	types_id UUID NULL,
+	CONSTRAINT credentials_user_id_fk FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL ON UPDATE SET NULL,
+	CONSTRAINT credentials_types_id_fk FOREIGN KEY (types_id) REFERENCES types (id) ON DELETE SET NULL ON UPDATE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS credential_images(
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-	credential_id UUID NOT NULL REFERENCES credentials(id) ON DELETE CASCADE,
 	image_data BYTEA NULL,
 	format VARCHAR(10) NULL,
 	width INT NULL,
@@ -60,7 +60,9 @@ CREATE TABLE IF NOT EXISTS credential_images(
 	byte_size INT NULL,
 	sort_order INT DEFAULT 0,
 	created_at TIMESTAMPTZ DEFAULT NOW(),
-	updated_at TIMESTAMPTZ DEFAULT NOW()
+	updated_at TIMESTAMPTZ DEFAULT NOW(),
+	credential_id UUID NOT NULL,
+	CONSTRAINT credential_images_credential_id_fk FOREIGN KEY (credential_id) REFERENCES credentials (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- INDEXES
