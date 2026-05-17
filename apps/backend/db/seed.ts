@@ -5,8 +5,7 @@ const randomInt = (min: number, max: number) =>
 	Math.floor(Math.random() * (max - min + 1)) + min;
 
 // Helper to pick random item from array
-const randomPick = <T>(arr: T[]): T =>
-	arr[Math.floor(Math.random() * arr.length)];
+const randomPick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
 // Real image URLs from Unsplash (free to use)
 const images = {
@@ -42,11 +41,7 @@ const generateTitle = (type: string, index: number): string => {
 	const titles = {
 		credentials: [`Login ${index}`, `Account ${index}`, `Service ${index}`],
 		key: [`API Key ${index}`, `SSH Key ${index}`, `License ${index}`],
-		api: [
-			`API Token ${index}`,
-			`Service Account ${index}`,
-			`Platform Key ${index}`,
-		],
+		api: [`API Token ${index}`, `Service Account ${index}`, `Platform Key ${index}`],
 		media: [`Media Asset ${index}`, `Content ${index}`, `Resource ${index}`],
 		game_loadout: [`Loadout ${index}`, `Build ${index}`, `Character ${index}`],
 		misc: [`Note ${index}`, `Config ${index}`, `Info ${index}`],
@@ -83,11 +78,7 @@ const generators = {
 				website: "netflix.com",
 				email: `streamer${i}@email.com`,
 				plan: "Premium",
-				last_billed: new Date(
-					2024,
-					randomInt(0, 11),
-					randomInt(1, 28),
-				).toISOString(),
+				last_billed: new Date(2024, randomInt(0, 11), randomInt(1, 28)).toISOString(),
 				shared_with: ["family@email.com", "friend@email.com"],
 			},
 			{
@@ -98,12 +89,7 @@ const generators = {
 				notes: "Production account - handle with care",
 			},
 			{
-				bank: randomPick([
-					"Chase",
-					"Bank of America",
-					"Wells Fargo",
-					"Citibank",
-				]),
+				bank: randomPick(["Chase", "Bank of America", "Wells Fargo", "Citibank"]),
 				account_type: randomPick(["checking", "savings"]),
 				routing_number: `****${randomInt(1000, 9999)}`,
 				last_four: `****${randomInt(1000, 9999)}`,
@@ -155,9 +141,7 @@ const generators = {
 					.map(() =>
 						Array(4)
 							.fill(0)
-							.map(() =>
-								Math.random().toString(36).substring(2, 6).toUpperCase(),
-							)
+							.map(() => Math.random().toString(36).substring(2, 6).toUpperCase())
 							.join("-"),
 					)
 					.join("-")}`,
@@ -167,11 +151,7 @@ const generators = {
 			{
 				name: `Encryption Key - ${randomPick(["Backup", "Database", "Files"])}`,
 				algorithm: randomPick(["AES-256", "RSA-4096", "ChaCha20"]),
-				purpose: randomPick([
-					"data-at-rest",
-					"data-in-transit",
-					"backup-encryption",
-				]),
+				purpose: randomPick(["data-at-rest", "data-in-transit", "backup-encryption"]),
 				rotation_period_days: randomPick([30, 60, 90, 180]),
 			},
 		]),
@@ -184,13 +164,7 @@ const generators = {
 		type: "api" as const,
 		data: randomPick([
 			{
-				service: randomPick([
-					"OpenAI",
-					"Stripe",
-					"Twilio",
-					"SendGrid",
-					"GitHub",
-				]),
+				service: randomPick(["OpenAI", "Stripe", "Twilio", "SendGrid", "GitHub"]),
 				key_prefix: randomPick(["sk-", "pk_", "ghp_", "SG."]),
 				key_suffix: `****${randomInt(1000, 9999)}`,
 				environment: randomPick(["production", "development", "staging"]),
@@ -198,24 +172,11 @@ const generators = {
 				webhook_url: "https://api.myapp.com/webhooks",
 			},
 			{
-				platform: randomPick([
-					"Google Cloud",
-					"Azure",
-					"Hetzner",
-					"DigitalOcean",
-				]),
+				platform: randomPick(["Google Cloud", "Azure", "Hetzner", "DigitalOcean"]),
 				token_type: randomPick(["OAuth2", "API Key", "Service Account"]),
-				scopes: randomPick([
-					["read", "write"],
-					["admin"],
-					["read", "write", "delete"],
-				]),
+				scopes: randomPick([["read", "write"], ["admin"], ["read", "write", "delete"]]),
 				project: `project-${randomPick(["alpha", "beta", "gamma", "prod"])}`,
-				created_at: new Date(
-					2024,
-					randomInt(0, 11),
-					randomInt(1, 28),
-				).toISOString(),
+				created_at: new Date(2024, randomInt(0, 11), randomInt(1, 28)).toISOString(),
 			},
 		]),
 		images: randomPick([null, [randomPick(images.api)]]),
@@ -238,12 +199,7 @@ const generators = {
 				type: randomPick(["video", "article", "podcast", "tutorial"]),
 				url: `https://example.com/${randomPick(["tutorials", "guides", "videos"])}/${Date.now()}-${i}`,
 				duration_minutes: randomPick([null, 15, 45, 90, 120]),
-				author: randomPick([
-					"TechLead",
-					"CodeMaster",
-					"DevGuru",
-					"SysAdminPro",
-				]),
+				author: randomPick(["TechLead", "CodeMaster", "DevGuru", "SysAdminPro"]),
 			},
 			{
 				collection: randomPick([
@@ -267,33 +223,10 @@ const generators = {
 		type: "game_loadout" as const,
 		data: randomPick([
 			{
-				game: randomPick([
-					"CS2",
-					"Valorant",
-					"Apex Legends",
-					"Fortnite",
-					"Warzone",
-				]),
-				loadout_name: randomPick([
-					"Aggressive",
-					"Tactical",
-					"Sniper",
-					"Support",
-				]),
-				primary_weapon: randomPick([
-					"AK-47",
-					"M4A4",
-					"Vandal",
-					"R-301",
-					"SCAR",
-				]),
-				secondary_weapon: randomPick([
-					"Deagle",
-					"Glock",
-					"USP",
-					"Ghost",
-					"Sheriff",
-				]),
+				game: randomPick(["CS2", "Valorant", "Apex Legends", "Fortnite", "Warzone"]),
+				loadout_name: randomPick(["Aggressive", "Tactical", "Sniper", "Support"]),
+				primary_weapon: randomPick(["AK-47", "M4A4", "Vandal", "R-301", "SCAR"]),
+				secondary_weapon: randomPick(["Deagle", "Glock", "USP", "Ghost", "Sheriff"]),
 				sensitivity: `${randomInt(1, 10)}.${randomInt(0, 9)}`,
 				crosshair: randomPick(["dot", "cross", "circle"]),
 				rank: randomPick([
@@ -307,13 +240,7 @@ const generators = {
 			},
 			{
 				game: randomPick(["Elden Ring", "Dark Souls", "Sekiro", "Bloodborne"]),
-				build: randomPick([
-					"Strength",
-					"Dexterity",
-					"Intelligence",
-					"Faith",
-					"Quality",
-				]),
+				build: randomPick(["Strength", "Dexterity", "Intelligence", "Faith", "Quality"]),
 				level: randomInt(50, 200),
 				main_weapon: randomPick([
 					"Moonveil",
@@ -437,14 +364,7 @@ async function seed() {
 	// Create credentials
 	console.log("📦 Creating credentials...");
 
-	const types = [
-		"credentials",
-		"key",
-		"api",
-		"media",
-		"game_loadout",
-		"misc",
-	] as const;
+	const types = ["credentials", "key", "api", "media", "game_loadout", "misc"] as const;
 	const batchSize = 50;
 	let created = 0;
 	const totalCredentials = 500;
@@ -484,10 +404,10 @@ async function seed() {
 			await sql`
                 INSERT INTO credentials (
                     user_id, types_id, title, short_description,
-                    long_description, thumbnail, data, images, tags, notes
+                    long_description, data, images, tags, notes
                 ) VALUES (
                     ${cred.user_id}, ${cred.types_id}, ${cred.title}, ${cred.short_description},
-                    ${cred.long_description}, ${cred.thumbnail}, ${cred.data},
+                    ${cred.long_description}, ${cred.data},
                     ${cred.images}, ${cred.tags}, ${cred.notes}
                 )
             `;

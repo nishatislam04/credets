@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS credentials(
 	short_description TEXT NULL,
 	long_description TEXT NULL,
 	thumbnail_image_data BYTEA NULL,
-	thumbnail_format TEXT NULL,
+	thumbnail_format VARCHAR(10) NULL,
 	thumbnail_width INT NULL,
 	thumbnail_height INT NULL,
 	data JSONB NOT NULL,
@@ -67,11 +67,11 @@ CREATE TABLE IF NOT EXISTS credential_images(
 CREATE UNIQUE INDEX IF NOT EXISTS users_username_idx ON users(username);
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email);
 
-CREATE INDEX IF NOT EXISTS credentials_title_idx ON credentials USING GIN (title);
-CREATE INDEX IF NOT EXISTS credentials_short_description_idx ON credentials USING GIN (short_description);
-CREATE INDEX IF NOT EXISTS credentials_long_description_idx ON credentials USING GIN (long_description);
+CREATE INDEX IF NOT EXISTS credentials_title_idx ON credentials (title);
+CREATE INDEX IF NOT EXISTS credentials_short_description_idx ON credentials (short_description);
+CREATE INDEX IF NOT EXISTS credentials_long_description_idx ON credentials (long_description);
 CREATE INDEX IF NOT EXISTS credentials_data_idx ON credentials USING GIN (data);
-CREATE INDEX IF NOT EXISTS credentials_notes_idx ON credentials USING GIN (notes);
+CREATE INDEX IF NOT EXISTS credentials_notes_idx ON credentials (notes);
 CREATE INDEX IF NOT EXISTS credentials_tags_idx ON credentials USING GIN (tags);
 CREATE INDEX IF NOT EXISTS credentials_created_at_idx ON credentials(created_at);
 CREATE INDEX IF NOT EXISTS credentials_user_id_idx ON credentials(user_id);

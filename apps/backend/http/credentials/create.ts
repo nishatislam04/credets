@@ -114,7 +114,9 @@ export async function credentialCreate(req: BunRequest) {
 
 	const processedData = JSON.stringify(payload.data);
 
-	// await sql`INSERT INTO credentials (title, short_description, long_description, thumbnail_image_data, thumbnail_format, thumbnail_width, thumbnail_height, data, images, notes, tags, user_id, types_id) VALUES (${payload.title}, ${payload.short_description}, ${payload.long_description}, ${thumbnail_image_data}, ${thumbnail_format}, ${thumbnail_width}, ${thumbnail_height}, ${processedData}, ${payload.images}, ${payload.notes}, ${payload.tags}, '325a740b-91fd-4496-9724-ff116149416b', '4fd1898c-6889-4982-a832-1953b4421b97')`;
+	const processedTags = JSON.stringify(payload.tags?.split(","));
+
+	await sql`INSERT INTO credentials (title, short_description, long_description, thumbnail_image_data, thumbnail_format, thumbnail_width, thumbnail_height, data, images, notes, tags, user_id, types_id) VALUES (${payload.title}, ${payload.short_description}, ${payload.long_description}, ${thumbnail_image_data}, ${thumbnail_format}, ${thumbnail_width}, ${thumbnail_height}, ${processedData}, ${payload.images}, ${payload.notes}, ${processedTags}, 'fc4fce5d-1aed-4af4-b8e9-b78623afafb8', '449369cd-10af-4ac6-81dc-74401fdf56df')`;
 
 	return new Response(
 		JSON.stringify({ success: true, message: "a new credentials added" }),
