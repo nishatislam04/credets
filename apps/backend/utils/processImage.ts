@@ -41,5 +41,6 @@ export async function processImage({
 		format: "webp",
 		width: newWidth,
 		height: newHeight,
+		byteSize: compressed.byteLength,
 	};
 }

@@ -75,11 +75,8 @@ export async function credentialCreate(req: BunRequest) {
 		);
 	}
 
-	const payload = validatedData.data;
-	// console.log(payload.data);
-
 	const thumbnailResult = await processImage({
-		file: payload.thumbnail,
+		file: validatedData.data.thumbnail,
 		outputQuality: 50,
 		resizeInWidth: 800,
 	});
@@ -103,14 +100,45 @@ export async function credentialCreate(req: BunRequest) {
 	const validImages = processedImages.filter(
 		(img): img is NonNullable<typeof img> => img !== null,
 	);
+	console.log(validImages);
 
-	// ! will format these images for db insert later
+	const processedData = JSON.stringify(validatedData.data.data);
 
-	const processedData = JSON.stringify(payload.data);
+	const processedTags = JSON.stringify(validatedData.data.tags?.split(","));
 
-	const processedTags = JSON.stringify(payload.tags?.split(","));
+	const [{ id: user_id }] = await sql`SELECT id FROM users`;
+	const [{ id: types_id }] = await sql`SELECT id FROM types LIMIT 1`;
 
-	await sql`INSERT INTO credentials (title, short_description, long_description, thumbnail_image_data, thumbnail_format, thumbnail_width, thumbnail_height, data, images, notes, tags, user_id, types_id) VALUES (${payload.title}, ${payload.short_description}, ${payload.long_description}, ${thumbnail_image_data}, ${thumbnail_format}, ${thumbnail_width}, ${thumbnail_height}, ${processedData}, ${payload.images}, ${payload.notes}, ${processedTags}, 'fc4fce5d-1aed-4af4-b8e9-b78623afafb8', '449369cd-10af-4ac6-81dc-74401fdf56df')`;
+	const credentialPayload = {
+		title: validatedData.data.title,
+		short_description: validatedData.data.short_description,
+		long_description: validatedData.data.long_description,
+		thumbnail_image_data,
+		thumbnail_format,
+		thumbnail_width,
+		thumbnail_height,
+		data: processedData,
+		notes: validatedData.data.notes,
+		tags: processedTags,
+		user_id,
+		types_id,
+	};
+
+	const [{ id: credential_id }] =
+		await sql`INSERT INTO credentials ${sql(credentialPayload)} RETURNING id`;
+
+	const credentialImagesPayload = validImages.map((image) => {
+		return {
+			image_data: image.buffer,
+			format: image.format,
+			width: image.width,
+			height: image.height,
+			byte_size: image.byteSize,
+			credential_id,
+		};
+	});
+
+	await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
 
 	return new Response(
 		JSON.stringify({ success: true, message: "a new credentials added" }),
