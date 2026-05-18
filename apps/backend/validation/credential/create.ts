@@ -23,6 +23,7 @@ export async function createCredentialValidation(req: BunRequest) {
 			},
 		);
 
+	const type = formData.get("type")?.toString() || "";
 	const title = formData.get("title")?.toString() || "";
 	const short_description = formData.get("short_description")?.toString() || "";
 	const long_description = formData.get("long_description")?.toString() || "";
@@ -42,6 +43,7 @@ export async function createCredentialValidation(req: BunRequest) {
 	const validateDisData = {
 		_csrf,
 		title,
+		type,
 		short_description,
 		long_description,
 		thumbnail,

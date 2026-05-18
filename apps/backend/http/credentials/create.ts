@@ -105,7 +105,7 @@ export async function credentialCreate(req: BunRequest) {
 
 	const [{ id: user_id }] = await sql`SELECT id FROM users`;
 	const [{ id: types_id }] =
-		await sql`SELECT id FROM types WHERE label=${validatedData.data.type}`;
+		await sql`SELECT id FROM types WHERE value=${validatedData.data.type}`;
 
 	const credentialPayload = {
 		title: validatedData.data.title,
@@ -136,7 +136,8 @@ export async function credentialCreate(req: BunRequest) {
 		};
 	});
 
-	// await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
+	if (validImages.length > 0)
+		await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
 
 	return new Response(
 		JSON.stringify({ success: true, message: "a new credentials added" }),

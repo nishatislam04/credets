@@ -77,39 +77,39 @@ function RouteComponent() {
 
 	const form = useForm({
 		defaultValues: defaultCredentialValues(csrfToken),
-		// validators: {
-		// 	onBlur: credentialsCreateSchema,
-		// 	onSubmitAsync: async ({ value }) => {
-		// 		try {
-		// 			const data = await createCredentialValidation(value);
+		validators: {
+			onSubmit: credentialsCreateSchema,
+			onSubmitAsync: async ({ value }) => {
+				try {
+					const data = await createCredentialValidation(value);
 
-		// 			if (!data.success && data.type === "form-validation") {
-		// 				gooeyToast.error("Validation failed", {
-		// 					description: "Please fix all the form errors and try again.",
-		// 				});
+					if (!data.success && data.type === "form-validation") {
+						gooeyToast.error("Validation failed", {
+							description: "Please fix all the form errors and try again.",
+						});
 
-		// 				return { fields: data.errors };
-		// 			}
+						return { fields: data.errors };
+					}
 
-		// 			if (!data.success) {
-		// 				gooeyToast.error(data.message);
-		// 				return {
-		// 					message:
-		// 						"something went wrong on server side while validating credential data",
-		// 				};
-		// 			}
-		// 		} catch (error) {
-		// 			gooeyToast.error("something went on wrong", {
-		// 				description:
-		// 					error instanceof Error
-		// 						? error.message
-		// 						: "something went wrong on our server. please try again later",
-		// 			});
+					if (!data.success) {
+						gooeyToast.error(data.message);
+						return {
+							message:
+								"something went wrong on server side while validating credential data",
+						};
+					}
+				} catch (error) {
+					gooeyToast.error("something went on wrong", {
+						description:
+							error instanceof Error
+								? error.message
+								: "something went wrong on our server. please try again later",
+					});
 
-		// 			return { message: "something went wrong" };
-		// 		}
-		// 	},
-		// },
+					return { message: "something went wrong" };
+				}
+			},
+		},
 
 		onSubmit: async ({ value }) => {
 			gooeyToast.promise(createCredentialAction(value), {
