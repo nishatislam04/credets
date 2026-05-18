@@ -29,6 +29,7 @@ export async function credentialCreate(req: BunRequest) {
 	const title = formData.get("title")?.toString() || "";
 	const short_description = formData.get("short_description")?.toString() || "";
 	const long_description = formData.get("long_description")?.toString() || "";
+	const type = formData.get("type")?.toString() || "";
 	const notes = formData.get("notes")?.toString() || "";
 	const tags = formData.get("tags")?.toString() || "";
 	const data = JSON.parse(formData.get("data")?.toString() || "[]");
@@ -45,6 +46,7 @@ export async function credentialCreate(req: BunRequest) {
 	const validateDisData = {
 		_csrf,
 		title,
+		type,
 		short_description,
 		long_description,
 		thumbnail,
@@ -96,14 +98,14 @@ export async function credentialCreate(req: BunRequest) {
 	const validImages = processedImages.filter(
 		(img): img is NonNullable<typeof img> => img !== null,
 	);
-	console.log(validImages);
 
 	const processedData = JSON.stringify(validatedData.data.data);
 
 	const processedTags = JSON.stringify(validatedData.data.tags?.split(","));
 
 	const [{ id: user_id }] = await sql`SELECT id FROM users`;
-	const [{ id: types_id }] = await sql`SELECT id FROM types LIMIT 1`;
+	const [{ id: types_id }] =
+		await sql`SELECT id FROM types WHERE label=${validatedData.data.type}`;
 
 	const credentialPayload = {
 		title: validatedData.data.title,
@@ -134,7 +136,7 @@ export async function credentialCreate(req: BunRequest) {
 		};
 	});
 
-	await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
+	// await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
 
 	return new Response(
 		JSON.stringify({ success: true, message: "a new credentials added" }),

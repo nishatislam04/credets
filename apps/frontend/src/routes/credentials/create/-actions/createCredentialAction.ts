@@ -14,7 +14,7 @@ export async function createCredentialAction(value) {
 				body: formdata,
 			},
 		);
-		return await response.json();
+		await response.json();
 	} catch (_) {
 		throw new Error("something went wrong on server while creating resource");
 	}

@@ -26,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { createCredentialAction } from "./-actions/createCredentialAction";
 import { createCredentialValidation } from "./-actions/createCredentialValidation";
 import { getCSRFtoken } from "./-actions/getCSRFtoken";
+import { getTypesListings } from "./-actions/getTypesListings";
 import { DataBlock } from "./-components/Datablock";
 
 export const Route = createFileRoute("/credentials/create/")({
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/credentials/create/")({
 const defaultCredentialValues = (csrfToken: string): CredentialCreateType => ({
 	_csrf: csrfToken || "",
 	title: "",
-	types_id: "",
+	type: "",
 	short_description: undefined,
 	long_description: undefined,
 	thumbnail: null,
@@ -60,41 +61,55 @@ function RouteComponent() {
 		},
 	});
 
+	const { data: typesListings, isLoading: isTypesListingsLoading } = useQuery({
+		queryKey: ["types_listings"],
+		queryFn: async () => {
+			try {
+				const res = await getTypesListings();
+				return res.data;
+			} catch (error) {
+				gooeyToast.error(
+					error instanceof Error ? error.message : "failed to fetch types",
+				);
+			}
+		},
+	});
+
 	const form = useForm({
 		defaultValues: defaultCredentialValues(csrfToken),
-		validators: {
-			onBlur: credentialsCreateSchema,
-			onSubmitAsync: async ({ value }) => {
-				try {
-					const data = await createCredentialValidation(value);
+		// validators: {
+		// 	onBlur: credentialsCreateSchema,
+		// 	onSubmitAsync: async ({ value }) => {
+		// 		try {
+		// 			const data = await createCredentialValidation(value);
 
-					if (!data.success && data.type === "form-validation") {
-						gooeyToast.error("Validation failed", {
-							description: "Please fix all the form errors and try again.",
-						});
+		// 			if (!data.success && data.type === "form-validation") {
+		// 				gooeyToast.error("Validation failed", {
+		// 					description: "Please fix all the form errors and try again.",
+		// 				});
 
-						return { fields: data.errors };
-					}
+		// 				return { fields: data.errors };
+		// 			}
 
-					if (!data.success) {
-						gooeyToast.error(data.message);
-						return {
-							message:
-								"something went wrong on server side while validating credential data",
-						};
-					}
-				} catch (error) {
-					gooeyToast.error("something went on wrong", {
-						description:
-							error instanceof Error
-								? error.message
-								: "something went wrong on our server. please try again later",
-					});
+		// 			if (!data.success) {
+		// 				gooeyToast.error(data.message);
+		// 				return {
+		// 					message:
+		// 						"something went wrong on server side while validating credential data",
+		// 				};
+		// 			}
+		// 		} catch (error) {
+		// 			gooeyToast.error("something went on wrong", {
+		// 				description:
+		// 					error instanceof Error
+		// 						? error.message
+		// 						: "something went wrong on our server. please try again later",
+		// 			});
 
-					return { message: "something went wrong" };
-				}
-			},
-		},
+		// 			return { message: "something went wrong" };
+		// 		}
+		// 	},
+		// },
 
 		onSubmit: async ({ value }) => {
 			gooeyToast.promise(createCredentialAction(value), {
@@ -119,7 +134,7 @@ function RouteComponent() {
 		},
 	});
 
-	if (csrfTokenLoading) return <p>fetching csrf token. please wait a moment</p>;
+	if (csrfTokenLoading) return <p>fetching csrf token. please wait a moment...</p>;
 
 	return (
 		<main>
@@ -178,30 +193,43 @@ function RouteComponent() {
 					/>
 					{/* types field */}
 					<form.Field
-						name="types_id"
+						name="type"
 						children={(field) => {
 							const isInvalid = !field.state.meta.isValid;
 							return (
 								<Field orientation="responsive" data-invalid={isInvalid}>
 									<FieldContent>
-										<FieldLabel htmlFor="types_id">types</FieldLabel>
+										<FieldLabel htmlFor="type">types</FieldLabel>
 										{isInvalid && <FieldError errors={field.state.meta.errors} />}
 									</FieldContent>
 									<Select
 										name={field.name}
 										value={field.state.value}
-										onValueChange={field.handleChange}
+										onValueChange={(value) => {
+											field.handleChange(value || "");
+										}}
 									>
-										<SelectTrigger
-											id="types_id"
-											aria-invalid={isInvalid}
-											className="min-w-30"
-										>
-											<SelectValue placeholder="Select" />
+										<SelectTrigger id="type" aria-invalid={isInvalid}>
+											<SelectValue placeholder="Select a type" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="auto">Auto</SelectItem>
-											<SelectItem value="en">English</SelectItem>
+											{isTypesListingsLoading ? (
+												<SelectItem value="" disabled>
+													fetching types...
+												</SelectItem>
+											) : typesListings.length > 0 ? (
+												typesListings.map(
+													(type: { id: string; value: string; label: string }) => (
+														<SelectItem key={type.id} value={type.value}>
+															{type.label}
+														</SelectItem>
+													),
+												)
+											) : (
+												<SelectItem value="" disabled>
+													No types available
+												</SelectItem>
+											)}
 										</SelectContent>
 									</Select>
 								</Field>

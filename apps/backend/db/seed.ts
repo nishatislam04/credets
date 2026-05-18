@@ -266,42 +266,70 @@ async function seed() {
 
 	console.log("📂 Inserting credential types...");
 
-	// Insert types
-	const typesResult = await sql`
-        INSERT INTO types (label, description) VALUES
-            ('credentials', 'Standard login credentials for websites, apps, and services'),
-            ('key', 'SSH keys, API keys, license keys, and encryption keys'),
-            ('api', 'API tokens, service accounts, and platform credentials'),
-            ('media', 'Media assets, collections, and content references'),
-            ('game_loadout', 'Gaming configurations, loadouts, and character builds'),
-            ('misc', 'Miscellaneous notes, configurations, and quick references')
-        ON CONFLICT (label) DO NOTHING
-        RETURNING id, label
-    `;
+	// Insert types with capitalized labels and lowercase values
+	const typesData = [
+		{
+			label: "Credentials",
+			value: "credentials",
+			description: "Standard login credentials for websites, apps, and services",
+		},
+		{
+			label: "Key",
+			value: "key",
+			description: "SSH keys, API keys, license keys, and encryption keys",
+		},
+		{
+			label: "API",
+			value: "api",
+			description: "API tokens, service accounts, and platform credentials",
+		},
+		{
+			label: "Media",
+			value: "media",
+			description: "Media assets, collections, and content references",
+		},
+		{
+			label: "Game Loadout",
+			value: "game_loadout",
+			description: "Gaming configurations, loadouts, and character builds",
+		},
+		{
+			label: "Misc",
+			value: "misc",
+			description: "Miscellaneous notes, configurations, and quick references",
+		},
+	];
 
-	// Create mapping from label to id
-	const typeMap = new Map();
-	for (const type of typesResult) {
-		typeMap.set(type.label, type.id);
+	// Build a mapping from `value` (lowercase) to database `id`
+	const typeMap = new Map<string, string>();
+
+	for (const type of typesData) {
+		const [inserted] = await sql`
+			INSERT INTO types (label, value, description)
+			VALUES (${type.label}, ${type.value}, ${type.description})
+			ON CONFLICT (label) DO UPDATE SET value = EXCLUDED.value, description = EXCLUDED.description
+			RETURNING id, value
+		`;
+		typeMap.set(inserted.value, inserted.id);
 	}
 
 	console.log("👤 Creating test user...");
 
-	// Create test user with hashed password (using Bun's password hasher)
+	// Create test user with hashed passwords
 	const passwordHash = await Bun.password.hash("TestPass123!");
 	const specialPasswordHash = await Bun.password.hash("SpecialPass456!");
 
 	const [user] = await sql`
-        INSERT INTO users (name, username, email, password, special_password)
-        VALUES (
-            'John Doe',
-            'johndoe',
-            'john@example.com',
-            ${passwordHash},
-            ${specialPasswordHash}
-        )
-        RETURNING id
-    `;
+		INSERT INTO users (name, username, email, password, special_password)
+		VALUES (
+			'John Doe',
+			'johndoe',
+			'john@example.com',
+			${passwordHash},
+			${specialPasswordHash}
+		)
+		RETURNING id
+	`;
 
 	console.log(`   User created with ID: ${user.id}`);
 
@@ -310,19 +338,19 @@ async function seed() {
 
 	const sessionToken = crypto.randomUUID();
 	const expiresAt = new Date();
-	expiresAt.setDate(expiresAt.getDate() + 30); // 30 days from now
+	expiresAt.setDate(expiresAt.getDate() + 30);
 
 	await sql`
-        INSERT INTO session (user_id, token, expires_at)
-        VALUES (${user.id}, ${sessionToken}, ${expiresAt})
-    `;
+		INSERT INTO session (user_id, token, expires_at)
+		VALUES (${user.id}, ${sessionToken}, ${expiresAt})
+	`;
 
 	console.log("   Session token:", sessionToken);
 
 	// Create credentials (no images, thumbnails left null)
 	console.log("📦 Creating credentials...");
 
-	const types = ["credentials", "key", "api", "media", "game_loadout", "misc"] as const;
+	const typeValues = ["credentials", "key", "api", "media", "game_loadout", "misc"];
 	const batchSize = 50;
 	let created = 0;
 	const totalCredentials = 500;
@@ -333,40 +361,40 @@ async function seed() {
 
 		for (let j = 0; j < currentBatchSize; j++) {
 			const index = i + j + 1;
-			const typeLabel = types[index % types.length];
-			const generator = generators[typeLabel];
+			const typeValue = typeValues[index % typeValues.length];
+			const generator = generators[typeValue as keyof typeof generators];
 			const credData = generator(index);
-			const typeId = typeMap.get(typeLabel);
+			const typeId = typeMap.get(typeValue);
 
 			if (!typeId) {
-				console.error(`Type not found: ${typeLabel}`);
+				console.error(`Type not found for value: ${typeValue}`);
 				continue;
 			}
 
 			batch.push({
 				user_id: user.id,
 				types_id: typeId,
-				title: generateTitle(typeLabel, index),
-				short_description: generateShortDescription(typeLabel),
-				long_description: `Detailed information about this ${typeLabel} item. Created for demonstration purposes.`,
+				title: generateTitle(typeValue, index),
+				short_description: generateShortDescription(typeValue),
+				long_description: `Detailed information about this ${typeValue} item. Created for demonstration purposes.`,
 				data: JSON.stringify(credData.data),
 				tags: credData.tags ? JSON.stringify(credData.tags) : null,
 				notes: credData.notes,
 			});
 		}
 
-		// Insert batch one by one
+		// Insert batch one by one (or use batch insert if your SQL supports it)
 		for (const cred of batch) {
 			await sql`
-                INSERT INTO credentials (
-                    user_id, types_id, title, short_description,
-                    long_description, data, tags, notes
-                ) VALUES (
-                    ${cred.user_id}, ${cred.types_id}, ${cred.title}, ${cred.short_description},
-                    ${cred.long_description}, ${cred.data},
-                    ${cred.tags}, ${cred.notes}
-                )
-            `;
+				INSERT INTO credentials (
+					user_id, types_id, title, short_description,
+					long_description, data, tags, notes
+				) VALUES (
+					${cred.user_id}, ${cred.types_id}, ${cred.title}, ${cred.short_description},
+					${cred.long_description}, ${cred.data},
+					${cred.tags}, ${cred.notes}
+				)
+			`;
 			created++;
 		}
 
@@ -378,17 +406,17 @@ async function seed() {
 	console.log("   - 1 User (john@example.com / TestPass123!)");
 	console.log("   - 1 Active Session (30 days)");
 	console.log(`   - ${totalCredentials} Credentials across all types`);
-	console.log("   - 6 Credential Types");
+	console.log("   - 6 Credential Types (label capitalized, value lowercase)");
 	console.log("   - No images or thumbnails inserted (as requested)");
 
 	// Show distribution
 	const distribution = await sql`
-        SELECT t.label, COUNT(c.id) as count
-        FROM credentials c
-        JOIN types t ON c.types_id = t.id
-        GROUP BY t.label
-        ORDER BY t.label
-    `;
+		SELECT t.label, COUNT(c.id) as count
+		FROM credentials c
+		JOIN types t ON c.types_id = t.id
+		GROUP BY t.label
+		ORDER BY t.label
+	`;
 
 	console.log("\n📈 Credentials Distribution:");
 	for (const row of distribution) {

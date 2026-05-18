@@ -4,6 +4,7 @@ import { credentailDelete } from "./http/credentials/delete";
 import { credentialListings } from "./http/credentials/listings";
 import { credentialUpdate } from "./http/credentials/update";
 import { generateCSRF } from "./http/csrf/generateCSRF";
+import { typesListings } from "./http/types/listings";
 import indexHtml from "./index.html";
 import { createCredentialValidation } from "./validation/credential/create";
 
@@ -13,16 +14,21 @@ Bun.serve({
 	idleTimeout: 35,
 	routes: {
 		"/": indexHtml,
+
+		// csrf
 		"/get-csrf": () => generateCSRF(),
 
+		// credentials
 		"/credentials": (req) => credentialListings(req),
 		"/credentials/:credentialId": (req) => credentialPage(req),
-
 		"/credentials/create": (req) => credentialCreate(req),
 		"/credentials/update": () => credentialUpdate(),
 		"/credentials/delete": (req, server) => credentailDelete(req, server),
 
 		"/credentials/create/validation": (req) => createCredentialValidation(req),
+
+		// types
+		"/types/listings": () => typesListings(),
 	},
 
 	async fetch(req, server) {

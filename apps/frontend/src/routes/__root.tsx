@@ -12,7 +12,14 @@ export const Route = createRootRoute({
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			gcTime: 0, // turning off client side full cache system
+			staleTime: 0, // turning off client side full cache system
+		},
+	},
+});
 
 function RootComponent() {
 	return (
