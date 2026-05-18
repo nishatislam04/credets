@@ -6,10 +6,6 @@ import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
 import { verifyCSRF } from "../csrf/verifyCSRF";
 
-/**
- * this is our POST endpoint to create credentials
- */
-
 export async function credentialCreate(req: BunRequest) {
 	const formData = await req.formData();
 	const _csrf = formData.get("_csrf")?.toString() || "";

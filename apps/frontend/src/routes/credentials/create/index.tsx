@@ -4,8 +4,21 @@ import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
-import { Field, FieldError, FieldGroup, FieldLabel } from "#/components/ui/field";
+import {
+	Field,
+	FieldContent,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from "#/components/ui/field";
 import { gooeyToast } from "#/components/ui/goey-toaster";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "#/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -22,6 +35,7 @@ export const Route = createFileRoute("/credentials/create/")({
 const defaultCredentialValues = (csrfToken: string): CredentialCreateType => ({
 	_csrf: csrfToken || "",
 	title: "",
+	types_id: "",
 	short_description: undefined,
 	long_description: undefined,
 	thumbnail: null,
@@ -49,7 +63,7 @@ function RouteComponent() {
 	const form = useForm({
 		defaultValues: defaultCredentialValues(csrfToken),
 		validators: {
-			// onBlur: credentialsCreateSchema,
+			onBlur: credentialsCreateSchema,
 			onSubmitAsync: async ({ value }) => {
 				try {
 					const data = await createCredentialValidation(value);
@@ -162,6 +176,39 @@ function RouteComponent() {
 							);
 						}}
 					/>
+					{/* types field */}
+					<form.Field
+						name="types_id"
+						children={(field) => {
+							const isInvalid = !field.state.meta.isValid;
+							return (
+								<Field orientation="responsive" data-invalid={isInvalid}>
+									<FieldContent>
+										<FieldLabel htmlFor="types_id">types</FieldLabel>
+										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+									</FieldContent>
+									<Select
+										name={field.name}
+										value={field.state.value}
+										onValueChange={field.handleChange}
+									>
+										<SelectTrigger
+											id="types_id"
+											aria-invalid={isInvalid}
+											className="min-w-30"
+										>
+											<SelectValue placeholder="Select" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="auto">Auto</SelectItem>
+											<SelectItem value="en">English</SelectItem>
+										</SelectContent>
+									</Select>
+								</Field>
+							);
+						}}
+					/>
+
 					{/*side-by-side short and long desciption*/}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
 						<form.Field
@@ -207,31 +254,6 @@ function RouteComponent() {
 							}}
 						/>
 					</div>
-
-					{/* Thumbnail file */}
-					<form.Field
-						name="thumbnail"
-						children={(field) => {
-							const isinvalid = !field.state.meta.isValid;
-							return (
-								<Field data-invalid={isinvalid}>
-									<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
-									<Input
-										id="thumbnail"
-										type="file"
-										accept="image/jpeg,image/png,image/webp"
-										onBlur={field.handleBlur}
-										onChange={(e) => {
-											const file = e.target.files?.[0] || null;
-											field.handleChange(file);
-										}}
-										aria-invalid={isinvalid}
-									/>
-									{isinvalid && <FieldError errors={field.state.meta.errors} />}
-								</Field>
-							);
-						}}
-					/>
 
 					{/* Data array */}
 					<div className="my-6">
@@ -285,102 +307,130 @@ function RouteComponent() {
 						/>
 					</div>
 
-					{/* Images multi-file */}
-					<form.Field
-						name="images"
-						validators={{
-							onChange: ({ value }) => {
-								if (!value || value.length === 0) return undefined;
+					{/* Thumbnail and images side-by side */}
+					<div className="grid grid-cols-2 gap-4">
+						<form.Field
+							name="thumbnail"
+							children={(field) => {
+								const isinvalid = !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isinvalid}>
+										<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
+										<Input
+											id="thumbnail"
+											type="file"
+											accept="image/jpeg,image/png,image/webp"
+											onBlur={field.handleBlur}
+											onChange={(e) => {
+												const file = e.target.files?.[0] || null;
+												field.handleChange(file);
+											}}
+											aria-invalid={isinvalid}
+										/>
+										{isinvalid && <FieldError errors={field.state.meta.errors} />}
+									</Field>
+								);
+							}}
+						/>
 
-								// MAX IMAGES CHECK
-								if (value.length > 6) {
-									return { message: "Maximum 6 images allowed" };
-								}
+						{/* Images multi-file */}
+						<form.Field
+							name="images"
+							validators={{
+								onChange: ({ value }) => {
+									if (!value || value.length === 0) return undefined;
 
-								// Check each file
-								for (const file of value) {
-									if (file.size > 3_000_000) {
-										return { message: `File "${file.name}" is larger than 3MB` };
+									// MAX IMAGES CHECK
+									if (value.length > 6) {
+										return { message: "Maximum 6 images allowed" };
 									}
-									if (
-										!["image/jpg", "image/jpeg", "image/png", "image/webp"].includes(
-											file.type,
-										)
-									) {
-										return { message: `File "${file.name}" is not a valid image type` };
-									}
-								}
-								return undefined;
-							},
-						}}
-						children={(field) => {
-							const isinvalid = !field.state.meta.isValid;
-							return (
-								<Field data-invalid={isinvalid}>
-									<FieldLabel htmlFor="images">Images (multi)</FieldLabel>
-									<Input
-										id="images"
-										type="file"
-										multiple
-										accept="image/*"
-										onBlur={field.handleBlur}
-										onChange={(e) => {
-											const newFiles = e.target.files ? Array.from(e.target.files) : [];
-											const current = field.state.value ?? [];
 
-											// Prevent exceeding 6 images
-											const available = 6 - current.length;
-											if (available <= 0) {
-												gooeyToast.error("max 6 images support", {
-													description: "you can choose only 6 images",
-												});
+									// Check each file
+									for (const file of value) {
+										if (file.size > 3_000_000) {
+											return { message: `File "${file.name}" is larger than 3MB` };
+										}
+										if (
+											!["image/jpg", "image/jpeg", "image/png", "image/webp"].includes(
+												file.type,
+											)
+										) {
+											return { message: `File "${file.name}" is not a valid image type` };
+										}
+									}
+									return undefined;
+								},
+							}}
+							children={(field) => {
+								const isinvalid = !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isinvalid}>
+										<FieldLabel htmlFor="images">Images (multi)</FieldLabel>
+										<Input
+											id="images"
+											type="file"
+											multiple
+											accept="image/*"
+											onBlur={field.handleBlur}
+											onChange={(e) => {
+												const newFiles = e.target.files ? Array.from(e.target.files) : [];
+												const current = field.state.value ?? [];
+
+												// Prevent exceeding 6 images
+												const available = 6 - current.length;
+												if (available <= 0) {
+													gooeyToast.error("max 6 images support", {
+														description: "you can choose only 6 images",
+													});
+													e.target.value = "";
+													return;
+												}
+
+												const updated = [...current, ...newFiles];
+												field.handleChange(updated);
 												e.target.value = "";
-												return;
-											}
-
-											const updated = [...current, ...newFiles];
-											field.handleChange(updated);
-											e.target.value = "";
-										}}
-										aria-invalid={isinvalid}
-									/>
-									{field.state.value && field.state.value.length > 0 && (
-										<div className="mt-2 text-sm">
-											<p className="font-medium">Selected files:</p>
-											<ul className="list-disc list-inside">
-												{field.state.value.map((file, index) => {
-													const imageFiles: File[] = (field.state.value as File[]) ?? [];
-													return (
-														<li
-															key={`${crypto.randomUUID()}`}
-															className="flex items-center gap-2"
-														>
-															<span>{file.name}</span>
-															<Button
-																type="button"
-																variant="ghost"
-																size="sm"
-																className="text-destructive h-auto px-1"
-																onClick={() => {
-																	const updated = imageFiles.filter(
-																		(_, i) => i !== index,
-																	);
-																	field.handleChange(updated);
-																}}
+											}}
+											aria-invalid={isinvalid}
+										/>
+										{field.state.value && field.state.value.length > 0 && (
+											<div className="mt-2 text-sm">
+												<p className="font-medium mb-2">Selected files:</p>
+												<ul className="list-disc list-inside flex flex-col gap-1">
+													{field.state.value.map((file, index) => {
+														const imageFiles: File[] =
+															(field.state.value as File[]) ?? [];
+														return (
+															<li
+																key={`${crypto.randomUUID()}`}
+																className="flex items-center gap-3"
 															>
-																<Trash2 />
-															</Button>
-														</li>
-													);
-												})}
-											</ul>
-										</div>
-									)}
-									{isinvalid && <FieldError errors={field.state.meta.errors} />}
-								</Field>
-							);
-						}}
-					/>
+																<span>{file.name}</span>
+																<Button
+																	type="button"
+																	variant="ghost"
+																	size="sm"
+																	className="text-destructive h-auto px-1"
+																	onClick={() => {
+																		const updated = imageFiles.filter(
+																			(_, i) => i !== index,
+																		);
+																		field.handleChange(updated);
+																	}}
+																>
+																	<Trash2 />
+																</Button>
+															</li>
+														);
+													})}
+												</ul>
+											</div>
+										)}
+										{isinvalid && <FieldError errors={field.state.meta.errors} />}
+									</Field>
+								);
+							}}
+						/>
+					</div>
 
 					{/* Notes & Tags side by side */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">

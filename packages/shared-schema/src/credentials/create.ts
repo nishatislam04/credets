@@ -29,6 +29,7 @@ export const credentialsCreateSchema = z.object({
 		.trim()
 		.min(4, "credentials title need to be at least 4 characters")
 		.max(30, "credentials title can not be grater than 30 characters"),
+	types_id: z.string().min(1, "types is required"),
 	short_description: z
 		.string()
 		.min(5, "credentials short description can not be less than 5 characters")
