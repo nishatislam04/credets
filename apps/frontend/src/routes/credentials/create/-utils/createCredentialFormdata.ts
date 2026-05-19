@@ -1,6 +1,7 @@
+import type { CredentialCreateType } from "@credets/shared-types/credentials/create";
 import { isDatablockEmpty } from "./isDatablockEmpty";
 
-export function createCredentialFormdata(value) {
+export function createCredentialFormdata(value: CredentialCreateType) {
 	const formdata = new FormData();
 
 	formdata.append("_csrf", value._csrf);

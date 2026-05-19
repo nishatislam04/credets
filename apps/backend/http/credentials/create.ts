@@ -101,7 +101,9 @@ export async function credentialCreate(req: BunRequest) {
 
 	const processedData = JSON.stringify(validatedData.data.data);
 
-	const processedTags = JSON.stringify(validatedData.data.tags?.split(","));
+	const processedTags = JSON.stringify(
+		validatedData.data.tags?.split(",").map((tag) => tag.trim()),
+	);
 
 	const [{ id: user_id }] = await sql`SELECT id FROM users`;
 	const [{ id: types_id }] =

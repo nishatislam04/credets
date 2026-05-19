@@ -1,6 +1,7 @@
+import type { CredentialCreateType } from "@credets/shared-types/credentials/create";
 import { createCredentialFormdata } from "../-utils/createCredentialFormdata";
 
-export async function createCredentialValidation(value) {
+export async function createCredentialValidation(value: CredentialCreateType) {
 	try {
 		const formdata = createCredentialFormdata(value);
 

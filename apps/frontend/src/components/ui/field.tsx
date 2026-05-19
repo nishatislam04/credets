@@ -82,19 +82,23 @@ function Field({
 	);
 }
 
-function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
+function FieldContent({
+	className,
+	flex = true,
+	...props
+}: React.ComponentProps<"div"> & { flex?: boolean }) {
 	return (
 		<div
 			data-slot="field-content"
 			className={cn(
-				"group/field-content flex flex-1 flex-col gap-1 leading-snug",
+				"group/field-content flex flex-col gap-1 leading-snug",
+				flex && "flex-1",
 				className,
 			)}
 			{...props}
 		/>
 	);
 }
-
 function FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>) {
 	return (
 		<Label

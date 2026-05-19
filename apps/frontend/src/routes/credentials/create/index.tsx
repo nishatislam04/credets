@@ -2,16 +2,24 @@ import { credentialsCreateSchema } from "@credets/shared-schema/credentials/crea
 import type { CredentialCreateType } from "@credets/shared-types/credentials/create";
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { Trash2 } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { LoaderIcon, Trash2 } from "lucide-react";
 import {
 	Field,
 	FieldContent,
+	FieldDescription,
 	FieldError,
 	FieldGroup,
 	FieldLabel,
 } from "#/components/ui/field";
 import { gooeyToast } from "#/components/ui/goey-toaster";
+import {
+	Item,
+	ItemContent,
+	ItemDescription,
+	ItemMedia,
+	ItemTitle,
+} from "#/components/ui/item";
 import {
 	Select,
 	SelectContent,
@@ -19,6 +27,15 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { Spinner } from "#/components/ui/spinner";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "#/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -75,6 +92,8 @@ function RouteComponent() {
 		},
 	});
 
+	const navigate = useNavigate();
+
 	const form = useForm({
 		defaultValues: defaultCredentialValues(csrfToken),
 		validators: {
@@ -82,17 +101,16 @@ function RouteComponent() {
 			onSubmitAsync: async ({ value }) => {
 				try {
 					const data = await createCredentialValidation(value);
-
 					if (!data.success && data.type === "form-validation") {
-						gooeyToast.error("Validation failed", {
+						gooeyToast.error(data.message || "Validation failed", {
 							description: "Please fix all the form errors and try again.",
 						});
-
 						return { fields: data.errors };
 					}
-
 					if (!data.success) {
-						gooeyToast.error(data.message);
+						gooeyToast.error(
+							data.message || "something went wrong on server side while validating data",
+						);
 						return {
 							message:
 								"something went wrong on server side while validating credential data",
@@ -105,7 +123,6 @@ function RouteComponent() {
 								? error.message
 								: "something went wrong on our server. please try again later",
 					});
-
 					return { message: "something went wrong" };
 				}
 			},
@@ -121,20 +138,29 @@ function RouteComponent() {
 					error: "Please try again later.",
 				},
 				action: {
-					error: {
-						label: "Retry",
-						onClick: () => null,
-					},
 					success: {
 						label: "go back to listings",
-						onClick: () => null,
+						onClick: () =>
+							navigate({
+								to: "..",
+							}),
 					},
 				},
 			});
 		},
 	});
 
-	if (csrfTokenLoading) return <p>fetching csrf token. please wait a moment...</p>;
+	if (csrfTokenLoading)
+		return (
+			<Item>
+				<ItemMedia variant="icon">
+					<LoaderIcon />
+				</ItemMedia>
+				<ItemContent>
+					<ItemTitle>fetching csrf token. please wait a moment</ItemTitle>
+				</ItemContent>
+			</Item>
+		);
 
 	return (
 		<main>
@@ -174,10 +200,11 @@ function RouteComponent() {
 						name="title"
 						children={(field) => {
 							const isInvalid = !field.state.meta.isValid;
-
 							return (
 								<Field data-invalid={isInvalid}>
-									<FieldLabel htmlFor="title">Title</FieldLabel>
+									<FieldLabel htmlFor="title">
+										Title <span className="text-destructive -ml-2">*</span>
+									</FieldLabel>
 									<Input
 										id="title"
 										value={field.state.value}
@@ -198,8 +225,10 @@ function RouteComponent() {
 							const isInvalid = !field.state.meta.isValid;
 							return (
 								<Field orientation="responsive" data-invalid={isInvalid}>
-									<FieldContent>
-										<FieldLabel htmlFor="type">types</FieldLabel>
+									<FieldContent flex={false}>
+										<FieldLabel className="w-15 mt-2" htmlFor="type">
+											types <span className="text-destructive -ml-2">*</span>
+										</FieldLabel>
 										{isInvalid && <FieldError errors={field.state.meta.errors} />}
 									</FieldContent>
 									<Select
@@ -291,20 +320,33 @@ function RouteComponent() {
 							mode="array"
 							children={(arrayField) => (
 								<div className="space-y-4">
-									{arrayField.state.value.map((data, idx) => (
-										<DataBlock
-											key={`${crypto.randomUUID()}`}
-											item={data}
-											idx={idx}
-											form={form}
-											onRemove={() => arrayField.removeValue(idx)}
-										/>
-									))}
+									{arrayField.state.value.length === 0 && (
+										<Item className="my-8">
+											<ItemContent className="items-center">
+												<ItemTitle className="capitalize text-2xl font-semibold">
+													no data block found
+												</ItemTitle>
+												<ItemDescription>
+													click below action button to create a data block
+												</ItemDescription>
+											</ItemContent>
+										</Item>
+									)}
+									{arrayField.state.value.length > 0 &&
+										arrayField.state.value.map((data, idx) => (
+											<DataBlock
+												key={`${crypto.randomUUID()}`}
+												item={data}
+												idx={idx}
+												form={form}
+												onRemove={() => arrayField.removeValue(idx)}
+											/>
+										))}
 
 									<div className="grid grid-cols-3 gap-2">
 										<Button
 											type="button"
-											variant="outline"
+											variant="secondary"
 											onClick={() =>
 												arrayField.pushValue({ type: "single_label", value: "" })
 											}
@@ -313,7 +355,7 @@ function RouteComponent() {
 										</Button>
 										<Button
 											type="button"
-											variant="outline"
+											variant="secondary"
 											onClick={() =>
 												arrayField.pushValue({ type: "key_value", key: "", value: "" })
 											}
@@ -322,7 +364,7 @@ function RouteComponent() {
 										</Button>
 										<Button
 											type="button"
-											variant="outline"
+											variant="secondary"
 											onClick={() =>
 												arrayField.pushValue({ type: "information", value: "" })
 											}
@@ -422,34 +464,46 @@ function RouteComponent() {
 										/>
 										{field.state.value && field.state.value.length > 0 && (
 											<div className="mt-2 text-sm">
-												<p className="font-medium mb-2">Selected files:</p>
 												<ul className="list-disc list-inside flex flex-col gap-1">
-													{field.state.value.map((file, index) => {
-														const imageFiles: File[] =
-															(field.state.value as File[]) ?? [];
-														return (
-															<li
-																key={`${crypto.randomUUID()}`}
-																className="flex items-center gap-3"
-															>
-																<span>{file.name}</span>
-																<Button
-																	type="button"
-																	variant="ghost"
-																	size="sm"
-																	className="text-destructive h-auto px-1"
-																	onClick={() => {
-																		const updated = imageFiles.filter(
-																			(_, i) => i !== index,
-																		);
-																		field.handleChange(updated);
-																	}}
-																>
-																	<Trash2 />
-																</Button>
-															</li>
-														);
-													})}
+													<Table>
+														<TableHeader>
+															<TableRow>
+																<TableHead className="capitalize">file name</TableHead>
+																<TableHead>Delete</TableHead>
+															</TableRow>
+														</TableHeader>
+														<TableBody>
+															{field.state.value.map((file, index) => {
+																const imageFiles: File[] =
+																	(field.state.value as File[]) ?? [];
+																return (
+																	<TableRow key={`${crypto.randomUUID()}`}>
+																		<TableCell className="font-medium">
+																			<span className="truncate block max-w-75">
+																				{file.name}
+																			</span>
+																		</TableCell>
+																		<TableCell className="text-right w-12.5">
+																			<Button
+																				type="button"
+																				variant="ghost"
+																				size="sm"
+																				className="text-destructive h-auto px-1"
+																				onClick={() => {
+																					const updated = imageFiles.filter(
+																						(_, i) => i !== index,
+																					);
+																					field.handleChange(updated);
+																				}}
+																			>
+																				<Trash2 />
+																			</Button>
+																		</TableCell>
+																	</TableRow>
+																);
+															})}
+														</TableBody>
+													</Table>
 												</ul>
 											</div>
 										)}
@@ -469,6 +523,10 @@ function RouteComponent() {
 								return (
 									<Field data-invalid={isinvalid}>
 										<FieldLabel htmlFor="notes">Notes</FieldLabel>
+										<FieldDescription>
+											optional note about this credential
+										</FieldDescription>
+
 										<Textarea
 											id="notes"
 											value={field.state.value ?? ""}
@@ -489,6 +547,10 @@ function RouteComponent() {
 								return (
 									<Field data-invalid={isinvalid}>
 										<FieldLabel htmlFor="tags">Tags</FieldLabel>
+										<FieldDescription>
+											add comma (,) for more than one tags. you can skip last comma
+										</FieldDescription>
+
 										<Textarea
 											id="tags"
 											value={field.state.value ?? ""}
@@ -507,14 +569,16 @@ function RouteComponent() {
 					<form.Subscribe
 						selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
 						children={([canSubmit, isSubmitting, isPristine]) => (
-							<Button
-								type="submit"
-								size="lg"
-								className="my-3 flex justify-center items-center w-full"
-								disabled={!canSubmit || isPristine}
-							>
-								{isSubmitting ? "..." : "Submit"}
-							</Button>
+							<div className="w-full flex justify-center items-center">
+								<Button
+									type="submit"
+									size="lg"
+									className="my-3 px-12 py-4"
+									disabled={!canSubmit || isPristine}
+								>
+									{isSubmitting ? "..." : "Submit"}
+								</Button>
+							</div>
 						)}
 					/>
 				</FieldGroup>
