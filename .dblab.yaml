@@ -1,0 +1,10 @@
+database:
+    - name: "credets-db"
+      driver: "postgres"
+      host: "127.0.0.1"
+      port: 5432
+      user: "nishat"
+      password: "nishat004"
+      db: "credets_db"
+      ssl: "disable"
+      limit: 100

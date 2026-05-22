@@ -21,26 +21,8 @@ services:
         networks:
             - credets-network
 
-    prisma-studio:
-        image: node:22-alpine
-        container_name: prisma-studio
-        restart: unless-stopped
-        volumes:
-            - npm-cache:/root/.npm
-        command: npx prisma studio --port 5555 --browser none --url 'postgres://$DB_USER:$DB_PASSWORD@db:5432/$DB_NAME'
-        ports:
-            - ${PRISMA_STUDIO_PORT:-5555}:5555
-        environment:
-            DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public
-        depends_on:
-            db:
-                condition: service_healthy
-        networks:
-            - credets-network
-
 volumes:
     pgdata:
-    npm-cache:
 
 networks:
     credets-network:
