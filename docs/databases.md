@@ -6,17 +6,15 @@
 2. session (for simple auth)
 3. types
 4. credentials (our main resource table)
+5. credential_images (store multiple images here)
 
 ### user table
 
-1. id
-2. name
-3. usename
-4. email
-5. password -hash
-6. special_password -raw for now. soon enc it
-7. createdAt
-8. updatedAt
+1. name
+2. usename
+3. email
+4. password -hash
+5. special_password -raw for now. soon enc it
 
 
 ### session
@@ -25,28 +23,40 @@
 2. userId -foreignKey
 3. token - no idea what this does
 4. expiresAt -24hour
-5. createdAt
 
 
 ### types
 
 1. label - varchar
-2. description - text
+2. value - varchar
+3. description - text
 
 ### credentials
 
-1. id
-2. title - text
-3. short description - text
-4. long description - text
-5. thumbnail - BYTEA - we will store as binary data
-6. data -jsonB
-7. images -jsonB
-8. notes - text
-9. tags - jsonB
-10. types_id - refer to types table
+1. title - text
+2. short description - text
+3. long description - text
+4. thumbnail_image_data - BYTEA - we will store as binary data
+5. thumbnail_format - varchar - always webp format
+6. thumbnail_width
+7. thumbnail_height
+8. data -jsonB
+9. notes - text
+10. tags - jsonB
+
+### credential_images
+
+1. image_data
+2. format
+3. width
+4. height
+5. byte_size
+6. sort_order
+
 
 ## access database in docker from terminal
+
+we dont normally need to do this. we will use our `dblab --config` and inspect db there. but just in case, if its needed
 
 ```bash
 docker compose exec db bash
@@ -56,20 +66,21 @@ psql -U nishat -d credets_db
 ## use db instance to write query
 
 ```bash
-import { sql } from "@db/connection" // sadly we need to manually type this out
+import { sql } from "@db/connection";
 
 const users = sql`SELECT * FROM users`
 ```
 
-> note! it is still buggy! i dont know why! lol
 
+## reset database data
 
-## clear out db for reset purpose
+first turn off docker compose service that was already on by `ctrl+c` then
 
 ```bash
 docker compose down -v
 docker compose up 
 ```
 
-when we update our sql file to change db structure,
-just flush down the docker volume and run it up!
+## seed
+
+to seed database, just run `bun run seed` at project root dir
