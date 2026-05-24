@@ -2,25 +2,24 @@
 
 ## structural stuffs
 
-1. **backend endpoint** we need to expose a dedicated backend endpoint to server side to validate our form values.
+1. **backend endpoint** we need to expose a dedicated backend endpoint to server side to validate our frontend form.
 
-2. **frontend usage** then we use the validation endpoint in frontend-form at
+2. **frontend usage** then we use that validation endpoint in frontend-form at
 `useform.validators.onSubmitAsync`
 
-3. **onSubmitAsync** to show server side form validation err message on `onSubmitAsync`
-we need to return it like this `return { fields: data.errors };` otherwise
-our form err component wont be able to show server-side err messages.
+3. **onSubmitAsync** to show server side form validation err message from `onSubmitAsync` we need to return fields like this
+`return { fields: data.errors };`
+otherwise our form err component wont be able to show server-side err messages.
 
-4. **onSubmitAsync return** and lastly `onSubmitAsync` always return something at the end. i dont know why. but do it
+4. **onSubmitAsync return** and lastly `onSubmitAsync` always return something at the end. even tho, that returned value wont be used anywhere. i dont know why. but do it
 
-5. **CSRF management** we manually handle the **CSRF** security by ourselve. all the generation, insertion, validation... everything
+5. **CSRF management** we manually handle the **CSRF** security by ourselve. like the generation, insertion, validation, handle expiration... everything
 
-6. **frontend form management** most of the time, we will have files and stuffs 
-in our form body. so we will always `FormData` it.
+6. **frontend form management** most of the time, we will have files and complex stuffs in our form body. so we will always `FormData` it.
 
 ## frontend form structure
 
-below are a simple form component. which are composed of shadcn and tanstack-form. and this full reference can be found here ### link
+below are a simple form component. which are composed of shadcn and tanstack-form. and this full reference can be found here ### shadcn-tanstack-form-link
 
 ```tsx
 <form.Field
