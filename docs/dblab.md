@@ -45,3 +45,8 @@ now we will navigate between these panels
 first focus on the bottom panel by `ctrl+j` (or check above)
 after bottom-panel is foucsed, press `tab` to go to next tab
 and then `shift+tab` to go reverse in tab
+
+### write query in the editor
+
+after selecting the top panel where query editor exist.
+to write query, press `i` and start typing query command
