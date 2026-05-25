@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"types": ["bun"],
+		"types": ["bun", "node"],
 		// Environment setup & latest features
 		"lib": ["ESNext"],
 		"target": "ESNext",
@@ -36,6 +36,10 @@
 			"@backend/*": ["./apps/backend/*"]
 		}
 	},
-	"include": ["apps/backend/**/*", "apps/frontend/src/**/*", "packages/*/src/**/*"],
+	"include": [
+		"apps/backend/**/*",
+		"apps/frontend/src/**/*",
+		"packages/*/src/**/*"
+	],
 	"exclude": ["node_modules", "dist", "build", ".turbo", "public"]
 }
