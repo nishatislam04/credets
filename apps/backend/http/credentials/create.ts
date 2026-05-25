@@ -142,7 +142,11 @@ export async function credentialCreate(req: BunRequest) {
 		await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
 
 	return new Response(
-		JSON.stringify({ success: true, message: "a new credentials added" }),
+		JSON.stringify({
+			success: true,
+			type: "resource-create",
+			message: "A new credentials added",
+		}),
 		{
 			status: 200,
 			headers: {
