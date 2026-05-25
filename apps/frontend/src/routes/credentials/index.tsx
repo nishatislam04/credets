@@ -1,7 +1,10 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
+import { LoaderIcon } from "lucide-react";
 import { Skeleton } from "#/components/ui/skeleton";
 import { CredentialCard } from "./-components/credential-card";
 import { getCredentialsListings } from "./-actions/getCredentialsListings";
+import type { CredentialListItem } from "./-actions/getCredentialsListings";
 
 export const Route = createFileRoute("/credentials/")({
 	component: RouteComponent,
@@ -47,7 +50,80 @@ export const Route = createFileRoute("/credentials/")({
 });
 
 function RouteComponent() {
-	const { credentials } = useLoaderData({ from: "/credentials/" });
+	const loaderData = useLoaderData({ from: "/credentials/" });
+
+	// Accumulate credentials across pages
+	const [credentials, setCredentials] = useState<CredentialListItem[]>(
+		loaderData.credentials,
+	);
+	const [nextCursor, setNextCursor] = useState<string | null>(
+		loaderData.nextCursor,
+	);
+	const [hasMore, setHasMore] = useState(loaderData.hasMore);
+	const [isLoadingMore, setIsLoadingMore] = useState(false);
+	const [loadError, setLoadError] = useState<string | null>(null);
+
+	// Ref to prevent duplicate fetches while one is in flight
+	const loadingRef = useRef(false);
+	// Ref to keep the current IntersectionObserver so we can disconnect it
+	const observerRef = useRef<IntersectionObserver | null>(null);
+
+	const loadMore = useCallback(async () => {
+		if (loadingRef.current || !nextCursor) return;
+		loadingRef.current = true;
+		setIsLoadingMore(true);
+		setLoadError(null);
+
+		try {
+			const data = await getCredentialsListings(nextCursor);
+			setCredentials((prev) => [...prev, ...data.credentials]);
+			setNextCursor(data.nextCursor);
+			setHasMore(data.hasMore);
+		} catch (err) {
+			setLoadError(
+				err instanceof Error ? err.message : "Failed to load more credentials",
+			);
+		} finally {
+			loadingRef.current = false;
+			setIsLoadingMore(false);
+		}
+	}, [nextCursor]);
+
+	// Set up the IntersectionObserver on the sentinel
+	const sentinelCallback = useCallback(
+		(node: HTMLDivElement | null) => {
+			// Disconnect the previous observer before creating a new one
+			if (observerRef.current) {
+				observerRef.current.disconnect();
+				observerRef.current = null;
+			}
+
+			if (!node) return;
+
+			const observer = new IntersectionObserver(
+				(entries) => {
+					if (entries[0]?.isIntersecting && hasMore && !loadingRef.current) {
+						loadMore();
+					}
+				},
+				{ rootMargin: "200px" },
+			);
+
+			observer.observe(node);
+			observerRef.current = observer;
+		},
+		[hasMore, loadMore],
+	);
+
+	// Clean up the observer when the component unmounts
+	useEffect(() => {
+		return () => {
+			if (observerRef.current) {
+				observerRef.current.disconnect();
+				observerRef.current = null;
+			}
+		};
+	}, []);
 
 	return (
 		<div className="mx-auto w-full max-w-3xl px-4 py-8">
@@ -80,11 +156,42 @@ function RouteComponent() {
 				</div>
 			)}
 
-			{/* Load-more indicator (placeholder for future infinite scroll) */}
-			{credentials.length > 0 && credentials.length >= 12 && (
-				<div className="mt-8 text-center">
-					<p className="text-xs text-muted-foreground/50">
-						Scroll-based loading coming soon
+			{/* Sentinel — observed by IntersectionObserver for infinite scroll */}
+			{hasMore && credentials.length > 0 && (
+				<div
+					ref={sentinelCallback}
+					className="flex justify-center py-8"
+				>
+					{isLoadingMore ? (
+						<div className="flex items-center gap-2 text-sm text-muted-foreground/60">
+							<LoaderIcon className="size-4 animate-spin" />
+							<span>Loading more...</span>
+						</div>
+					) : (
+						<div className="size-4" />
+					)}
+				</div>
+			)}
+
+			{/* Load error */}
+			{loadError && (
+				<div className="text-center py-6">
+					<p className="text-sm text-destructive/80 mb-2">{loadError}</p>
+					<button
+						type="button"
+						onClick={() => loadMore()}
+						className="text-xs text-muted-foreground underline hover:text-foreground transition-colors cursor-pointer"
+					>
+						Try again
+					</button>
+				</div>
+			)}
+
+			{/* End of results */}
+			{!hasMore && credentials.length > 0 && (
+				<div className="text-center py-8">
+					<p className="text-xs text-muted-foreground/40">
+						You've reached the end
 					</p>
 				</div>
 			)}
