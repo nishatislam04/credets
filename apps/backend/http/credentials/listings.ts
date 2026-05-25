@@ -16,7 +16,7 @@ interface CredentialRow {
 	thumbnail_format: string | null;
 	thumbnail_width: number | null;
 	thumbnail_height: number | null;
-	tags: unknown;
+	tags: string;
 	created_at: Date;
 	type_label: string | null;
 	type_value: string | null;
@@ -105,11 +105,13 @@ export async function credentialListings(req: BunRequest) {
 			thumbnail_format: cred.thumbnail_format,
 			thumbnail_width: cred.thumbnail_width,
 			thumbnail_height: cred.thumbnail_height,
-			tags: cred.tags,
+			tags: JSON.parse(cred.tags) ?? [],
 			created_at: cred.created_at.toISOString(),
 			type_label: cred.type_label,
 			type_value: cred.type_value,
 		}));
+
+		console.log(parsedCredentials);
 
 		return ResponseFactory.success({
 			data: {

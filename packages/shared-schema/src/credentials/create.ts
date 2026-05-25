@@ -2,7 +2,11 @@ import z from "zod";
 
 const singleLabelSchema = z.object({
 	type: z.literal("single_label"),
-	value: z.string().trim().min(1, "label value can not be empty").or(z.literal("")),
+	value: z
+		.string()
+		.trim()
+		.min(1, "label value can not be empty")
+		.or(z.literal("")),
 });
 
 const keyValueSchema = z.object({
@@ -23,7 +27,9 @@ const dataBlockSchema = z.discriminatedUnion("type", [
 ]);
 
 export const credentialsCreateSchema = z.object({
-	_csrf: z.string().min(1, "csrf token can not be misssing. please reload the page"),
+	_csrf: z
+		.string()
+		.min(1, "csrf token can not be misssing. please reload the page"),
 	title: z
 		.string()
 		.trim()
@@ -33,7 +39,10 @@ export const credentialsCreateSchema = z.object({
 	short_description: z
 		.string()
 		.min(5, "credentials short description can not be less than 5 characters")
-		.max(50, "credentials short description can not be grater than 50 characters")
+		.max(
+			50,
+			"credentials short description can not be grater than 50 characters",
+		)
 		.optional()
 		.or(z.literal("")),
 	long_description: z
@@ -54,6 +63,6 @@ export const credentialsCreateSchema = z.object({
 		.default([])
 		.nullable()
 		.optional(), // we are validating images size on the form element! not on the schema
-	notes: z.string().trim().optional(),
-	tags: z.string().trim().optional(),
+	notes: z.string().trim().nullable().optional(),
+	tags: z.string().trim().nullable().optional(),
 });

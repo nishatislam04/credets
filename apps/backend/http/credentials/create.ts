@@ -30,8 +30,8 @@ export async function credentialCreate(req: BunRequest) {
 	const short_description = formData.get("short_description")?.toString() || "";
 	const long_description = formData.get("long_description")?.toString() || "";
 	const type = formData.get("type")?.toString() || "";
-	const notes = formData.get("notes")?.toString() || "";
-	const tags = formData.get("tags")?.toString() || "";
+	const notes = formData.get("notes")?.toString() || null;
+	const tags = formData.get("tags")?.toString() || null;
 	const data = JSON.parse(formData.get("data")?.toString() || "[]");
 	// Extract files
 	const thumbnail = formData.get("thumbnail") as File | null;
