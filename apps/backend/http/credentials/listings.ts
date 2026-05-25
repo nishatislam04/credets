@@ -18,6 +18,8 @@ interface CredentialRow {
 	thumbnail_height: number | null;
 	tags: unknown;
 	created_at: Date;
+	type_label: string | null;
+	type_value: string | null;
 }
 
 export async function credentialListings(req: BunRequest) {
@@ -48,24 +50,28 @@ export async function credentialListings(req: BunRequest) {
 		if (cursor) {
 			credentials = await sql`
 				SELECT
-					id, title, short_description,
-					thumbnail_image_data, thumbnail_format, thumbnail_width, thumbnail_height,
-					tags, created_at
-				FROM credentials
+					c.id, c.title, c.short_description,
+					c.thumbnail_image_data, c.thumbnail_format, c.thumbnail_width, c.thumbnail_height,
+					c.tags, c.created_at,
+					t.label AS type_label, t.value AS type_value
+				FROM credentials c
+				LEFT JOIN types t ON c.types_id = t.id
 				WHERE
-					(created_at < ${cursor.createdAt}::timestamptz)
-					OR (created_at = ${cursor.createdAt}::timestamptz AND id::text < ${cursor.id})
-				ORDER BY created_at DESC, id DESC
+					(c.created_at < ${cursor.createdAt}::timestamptz)
+					OR (c.created_at = ${cursor.createdAt}::timestamptz AND c.id::text < ${cursor.id})
+				ORDER BY c.created_at DESC, c.id DESC
 				LIMIT ${limit + 1}
 			`;
 		} else {
 			credentials = await sql`
 				SELECT
-					id, title, short_description,
-					thumbnail_image_data, thumbnail_format, thumbnail_width, thumbnail_height,
-					tags, created_at
-				FROM credentials
-				ORDER BY created_at DESC, id DESC
+					c.id, c.title, c.short_description,
+					c.thumbnail_image_data, c.thumbnail_format, c.thumbnail_width, c.thumbnail_height,
+					c.tags, c.created_at,
+					t.label AS type_label, t.value AS type_value
+				FROM credentials c
+				LEFT JOIN types t ON c.types_id = t.id
+				ORDER BY c.created_at DESC, c.id DESC
 				LIMIT ${limit + 1}
 			`;
 		}
@@ -101,6 +107,8 @@ export async function credentialListings(req: BunRequest) {
 			thumbnail_height: cred.thumbnail_height,
 			tags: cred.tags,
 			created_at: cred.created_at.toISOString(),
+			type_label: cred.type_label,
+			type_value: cred.type_value,
 		}));
 
 		return ResponseFactory.success({

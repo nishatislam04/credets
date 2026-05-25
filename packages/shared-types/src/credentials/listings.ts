@@ -9,6 +9,8 @@ export type CredentialListItem = {
 	thumbnail_height: number | null;
 	tags: string[] | null;
 	created_at: string;
+	type_label: string | null;
+	type_value: string | null;
 };
 
 /** Cursor-based pagination wrapper returned by the backend */

@@ -2,7 +2,6 @@ import { CalendarDays, ImageIcon, ChevronRight } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent } from "#/components/ui/card";
 import { Link } from "@tanstack/react-router";
-import { cn } from "#/lib/utils";
 
 interface Credential {
 	id: string;
@@ -14,11 +13,49 @@ interface Credential {
 	thumbnail_height?: number | null;
 	tags?: string[] | null;
 	created_at: string;
+	type_label?: string | null;
+	type_value?: string | null;
 }
 
 interface CredentialCardProps {
 	credential: Credential;
 }
+
+/** Deterministic colours per type value */
+const TYPE_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
+	credentials: {
+		bg: "bg-blue-100 dark:bg-blue-900/30",
+		text: "text-blue-700 dark:text-blue-300",
+		dot: "bg-blue-500",
+	},
+	key: {
+		bg: "bg-amber-100 dark:bg-amber-900/30",
+		text: "text-amber-700 dark:text-amber-300",
+		dot: "bg-amber-500",
+	},
+	api: {
+		bg: "bg-purple-100 dark:bg-purple-900/30",
+		text: "text-purple-700 dark:text-purple-300",
+		dot: "bg-purple-500",
+	},
+	media: {
+		bg: "bg-rose-100 dark:bg-rose-900/30",
+		text: "text-rose-700 dark:text-rose-300",
+		dot: "bg-rose-500",
+	},
+	game_loadout: {
+		bg: "bg-emerald-100 dark:bg-emerald-900/30",
+		text: "text-emerald-700 dark:text-emerald-300",
+		dot: "bg-emerald-500",
+	},
+	misc: {
+		bg: "bg-slate-100 dark:bg-slate-800/50",
+		text: "text-slate-700 dark:text-slate-300",
+		dot: "bg-slate-400",
+	},
+};
+
+const defaultTypeColor = TYPE_COLORS.misc;
 
 export function CredentialCard({ credential }: CredentialCardProps) {
 	const {
@@ -29,6 +66,8 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 		thumbnail_format,
 		tags,
 		created_at,
+		type_label,
+		type_value,
 	} = credential;
 
 	const imageSrc =
@@ -46,81 +85,91 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 			})
 		: "";
 
+	const typeColor = TYPE_COLORS[type_value ?? ""] ?? defaultTypeColor;
+
 	return (
 		<Link
 			to="/credentials/$credentialId"
 			params={{ credentialId: id }}
 			className="group block"
 		>
-			<Card className="overflow-hidden rounded-2xl border shadow-sm transition-all duration-300 hover:shadow-lg hover:border-primary/20 hover:-translate-y-1 flex flex-col h-full bg-card">
-				{/* Thumbnail */}
-				<div className="relative w-full aspect-[16/9] bg-gradient-to-br from-muted/80 to-muted overflow-hidden">
+			<Card className="overflow-hidden rounded-xl border shadow-xs transition-all duration-200 hover:shadow-sm hover:border-primary/15 hover:bg-muted/20 flex flex-row bg-card">
+				{/* ── Left: Thumbnail ── */}
+				<div className="shrink-0 flex items-center justify-center px-4 py-4 md:px-5 md:py-5">
 					{imageSrc ? (
 						<img
 							src={imageSrc}
 							alt={title}
-							className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+							className="size-12 md:size-14 rounded-full object-cover ring-1 ring-border/40"
 						/>
 					) : (
-						<div className="absolute inset-0 flex items-center justify-center">
-							<div className="size-14 rounded-full bg-muted-foreground/10 flex items-center justify-center">
-								<ImageIcon className="size-6 text-muted-foreground/40" />
-							</div>
+						<div className="size-12 md:size-14 rounded-full bg-gradient-to-br from-muted-foreground/10 to-muted-foreground/5 ring-1 ring-border/30 flex items-center justify-center">
+							<ImageIcon className="size-5 md:size-6 text-muted-foreground/30" />
 						</div>
 					)}
-
-					{/* Gradient overlay at bottom of image for text readability */}
-					<div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card/60 to-transparent" />
 				</div>
 
-				<CardContent className="flex flex-col grow p-4 pt-3 space-y-2.5">
-					{/* Title */}
-					<h3 className="font-semibold text-base leading-snug line-clamp-2 group-hover:text-primary transition-colors duration-200">
-						{title}
-					</h3>
+				{/* ── Right: Content ── */}
+				<CardContent className="flex flex-col min-w-0 grow gap-1.5 px-0 py-4 pr-4 md:pr-5">
+					{/* Row 1: Title + Type badge */}
+					<div className="flex items-center gap-2 min-w-0">
+						<h3 className="font-semibold text-sm md:text-base leading-snug truncate group-hover:text-primary transition-colors duration-200">
+							{title}
+						</h3>
+						{type_label && (
+							<Badge
+								variant="outline"
+								className={`
+									shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0 h-5 text-[10px] font-medium uppercase tracking-wider border-0
+									${typeColor.bg} ${typeColor.text}
+								`}
+							>
+								<span className={`inline-block size-1.5 rounded-full ${typeColor.dot}`} />
+								{type_label}
+							</Badge>
+						)}
+					</div>
 
-					{/* Short description */}
+					{/* Row 2: Short description */}
 					{short_description && (
-						<p className="text-xs text-muted-foreground/80 leading-relaxed line-clamp-2">
+						<p className="text-xs leading-relaxed text-muted-foreground/80 line-clamp-2 overflow-hidden">
 							{short_description}
 						</p>
 					)}
 
-					{/* Spacer */}
-					<div className="grow" />
-
-					{/* Tags */}
+					{/* Row 3: Tags */}
 					{tagList.length > 0 && (
-						<div className="flex flex-wrap gap-1">
-							{tagList.slice(0, 3).map((tag: string) => (
-								<Badge
+						<div className="flex flex-wrap items-center gap-1 mt-0.5">
+							{tagList.slice(0, 5).map((tag: string) => (
+								<button
 									key={tag}
-									variant="secondary"
-									className="text-[10px] px-1.5 py-0 h-4 rounded-full font-normal"
+									type="button"
+									className="inline-flex items-center rounded-full bg-muted/60 px-2 py-0 h-4 text-[10px] font-medium text-muted-foreground/70 transition-colors duration-150 hover:bg-muted hover:text-foreground cursor-pointer border-0"
+									title={`Search by tag: ${tag}`}
+									onClick={(e) => {
+										// Don't navigate to the credential detail when clicking a tag
+										e.stopPropagation();
+										// Search functionality TBD
+									}}
 								>
-									{tag}
-								</Badge>
+									#{tag}
+								</button>
 							))}
-							{tagList.length > 3 && (
-								<span className="text-[10px] text-muted-foreground/60 self-center">
-									+{tagList.length - 3}
+							{tagList.length > 5 && (
+								<span className="text-[10px] text-muted-foreground/50 ml-0.5">
+									+{tagList.length - 5}
 								</span>
 							)}
 						</div>
 					)}
 
-					{/* Footer */}
-					<div
-						className={cn(
-							"flex items-center justify-between pt-2 border-t border-border/40",
-							!tagList.length && "pt-2",
-						)}
-					>
-						<div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60">
+					{/* Row 4: Date + Chevron */}
+					<div className="flex items-center justify-between mt-0.5">
+						<div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/50">
 							<CalendarDays className="size-3" />
 							<span>{formattedDate}</span>
 						</div>
-						<ChevronRight className="size-3.5 text-muted-foreground/30 transition-all duration-200 group-hover:text-primary/60 group-hover:translate-x-0.5" />
+						<ChevronRight className="size-3.5 text-muted-foreground/20 transition-all duration-200 group-hover:text-primary/40 group-hover:translate-x-0.5" />
 					</div>
 				</CardContent>
 			</Card>
