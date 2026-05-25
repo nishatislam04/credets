@@ -9,8 +9,6 @@ import { getCredential } from "./-actions/getCredential";
 import { CredentialDataRenderer } from "./-components/credential-data";
 import { ImageLightbox } from "./-components/image-lightbox";
 
-// ── Route definition ────────────────────────────────────────────────
-
 export const Route = createFileRoute("/credentials/$credentialId/")({
 	component: RouteComponent,
 	loader: async ({ params }) => getCredential(params.credentialId),
@@ -99,44 +97,51 @@ const TAG_COLORS = [
 ];
 
 // ── Type colour helper ──────────────────────────────────────────────
-
-const TYPE_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-	credentials: {
+const TYPE_COLORS = [
+	{
 		bg: "bg-blue-100 dark:bg-blue-900/30",
 		text: "text-blue-700 dark:text-blue-300",
 		dot: "bg-blue-500",
 	},
-	key: {
+	{
 		bg: "bg-amber-100 dark:bg-amber-900/30",
 		text: "text-amber-700 dark:text-amber-300",
 		dot: "bg-amber-500",
 	},
-	api: {
+	{
 		bg: "bg-purple-100 dark:bg-purple-900/30",
 		text: "text-purple-700 dark:text-purple-300",
 		dot: "bg-purple-500",
 	},
-	media: {
+	{
 		bg: "bg-rose-100 dark:bg-rose-900/30",
 		text: "text-rose-700 dark:text-rose-300",
 		dot: "bg-rose-500",
 	},
-	game_loadout: {
+	{
 		bg: "bg-emerald-100 dark:bg-emerald-900/30",
 		text: "text-emerald-700 dark:text-emerald-300",
 		dot: "bg-emerald-500",
 	},
-	misc: {
-		bg: "bg-slate-100 dark:bg-slate-800/50",
-		text: "text-slate-700 dark:text-slate-300",
-		dot: "bg-slate-400",
+	{
+		bg: "bg-cyan-100 dark:bg-cyan-900/30",
+		text: "text-cyan-700 dark:text-cyan-300",
+		dot: "bg-cyan-500",
 	},
-};
+	{
+		bg: "bg-pink-100 dark:bg-pink-900/30",
+		text: "text-pink-700 dark:text-pink-300",
+		dot: "bg-pink-500",
+	},
+];
 
-const DEFAULT_TYPE_COLOR = {
-	bg: "bg-slate-100 dark:bg-slate-800/50",
-	text: "text-slate-700 dark:text-slate-300",
-	dot: "bg-slate-400",
+// Simple hash function to turn strings into numbers
+const hashString = (str: string): number => {
+	let hash = 0;
+	for (let i = 0; i < str.length; i++) {
+		hash = (Math.imul(31, hash) + str.charCodeAt(i)) | 0;
+	}
+	return Math.abs(hash);
 };
 
 // ── Component ───────────────────────────────────────────────────────
@@ -157,7 +162,10 @@ function RouteComponent() {
 		: null;
 	const thumbnailUri = imageSrc(thumbnail);
 
-	const typeColor = TYPE_COLORS[credential.type_value ?? ""] ?? DEFAULT_TYPE_COLOR;
+	const typeValue = credential.type_value ?? "";
+	const colorIndex = hashString(typeValue) % TYPE_COLORS.length;
+
+	const typeColor = TYPE_COLORS[colorIndex];
 	const tagList = Array.isArray(credential.tags) ? credential.tags : [];
 
 	const openLightbox = (index: number) => {
