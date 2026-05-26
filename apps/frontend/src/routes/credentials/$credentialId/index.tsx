@@ -252,7 +252,7 @@ function RouteComponent() {
 						{/* Short description — simple & natural */}
 						{credential.short_description && (
 							<section>
-								<h4 className="text-xl font-semibold leading-relaxed text-card-foreground/70">
+								<h4 className="text-2xl font-semibold leading-relaxed text-card-foreground/70">
 									{credential.short_description}
 								</h4>
 							</section>
@@ -271,17 +271,15 @@ function RouteComponent() {
 						{hasImages && (
 							<section className="mt-12">
 								<div className="mb-3 flex items-center gap-2">
-									<ImageIcon className="size-4 text-muted-foreground/70" />
-									<h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground/80">
-										Gallery
-									</h2>
+									<ImageIcon className="size-4.5" />
+									<h2 className="text-lg font-semibold uppercase tracking-wider">Gallery</h2>
 									<span className="text-[13px] text-muted-foreground/90">
 										{credential.images.length} image
 										{credential.images.length > 1 ? "s" : ""}
 									</span>
 								</div>
 
-								<div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3">
+								<div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">
 									{credential.images.map((img, i) => {
 										const src = imageSrc(img);
 										if (!src) return null;
@@ -290,14 +288,14 @@ function RouteComponent() {
 												key={img.id}
 												type="button"
 												onClick={() => openLightbox(i)}
-												className="group relative aspect-[4/3] overflow-hidden rounded-xl border bg-muted/20 ring-1 ring-border/40 transition-all duration-200 hover:ring-primary/30 hover:shadow-md cursor-pointer border-0"
+												className="group relative w-full overflow-hidden rounded-xl border bg-muted/20 ring-1 ring-border/40 transition-all duration-200 hover:ring-primary/30 hover:shadow-md cursor-pointer border-0 h-[200px]" // ← ADDED fixed height
 											>
 												<img
 													src={src}
 													alt={`gallery ${i + 1}`}
-													className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+													className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" // ← CHANGED to h-full and object-cover
 												/>
-												<div className="absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/5" />
+												<div className="absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/[0.02]" />
 											</button>
 										);
 									})}
@@ -338,7 +336,7 @@ function RouteComponent() {
 					</div>
 
 					{/* ── Right column (1/3) — sidebar ── */}
-					<div className="space-y-6">
+					<div className="space-y-12 mt-12 xl:mt-0">
 						{/* ID reference — first */}
 						<section>
 							<div className="mb-2.5 flex items-center gap-2">
@@ -346,7 +344,7 @@ function RouteComponent() {
 								<h2 className="text-base font-semibold uppercase tracking-wider">ID</h2>
 							</div>
 							<div className="rounded-xl border bg-card px-4 py-3">
-								<code className="text-[11px] font-mono text-muted-foreground/60 break-all">
+								<code className="text-[12px] font-mono text-muted-foreground/60 break-all">
 									{credential.id}
 								</code>
 							</div>

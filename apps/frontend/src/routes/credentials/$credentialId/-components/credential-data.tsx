@@ -1,19 +1,15 @@
 import type { DataBlockEntry } from "@credets/shared-types/credentials/listings";
 import { Check, Copy, Eye, EyeOff } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
-import { Badge } from "#/components/ui/badge";
+import { useCallback, useState } from "react";
 
 interface CredentialDataRendererProps {
 	typeValue: string | null;
-	data: unknown;
+	data: DataBlockEntry[];
 }
 
 // ── Copy-on-click display (single line) ─────────────────────────────
 
-function CopyDisplay({
-	value,
-	isSecret = false,
-}: { value: string; isSecret?: boolean }) {
+function CopyDisplay({ value, isSecret = false }: { value: string; isSecret?: boolean }) {
 	const [copied, setCopied] = useState(false);
 	const [revealed, setRevealed] = useState(false);
 	const display = isSecret && !revealed ? "•".repeat(Math.min(value.length, 32)) : value;
@@ -35,9 +31,7 @@ function CopyDisplay({
 				if (e.key === "Enter" || e.key === " ") handleCopy();
 			}}
 		>
-			<span className="flex-1 font-mono text-sm tracking-wide break-all select-all">
-				{display}
-			</span>
+			<span className="flex-1 font-mono text-sm tracking-wide break-all select-all">{display}</span>
 			<div className="flex shrink-0 items-center gap-1.5">
 				{isSecret && (
 					<button
@@ -108,39 +102,6 @@ function BlockLabel({ children }: { children: string }) {
 			{children}
 		</span>
 	);
-}
-
-// ── Data normaliser: try to parse whatever shape we get ─────────────
-
-function normaliseData(raw: unknown): {
-	blocks: DataBlockEntry[] | null;
-	flat: Record<string, unknown> | null;
-} {
-	let parsed = raw;
-
-	if (typeof parsed === "string") {
-		try {
-			parsed = JSON.parse(parsed);
-		} catch {
-			return { blocks: null, flat: { value: parsed } };
-		}
-	}
-
-	if (
-		Array.isArray(parsed) &&
-		parsed.length > 0 &&
-		typeof parsed[0] === "object" &&
-		parsed[0] !== null &&
-		"type" in parsed[0]
-	) {
-		return { blocks: parsed as DataBlockEntry[], flat: null };
-	}
-
-	if (typeof parsed === "object" && parsed !== null) {
-		return { blocks: null, flat: parsed as Record<string, unknown> };
-	}
-
-	return { blocks: null, flat: { value: String(parsed) } };
 }
 
 // ── Sensitive fields ────────────────────────────────────────────────
@@ -219,128 +180,6 @@ function DataBlocksRenderer({ blocks }: { blocks: DataBlockEntry[] }) {
 	);
 }
 
-// ── Flat object renderer (for seed data) ────────────────────────────
-
-function fieldLabel(key: string): string {
-	const labels: Record<string, string> = {
-		website: "Website",
-		email: "Email",
-		username: "Username",
-		password: "Password",
-		service: "Service",
-		account_id: "Account ID",
-		region: "Region",
-		role: "Role",
-		plan: "Plan",
-		last_billed: "Last Billed",
-		shared_with: "Shared With",
-		bank: "Bank",
-		account_type: "Account Type",
-		routing_number: "Routing Number",
-		last_four: "Last Four",
-		name: "Name",
-		type: "Type",
-		key_fingerprint: "Fingerprint",
-		bits: "Bits",
-		encrypted: "Encrypted",
-		software: "Software",
-		key: "Key",
-		expires: "Expires",
-		seats: "Seats",
-		algorithm: "Algorithm",
-		purpose: "Purpose",
-		rotation_period_days: "Rotation Period",
-		key_prefix: "Prefix",
-		key_suffix: "Suffix",
-		environment: "Environment",
-		rate_limit: "Rate Limit",
-		webhook_url: "Webhook URL",
-		platform: "Platform",
-		token_type: "Token Type",
-		scopes: "Scopes",
-		project: "Project",
-		title: "Title",
-		url: "URL",
-		duration_minutes: "Duration",
-		author: "Author",
-		collection: "Collection",
-		count: "Count",
-		format: "Format",
-		source: "Source",
-		game: "Game",
-		loadout_name: "Loadout",
-		primary_weapon: "Primary Weapon",
-		secondary_weapon: "Secondary Weapon",
-		sensitivity: "Sensitivity",
-		crosshair: "Crosshair",
-		rank: "Rank",
-		build: "Build",
-		level: "Level",
-		main_weapon: "Main Weapon",
-		stats: "Stats",
-		content: "Content",
-		priority: "Priority",
-		category: "Category",
-		entries: "Entries",
-		notes: "Notes",
-	};
-	return labels[key] ?? key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function FlatObjectRenderer({ data }: { data: Record<string, unknown> }) {
-	const entries = Object.entries(data);
-	if (entries.length === 0) return null;
-
-	return (
-		<div className="divide-y divide-border/20">
-			{entries.map(([key, value]) => {
-				const isSensitive = SENSITIVE_FIELDS.has(key);
-				const strValue = String(value);
-				return (
-					<div key={key} className="px-6 py-4">
-						<div className="mb-1.5 flex items-center gap-2">
-							<BlockLabel>{fieldLabel(key)}</BlockLabel>
-							{isSensitive && <span className="size-1.5 rounded-full bg-amber-400/60" />}
-						</div>
-						{typeof value === "string" &&
-						(value.startsWith("http://") || value.startsWith("https://")) ? (
-							<a
-								href={value}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="font-mono text-sm text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
-							>
-								{value}
-							</a>
-						) : Array.isArray(value) ? (
-							<div className="flex flex-wrap gap-1.5">
-								{value.map((item, i) => (
-									<Badge
-										key={i}
-										variant="secondary"
-										className="rounded-full text-[10px] font-medium"
-									>
-										{String(item)}
-									</Badge>
-								))}
-							</div>
-						) : typeof value === "boolean" ? (
-							<Badge
-								variant={value ? "default" : "secondary"}
-								className="rounded-full text-[10px] font-medium"
-							>
-								{value ? "Yes" : "No"}
-							</Badge>
-						) : (
-							<CopyDisplay value={strValue} isSecret={isSensitive} />
-						)}
-					</div>
-				);
-			})}
-		</div>
-	);
-}
-
 // ── Theme accent per type ───────────────────────────────────────────
 
 const TYPE_ACCENTS: Record<string, { gradient: string; border: string }> = {
@@ -380,15 +219,7 @@ const fallbackAccent = {
 export function CredentialDataRenderer({ typeValue, data }: CredentialDataRendererProps) {
 	const accent = TYPE_ACCENTS[typeValue ?? ""] ?? fallbackAccent;
 
-	const { blocks, flat } = useMemo(() => normaliseData(data), [data]);
-
-	const hasBlocks = blocks !== null && blocks.length > 0;
-	const hasFlat =
-		flat !== null &&
-		Object.keys(flat).length > 0 &&
-		!(flat.value === "" && Object.keys(flat).length === 1);
-
-	if (!hasBlocks && !hasFlat) {
+	if (!data || data.length === 0) {
 		return (
 			<div className="rounded-xl border border-dashed bg-muted/20 p-8 text-center text-sm text-muted-foreground/50">
 				No data stored for this credential.
@@ -397,10 +228,11 @@ export function CredentialDataRenderer({ typeValue, data }: CredentialDataRender
 	}
 
 	return (
-		<div
-			className={`rounded-lg border bg-blue-50/40 ${accent.border} overflow-hidden`}
-		>
-			{hasBlocks ? <DataBlocksRenderer blocks={blocks!} /> : <FlatObjectRenderer data={flat!} />}
+		<div className="mt-10">
+			<h4 className="text-xl font-medium mb-3">Data Block</h4>
+			<div className={`rounded-lg border bg-blue-100/40 ${accent.border} overflow-hidden`}>
+				<DataBlocksRenderer blocks={data} />
+			</div>
 		</div>
 	);
 }

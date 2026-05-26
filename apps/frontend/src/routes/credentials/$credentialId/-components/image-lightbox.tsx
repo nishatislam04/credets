@@ -87,12 +87,12 @@ export function ImageLightbox({
 			)}
 
 			{/* Image */}
-			<div className="relative flex h-full w-full items-center justify-center max-md:max-h-[95vh] max-md:max-w-[98vw] max-h-[90vh] max-w-[90vw]">
+			<div className="relative flex h-screen w-screen items-center justify-center">
 				{src ? (
 					<img
 						src={src}
 						alt={`Image ${index + 1} of ${images.length}`}
-						className="max-h-[85vh] max-w-[85vw] max-md:max-h-[92vh] max-md:max-w-[96vw] rounded-lg object-contain shadow-2xl"
+						className="max-h-[95vh] max-w-[95vw] md:max-h-[92vh] md:max-w-[92vw] rounded-lg object-contain shadow-2xl"
 					/>
 				) : (
 					<div className="flex size-48 items-center justify-center rounded-lg bg-muted text-muted-foreground/40">
