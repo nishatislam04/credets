@@ -186,18 +186,18 @@ function RouteComponent() {
 				</Link>
 
 				{/* ── Header row — thumbnail | title + badge + dates ── */}
-				<div className="mb-10 flex items-start gap-5">
+				<div className="h-30 mb-10 flex items-start gap-5">
 					{/* Thumbnail on the left */}
 					{thumbnailUri ? (
 						<button
 							type="button"
 							onClick={() => openLightbox(0)}
-							className="group shrink-0 overflow-hidden rounded-xl border ring-1 ring-border/40 transition-all duration-200 hover:ring-primary/30 hover:shadow-md cursor-pointer border-0"
+							className="group shrink-0 overflow-hidden rounded-xl ring-1 ring-border/40 transition-all duration-200 hover:ring-primary/30 hover:shadow-md cursor-pointer border-0"
 						>
 							<img
 								src={thumbnailUri}
 								alt={credential.title}
-								className="size-24 object-cover transition-transform duration-300 group-hover:scale-105 sm:size-28"
+								className="size-24 object-cover transition-transform duration-300 sm:size-28"
 							/>
 						</button>
 					) : (
@@ -207,9 +207,9 @@ function RouteComponent() {
 					)}
 
 					{/* Title + badge + dates on the right */}
-					<div className="min-w-0 flex-1">
+					<div className="flex-1 min-h-full flex flex-col">
 						<div className="flex flex-wrap items-center gap-3 mb-2">
-							<h1 className="text-3xl font-bold tracking-tight leading-tight break-words">
+							<h1 className="text-4xl font-bold tracking-tight leading-tight break-words">
 								{credential.title}
 							</h1>
 							{credential.type_label && (
@@ -224,7 +224,7 @@ function RouteComponent() {
 						</div>
 
 						{/* Date row */}
-						<div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground/60">
+						<div className="flex items-stretch gap-4 text-xs text-muted-foreground/60 mt-auto pb-4">
 							<div className="flex items-center gap-1.5">
 								<CalendarDays className="size-3.5" />
 								<span>Created {formatDate(credential.created_at)}</span>
@@ -250,8 +250,8 @@ function RouteComponent() {
 						{/* Short description — simple & natural */}
 						{credential.short_description && (
 							<section>
-								<p className="text-sm leading-relaxed text-card-foreground/70 italic">
-									&ldquo;{credential.short_description}&rdquo;
+								<p className="text-sm leading-relaxed text-card-foreground/70">
+									{credential.short_description}
 								</p>
 							</section>
 						)}
@@ -267,7 +267,7 @@ function RouteComponent() {
 
 						{/* Image gallery — only credential.images (not thumbnail) */}
 						{hasImages && (
-							<section>
+							<section className="mt-12">
 								<div className="mb-3 flex items-center gap-2">
 									<ImageIcon className="size-4 text-muted-foreground/50" />
 									<h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/50">
@@ -292,7 +292,7 @@ function RouteComponent() {
 											>
 												<img
 													src={src}
-													alt={`Image ${i + 1}`}
+													alt={`gallery ${i + 1}`}
 													className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
 												/>
 												<div className="absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/5" />
@@ -338,16 +338,18 @@ function RouteComponent() {
 					{/* ── Right column (1/3) — sidebar ── */}
 					<div className="space-y-6">
 						{/* ID reference — first */}
-						<section className="rounded-xl border bg-muted/20 px-4 py-3">
-							<div className="flex items-center gap-2 mb-2">
+						<section>
+							<div className="mb-2.5 flex items-center gap-2">
 								<Info className="size-3 text-muted-foreground/40" />
-								<span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/40">
+								<h2 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
 									ID
-								</span>
+								</h2>
 							</div>
-							<code className="text-[11px] font-mono text-muted-foreground/60 break-all">
-								{credential.id}
-							</code>
+							<div className="rounded-xl border bg-card px-4 py-3">
+								<code className="text-[11px] font-mono text-muted-foreground/60 break-all">
+									{credential.id}
+								</code>
+							</div>
 						</section>
 
 						{/* Notes — second */}

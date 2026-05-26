@@ -24,7 +24,7 @@ function CopyButton({ text }: { text: string }) {
 		<button
 			type="button"
 			onClick={handleCopy}
-			className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-medium uppercase tracking-wider transition-all duration-150 cursor-pointer border-0 bg-transparent text-muted-foreground/40 hover:text-foreground hover:bg-muted/50"
+			className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-medium uppercase tracking-wider transition-all duration-150 cursor-pointer border-0 bg-transparent text-muted-foreground/40 hover:text-foreground hover:bg-muted/50 -translate-y-2"
 			aria-label={copied ? "Copied" : "Copy to clipboard"}
 		>
 			{copied ? (
@@ -50,7 +50,7 @@ function CodeValue({ value, isSecret = false }: { value: string; isSecret?: bool
 
 	return (
 		<div className="flex items-center gap-2 rounded-lg bg-muted/40 px-4 py-2.5 ring-1 ring-border/20 font-mono text-sm tracking-wide">
-			<span className="flex-1 break-all select-all">{display}</span>
+			<span className="break-all select-all">{display}</span>
 			<div className="flex shrink-0 items-center gap-1">
 				{isSecret && (
 					<button
