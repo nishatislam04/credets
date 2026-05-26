@@ -8,63 +8,105 @@ interface CredentialDataRendererProps {
 	data: unknown;
 }
 
-// ── Copy button with feedback ───────────────────────────────────────
+// ── Copy-on-click display (single line) ─────────────────────────────
 
-function CopyButton({ text }: { text: string }) {
+function CopyDisplay({
+	value,
+	isSecret = false,
+}: { value: string; isSecret?: boolean }) {
 	const [copied, setCopied] = useState(false);
-
-	const handleCopy = useCallback(() => {
-		navigator.clipboard.writeText(text).then(() => {
-			setCopied(true);
-			setTimeout(() => setCopied(false), 1500);
-		});
-	}, [text]);
-
-	return (
-		<button
-			type="button"
-			onClick={handleCopy}
-			className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-medium uppercase tracking-wider transition-all duration-150 cursor-pointer border-0 bg-transparent text-muted-foreground/40 hover:text-foreground hover:bg-muted/50 -translate-y-2"
-			aria-label={copied ? "Copied" : "Copy to clipboard"}
-		>
-			{copied ? (
-				<>
-					<Check className="size-3" />
-					<span>Copied</span>
-				</>
-			) : (
-				<>
-					<Copy className="size-3" />
-					<span>Copy</span>
-				</>
-			)}
-		</button>
-	);
-}
-
-// ── Code-value display (monospace block with copy) ─────────────────
-
-function CodeValue({ value, isSecret = false }: { value: string; isSecret?: boolean }) {
 	const [revealed, setRevealed] = useState(false);
 	const display = isSecret && !revealed ? "•".repeat(Math.min(value.length, 32)) : value;
 
+	const handleCopy = useCallback(() => {
+		navigator.clipboard.writeText(value).then(() => {
+			setCopied(true);
+			setTimeout(() => setCopied(false), 1500);
+		});
+	}, [value]);
+
 	return (
-		<div className="flex items-center gap-2 rounded-lg bg-muted/40 px-4 py-2.5 ring-1 ring-border/20 font-mono text-sm tracking-wide">
-			<span className="break-all select-all">{display}</span>
-			<div className="flex shrink-0 items-center gap-1">
+		<div
+			className="flex cursor-pointer items-center gap-2 rounded-lg border bg-white px-4 py-2.5 transition-colors hover:bg-blue-50/50"
+			onClick={handleCopy}
+			role="button"
+			tabIndex={0}
+			onKeyDown={(e) => {
+				if (e.key === "Enter" || e.key === " ") handleCopy();
+			}}
+		>
+			<span className="flex-1 font-mono text-sm tracking-wide break-all select-all">
+				{display}
+			</span>
+			<div className="flex shrink-0 items-center gap-1.5">
 				{isSecret && (
 					<button
 						type="button"
-						onClick={() => setRevealed((v) => !v)}
-						className="rounded-md p-1 text-muted-foreground/40 hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer border-0 bg-transparent"
+						onClick={(e) => {
+							e.stopPropagation();
+							setRevealed((v) => !v);
+						}}
+						className="cursor-pointer rounded-md border-0 bg-transparent p-1 text-muted-foreground/40 transition-colors hover:bg-muted/60 hover:text-foreground"
 						aria-label={revealed ? "Hide" : "Reveal"}
 					>
 						{revealed ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
 					</button>
 				)}
-				<CopyButton text={value} />
+				{copied ? (
+					<Check className="size-3.5 text-emerald-500" />
+				) : (
+					<Copy className="size-3.5 text-muted-foreground/30" />
+				)}
 			</div>
 		</div>
+	);
+}
+
+// ── Copy-on-click display (multi-line / textarea style) ────────────
+
+function MultiLineDisplay({ value }: { value: string }) {
+	const [copied, setCopied] = useState(false);
+
+	const handleCopy = useCallback(() => {
+		navigator.clipboard.writeText(value).then(() => {
+			setCopied(true);
+			setTimeout(() => setCopied(false), 1500);
+		});
+	}, [value]);
+
+	return (
+		<div
+			className="min-h-[120px] cursor-pointer rounded-lg border bg-white px-4 py-3 transition-colors hover:bg-blue-50/50"
+			onClick={handleCopy}
+			role="button"
+			tabIndex={0}
+			onKeyDown={(e) => {
+				if (e.key === "Enter" || e.key === " ") handleCopy();
+			}}
+		>
+			<div className="flex items-start justify-between gap-2">
+				<pre className="flex-1 font-mono text-sm tracking-wide whitespace-pre-wrap break-all text-muted-foreground/80">
+					{value}
+				</pre>
+				<div className="shrink-0 pt-0.5">
+					{copied ? (
+						<Check className="size-3.5 text-emerald-500" />
+					) : (
+						<Copy className="size-3.5 text-muted-foreground/30" />
+					)}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// ── Section label ───────────────────────────────────────────────────
+
+function BlockLabel({ children }: { children: string }) {
+	return (
+		<span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted-foreground/60">
+			{children}
+		</span>
 	);
 }
 
@@ -105,15 +147,13 @@ function normaliseData(raw: unknown): {
 
 const SENSITIVE_FIELDS = new Set(["password", "key", "secret", "token"]);
 
-// ── Block renderers (code-style blocks) ─────────────────────────────
+// ── Block renderers ─────────────────────────────────────────────────
 
 function SingleLabelBlock({ block }: { block: DataBlockEntry & { type: "single_label" } }) {
 	return (
 		<div className="px-6 py-5">
-			<span className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-				Single Value
-			</span>
-			<CodeValue value={block.value} />
+			<BlockLabel>Single Value</BlockLabel>
+			<CopyDisplay value={block.value} />
 		</div>
 	);
 }
@@ -122,21 +162,17 @@ function KeyValueBlock({ block }: { block: DataBlockEntry & { type: "key_value" 
 	const isSecret = SENSITIVE_FIELDS.has(block.key);
 	return (
 		<div className="px-6 py-5">
-			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+			<div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
 				<div>
-					<span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-						Key
-					</span>
-					<CodeValue value={block.key} />
+					<BlockLabel>Key</BlockLabel>
+					<CopyDisplay value={block.key} />
 				</div>
 				<div>
 					<div className="mb-1.5 flex items-center gap-2">
-						<span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-							Value
-						</span>
+						<BlockLabel>Value</BlockLabel>
 						{isSecret && <span className="size-1.5 rounded-full bg-amber-400/60" />}
 					</div>
-					<CodeValue value={String(block.value)} isSecret={isSecret} />
+					<CopyDisplay value={String(block.value)} isSecret={isSecret} />
 				</div>
 			</div>
 		</div>
@@ -146,10 +182,8 @@ function KeyValueBlock({ block }: { block: DataBlockEntry & { type: "key_value" 
 function InformationBlock({ block }: { block: DataBlockEntry & { type: "information" } }) {
 	return (
 		<div className="px-6 py-5">
-			<span className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-				Information
-			</span>
-			<CodeValue value={block.value} />
+			<BlockLabel>Information</BlockLabel>
+			<MultiLineDisplay value={block.value} />
 		</div>
 	);
 }
@@ -161,19 +195,19 @@ function DataBlocksRenderer({ blocks }: { blocks: DataBlockEntry[] }) {
 				switch (block.type) {
 					case "single_label":
 						return (
-							<div key={i} className="transition-colors hover:bg-muted/10">
+							<div key={i}>
 								<SingleLabelBlock block={block} />
 							</div>
 						);
 					case "key_value":
 						return (
-							<div key={i} className="transition-colors hover:bg-muted/10">
+							<div key={i}>
 								<KeyValueBlock block={block} />
 							</div>
 						);
 					case "information":
 						return (
-							<div key={i} className="transition-colors hover:bg-muted/10">
+							<div key={i}>
 								<InformationBlock block={block} />
 							</div>
 						);
@@ -263,11 +297,9 @@ function FlatObjectRenderer({ data }: { data: Record<string, unknown> }) {
 				const isSensitive = SENSITIVE_FIELDS.has(key);
 				const strValue = String(value);
 				return (
-					<div key={key} className="px-6 py-4 transition-colors hover:bg-muted/10">
+					<div key={key} className="px-6 py-4">
 						<div className="mb-1.5 flex items-center gap-2">
-							<span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-								{fieldLabel(key)}
-							</span>
+							<BlockLabel>{fieldLabel(key)}</BlockLabel>
 							{isSensitive && <span className="size-1.5 rounded-full bg-amber-400/60" />}
 						</div>
 						{typeof value === "string" &&
@@ -300,7 +332,7 @@ function FlatObjectRenderer({ data }: { data: Record<string, unknown> }) {
 								{value ? "Yes" : "No"}
 							</Badge>
 						) : (
-							<CodeValue value={strValue} isSecret={isSensitive} />
+							<CopyDisplay value={strValue} isSecret={isSensitive} />
 						)}
 					</div>
 				);
@@ -366,7 +398,7 @@ export function CredentialDataRenderer({ typeValue, data }: CredentialDataRender
 
 	return (
 		<div
-			className={`rounded-xl border bg-gradient-to-br ${accent.gradient} ${accent.border} overflow-hidden`}
+			className={`rounded-lg border bg-blue-50/40 ${accent.border} overflow-hidden`}
 		>
 			{hasBlocks ? <DataBlocksRenderer blocks={blocks!} /> : <FlatObjectRenderer data={flat!} />}
 		</div>

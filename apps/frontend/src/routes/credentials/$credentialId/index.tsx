@@ -207,7 +207,7 @@ function RouteComponent() {
 					)}
 
 					{/* Title + badge + dates on the right */}
-					<div className="flex-1 min-h-full flex flex-col">
+					<div className="flex-1 min-h-full">
 						<div className="flex flex-wrap items-center gap-3 mb-2">
 							<h1 className="text-4xl font-bold tracking-tight leading-tight break-words">
 								{credential.title}
@@ -224,7 +224,7 @@ function RouteComponent() {
 						</div>
 
 						{/* Date row */}
-						<div className="flex items-stretch gap-4 text-xs text-muted-foreground/60 mt-auto pb-4">
+						<div className="flex items-start gap-4 text-xs text-muted-foreground/60 mt-4 pb-4">
 							<div className="flex items-center gap-1.5">
 								<CalendarDays className="size-3.5" />
 								<span>Created {formatDate(credential.created_at)}</span>
@@ -243,6 +243,8 @@ function RouteComponent() {
 					</div>
 				</div>
 
+				<Separator className="my-12" />
+
 				{/* ── Two-column layout ── */}
 				<div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
 					{/* ── Left column (2/3) — description, gallery, data ── */}
@@ -250,16 +252,16 @@ function RouteComponent() {
 						{/* Short description — simple & natural */}
 						{credential.short_description && (
 							<section>
-								<p className="text-sm leading-relaxed text-card-foreground/70">
+								<h4 className="text-xl font-semibold leading-relaxed text-card-foreground/70">
 									{credential.short_description}
-								</p>
+								</h4>
 							</section>
 						)}
 
 						{/* Long description — simple & natural */}
 						{credential.long_description && (
 							<section>
-								<p className="text-sm leading-relaxed text-card-foreground/80">
+								<p className="text-lg leading-relaxed mt-4 text-gray-800">
 									{credential.long_description}
 								</p>
 							</section>
@@ -269,17 +271,17 @@ function RouteComponent() {
 						{hasImages && (
 							<section className="mt-12">
 								<div className="mb-3 flex items-center gap-2">
-									<ImageIcon className="size-4 text-muted-foreground/50" />
-									<h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/50">
+									<ImageIcon className="size-4 text-muted-foreground/70" />
+									<h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground/80">
 										Gallery
 									</h2>
-									<span className="text-[10px] text-muted-foreground/30">
+									<span className="text-[13px] text-muted-foreground/90">
 										{credential.images.length} image
 										{credential.images.length > 1 ? "s" : ""}
 									</span>
 								</div>
 
-								<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+								<div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3">
 									{credential.images.map((img, i) => {
 										const src = imageSrc(img);
 										if (!src) return null;
@@ -288,7 +290,7 @@ function RouteComponent() {
 												key={img.id}
 												type="button"
 												onClick={() => openLightbox(i)}
-												className="group relative aspect-square overflow-hidden rounded-xl border bg-muted/20 ring-1 ring-border/40 transition-all duration-200 hover:ring-primary/30 hover:shadow-md cursor-pointer border-0"
+												className="group relative aspect-[4/3] overflow-hidden rounded-xl border bg-muted/20 ring-1 ring-border/40 transition-all duration-200 hover:ring-primary/30 hover:shadow-md cursor-pointer border-0"
 											>
 												<img
 													src={src}
@@ -340,10 +342,8 @@ function RouteComponent() {
 						{/* ID reference — first */}
 						<section>
 							<div className="mb-2.5 flex items-center gap-2">
-								<Info className="size-3 text-muted-foreground/40" />
-								<h2 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-									ID
-								</h2>
+								<Info className="size-4.5" />
+								<h2 className="text-base font-semibold uppercase tracking-wider">ID</h2>
 							</div>
 							<div className="rounded-xl border bg-card px-4 py-3">
 								<code className="text-[11px] font-mono text-muted-foreground/60 break-all">
@@ -354,12 +354,10 @@ function RouteComponent() {
 
 						{/* Notes — second */}
 						{credential.notes && (
-							<section>
+							<section className="mt-4">
 								<div className="mb-2.5 flex items-center gap-2">
-									<FileText className="size-3.5 text-muted-foreground/50" />
-									<h2 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-										Notes
-									</h2>
+									<FileText className="size-4.5" />
+									<h2 className="text-base font-semibold uppercase tracking-wider">Notes</h2>
 								</div>
 								<div className="rounded-xl border bg-card px-4 py-3">
 									<p className="text-sm leading-relaxed text-card-foreground/80 whitespace-pre-wrap">
@@ -371,12 +369,10 @@ function RouteComponent() {
 
 						{/* Tags — last, colorful badges */}
 						{tagList.length > 0 && (
-							<section>
+							<section className="mt-4">
 								<div className="mb-2.5 flex items-center gap-2">
-									<Tag className="size-3.5 text-muted-foreground/50" />
-									<h2 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-										Tags
-									</h2>
+									<Tag className="size-4.5" />
+									<h2 className="text-base font-semibold uppercase tracking-wider">Tags</h2>
 								</div>
 								<div className="flex flex-wrap gap-1.5">
 									{tagList.map((tag: string) => {
