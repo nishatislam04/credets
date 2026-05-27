@@ -7,6 +7,7 @@ import { generateCSRF } from "./http/csrf/generateCSRF";
 import { typesListings } from "./http/types/listings";
 import indexHtml from "./index.html";
 import { createCredentialValidation } from "./validation/credential/create";
+import { updateCredentialValidation } from "./validation/credential/update";
 
 Bun.serve({
 	development: true,
@@ -22,10 +23,11 @@ Bun.serve({
 		"/credentials": (req) => credentialListings(req),
 		"/credentials/:credentialId": (req) => credentialPage(req),
 		"/credentials/create": (req) => credentialCreate(req),
-		"/credentials/update": () => credentialUpdate(),
+		"/credentials/:credentialId/update": (req) => credentialUpdate(req),
 		"/credentials/delete": (req, server) => credentailDelete(req, server),
 
 		"/credentials/create/validation": (req) => createCredentialValidation(req),
+		"/credentials/:credentialId/update/validation": (req) => updateCredentialValidation(req),
 
 		// types
 		"/types/listings": () => typesListings(),

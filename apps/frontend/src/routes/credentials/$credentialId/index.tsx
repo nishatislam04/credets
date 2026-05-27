@@ -1,6 +1,6 @@
 import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
 import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
-import { ArrowLeft, CalendarDays, Clock, FileText, ImageIcon, Info, Tag } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, FileText, ImageIcon, Info, Pencil, Tag } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Separator } from "#/components/ui/separator";
@@ -176,14 +176,24 @@ function RouteComponent() {
 	return (
 		<>
 			<div className="mx-auto w-full max-w-5xl px-4 py-10">
-				{/* ── Back link ── */}
-				<Link
-					to="/credentials"
-					className="group mb-8 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors"
-				>
-					<ArrowLeft className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5" />
-					Back
-				</Link>
+				{/* ── Back link + Edit button ── */}
+				<div className="mb-8 flex items-center justify-between">
+					<Link
+						to="/credentials"
+						className="group inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors"
+					>
+						<ArrowLeft className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5" />
+						Back
+					</Link>
+					<Link
+						to="/credentials/$credentialId/update"
+						params={{ credentialId: credential.id }}
+						className="inline-flex items-center gap-1.5 rounded-lg border bg-card px-3.5 py-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 shadow-sm transition-all duration-200 hover:bg-accent hover:text-foreground hover:shadow-md active:scale-[0.97]"
+					>
+						<Pencil className="size-3" />
+						Edit
+					</Link>
+				</div>
 
 				{/* ── Header row — thumbnail | title + badge + dates ── */}
 				<div className="h-30 mb-10 flex items-start gap-5">

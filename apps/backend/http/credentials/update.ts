@@ -1,33 +1,245 @@
-import { decrypt } from "@backend/utils/decrypt";
-import { parseLocalDate } from "@backend/utils/parseLocalDate";
+import { formatZodError } from "@backend/types/formatZodError";
+import { processImage } from "@backend/utils/processImage";
+import { credentialsUpdateSchema } from "@credets/shared-schema/credentials/update";
 import { sql } from "@db/connection";
-import { format } from "date-fns";
+import type { BunRequest } from "bun";
+import { verifyCSRF } from "../csrf/verifyCSRF";
 
-export async function credentialUpdate() {
-	const inputSpecialPassword = "nishat islam 004. 3/5/2026";
-	const [_, inputDate] = inputSpecialPassword.split(". ");
-	if (!inputDate) return new Response("special password verification failed");
-	const parsedLocalDate = parseLocalDate(inputDate);
-	const serverDate = format(new Date(), "yyyy-MM-dd");
-	const dateCheckPassed = parsedLocalDate === serverDate;
-	if (dateCheckPassed) console.log("first step complete! date check pass");
-	console.log("parsed local date", parsedLocalDate);
+export async function credentialUpdate(req: BunRequest) {
+	const formData = await req.formData();
+	const _csrf = formData.get("_csrf")?.toString() || "";
 
-	const key = Bun.env.ENC_KEY;
-	if (!key) return new Response("key is required to encrypt");
+	const isValidCsrf = verifyCSRF(_csrf);
+	if (!isValidCsrf)
+		return new Response(
+			JSON.stringify({
+				success: false,
+				type: "csrf-expired",
+				message: "csrf token expired",
+			}),
+			{
+				status: 500,
+				headers: {
+					"content-type": "application/json",
+				},
+			},
+		);
 
-	const fetchedUser =
-		await sql`SELECT id, name, username, email, password, special_password FROM users WHERE username='nishat004'`;
+	const { credentialId } = req.params;
 
-	const decodedSpecialPassword = await decrypt(fetchedUser[0].special_password);
-	const serverFullSpecialPassword = `${decodedSpecialPassword} ${serverDate}`;
+	// Check credential exists
+	const [existingCredential] =
+		await sql`SELECT id FROM credentials WHERE id = ${credentialId}`;
+	if (!existingCredential) {
+		return new Response(
+			JSON.stringify({
+				success: false,
+				type: "not-found",
+				message: "credential not found",
+			}),
+			{
+				status: 404,
+				headers: {
+					"Content-Type": "application/json",
+					"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
+				},
+			},
+		);
+	}
 
-	console.log("serverfulldatepaswrd", serverFullSpecialPassword);
+	const title = formData.get("title")?.toString() || "";
+	const short_description = formData.get("short_description")?.toString() || "";
+	const long_description = formData.get("long_description")?.toString() || "";
+	const type = formData.get("type")?.toString() || "";
+	const notes = formData.get("notes")?.toString() || null;
+	const tags = formData.get("tags")?.toString() || null;
+	const data = JSON.parse(formData.get("data")?.toString() || "[]");
+	const existing_images_keep_raw =
+		formData.get("existing_images_keep")?.toString() || null;
 
-	const isFullPasswordMatch =
-		serverFullSpecialPassword ===
-		`${inputSpecialPassword.split(".")[0]}. ${parsedLocalDate}`;
+	// Extract thumbnail
+	const thumbnail = formData.get("thumbnail") as File | null;
 
-	console.log("full password match", isFullPasswordMatch);
-	return new Response("credentials update page");
+	// Extract new images
+	const images: File[] = [];
+	for (const [key, value] of formData.entries()) {
+		if (key.startsWith("images[") && value instanceof File) {
+			images.push(value);
+		}
+	}
+
+	const validateDisData = {
+		_csrf,
+		title,
+		type,
+		short_description,
+		long_description,
+		thumbnail,
+		images,
+		tags,
+		notes,
+		data,
+		existing_images_keep: existing_images_keep_raw,
+	};
+
+	const validatedData = credentialsUpdateSchema.safeParse(validateDisData);
+
+	if (!validatedData.success) {
+		const errors = formatZodError(validatedData);
+
+		return new Response(
+			JSON.stringify({ success: false, type: "form-validation", errors }),
+			{
+				status: 400,
+				headers: {
+					"Content-Type": "application/json",
+					"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
+				},
+			},
+		);
+	}
+
+	// Process thumbnail if a new file was provided
+	let thumbnail_image_data = null;
+	let thumbnail_format = null;
+	let thumbnail_width = null;
+	let thumbnail_height = null;
+
+	if (validatedData.data.thumbnail) {
+		const thumbnailResult = await processImage({
+			file: validatedData.data.thumbnail,
+			outputQuality: 50,
+			resizeInWidth: 800,
+		});
+		thumbnail_image_data = thumbnailResult?.buffer ?? null;
+		thumbnail_format = thumbnailResult?.format ?? null;
+		thumbnail_width = thumbnailResult?.width ?? null;
+		thumbnail_height = thumbnailResult?.height ?? null;
+	}
+
+	// Process new images
+	const processedImages = await Promise.all(
+		images.map((file) =>
+			processImage({
+				file,
+				outputQuality: 75,
+				resizeInWidth: 1400,
+			}),
+		),
+	);
+
+	const validImages = processedImages.filter(
+		(img): img is NonNullable<typeof img> => img !== null,
+	);
+
+	const processedData = JSON.stringify(validatedData.data.data);
+
+	const processedTags = validatedData.data.tags
+		? JSON.stringify(
+				validatedData.data.tags
+					.split(",")
+					.map((tag) => tag.trim())
+					.filter((tag) => tag.length > 0),
+			)
+		: null;
+
+	// Resolve type_id from the type value
+	const [typeRow] =
+		await sql`SELECT id FROM types WHERE value=${validatedData.data.type}`;
+	if (!typeRow) {
+		return new Response(
+			JSON.stringify({
+				success: false,
+				type: "form-validation",
+				message: "Invalid type selected",
+			}),
+			{
+				status: 400,
+				headers: {
+					"Content-Type": "application/json",
+					"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
+				},
+			},
+		);
+	}
+
+	// Build update payload — only include thumbnail fields if a new file was provided
+	const updateFields: Record<string, unknown> = {
+		title: validatedData.data.title,
+		short_description: validatedData.data.short_description || null,
+		long_description: validatedData.data.long_description || null,
+		data: processedData,
+		notes: validatedData.data.notes || null,
+		tags: processedTags,
+		types_id: typeRow.id,
+	};
+
+	if (thumbnail_image_data) {
+		updateFields.thumbnail_image_data = thumbnail_image_data;
+		updateFields.thumbnail_format = thumbnail_format;
+		updateFields.thumbnail_width = thumbnail_width;
+		updateFields.thumbnail_height = thumbnail_height;
+	}
+
+	// Update the credential record
+	await sql`UPDATE credentials SET ${sql(updateFields)} WHERE id = ${credentialId}`;
+
+	// ── Handle images ────────────────────────────────────────────────
+
+	// Parse existing_images_keep — these are the IDs of existing images to retain
+	const existingImagesKeep: string[] = existing_images_keep_raw
+		? (() => {
+				try {
+					const parsed = JSON.parse(existing_images_keep_raw);
+					return Array.isArray(parsed) ? parsed : [];
+				} catch {
+					return [];
+				}
+			})()
+		: [];
+
+	// Delete images for this credential that are NOT in the keep list.
+	// sql.array() binds a PostgreSQL array parameter; PostgreSQL infers the type from context.
+	if (existingImagesKeep.length > 0) {
+		await sql`
+			DELETE FROM credential_images
+			WHERE credential_id = ${credentialId}
+				AND id != ALL(${sql.array(existingImagesKeep)})
+		`;
+	} else {
+		// If no images to keep, delete all existing images
+		await sql`
+			DELETE FROM credential_images
+			WHERE credential_id = ${credentialId}
+		`;
+	}
+
+	// Insert new images
+	if (validImages.length > 0) {
+		const credentialImagesPayload = validImages.map((image) => ({
+			image_data: image.buffer,
+			format: image.format,
+			width: image.width,
+			height: image.height,
+			byte_size: image.byteSize,
+			credential_id: credentialId,
+		}));
+
+		await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
+	}
+
+	return new Response(
+		JSON.stringify({
+			success: true,
+			type: "resource-update",
+			message: "Credential updated successfully",
+		}),
+		{
+			status: 200,
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
+			},
+		},
+	);
 }
