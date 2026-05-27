@@ -1,7 +1,18 @@
 import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
 import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
-import { ArrowLeft, CalendarDays, Check, Clock, Copy, FileText, ImageIcon, Info, Pencil, Tag } from "lucide-react";
-import { useCallback, useState } from "react";
+import {
+	ArrowLeft,
+	CalendarDays,
+	Check,
+	Clock,
+	Copy,
+	FileText,
+	ImageIcon,
+	Info,
+	Pencil,
+	Tag,
+} from "lucide-react";
+import { useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Separator } from "#/components/ui/separator";
 import { Skeleton } from "#/components/ui/skeleton";
@@ -176,7 +187,7 @@ function RouteComponent() {
 
 	return (
 		<>
-			<div className="mx-auto w-full max-w-5xl px-4 py-10">
+			<div className="mx-auto w-full max-w-6xl px-4 py-10">
 				{/* ── Back link + Edit button ── */}
 				<div className="mb-8 flex items-center justify-between">
 					<Link
@@ -272,7 +283,7 @@ function RouteComponent() {
 						{/* Long description — simple & natural */}
 						{credential.long_description && (
 							<section>
-								<p className="text-lg leading-relaxed mt-4 text-gray-800">
+								<p className="text-base leading-relaxed mt-20 text-gray-600">
 									{credential.long_description}
 								</p>
 							</section>

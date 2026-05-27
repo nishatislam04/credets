@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
 import { LoaderIcon, Plus } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Skeleton } from "#/components/ui/skeleton";
-import { CredentialCard } from "./-components/credential-card";
-import { getCredentialsListings } from "./-actions/getCredentialsListings";
 import type { CredentialListItem } from "./-actions/getCredentialsListings";
+import { getCredentialsListings } from "./-actions/getCredentialsListings";
+import { CredentialCard } from "./-components/credential-card";
 
 export const Route = createFileRoute("/credentials/")({
 	component: RouteComponent,
@@ -17,11 +17,8 @@ export const Route = createFileRoute("/credentials/")({
 			</div>
 
 			<div className="space-y-3">
-				{Array.from({ length: 8 }).map((_, i) => (
-					<div
-						key={i}
-						className="flex items-center gap-4 rounded-xl border p-4"
-					>
+				{Array.from({ length: 8 }).map((_) => (
+					<div key={crypto.randomUUID()} className="flex items-center gap-4 rounded-xl border p-4">
 						<Skeleton className="size-12 shrink-0 rounded-full" />
 						<div className="min-w-0 grow space-y-2">
 							<Skeleton className="h-5 w-2/3 rounded-lg" />
@@ -53,12 +50,8 @@ function RouteComponent() {
 	const loaderData = useLoaderData({ from: "/credentials/" });
 
 	// Accumulate credentials across pages
-	const [credentials, setCredentials] = useState<CredentialListItem[]>(
-		loaderData.credentials,
-	);
-	const [nextCursor, setNextCursor] = useState<string | null>(
-		loaderData.nextCursor,
-	);
+	const [credentials, setCredentials] = useState<CredentialListItem[]>(loaderData.credentials);
+	const [nextCursor, setNextCursor] = useState<string | null>(loaderData.nextCursor);
 	const [hasMore, setHasMore] = useState(loaderData.hasMore);
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
 	const [loadError, setLoadError] = useState<string | null>(null);
@@ -80,9 +73,7 @@ function RouteComponent() {
 			setNextCursor(data.nextCursor);
 			setHasMore(data.hasMore);
 		} catch (err) {
-			setLoadError(
-				err instanceof Error ? err.message : "Failed to load more credentials",
-			);
+			setLoadError(err instanceof Error ? err.message : "Failed to load more credentials");
 		} finally {
 			loadingRef.current = false;
 			setIsLoadingMore(false);
@@ -150,9 +141,7 @@ function RouteComponent() {
 					<div className="size-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
 						<span className="text-2xl text-muted-foreground/40">~</span>
 					</div>
-					<h3 className="text-base font-medium text-muted-foreground">
-						No credentials yet
-					</h3>
+					<h3 className="text-base font-medium text-muted-foreground">No credentials yet</h3>
 					<p className="text-sm text-muted-foreground/60 mt-1">
 						Create your first credential to get started
 					</p>
@@ -167,10 +156,7 @@ function RouteComponent() {
 
 			{/* Sentinel — observed by IntersectionObserver for infinite scroll */}
 			{hasMore && credentials.length > 0 && (
-				<div
-					ref={sentinelCallback}
-					className="flex justify-center py-8"
-				>
+				<div ref={sentinelCallback} className="flex justify-center py-8">
 					{isLoadingMore ? (
 						<div className="flex items-center gap-2 text-sm text-muted-foreground/60">
 							<LoaderIcon className="size-4 animate-spin" />
@@ -199,9 +185,7 @@ function RouteComponent() {
 			{/* End of results */}
 			{!hasMore && credentials.length > 0 && (
 				<div className="text-center py-8">
-					<p className="text-xs text-muted-foreground/40">
-						You've reached the end
-					</p>
+					<p className="text-xs text-muted-foreground/40">You've reached the end</p>
 				</div>
 			)}
 		</div>

@@ -1,5 +1,5 @@
 import type { DataBlockEntry } from "@credets/shared-types/credentials/listings";
-import { Check, Copy, Eye, EyeOff } from "lucide-react";
+import { Braces, Check, Copy, Eye, EyeOff } from "lucide-react";
 import { useCallback, useState } from "react";
 
 interface CredentialDataRendererProps {
@@ -98,7 +98,7 @@ function MultiLineDisplay({ value }: { value: string }) {
 
 function BlockLabel({ children }: { children: string }) {
 	return (
-		<span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted-foreground/60">
+		<span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600">
 			{children}
 		</span>
 	);
@@ -152,23 +152,23 @@ function InformationBlock({ block }: { block: DataBlockEntry & { type: "informat
 function DataBlocksRenderer({ blocks }: { blocks: DataBlockEntry[] }) {
 	return (
 		<div className="divide-y divide-border/20">
-			{blocks.map((block, i) => {
+			{blocks.map((block) => {
 				switch (block.type) {
 					case "single_label":
 						return (
-							<div key={i}>
+							<div key={crypto.randomUUID()}>
 								<SingleLabelBlock block={block} />
 							</div>
 						);
 					case "key_value":
 						return (
-							<div key={i}>
+							<div key={crypto.randomUUID()}>
 								<KeyValueBlock block={block} />
 							</div>
 						);
 					case "information":
 						return (
-							<div key={i}>
+							<div key={crypto.randomUUID()}>
 								<InformationBlock block={block} />
 							</div>
 						);
@@ -229,7 +229,12 @@ export function CredentialDataRenderer({ typeValue, data }: CredentialDataRender
 
 	return (
 		<div className="mt-10">
-			<h4 className="text-xl font-medium mb-3">Data Block</h4>
+			{/*<Braces />
+			<h4 className="text-xl font-medium mb-3">Data</h4>*/}
+			<div className="mb-5 flex items-center gap-2">
+				<Braces className="size-4.5" />
+				<h2 className="text-base font-semibold uppercase tracking-wider">Data</h2>
+			</div>
 			<div className={`rounded-lg border bg-blue-100/40 ${accent.border} overflow-hidden`}>
 				<DataBlocksRenderer blocks={data} />
 			</div>
