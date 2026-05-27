@@ -7,15 +7,76 @@ const randomInt = (min: number, max: number) =>
 // Helper to pick random item from array
 const randomPick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
+// ── Data block generator helpers ────────────────────────────────────
+
+type DataBlock =
+	| { type: "single_label"; value: string }
+	| { type: "key_value"; key: string; value: string }
+	| { type: "information"; value: string };
+
+function singleLabel(value: string): DataBlock {
+	return { type: "single_label", value };
+}
+
+function keyValue(key: string, value: string): DataBlock {
+	return { type: "key_value", key, value };
+}
+
+function information(value: string): DataBlock {
+	return { type: "information", value };
+}
+
 // Generate titles based on type
 const generateTitle = (type: string, index: number): string => {
 	const titles = {
-		credentials: [`Login ${index}`, `Account ${index}`, `Service ${index}`],
-		key: [`API Key ${index}`, `SSH Key ${index}`, `License ${index}`],
-		api: [`API Token ${index}`, `Service Account ${index}`, `Platform Key ${index}`],
-		media: [`Media Asset ${index}`, `Content ${index}`, `Resource ${index}`],
-		game_loadout: [`Loadout ${index}`, `Build ${index}`, `Character ${index}`],
-		misc: [`Note ${index}`, `Config ${index}`, `Info ${index}`],
+		credentials: [
+			`GitHub Account ${index}`,
+			`Netflix Profile ${index}`,
+			`AWS Console ${index}`,
+			`Bank Account ${index}`,
+			`Work Email ${index}`,
+			`Slack Workspace ${index}`,
+		],
+		key: [
+			`SSH Key ${index}`,
+			`License Key ${index}`,
+			`Encryption Key ${index}`,
+			`PGP Key ${index}`,
+			`Signing Key ${index}`,
+			`Root CA ${index}`,
+		],
+		api: [
+			`OpenAI Token ${index}`,
+			`Stripe API Key ${index}`,
+			`GitHub PAT ${index}`,
+			`Twilio Credentials ${index}`,
+			`SendGrid API ${index}`,
+			`Cloudflare Token ${index}`,
+		],
+		media: [
+			`Tutorial Video ${index}`,
+			`Design Assets ${index}`,
+			`Code Reference ${index}`,
+			`Brand Kit ${index}`,
+			`Podcast Episode ${index}`,
+			`Documentation Repo ${index}`,
+		],
+		game_loadout: [
+			`Competitive Loadout ${index}`,
+			`Raid Build ${index}`,
+			`PvP Setup ${index}`,
+			`Speedrun Config ${index}`,
+			`Ranked Loadout ${index}`,
+			`Casual Build ${index}`,
+		],
+		misc: [
+			`Server Config ${index}`,
+			`Network Setup ${index}`,
+			`Dev Environment ${index}`,
+			`Backup Script ${index}`,
+			`Docker Compose ${index}`,
+			`CI/CD Pipeline ${index}`,
+		],
 	};
 	return randomPick(titles[type as keyof typeof titles] || [`Item ${index}`]);
 };
@@ -33,223 +94,221 @@ const generateShortDescription = (type: string): string => {
 	return descriptions[type as keyof typeof descriptions] || "Credential item";
 };
 
-// Credential generators by type
+// ── Credential generators producing DataBlockEntry[] ────────────────
+
 const generators = {
-	credentials: (i: number) => ({
+	credentials: (_i: number) => ({
 		type: "credentials" as const,
-		data: randomPick([
-			{
-				website: "github.com",
-				email: `user${i}@email.com`,
-				username: `dev_user_${i}`,
-				password: `P@ss${randomInt(1000, 9999)}!`,
-				notes: "2FA enabled via authenticator app",
-			},
-			{
-				website: "netflix.com",
-				email: `streamer${i}@email.com`,
-				plan: "Premium",
-				last_billed: new Date(2024, randomInt(0, 11), randomInt(1, 28)).toISOString(),
-				shared_with: ["family@email.com", "friend@email.com"],
-			},
-			{
-				service: "AWS Console",
-				account_id: `1234-${randomInt(1000, 9999)}-${randomInt(1000, 9999)}`,
-				region: randomPick(["us-east-1", "eu-west-1", "ap-southeast-1"]),
-				role: randomPick(["admin", "developer", "readonly"]),
-				notes: "Production account - handle with care",
-			},
-			{
-				bank: randomPick(["Chase", "Bank of America", "Wells Fargo", "Citibank"]),
-				account_type: randomPick(["checking", "savings"]),
-				routing_number: `****${randomInt(1000, 9999)}`,
-				last_four: `****${randomInt(1000, 9999)}`,
-				notes: "Primary account",
-			},
+		data: randomPick<DataBlock[]>([
+			[
+				singleLabel("P@ssw0rd!23"),
+				keyValue("Email / Username", `user${_i}@example.com`),
+				keyValue("Website", "github.com"),
+				information("2FA enabled via authenticator app. Recovery codes stored in safe."),
+			],
+			[
+				singleLabel("Str34m3r!Pass"),
+				keyValue("Email", `streamer${_i}@email.com`),
+				keyValue("Plan", "Premium 4K"),
+				keyValue("Payment Method", "Visa ending in 4242"),
+				information(`Shared with 2 family members. Last billed ${randomPick(["Jan", "Feb", "Mar", "Apr"])} 2026.`),
+			],
+			[
+				keyValue("Service", "AWS Console"),
+				keyValue("Account ID", `${randomInt(1000, 9999)}-${randomInt(1000, 9999)}-${randomInt(1000, 9999)}`),
+				keyValue("Region", randomPick(["us-east-1", "eu-west-1", "ap-southeast-1"])),
+				singleLabel(randomPick(["admin", "developer", "readonly"])),
+				information("Production account — handle with care. MFA enforced. Access reviewed quarterly."),
+			],
+			[
+				keyValue("Bank", randomPick(["Chase", "Bank of America", "Wells Fargo", "Citibank"])),
+				keyValue("Account Type", randomPick(["checking", "savings"])),
+				singleLabel(`****${randomInt(1000, 9999)}`),
+				information("Primary checking account. Direct deposit set up for payroll. Paperless statements."),
+			],
+			[
+				keyValue("Email", `user${_i}@work-email.com`),
+				singleLabel("W0rkP@ss!456"),
+				keyValue("Mail Server", "outlook.office365.com"),
+				keyValue("Port", "587 (TLS)"),
+				information("Company email account. Requires app password for third-party clients. MFA via Microsoft Authenticator."),
+			],
 		]),
-		tags: randomPick([
-			null,
-			["work", "personal"],
-			["important", "frequent"],
-			["archive"],
-		]),
-		notes: randomPick([
-			null,
-			"Update password every 90 days",
-			"Shared with team",
-			"Requires 2FA",
-		]),
+		tags: randomPick([null, ["work", "personal"], ["important", "frequent"], ["archive"], ["security"]]),
+		notes: randomPick([null, "Update password every 90 days", "Shared with team", "Requires 2FA", "VIP account"]),
 	}),
 
-	key: (i: number) => ({
+	key: (_i: number) => ({
 		type: "key" as const,
-		data: randomPick([
-			{
-				name: `SSH Key - Server ${randomPick(["A", "B", "C", "D"])}`,
-				type: "ssh-private",
-				key_fingerprint: `SHA256:${Array(12)
-					.fill(0)
-					.map(() => Math.random().toString(36).substring(2, 4))
-					.join(":")}`,
-				bits: randomPick([2048, 4096]),
-				encrypted: true,
-			},
-			{
-				name: `License Key - Software ${i}`,
-				software: randomPick([
-					"Adobe CC",
-					"IntelliJ IDEA",
-					"Figma Pro",
-					"Docker Desktop",
-				]),
-				key: `${Array(4)
-					.fill(0)
-					.map(() =>
-						Array(4)
-							.fill(0)
-							.map(() => Math.random().toString(36).substring(2, 6).toUpperCase())
-							.join("-"),
-					)
-					.join("-")}`,
-				expires: `202${randomInt(4, 9)}-${String(randomInt(1, 12)).padStart(2, "0")}-${String(randomInt(1, 28)).padStart(2, "0")}`,
-				seats: randomInt(1, 5),
-			},
-			{
-				name: `Encryption Key - ${randomPick(["Backup", "Database", "Files"])}`,
-				algorithm: randomPick(["AES-256", "RSA-4096", "ChaCha20"]),
-				purpose: randomPick(["data-at-rest", "data-in-transit", "backup-encryption"]),
-				rotation_period_days: randomPick([30, 60, 90, 180]),
-			},
+		data: randomPick<DataBlock[]>([
+			[
+				keyValue("Type", "SSH — RSA"),
+				keyValue("Bits", "4096"),
+				singleLabel("SHA256:abc123def456ghi789"),
+				keyValue("Purpose", "Server authentication"),
+				information(`Generated on server ${randomPick(["A", "B", "C", "D"])}. Public key deployed to all production instances.`),
+			],
+			[
+				keyValue("Software", randomPick(["Adobe CC", "IntelliJ IDEA", "Figma Pro", "Docker Desktop"])),
+				singleLabel("XXXX-XXXX-XXXX-XXXX"),
+				keyValue("Seats", String(randomInt(1, 5))),
+				keyValue("Expires", `202${randomInt(5, 9)}-${String(randomInt(1, 12)).padStart(2, "0")}`),
+				information("Volume license managed through company portal. Auto-renewal enabled."),
+			],
+			[
+				keyValue("Algorithm", randomPick(["AES-256-GCM", "RSA-4096", "ChaCha20-Poly1305", "Ed25519"])),
+				keyValue("Purpose", randomPick(["data-at-rest", "data-in-transit", "backup-encryption", "code-signing"])),
+				keyValue("Rotation", `${randomPick([30, 60, 90, 180])} days`),
+				singleLabel("enc-key-prod-v2"),
+				information("Root key stored in hardware security module (HSM). Child keys derived for each service."),
+			],
+			[
+				keyValue("Type", "GPG — ECC"),
+				keyValue("Key ID", `0x${Array(16).fill(0).map(() => Math.random().toString(16).slice(2, 3)).join("").toUpperCase()}`),
+				singleLabel(`user${_i}@example.com`),
+				keyValue("Trust Level", randomPick(["ultimate", "full", "marginal"])),
+				information("Code signing key for package publishing. Subkeys used for daily operations."),
+			],
 		]),
-		tags: randomPick([null, ["security", "encryption"], ["production"]]),
-		notes: randomPick([null, "Store in secure vault", "Rotate annually"]),
+		tags: randomPick([null, ["security", "encryption"], ["production", "infrastructure"], ["ssh", "gpg"]]),
+		notes: randomPick([null, "Store in secure vault", "Rotate annually", "Backup stored offline"]),
 	}),
 
-	api: (i: number) => ({
+	api: (_i: number) => ({
 		type: "api" as const,
-		data: randomPick([
-			{
-				service: randomPick(["OpenAI", "Stripe", "Twilio", "SendGrid", "GitHub"]),
-				key_prefix: randomPick(["sk-", "pk_", "ghp_", "SG."]),
-				key_suffix: `****${randomInt(1000, 9999)}`,
-				environment: randomPick(["production", "development", "staging"]),
-				rate_limit: `${randomInt(100, 10000)} req/min`,
-				webhook_url: "https://api.myapp.com/webhooks",
-			},
-			{
-				platform: randomPick(["Google Cloud", "Azure", "Hetzner", "DigitalOcean"]),
-				token_type: randomPick(["OAuth2", "API Key", "Service Account"]),
-				scopes: randomPick([["read", "write"], ["admin"], ["read", "write", "delete"]]),
-				project: `project-${randomPick(["alpha", "beta", "gamma", "prod"])}`,
-				created_at: new Date(2024, randomInt(0, 11), randomInt(1, 28)).toISOString(),
-			},
+		data: randomPick<DataBlock[]>([
+			[
+				keyValue("Service", randomPick(["OpenAI", "Stripe", "Twilio", "SendGrid", "GitHub"])),
+				singleLabel(`${randomPick(["sk-", "pk_", "ghp_", "SG."])}${Array(24).fill(0).map(() => Math.random().toString(36).slice(2, 3)).join("")}`),
+				keyValue("Environment", randomPick(["production", "development", "staging"])),
+				keyValue("Rate Limit", `${randomInt(100, 10000)} req/min`),
+				information("Production token with restricted scopes. Rotated monthly. Monitor usage via dashboard."),
+			],
+			[
+				keyValue("Platform", randomPick(["Google Cloud", "Azure", "Hetzner", "DigitalOcean", "Cloudflare"])),
+				keyValue("Token Type", randomPick(["OAuth2", "API Key", "Service Account", "PAT"])),
+				keyValue("Scopes", randomPick(["read,write", "admin", "read,write,delete", "read-only"])),
+				keyValue("Project", `project-${randomPick(["alpha", "beta", "gamma", "prod", "staging"])}`),
+				information(`Created for CI/CD pipeline integration. Expires in ${randomInt(30, 365)} days. Revoke immediately if leaked.`),
+			],
+			[
+				keyValue("Endpoint", "https://api.example.com/v2"),
+				singleLabel("auth-token-prod"),
+				keyValue("Auth Method", "Bearer Token"),
+				keyValue("Webhook URL", "https://myapp.com/webhooks"),
+				information("All requests must include the token in the Authorization header. Webhook signature verified via HMAC-SHA256."),
+			],
 		]),
-		tags: randomPick([null, ["api", "integration"], ["third-party"]]),
-		notes: randomPick([null, "Keep secret!", "Don't commit to git"]),
+		tags: randomPick([null, ["api", "integration"], ["third-party", "production"], ["automation"]]),
+		notes: randomPick([null, "Keep secret!", "Don't commit to git", "Rotate quarterly"]),
 	}),
 
-	media: (i: number) => ({
+	media: (_i: number) => ({
 		type: "media" as const,
-		data: randomPick([
-			{
-				title: randomPick([
-					"How to Build a REST API",
-					"Docker Deep Dive",
-					"React Performance Tips",
-					"Database Optimization Guide",
-					"Kubernetes for Beginners",
-					"Machine Learning Basics",
-				]),
-				type: randomPick(["video", "article", "podcast", "tutorial"]),
-				url: `https://example.com/${randomPick(["tutorials", "guides", "videos"])}/${Date.now()}-${i}`,
-				duration_minutes: randomPick([null, 15, 45, 90, 120]),
-				author: randomPick(["TechLead", "CodeMaster", "DevGuru", "SysAdminPro"]),
-			},
-			{
-				collection: randomPick([
-					"Wallpapers",
-					"Memes",
-					"Design Inspiration",
-					"Code Snippets",
-				]),
-				count: randomInt(10, 500),
-				format: randomPick(["jpg", "png", "gif", "svg", "mp4"]),
-				source: randomPick(["Reddit", "Twitter", "Pinterest", "Dribbble"]),
-				notes: "Saved for later reference",
-			},
+		data: randomPick<DataBlock[]>([
+			[
+				singleLabel("How to Build a REST API"),
+				keyValue("Type", randomPick(["video", "article", "tutorial", "course"])),
+				keyValue("Author", randomPick(["TechLead", "CodeMaster", "DevGuru", "SysAdminPro"])),
+				keyValue("Duration", randomPick(["15 min", "45 min", "1 hr 30 min", "2 hr"])),
+				information("Excellent walkthrough covering RESTful design principles, authentication patterns, and testing strategies. References OpenAPI 3.1 spec."),
+			],
+			[
+				singleLabel("Brand Kit — Q1 2026"),
+				keyValue("Collection", randomPick(["Logos", "Icons", "Typography", "Color Palette"])),
+				keyValue("Format", randomPick(["SVG", "PNG", "EPS", "FIG"])),
+				keyValue("Source", randomPick(["Dribbble", "Figma Community", "Internal"])),
+				information("Official brand assets with usage guidelines. Do not modify colors or proportions without design team approval."),
+			],
+			[
+				singleLabel("Docker Deep Dive"),
+				keyValue("Type", "article"),
+				keyValue("Author", "Nigel Poulton"),
+				keyValue("URL", "https://example.com/docker-deep-dive"),
+				information("Comprehensive guide covering container internals, multi-stage builds, Docker Compose, and production best practices. Includes Kubernetes comparison."),
+			],
+			[
+				singleLabel("React Performance Tips"),
+				keyValue("Type", randomPick(["video", "article", "tutorial"])),
+				keyValue("Tags", "react, performance, optimization"),
+				information("Covers memoization, code splitting, virtual scrolling, bundle analysis, and common anti-patterns. Code examples in React 19."),
+			],
 		]),
-		tags: randomPick([null, ["media", "assets"], ["tutorial"]]),
-		notes: randomPick([null, "Watch later", "Important resource"]),
+		tags: randomPick([null, ["media", "assets", "design"], ["tutorial", "reference"], ["video", "tech"]]),
+		notes: randomPick([null, "Watch later", "Important resource", "Share with the team"]),
 	}),
 
-	game_loadout: (i: number) => ({
+	game_loadout: (_i: number) => ({
 		type: "game_loadout" as const,
-		data: randomPick([
-			{
-				game: randomPick(["CS2", "Valorant", "Apex Legends", "Fortnite", "Warzone"]),
-				loadout_name: randomPick(["Aggressive", "Tactical", "Sniper", "Support"]),
-				primary_weapon: randomPick(["AK-47", "M4A4", "Vandal", "R-301", "SCAR"]),
-				secondary_weapon: randomPick(["Deagle", "Glock", "USP", "Ghost", "Sheriff"]),
-				sensitivity: `${randomInt(1, 10)}.${randomInt(0, 9)}`,
-				crosshair: randomPick(["dot", "cross", "circle"]),
-				rank: randomPick([
-					"Silver",
-					"Gold",
-					"Platinum",
-					"Diamond",
-					"Ascendant",
-					"Immortal",
-				]),
-			},
-			{
-				game: randomPick(["Elden Ring", "Dark Souls", "Sekiro", "Bloodborne"]),
-				build: randomPick(["Strength", "Dexterity", "Intelligence", "Faith", "Quality"]),
-				level: randomInt(50, 200),
-				main_weapon: randomPick([
-					"Moonveil",
-					"Rivers of Blood",
-					"Dark Moon Greatsword",
-					"Blasphemous Blade",
-				]),
-				stats: {
-					vigor: randomInt(20, 60),
-					endurance: randomInt(20, 40),
-					strength: randomInt(10, 99),
-					dexterity: randomInt(10, 99),
-				},
-			},
+		data: randomPick<DataBlock[]>([
+			[
+				singleLabel(randomPick(["Dust II", "Mirage", "Inferno", "Overpass"])),
+				keyValue("Primary", randomPick(["AK-47", "M4A4", "AWP", "SG 553"])),
+				keyValue("Secondary", randomPick(["Deagle", "USP-S", "Glock-18", "Five-SeveN"])),
+				keyValue("Sensitivity", `${randomInt(1, 5)}.${randomInt(0, 9)}`),
+				keyValue("Crosshair", randomPick(["dot", "cross", "circle", "dynamic"])),
+				information(`${randomPick(["Aggressive", "Tactical", "Support", "Entry Fragger"])} playstyle. Default nade binds configured. Radar set to 3.5x zoom.`),
+			],
+			[
+				singleLabel("Elden Ring — Faith Build"),
+				keyValue("Level", String(randomInt(100, 200))),
+				keyValue("Main Weapon", randomPick(["Blasphemous Blade", "Sacred Relic Sword", "Golden Halberd", "Godslayer's Greatsword"])),
+				keyValue("Stats", `VIG ${randomInt(40, 60)} | MND ${randomInt(20, 40)} | END ${randomInt(25, 40)} | FTH ${randomInt(60, 80)}`),
+				information("NG+3 playthrough. Talismans: Erdtree's Favor +2, Shard of Alexander, Fire Scorpion Charm, Dragoncrest Greatshield."),
+			],
+			[
+				singleLabel(randomPick(["Platinum", "Diamond", "Ascendant", "Immortal"])),
+				keyValue("Agent", randomPick(["Jett", "Reyna", "Sova", "Killjoy", "Chamber"])),
+				keyValue("Primary", randomPick(["Vandal", "Phantom", "Operator", "Guardian"])),
+				keyValue("Secondary", randomPick(["Sheriff", "Ghost", "Classic"])),
+				keyValue("DPI / Sens", `${randomPick([400, 800, 1600])} / 0.${randomInt(2, 8)}`),
+				information(`Crosshair: 1-4-2-2 cyan with outlines. Minimap: 1.2x zoom. Practice routine: ${randomInt(10, 30)} min aim labs + ${randomInt(10, 20)} min deathmatch.`),
+			],
+			[
+				singleLabel(randomPick(["Strength", "Dexterity", "Quality", "Sorcery"])),
+				keyValue("Level", String(randomInt(80, 150))),
+				keyValue("Armor Set", randomPick(["Banished Knight", "Veteran's", "Bull-Goat", "Raging Wolf"])),
+				keyValue("Talismans", randomPick(["Green Turtle + Erdtree", "Dragoncrest + Arsenal", "Claw + Prosthesis"])),
+				information("PvP-focused build at RL150. Poise breakpoint at 51. Invasion hotspot: Liurnia / Leyndell."),
+			],
 		]),
-		tags: randomPick([null, ["gaming", "loadout"], ["competitive"]]),
-		notes: randomPick([null, "Current main loadout", "Testing new build"]),
+		tags: randomPick([null, ["gaming", "loadout"], ["competitive", "ranked"], ["pve", "build"]]),
+		notes: randomPick([null, "Current main loadout", "Testing new build", "Optimized for ranked"]),
 	}),
 
-	misc: (i: number) => ({
+	misc: (_i: number) => ({
 		type: "misc" as const,
-		data: randomPick([
-			{
-				title: `Quick Note ${i}`,
-				content: randomPick([
-					"Need to update SSL certificates before end of month",
-					"Remember to backup database every Sunday",
-					"Schedule meeting with team about new architecture",
-					"Check server logs for unusual activity",
-					"Update dependencies to latest versions",
-				]),
-				priority: randomPick(["low", "medium", "high", "urgent"]),
-			},
-			{
-				category: randomPick(["WiFi", "Server IPs", "Ports", "Configurations"]),
-				entries: Array(randomInt(2, 5))
-					.fill(0)
-					.map((_, j) => ({
-						key: `item_${j + 1}`,
-						value: `${randomPick(["192.168.1.", "10.0.0."])}${randomInt(1, 254)}`,
-					})),
-				notes: "Network configuration",
-			},
+		data: randomPick<DataBlock[]>([
+			[
+				singleLabel("SSL Certificate Renewal"),
+				keyValue("Priority", randomPick(["low", "medium", "high", "urgent"])),
+				keyValue("Domain", "*.example.com"),
+				information("Need to update SSL certificates before end of month. Issued by Let's Encrypt. Use certbot renew --dry-run first to test. Includes wildcard cert for all subdomains."),
+			],
+			[
+				singleLabel("Database Backup Config"),
+				keyValue("Schedule", "Every Sunday 03:00 AM"),
+				keyValue("Retention", "30 days"),
+				keyValue("Storage", "S3 bucket — backup.credet.app"),
+				information("Automated pg_dump of all databases. Encrypted with GPG before upload. Health check notification sent to Slack on completion/failure. Restore tested monthly."),
+			],
+			[
+				singleLabel("Server Inventory"),
+				keyValue("Region", randomPick(["us-east-1", "eu-west-2", "ap-southeast-1"])),
+				keyValue("Provider", randomPick(["AWS EC2", "Hetzner Cloud", "DigitalOcean", "OVH"])),
+				keyValue("OS", randomPick(["Ubuntu 24.04 LTS", "Debian 12", "Fedora 40", "AlmaLinux 9"])),
+				information(`Total ${randomInt(3, 12)} instances across ${randomInt(1, 3)} regions. Monitoring via Grafana + Prometheus. Patching window: every 2nd Tuesday.`),
+			],
+			[
+				singleLabel("CI/CD Pipeline Config"),
+				keyValue("Provider", randomPick(["GitHub Actions", "GitLab CI", "Jenkins", "CircleCI"])),
+				keyValue("Stages", "lint → typecheck → test → build → deploy"),
+				keyValue("Environments", "dev → staging → production"),
+				information("Deploys automatically on merge to main. Production deploys require manual approval. Rollback via git revert + redeploy."),
+			],
 		]),
-		tags: randomPick([null, ["note", "reminder"], ["config"]]),
-		notes: randomPick([null, "Review later", "Needs update"]),
+		tags: randomPick([null, ["note", "reminder", "devops"], ["config", "infrastructure"], ["automation"]]),
+		notes: randomPick([null, "Review later", "Needs update", "Share with team", "Critical — do not delete"]),
 	}),
 };
 
@@ -383,7 +442,7 @@ async function seed() {
 			});
 		}
 
-		// Insert batch one by one (or use batch insert if your SQL supports it)
+		// Insert batch one by one
 		for (const cred of batch) {
 			await sql`
 				INSERT INTO credentials (
