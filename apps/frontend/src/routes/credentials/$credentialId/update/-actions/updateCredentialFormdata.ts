@@ -19,6 +19,8 @@ interface UpdateFormValues {
 	newImages: File[];
 	/** IDs of existing images to keep */
 	existingImagesKeep: string[];
+	/** Whether to remove the existing thumbnail */
+	removeThumbnail?: boolean;
 }
 
 export function createUpdateCredentialFormdata(value: UpdateFormValues) {
@@ -38,6 +40,8 @@ export function createUpdateCredentialFormdata(value: UpdateFormValues) {
 	// Thumbnail — only append if a new file was selected
 	if (value.thumbnail) {
 		formdata.append("thumbnail", value.thumbnail);
+	} else if (value.removeThumbnail) {
+		formdata.append("remove_thumbnail", "true");
 	}
 
 	// Clean and append data blocks

@@ -1,6 +1,7 @@
 import { credentialCreate } from "./http/credentials/create";
 import { credentialPage } from "./http/credentials/credential";
 import { credentailDelete } from "./http/credentials/delete";
+import type { BunRequest } from "bun";
 import { credentialListings } from "./http/credentials/listings";
 import { credentialUpdate } from "./http/credentials/update";
 import { generateCSRF } from "./http/csrf/generateCSRF";
@@ -24,7 +25,7 @@ Bun.serve({
 		"/credentials/:credentialId": (req) => credentialPage(req),
 		"/credentials/create": (req) => credentialCreate(req),
 		"/credentials/:credentialId/update": (req) => credentialUpdate(req),
-		"/credentials/delete": (req, server) => credentailDelete(req, server),
+		"/credentials/:credentialId/delete": (req) => credentailDelete(req),
 
 		"/credentials/create/validation": (req) => createCredentialValidation(req),
 		"/credentials/:credentialId/update/validation": (req) => updateCredentialValidation(req),
@@ -33,19 +34,6 @@ Bun.serve({
 		"/types/listings": () => typesListings(),
 	},
 
-	async fetch(req, server) {
-		const address = server.requestIP(req);
-		if (address) {
-			return new Response(`Client IP: ${address.address}, Port: ${address.port}`);
-		}
-		return new Response("Unknown client");
-	},
-	websocket: {
-		// Required for this overload
-		message: (ws, message) => {
-			console.log(message);
-		},
-	},
 	error(error) {
 		return new Response(`<pre>${error}\n${error.stack}</pre>`, {
 			headers: {

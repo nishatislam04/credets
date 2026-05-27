@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createFileRoute, useLoaderData } from "@tanstack/react-router";
-import { LoaderIcon } from "lucide-react";
+import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
+import { LoaderIcon, Plus } from "lucide-react";
 import { Skeleton } from "#/components/ui/skeleton";
 import { CredentialCard } from "./-components/credential-card";
 import { getCredentialsListings } from "./-actions/getCredentialsListings";
@@ -128,11 +128,20 @@ function RouteComponent() {
 	return (
 		<div className="mx-auto w-full max-w-3xl px-4 py-8">
 			{/* Page header */}
-			<div className="mb-8">
-				<h1 className="text-2xl font-bold tracking-tight">Credentials</h1>
-				<p className="text-sm text-muted-foreground mt-1">
-					Browse your saved credentials, keys, and secrets
-				</p>
+			<div className="mb-8 flex items-start justify-between">
+				<div>
+					<h1 className="text-2xl font-bold tracking-tight">Credentials</h1>
+					<p className="text-sm text-muted-foreground mt-1">
+						Browse your saved credentials, keys, and secrets
+					</p>
+				</div>
+				<Link
+					to="/credentials/create"
+					className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.97]"
+				>
+					<Plus className="size-4" />
+					Create
+				</Link>
 			</div>
 
 			{/* Credentials list */}

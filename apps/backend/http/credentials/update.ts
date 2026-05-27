@@ -174,11 +174,20 @@ export async function credentialUpdate(req: BunRequest) {
 		types_id: typeRow.id,
 	};
 
+	// Handle remove_thumbnail flag
+	const removeThumbnail = formData.get("remove_thumbnail")?.toString() === "true";
+
 	if (thumbnail_image_data) {
 		updateFields.thumbnail_image_data = thumbnail_image_data;
 		updateFields.thumbnail_format = thumbnail_format;
 		updateFields.thumbnail_width = thumbnail_width;
 		updateFields.thumbnail_height = thumbnail_height;
+	} else if (removeThumbnail) {
+		// Explicitly set thumbnail fields to null when removal is requested
+		updateFields.thumbnail_image_data = null;
+		updateFields.thumbnail_format = null;
+		updateFields.thumbnail_width = null;
+		updateFields.thumbnail_height = null;
 	}
 
 	// Update the credential record

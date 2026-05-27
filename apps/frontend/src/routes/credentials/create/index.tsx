@@ -3,7 +3,8 @@ import type { CredentialCreateType } from "@credets/shared-types/credentials/cre
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { LoaderIcon, Trash2 } from "lucide-react";
+import { LoaderIcon, X } from "lucide-react";
+import { useState } from "react";
 import {
 	Field,
 	FieldContent,
@@ -27,14 +28,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "#/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -44,6 +37,7 @@ import { createCredentialValidation } from "./-actions/createCredentialValidatio
 import { getCSRFtoken } from "./-actions/getCSRFtoken";
 import { getTypesListings } from "./-actions/getTypesListings";
 import { DataBlock } from "./-components/Datablock";
+import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
 
 export const Route = createFileRoute("/credentials/create/")({
 	component: RouteComponent,
@@ -92,6 +86,7 @@ function RouteComponent() {
 	});
 
 	const navigate = useNavigate();
+	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
 	const form = useForm({
 		defaultValues: defaultCredentialValues(csrfToken),
@@ -377,14 +372,46 @@ function RouteComponent() {
 					</div>
 
 					{/* Thumbnail and images side-by side */}
-					<div className="grid grid-cols-2 gap-4">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<form.Field
 							name="thumbnail"
 							children={(field) => {
 								const isinvalid = !field.state.meta.isValid;
+								const file = field.state.value;
+								const previewUrl = file ? URL.createObjectURL(file) : null;
+
 								return (
 									<Field data-invalid={isinvalid}>
 										<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
+
+										{/* Preview selected thumbnail */}
+										{previewUrl && (
+											<div className="mb-3 relative inline-block group">
+												<button
+													type="button"
+													onClick={() => setPreviewSrc(previewUrl)}
+													className="cursor-pointer border-0 bg-transparent p-0"
+												>
+													<img
+														src={previewUrl}
+														alt="Thumbnail preview"
+														className="max-h-32 rounded-lg object-contain border hover:ring-2 hover:ring-primary/40 transition-all"
+													/>
+												</button>
+												<button
+													type="button"
+													onClick={() => field.handleChange(null)}
+													className="absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full bg-destructive text-white shadow-sm opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/90 cursor-pointer border-0"
+													aria-label="Remove thumbnail"
+												>
+													<X className="size-3.5" />
+												</button>
+												<p className="text-xs text-muted-foreground mt-1">
+													Click to preview
+												</p>
+											</div>
+										)}
+
 										<Input
 											id="thumbnail"
 											type="file"
@@ -432,9 +459,55 @@ function RouteComponent() {
 							}}
 							children={(field) => {
 								const isinvalid = !field.state.meta.isValid;
+								const files: File[] = field.state.value ?? [];
+
 								return (
 									<Field data-invalid={isinvalid}>
 										<FieldLabel htmlFor="images">Images (multi)</FieldLabel>
+
+										{/* Image preview grid */}
+										{files.length > 0 && (
+											<div className="mb-3">
+												<p className="text-xs text-muted-foreground mb-2">
+													{files.length} image{files.length > 1 ? "s" : ""} selected
+												</p>
+												<div className="grid grid-cols-3 gap-2">
+													{files.map((file, index) => {
+														const fileUrl = URL.createObjectURL(file);
+														return (
+															<div
+																key={`${file.name}-${index}`}
+																className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20"
+															>
+																<button
+																	type="button"
+																	onClick={() => setPreviewSrc(fileUrl)}
+																	className="size-full cursor-pointer border-0 bg-transparent p-0"
+																>
+																	<img
+																		src={fileUrl}
+																		alt={file.name}
+																		className="size-full object-cover transition-transform duration-200 hover:scale-105"
+																	/>
+																</button>
+																<button
+																	type="button"
+																	className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
+																	onClick={() => {
+																		const updated = files.filter((_, i) => i !== index);
+																		field.handleChange(updated);
+																	}}
+																	aria-label="Remove image"
+																>
+																	<X className="size-3" />
+																</button>
+															</div>
+														);
+													})}
+												</div>
+											</div>
+										)}
+
 										<Input
 											id="images"
 											type="file"
@@ -461,51 +534,6 @@ function RouteComponent() {
 											}}
 											aria-invalid={isinvalid}
 										/>
-										{field.state.value && field.state.value.length > 0 && (
-											<div className="mt-2 text-sm">
-												<ul className="list-disc list-inside flex flex-col gap-1">
-													<Table>
-														<TableHeader>
-															<TableRow>
-																<TableHead className="capitalize">file name</TableHead>
-																<TableHead>Delete</TableHead>
-															</TableRow>
-														</TableHeader>
-														<TableBody>
-															{field.state.value.map((file, index) => {
-																const imageFiles: File[] =
-																	(field.state.value as File[]) ?? [];
-																return (
-																	<TableRow key={`${crypto.randomUUID()}`}>
-																		<TableCell className="font-medium">
-																			<span className="truncate block max-w-75">
-																				{file.name}
-																			</span>
-																		</TableCell>
-																		<TableCell className="text-right w-12.5">
-																			<Button
-																				type="button"
-																				variant="ghost"
-																				size="sm"
-																				className="text-destructive h-auto px-1"
-																				onClick={() => {
-																					const updated = imageFiles.filter(
-																						(_, i) => i !== index,
-																					);
-																					field.handleChange(updated);
-																				}}
-																			>
-																				<Trash2 />
-																			</Button>
-																		</TableCell>
-																	</TableRow>
-																);
-															})}
-														</TableBody>
-													</Table>
-												</ul>
-											</div>
-										)}
 										{isinvalid && <FieldError errors={field.state.meta.errors} />}
 									</Field>
 								);
@@ -582,6 +610,15 @@ function RouteComponent() {
 					/>
 				</FieldGroup>
 			</Form>
+
+			{/* ── Image preview overlay ── */}
+			{previewSrc && (
+				<ImagePreviewOverlay
+					src={previewSrc}
+					onClose={() => setPreviewSrc(null)}
+				/>
+			)}
 		</main>
 	);
 }
+

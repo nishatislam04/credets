@@ -27,14 +27,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "#/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -46,7 +38,8 @@ import { getTypesListings } from "#/routes/credentials/create/-actions/getTypesL
 import { getCredentialUpdate } from "./-actions/getCredentialUpdate";
 import { updateCredentialAction } from "./-actions/updateCredentialAction";
 import { updateCredentialValidation } from "./-actions/updateCredentialValidation";
-import { ArrowLeft, LoaderIcon, Trash2, X } from "lucide-react";
+import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
+import { ArrowLeft, LoaderIcon, X, AlertTriangle } from "lucide-react";
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
@@ -169,6 +162,8 @@ function RouteComponent() {
 		: [];
 	const [removedImageIds, setRemovedImageIds] = useState<string[]>([]);
 	const [newImages, setNewImages] = useState<File[]>([]);
+	const [thumbnailRemoved, setThumbnailRemoved] = useState(false);
+	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
 	const visibleExistingImages = existingImages.filter(
 		(img) => !removedImageIds.includes(img.id),
@@ -233,15 +228,16 @@ function RouteComponent() {
 			const existingImagesKeep = visibleExistingImages.map((img) => img.id);
 
 			gooeyToast.promise(
-				updateCredentialAction({
-					...value,
-					credentialId: credential.id,
-					newImages,
-					existingImagesKeep,
-				}),
-				{
-					loading: "updating...",
-					success: "credential updated",
+				updateCredentialAction(					{
+						...value,
+						credentialId: credential.id,
+						newImages,
+						existingImagesKeep,
+						removeThumbnail: thumbnailRemoved,
+					}),
+					{
+						loading: "updating...",
+						success: "credential updated",
 					error: "failed to update the credential",
 					description: {
 						success: "the credential has been updated successfully",
@@ -510,31 +506,97 @@ function RouteComponent() {
 								</div>
 							)}
 						/>
-					</div>
-
-					{/* ── Thumbnail and Images ── */}
+					</div>					{/* ── Thumbnail and Images ── */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
 						{/* Thumbnail */}
 						<form.Field
 							name="thumbnail"
 							children={(field) => {
 								const isInvalid = !field.state.meta.isValid;
+								const existingThumbnailSrc =
+									credential.thumbnail_image_data && credential.thumbnail_format
+										? `data:image/${credential.thumbnail_format};base64,${credential.thumbnail_image_data}`
+										: null;
+								const showExisting = !field.state.value && existingThumbnailSrc && !thumbnailRemoved;
+								const showPreview = field.state.value;
+								const previewUrl = showPreview
+									? URL.createObjectURL(field.state.value)
+									: null;
+
 								return (
 									<Field data-invalid={isInvalid}>
 										<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
 
-										{/* Show existing thumbnail */}
-										{!field.state.value && credential.thumbnail_image_data && (
-											<div className="mb-3 relative inline-block">
-												<img
-													src={`data:image/${credential.thumbnail_format};base64,${credential.thumbnail_image_data}`}
-													alt="Current thumbnail"
-													className="max-h-32 rounded-lg object-contain border"
-												/>
+										{/* Show existing thumbnail with remove + preview */}
+										{showExisting && (
+											<div className="mb-3 relative inline-block group">
+												<button
+													type="button"
+													onClick={() => setPreviewSrc(existingThumbnailSrc!)}
+													className="cursor-pointer border-0 bg-transparent p-0"
+												>
+													<img
+														src={existingThumbnailSrc!}
+														alt="Current thumbnail"
+														className="max-h-32 rounded-lg object-contain border hover:ring-2 hover:ring-primary/40 transition-all"
+													/>
+												</button>
+												<button
+													type="button"
+													onClick={() => setThumbnailRemoved(true)}
+													className="absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full bg-destructive text-white shadow-sm opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/90 cursor-pointer border-0"
+													aria-label="Remove thumbnail"
+												>
+													<X className="size-3.5" />
+												</button>
 												<p className="text-xs text-muted-foreground mt-1">
-													Current thumbnail (select a new file to replace)
+													Click to preview · X to remove
 												</p>
 											</div>
+										)}
+
+										{/* Show newly selected thumbnail preview */}
+										{showPreview && previewUrl && (
+											<div className="mb-3 relative inline-block group">
+												<button
+													type="button"
+													onClick={() => setPreviewSrc(previewUrl)}
+													className="cursor-pointer border-0 bg-transparent p-0"
+												>
+													<img
+														src={previewUrl}
+														alt="New thumbnail"
+														className="max-h-32 rounded-lg object-contain border hover:ring-2 hover:ring-primary/40 transition-all"
+													/>
+												</button>
+												<button
+													type="button"
+													onClick={() => {
+														field.handleChange(null);
+													}}
+													className="absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full bg-destructive text-white shadow-sm opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/90 cursor-pointer border-0"
+													aria-label="Remove thumbnail"
+												>
+													<X className="size-3.5" />
+												</button>
+												<p className="text-xs text-muted-foreground mt-1">
+													Click to preview
+												</p>
+											</div>
+										)}
+
+										{/* Show removed state */}
+										{thumbnailRemoved && !showPreview && (
+											<p className="text-xs text-destructive mb-2">
+												Thumbnail will be removed on save ·{" "}
+												<button
+													type="button"
+													onClick={() => setThumbnailRemoved(false)}
+													className="underline cursor-pointer border-0 bg-transparent text-muted-foreground hover:text-foreground"
+												>
+													Undo
+												</button>
+											</p>
 										)}
 
 										<Input
@@ -545,6 +607,7 @@ function RouteComponent() {
 											onChange={(e) => {
 												const file = e.target.files?.[0] || null;
 												field.handleChange(file);
+												if (file) setThumbnailRemoved(false);
 											}}
 											aria-invalid={isInvalid}
 										/>
@@ -573,11 +636,17 @@ function RouteComponent() {
 													className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20"
 												>
 													{src ? (
-														<img
-															src={src}
-															alt=""
-															className="size-full object-cover"
-														/>
+														<button
+															type="button"
+															onClick={() => setPreviewSrc(src)}
+															className="size-full cursor-pointer border-0 bg-transparent p-0"
+														>
+															<img
+																src={src}
+																alt=""
+																className="size-full object-cover transition-transform duration-200 hover:scale-105"
+															/>
+														</button>
 													) : (
 														<div className="flex size-full items-center justify-center text-muted-foreground/40 text-xs">
 															No data
@@ -637,38 +706,46 @@ function RouteComponent() {
 								}}
 							/>
 
-							{/* New images list */}
+							{/* New images preview grid */}
 							{newImages.length > 0 && (
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead className="capitalize">new file</TableHead>
-											<TableHead>Delete</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{newImages.map((file, index) => (
-											<TableRow key={`${crypto.randomUUID()}`}>
-												<TableCell className="font-medium">
-													<span className="truncate block max-w-75">{file.name}</span>
-												</TableCell>
-												<TableCell className="text-right w-12.5">
-													<Button
+								<div className="mt-3">
+									<p className="text-xs text-muted-foreground mb-2">
+										New images ({newImages.length})
+									</p>
+									<div className="grid grid-cols-3 gap-2">
+										{newImages.map((file, index) => {
+											const fileUrl = URL.createObjectURL(file);
+											return (
+												<div
+													key={`${file.name}-${index}`}
+													className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20"
+												>
+													<button
 														type="button"
-														variant="ghost"
-														size="sm"
-														className="text-destructive h-auto px-1"
+														onClick={() => setPreviewSrc(fileUrl)}
+														className="size-full cursor-pointer border-0 bg-transparent p-0"
+													>
+														<img
+															src={fileUrl}
+															alt={file.name}
+															className="size-full object-cover transition-transform duration-200 hover:scale-105"
+														/>
+													</button>
+													<button
+														type="button"
+														className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
 														onClick={() => {
 															setNewImages((prev) => prev.filter((_, i) => i !== index));
 														}}
+														aria-label="Remove image"
 													>
-														<Trash2 />
-													</Button>
-												</TableCell>
-											</TableRow>
-										))}
-									</TableBody>
-								</Table>
+														<X className="size-3" />
+													</button>
+												</div>
+											);
+										})}
+									</div>
+								</div>
 							)}
 						</Field>
 					</div>
@@ -727,20 +804,75 @@ function RouteComponent() {
 					<form.Subscribe
 						selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
 						children={([canSubmit, isSubmitting, isPristine]) => (
-							<div className="w-full flex justify-center items-center">
+							<div className="flex items-center justify-center gap-4 my-3">
 								<Button
 									type="submit"
 									size="lg"
-									className="my-3 px-12 py-4"
+									className="px-12 py-4"
 									disabled={!canSubmit || isPristine}
 								>
 									{isSubmitting ? "..." : "Update"}
+								</Button>
+
+								<Button
+									type="button"
+									variant="destructive"
+									size="lg"
+									className="px-8 py-4"
+									onClick={async () => {
+										const confirmed = window.confirm(
+											`Are you sure you want to delete "${credential.title}"? This action cannot be undone.`,
+										);
+										if (!confirmed) return;
+
+										try {
+											const res = await fetch(
+												`${import.meta.env.VITE_BACKEND_APP}/credentials/${credential.id}/delete`,
+												{
+													method: "DELETE",
+													headers: {
+														"Content-Type": "application/json",
+													},
+													body: JSON.stringify({ _csrf: csrfToken }),
+												},
+											);
+
+											const data = await res.json();
+
+											if (!res.ok || !data.success) {
+												throw new Error(data.message || "Failed to delete");
+											}
+
+											gooeyToast.success("Credential deleted", {
+												description: `"${credential.title}" has been deleted`,
+											});
+
+											navigate({ to: "/credentials" });
+										} catch (err) {
+											gooeyToast.error("Failed to delete", {
+												description:
+													err instanceof Error ? err.message : "Something went wrong",
+											});
+										}
+									}}
+								>
+									<AlertTriangle className="size-4" />
+									Delete
 								</Button>
 							</div>
 						)}
 					/>
 				</FieldGroup>
 			</Form>
+
+			{/* ── Image preview overlay ── */}
+			{previewSrc && (
+				<ImagePreviewOverlay
+					src={previewSrc}
+					onClose={() => setPreviewSrc(null)}
+				/>
+			)}
 		</main>
 	);
 }
+
