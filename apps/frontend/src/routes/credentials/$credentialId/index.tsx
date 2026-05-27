@@ -1,7 +1,7 @@
 import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
 import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
-import { ArrowLeft, CalendarDays, Clock, FileText, ImageIcon, Info, Pencil, Tag } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, CalendarDays, Check, Clock, Copy, FileText, ImageIcon, Info, Pencil, Tag } from "lucide-react";
+import { useCallback, useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Separator } from "#/components/ui/separator";
 import { Skeleton } from "#/components/ui/skeleton";
@@ -150,6 +150,7 @@ function RouteComponent() {
 	const credential = useLoaderData({
 		from: "/credentials/$credentialId/",
 	}) as CredentialDetail;
+	const [copiedId, setCopiedId] = useState(false);
 	const [lightboxOpen, setLightboxOpen] = useState(false);
 	const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -353,10 +354,33 @@ function RouteComponent() {
 								<Info className="size-4.5" />
 								<h2 className="text-base font-semibold uppercase tracking-wider">ID</h2>
 							</div>
-							<div className="rounded-xl border bg-card px-4 py-3">
-								<code className="text-[12px] font-mono text-muted-foreground/60 break-all">
+							<div
+								className="flex cursor-pointer items-center gap-2 rounded-xl border bg-card px-4 py-3 transition-colors hover:bg-blue-50/50"
+								onClick={() => {
+									navigator.clipboard.writeText(credential.id).then(() => {
+										setCopiedId(true);
+										setTimeout(() => setCopiedId(false), 1500);
+									});
+								}}
+								role="button"
+								tabIndex={0}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" || e.key === " ") {
+										navigator.clipboard.writeText(credential.id).then(() => {
+											setCopiedId(true);
+											setTimeout(() => setCopiedId(false), 1500);
+										});
+									}
+								}}
+							>
+								<code className="flex-1 text-[12px] font-mono text-muted-foreground/60 break-all select-all">
 									{credential.id}
 								</code>
+								{copiedId ? (
+									<Check className="size-3.5 shrink-0 text-emerald-500" />
+								) : (
+									<Copy className="size-3.5 shrink-0 text-muted-foreground/30" />
+								)}
 							</div>
 						</section>
 

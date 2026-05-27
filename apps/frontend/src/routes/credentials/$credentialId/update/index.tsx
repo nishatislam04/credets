@@ -39,7 +39,15 @@ import { getCredentialUpdate } from "./-actions/getCredentialUpdate";
 import { updateCredentialAction } from "./-actions/updateCredentialAction";
 import { updateCredentialValidation } from "./-actions/updateCredentialValidation";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
-import { ArrowLeft, LoaderIcon, X, AlertTriangle } from "lucide-react";
+import {
+	AlertDialogClose,
+	AlertDialogDescription,
+	AlertDialogPopup,
+	AlertDialogRoot,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "#/components/ui/alert-dialog";
+import { ArrowLeft, LoaderIcon, X, AlertTriangle, Trash2 } from "lucide-react";
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
@@ -164,6 +172,7 @@ function RouteComponent() {
 	const [newImages, setNewImages] = useState<File[]>([]);
 	const [thumbnailRemoved, setThumbnailRemoved] = useState(false);
 	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+	const [isDeleting, setIsDeleting] = useState(false);
 
 	const visibleExistingImages = existingImages.filter(
 		(img) => !removedImageIds.includes(img.id),
@@ -279,6 +288,7 @@ function RouteComponent() {
 	}
 
 	return (
+		<AlertDialogRoot>
 		<main>
 			{/* ── Back link ── */}
 			<Link
@@ -529,59 +539,65 @@ function RouteComponent() {
 
 										{/* Show existing thumbnail with remove + preview */}
 										{showExisting && (
-											<div className="mb-3 relative inline-block group">
-												<button
-													type="button"
-													onClick={() => setPreviewSrc(existingThumbnailSrc!)}
-													className="cursor-pointer border-0 bg-transparent p-0"
-												>
-													<img
-														src={existingThumbnailSrc!}
-														alt="Current thumbnail"
-														className="max-h-32 rounded-lg object-contain border hover:ring-2 hover:ring-primary/40 transition-all"
-													/>
-												</button>
-												<button
-													type="button"
-													onClick={() => setThumbnailRemoved(true)}
-													className="absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full bg-destructive text-white shadow-sm opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/90 cursor-pointer border-0"
-													aria-label="Remove thumbnail"
-												>
-													<X className="size-3.5" />
-												</button>
-												<p className="text-xs text-muted-foreground mt-1">
-													Click to preview · X to remove
+											<div className="mb-3 max-w-48">
+												<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
+													<button
+														type="button"
+														onClick={() => setPreviewSrc(existingThumbnailSrc!)}
+														className="size-full cursor-pointer border-0 bg-transparent p-0"
+													>
+														<img
+															src={existingThumbnailSrc!}
+															alt="Current thumbnail"
+															className="size-full object-cover transition-transform duration-200 hover:scale-105"
+														/>
+													</button>
+													<button
+														type="button"
+														onClick={() => setThumbnailRemoved(true)}
+														className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
+														aria-label="Remove thumbnail"
+													>
+														<X className="size-3" />
+													</button>
+												</div>
+												<p className="mt-1 truncate text-xs text-muted-foreground">
+													Existing thumbnail
 												</p>
 											</div>
 										)}
 
 										{/* Show newly selected thumbnail preview */}
 										{showPreview && previewUrl && (
-											<div className="mb-3 relative inline-block group">
-												<button
-													type="button"
-													onClick={() => setPreviewSrc(previewUrl)}
-													className="cursor-pointer border-0 bg-transparent p-0"
-												>
-													<img
-														src={previewUrl}
-														alt="New thumbnail"
-														className="max-h-32 rounded-lg object-contain border hover:ring-2 hover:ring-primary/40 transition-all"
-													/>
-												</button>
-												<button
-													type="button"
-													onClick={() => {
-														field.handleChange(null);
-													}}
-													className="absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full bg-destructive text-white shadow-sm opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/90 cursor-pointer border-0"
-													aria-label="Remove thumbnail"
-												>
-													<X className="size-3.5" />
-												</button>
-												<p className="text-xs text-muted-foreground mt-1">
-													Click to preview
-												</p>
+											<div className="mb-3 max-w-48">
+												<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
+													<button
+														type="button"
+														onClick={() => setPreviewSrc(previewUrl)}
+														className="size-full cursor-pointer border-0 bg-transparent p-0"
+													>
+														<img
+															src={previewUrl}
+															alt="New thumbnail"
+															className="size-full object-cover transition-transform duration-200 hover:scale-105"
+														/>
+													</button>
+													<button
+														type="button"
+														onClick={() => {
+															field.handleChange(null);
+														}}
+														className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
+														aria-label="Remove thumbnail"
+													>
+														<X className="size-3" />
+													</button>
+												</div>
+												{field.state.value?.name && (
+													<p className="mt-1 truncate text-xs text-muted-foreground">
+														{field.state.value.name}
+													</p>
+												)}
 											</div>
 										)}
 
@@ -633,35 +649,40 @@ function RouteComponent() {
 											return (
 												<div
 													key={img.id}
-													className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20"
+													className="group relative"
 												>
-													{src ? (
+													<div className="aspect-square overflow-hidden rounded-lg border bg-muted/20">
+														{src ? (
+															<button
+																type="button"
+																onClick={() => setPreviewSrc(src)}
+																className="size-full cursor-pointer border-0 bg-transparent p-0"
+															>
+																<img
+																	src={src}
+																	alt=""
+																	className="size-full object-cover transition-transform duration-200 hover:scale-105"
+																/>
+															</button>
+														) : (
+															<div className="flex size-full items-center justify-center text-muted-foreground/40 text-xs">
+																No data
+															</div>
+														)}
 														<button
 															type="button"
-															onClick={() => setPreviewSrc(src)}
-															className="size-full cursor-pointer border-0 bg-transparent p-0"
+															className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
+															onClick={() => {
+																setRemovedImageIds((prev) => [...prev, img.id]);
+															}}
+															aria-label="Remove image"
 														>
-															<img
-																src={src}
-																alt=""
-																className="size-full object-cover transition-transform duration-200 hover:scale-105"
-															/>
+															<X className="size-3" />
 														</button>
-													) : (
-														<div className="flex size-full items-center justify-center text-muted-foreground/40 text-xs">
-															No data
-														</div>
-													)}
-													<button
-														type="button"
-														className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
-														onClick={() => {
-															setRemovedImageIds((prev) => [...prev, img.id]);
-														}}
-														aria-label="Remove image"
-													>
-														<X className="size-3" />
-													</button>
+													</div>
+													<p className="mt-1 truncate text-xs text-muted-foreground">
+														Image #{img.id.slice(0, 6)}
+													</p>
 												</div>
 											);
 										})}
@@ -718,29 +739,34 @@ function RouteComponent() {
 											return (
 												<div
 													key={`${file.name}-${index}`}
-													className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20"
+													className="group relative"
 												>
-													<button
-														type="button"
-														onClick={() => setPreviewSrc(fileUrl)}
-														className="size-full cursor-pointer border-0 bg-transparent p-0"
-													>
-														<img
-															src={fileUrl}
-															alt={file.name}
-															className="size-full object-cover transition-transform duration-200 hover:scale-105"
-														/>
-													</button>
-													<button
-														type="button"
-														className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
-														onClick={() => {
-															setNewImages((prev) => prev.filter((_, i) => i !== index));
-														}}
-														aria-label="Remove image"
-													>
-														<X className="size-3" />
-													</button>
+													<div className="aspect-square overflow-hidden rounded-lg border bg-muted/20">
+														<button
+															type="button"
+															onClick={() => setPreviewSrc(fileUrl)}
+															className="size-full cursor-pointer border-0 bg-transparent p-0"
+														>
+															<img
+																src={fileUrl}
+																alt={file.name}
+																className="size-full object-cover transition-transform duration-200 hover:scale-105"
+															/>
+														</button>
+														<button
+															type="button"
+															className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
+															onClick={() => {
+																setNewImages((prev) => prev.filter((_, i) => i !== index));
+															}}
+															aria-label="Remove image"
+														>
+															<X className="size-3" />
+														</button>
+													</div>
+													<p className="mt-1 truncate text-xs text-muted-foreground">
+														{file.name}
+													</p>
 												</div>
 											);
 										})}
@@ -814,56 +840,93 @@ function RouteComponent() {
 									{isSubmitting ? "..." : "Update"}
 								</Button>
 
-								<Button
-									type="button"
-									variant="destructive"
-									size="lg"
-									className="px-8 py-4"
-									onClick={async () => {
-										const confirmed = window.confirm(
-											`Are you sure you want to delete "${credential.title}"? This action cannot be undone.`,
-										);
-										if (!confirmed) return;
-
-										try {
-											const res = await fetch(
-												`${import.meta.env.VITE_BACKEND_APP}/credentials/${credential.id}/delete`,
-												{
-													method: "DELETE",
-													headers: {
-														"Content-Type": "application/json",
-													},
-													body: JSON.stringify({ _csrf: csrfToken }),
-												},
-											);
-
-											const data = await res.json();
-
-											if (!res.ok || !data.success) {
-												throw new Error(data.message || "Failed to delete");
-											}
-
-											gooeyToast.success("Credential deleted", {
-												description: `"${credential.title}" has been deleted`,
-											});
-
-											navigate({ to: "/credentials" });
-										} catch (err) {
-											gooeyToast.error("Failed to delete", {
-												description:
-													err instanceof Error ? err.message : "Something went wrong",
-											});
-										}
-									}}
-								>
-									<AlertTriangle className="size-4" />
-									Delete
-								</Button>
+								<AlertDialogTrigger
+									render={
+										<Button
+											type="button"
+											variant="destructive"
+											size="lg"
+											className="px-8 py-4"
+											disabled={isDeleting}
+										>
+											{isDeleting ? (
+												<LoaderIcon className="size-4 animate-spin" />
+											) : (
+												<AlertTriangle className="size-4" />
+											)}
+											{isDeleting ? "Deleting..." : "Delete"}
+										</Button>
+									}
+								/>
 							</div>
 						)}
 					/>
 				</FieldGroup>
 			</Form>
+
+			{/* ── Delete confirmation dialog ── */}
+			<AlertDialogPopup>
+				<AlertDialogTitle>Delete credential</AlertDialogTitle>
+				<AlertDialogDescription>
+					Are you sure you want to delete &ldquo;{credential.title}&rdquo;? This action cannot be undone.
+				</AlertDialogDescription>
+				<div className="flex justify-end gap-3 mt-2">
+					<AlertDialogClose
+						render={
+							<Button type="button" variant="outline" size="sm">
+								Cancel
+							</Button>
+						}
+					/>
+					<AlertDialogClose
+						render={
+							<Button
+								type="button"
+								variant="destructive"
+								size="sm"
+								disabled={isDeleting}
+								onClick={async () => {
+									setIsDeleting(true);
+									try {
+										const res = await fetch(
+											`${import.meta.env.VITE_BACKEND_APP}/credentials/${credential.id}/delete`,
+											{
+												method: "DELETE",
+												headers: {
+													"Content-Type": "application/json",
+												},
+												body: JSON.stringify({ _csrf: csrfToken }),
+											},
+										);
+
+										const data = await res.json();
+
+										if (!res.ok || !data.success) {
+											throw new Error(data.message || "Failed to delete");
+										}
+
+										gooeyToast.success("Credential deleted", {
+											description: `"${credential.title}" has been deleted`,
+										});
+
+										navigate({ to: "/credentials" });
+									} catch (err) {
+										gooeyToast.error("Failed to delete", {
+											description:
+												err instanceof Error ? err.message : "Something went wrong",
+										});
+									} finally {
+										setIsDeleting(false);
+									}
+								}}
+							>
+								<Trash2 className="size-4" />
+								Delete
+							</Button>
+						}
+					/>
+				</div>
+			</AlertDialogPopup>
 
 			{/* ── Image preview overlay ── */}
 			{previewSrc && (
@@ -873,6 +936,7 @@ function RouteComponent() {
 				/>
 			)}
 		</main>
+		</AlertDialogRoot>
 	);
 }
 

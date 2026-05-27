@@ -386,29 +386,33 @@ function RouteComponent() {
 
 										{/* Preview selected thumbnail */}
 										{previewUrl && (
-											<div className="mb-3 relative inline-block group">
-												<button
-													type="button"
-													onClick={() => setPreviewSrc(previewUrl)}
-													className="cursor-pointer border-0 bg-transparent p-0"
-												>
-													<img
-														src={previewUrl}
-														alt="Thumbnail preview"
-														className="max-h-32 rounded-lg object-contain border hover:ring-2 hover:ring-primary/40 transition-all"
-													/>
-												</button>
-												<button
-													type="button"
-													onClick={() => field.handleChange(null)}
-													className="absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full bg-destructive text-white shadow-sm opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/90 cursor-pointer border-0"
-													aria-label="Remove thumbnail"
-												>
-													<X className="size-3.5" />
-												</button>
-												<p className="text-xs text-muted-foreground mt-1">
-													Click to preview
-												</p>
+											<div className="mb-3 max-w-48">
+												<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
+													<button
+														type="button"
+														onClick={() => setPreviewSrc(previewUrl)}
+														className="size-full cursor-pointer border-0 bg-transparent p-0"
+													>
+														<img
+															src={previewUrl}
+															alt="Thumbnail preview"
+															className="size-full object-cover transition-transform duration-200 hover:scale-105"
+														/>
+													</button>
+													<button
+														type="button"
+														onClick={() => field.handleChange(null)}
+														className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
+														aria-label="Remove thumbnail"
+													>
+														<X className="size-3" />
+													</button>
+												</div>
+												{file?.name && (
+													<p className="mt-1 truncate text-xs text-muted-foreground">
+														{file.name}
+													</p>
+												)}
 											</div>
 										)}
 
@@ -475,10 +479,11 @@ function RouteComponent() {
 													{files.map((file, index) => {
 														const fileUrl = URL.createObjectURL(file);
 														return (
-															<div
-																key={`${file.name}-${index}`}
-																className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20"
-															>
+														<div
+															key={`${file.name}-${index}`}
+															className="group relative"
+														>
+															<div className="aspect-square overflow-hidden rounded-lg border bg-muted/20">
 																<button
 																	type="button"
 																	onClick={() => setPreviewSrc(fileUrl)}
@@ -502,6 +507,10 @@ function RouteComponent() {
 																	<X className="size-3" />
 																</button>
 															</div>
+															<p className="mt-1 truncate text-xs text-muted-foreground">
+																{file.name}
+															</p>
+														</div>
 														);
 													})}
 												</div>
