@@ -1,5 +1,6 @@
 import { formatZodError } from "@backend/types/formatZodError";
 import { processImage } from "@backend/utils/processImage";
+import { ResponseFactory } from "@backend/utils/response";
 import { credentialsUpdateSchema } from "@credets/shared-schema/credentials/update";
 import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
@@ -11,19 +12,13 @@ export async function credentialUpdate(req: BunRequest) {
 
 	const isValidCsrf = verifyCSRF(_csrf);
 	if (!isValidCsrf)
-		return new Response(
-			JSON.stringify({
-				success: false,
-				type: "csrf-expired",
-				message: "csrf token expired",
-			}),
-			{
-				status: 500,
-				headers: {
-					"content-type": "application/json",
-				},
-			},
-		);
+		return ResponseFactory.error({
+			error: "csrf token expired",
+			type: "csrf-expired",
+			message: "csrf token expired",
+			status: 500,
+			path: req,
+		});
 
 	const { credentialId } = req.params;
 
@@ -31,20 +26,13 @@ export async function credentialUpdate(req: BunRequest) {
 	const [existingCredential] =
 		await sql`SELECT id FROM credentials WHERE id = ${credentialId}`;
 	if (!existingCredential) {
-		return new Response(
-			JSON.stringify({
-				success: false,
-				type: "not-found",
-				message: "credential not found",
-			}),
-			{
-				status: 404,
-				headers: {
-					"Content-Type": "application/json",
-					"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
-				},
-			},
-		);
+		return ResponseFactory.error({
+			error: "credential not found",
+			type: "not-found",
+			message: "credential not found",
+			status: 404,
+			path: req,
+		});
 	}
 
 	const title = formData.get("title")?.toString() || "";
@@ -87,16 +75,14 @@ export async function credentialUpdate(req: BunRequest) {
 	if (!validatedData.success) {
 		const errors = formatZodError(validatedData);
 
-		return new Response(
-			JSON.stringify({ success: false, type: "form-validation", errors }),
-			{
-				status: 400,
-				headers: {
-					"Content-Type": "application/json",
-					"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
-				},
-			},
-		);
+		return ResponseFactory.error({
+			error: "Form validation failed",
+			type: "form-validation",
+			message: "Form validation failed",
+			status: 400,
+			path: req,
+			errors,
+		});
 	}
 
 	// Process thumbnail if a new file was provided
@@ -147,20 +133,13 @@ export async function credentialUpdate(req: BunRequest) {
 	const [typeRow] =
 		await sql`SELECT id FROM types WHERE value=${validatedData.data.type}`;
 	if (!typeRow) {
-		return new Response(
-			JSON.stringify({
-				success: false,
-				type: "form-validation",
-				message: "Invalid type selected",
-			}),
-			{
-				status: 400,
-				headers: {
-					"Content-Type": "application/json",
-					"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
-				},
-			},
-		);
+		return ResponseFactory.error({
+			error: "Invalid type selected",
+			type: "form-validation",
+			message: "Invalid type selected",
+			status: 400,
+			path: req,
+		});
 	}
 
 	// Build update payload — only include thumbnail fields if a new file was provided
@@ -235,20 +214,11 @@ export async function credentialUpdate(req: BunRequest) {
 		}));
 
 		await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
-	}
-
-	return new Response(
-		JSON.stringify({
-			success: true,
+	}		return ResponseFactory.success({
+			data: {},
 			type: "resource-update",
 			message: "Credential updated successfully",
-		}),
-		{
 			status: 200,
-			headers: {
-				"Content-Type": "application/json",
-				"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
-			},
-		},
-	);
+			path: req,
+		});
 }

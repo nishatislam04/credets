@@ -1,6 +1,6 @@
 import { formatZodError } from "@backend/types/formatZodError";
-import { encrypt } from "@backend/utils/encrypt";
 import { processImage } from "@backend/utils/processImage";
+import { ResponseFactory } from "@backend/utils/response";
 import { credentialsCreateSchema } from "@credets/shared-schema/credentials/create";
 import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
@@ -12,19 +12,13 @@ export async function credentialCreate(req: BunRequest) {
 
 	const isValidCsrf = verifyCSRF(_csrf);
 	if (!isValidCsrf)
-		return new Response(
-			JSON.stringify({
-				success: false,
-				type: "csrf-expired",
-				message: "csrf token expired",
-			}),
-			{
-				status: 500,
-				headers: {
-					"content-type": "application/json",
-				},
-			},
-		);
+		return ResponseFactory.error({
+			error: "csrf token expired",
+			type: "csrf-expired",
+			message: "csrf token expired",
+			status: 500,
+			path: req,
+		});
 
 	const title = formData.get("title")?.toString() || "";
 	const short_description = formData.get("short_description")?.toString() || "";
@@ -61,16 +55,14 @@ export async function credentialCreate(req: BunRequest) {
 	if (!validatedData.success) {
 		const errors = formatZodError(validatedData);
 
-		return new Response(
-			JSON.stringify({ success: false, type: "form-validation", errors }),
-			{
-				status: 400,
-				headers: {
-					"Content-Type": "application/json",
-					"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
-				},
-			},
-		);
+		return ResponseFactory.error({
+			error: "Form validation failed",
+			type: "form-validation",
+			message: "Form validation failed",
+			status: 400,
+			path: req,
+			errors,
+		});
 	}
 
 	const thumbnailResult = await processImage({
@@ -139,38 +131,11 @@ export async function credentialCreate(req: BunRequest) {
 	});
 
 	if (validImages.length > 0)
-		await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
-
-	return new Response(
-		JSON.stringify({
-			success: true,
-			type: "resource-create",
-			message: "A new credentials added",
-		}),
-		{
-			status: 200,
-			headers: {
-				"Content-Type": "application/json",
-				"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
-			},
-		},
-	);
-
-	// try {
-	// 	const key = Bun.env.ENC_KEY;
-	// 	if (!key) return new Response("key is required to encrypt");
-
-	// 	const validatedData = "nishat islam 004.";
-	// 	const sealed = await encrypt(validatedData);
-
-	// 	const password = await Bun.password.hash("nishatislam3108200204");
-
-	// 	const createUserTest =
-	// 		await sql`INSERT INTO users(name, username, email, password, special_password) VALUES('nishat', 'nishat004', 'nishat@email.com', ${password}, ${sealed})`;
-
-	// 	console.log("created user", createUserTest);
-	// 	return new Response("credentials create page");
-	// } catch (err) {
-	// 	console.log("credentialCreate error: ", err);
-	// }
+		await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;		return ResponseFactory.success({
+		data: {},
+		type: "resource-create",
+		message: "A new credentials added",
+		status: 200,
+		path: req,
+	});
 }

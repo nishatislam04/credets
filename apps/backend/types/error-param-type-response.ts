@@ -7,4 +7,6 @@ export type ErrorParamsType<T> = {
 	path: BunRequest;
 	details?: { originError: string };
 	data?: T;
+	type?: string;
+	errors?: Record<string, { message: string }[]>;
 };

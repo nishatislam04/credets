@@ -1,5 +1,6 @@
 import { verifyCSRF } from "@backend/http/csrf/verifyCSRF";
 import { formatZodError } from "@backend/types/formatZodError";
+import { ResponseFactory } from "@backend/utils/response";
 import { credentialsCreateSchema } from "@credets/shared-schema/credentials/create";
 import type { BunRequest } from "bun";
 
@@ -9,19 +10,13 @@ export async function createCredentialValidation(req: BunRequest) {
 
 	const isValidCsrf = verifyCSRF(_csrf);
 	if (!isValidCsrf)
-		return new Response(
-			JSON.stringify({
-				success: false,
-				type: "csrf-expired",
-				message: "csrf token expired",
-			}),
-			{
-				status: 500,
-				headers: {
-					"content-type": "application/json",
-				},
-			},
-		);
+		return ResponseFactory.error({
+			error: "csrf token expired",
+			type: "csrf-expired",
+			message: "csrf token expired",
+			status: 500,
+			path: req,
+		});
 
 	const type = formData.get("type")?.toString() || "";
 	const title = formData.get("title")?.toString() || "";
@@ -58,22 +53,20 @@ export async function createCredentialValidation(req: BunRequest) {
 	if (!validatedData.success) {
 		const errors = formatZodError(validatedData);
 
-		return new Response(
-			JSON.stringify({ success: false, type: "form-validation", errors }),
-			{
-				status: 400,
-				headers: {
-					"Content-Type": "application/json",
-					"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
-				},
-			},
-		);
+		return ResponseFactory.error({
+			error: "Form validation failed",
+			type: "form-validation",
+			message: "Form validation failed",
+			status: 400,
+			path: req,
+			errors,
+		});
 	}
-	return new Response(JSON.stringify({ success: true, type: "form-validation" }), {
+	return ResponseFactory.success({
+		data: {},
+		type: "form-validation",
+		message: "Form validation passed",
 		status: 200,
-		headers: {
-			"Content-Type": "application/json",
-			"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
-		},
+		path: req,
 	});
 }

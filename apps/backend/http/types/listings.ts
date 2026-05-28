@@ -1,13 +1,14 @@
+import type { BunRequest } from "bun";
+import { ResponseFactory } from "@backend/utils/response";
 import { sql } from "@db/connection";
 
 export async function typesListings() {
 	const listings = await sql`SELECT id, label, value FROM types`;
 
-	return new Response(JSON.stringify({ success: true, data: listings }), {
+	return ResponseFactory.success({
+		data: listings,
+		message: "types listings fetched",
 		status: 200,
-		headers: {
-			"Content-Type": "application/json",
-			"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
-		},
+		path: { url: "/types/listings" } as BunRequest,
 	});
 }

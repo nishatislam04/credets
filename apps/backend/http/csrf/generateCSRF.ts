@@ -1,4 +1,8 @@
+import type { BunRequest } from "bun";
 import { log } from "@backend/utils/logger";
+import { ResponseFactory } from "@backend/utils/response";
+
+const req = { url: "/get-csrf" } as BunRequest;
 
 export async function generateCSRF() {
 	try {
@@ -7,20 +11,19 @@ export async function generateCSRF() {
 		});
 
 		if (!csrfToken)
-			return new Response(
-				JSON.stringify({
-					success: false,
-					type: "generate-csrf",
-					message: "something went wrong while generating csrf token on server",
-				}),
-			);
+			return ResponseFactory.error({
+				error: "something went wrong while generating csrf token on server",
+				type: "generate-csrf",
+				message: "something went wrong while generating csrf token on server",
+				status: 500,
+				path: req,
+			});
 
-		return new Response(JSON.stringify({ success: true, data: { token: csrfToken } }), {
+		return ResponseFactory.success({
+			data: { token: csrfToken },
+			message: "csrf token generated",
 			status: 200,
-			headers: {
-				"content-type": "application/json",
-				"Access-Control-Allow-Origin": process.env.FRONTEND_APP!,
-			},
+			path: req,
 		});
 	} catch (error) {
 		log(error instanceof Error ? error.message : error, "generate csrf token");

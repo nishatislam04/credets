@@ -5,4 +5,5 @@ export type SuccessParamsType<T> = {
 	message?: string;
 	path: BunRequest;
 	status?: number;
+	type?: string;
 };

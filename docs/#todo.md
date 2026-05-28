@@ -23,8 +23,7 @@ auto focus on those input.
 
 ---
 
-i want you to make sure, all the backend source code is using our response factory
-slightly update our response factory if needed. i think i added a type in a response. so, i was talking about that. 
+
 
 ---
 

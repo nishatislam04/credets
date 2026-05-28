@@ -3,6 +3,12 @@ import type { ErrorResponse } from "@backend/types/error-response";
 import type { SuccessParamsType } from "@backend/types/success-param-type-response";
 import type { SuccessResponse } from "@backend/types/success-response";
 
+/** Shared response fields used across success and error responses. */
+type TypeAndErrors = {
+	type?: string;
+	errors?: Record<string, { message: string }[]>;
+};
+
 /**
  * this is the class we will use to send the response from backend to frontend
  * we have here both the success and error response api
@@ -34,15 +40,16 @@ export class ResponseFactory {
 	 * @returns {Bun.Response}
 	 */
 	static success<T>(params: SuccessParamsType<T>): Response {
-		const { data, message = "success message", path, status } = params;
+		const { data, message = "success message", path, status, type } = params;
 
-		const response: SuccessResponse<T> = {
+		const response: SuccessResponse<T> & TypeAndErrors = {
 			success: true,
 			data,
 			message,
 			timestamp: new Date().toISOString(),
 			path: path.url || "unknown",
 			status: status || 200,
+			type,
 		};
 
 		return Response.json(response, {
@@ -75,9 +82,11 @@ export class ResponseFactory {
 			path,
 			details,
 			data,
+			type,
+			errors,
 		} = params;
 		// const url = new URL(path as BunRequest)
-		const response: ErrorResponse<T> = {
+		const response: ErrorResponse<T> & TypeAndErrors = {
 			success: false,
 			error,
 			message,
@@ -85,6 +94,8 @@ export class ResponseFactory {
 			details,
 			data,
 			path: path.url || "unknown",
+			type,
+			errors,
 		};
 
 		return Response.json(response, {

@@ -5,4 +5,5 @@ export type SuccessResponse<T> = {
 	status?: number;
 	timestamp: string;
 	path?: string;
+	type?: string;
 };

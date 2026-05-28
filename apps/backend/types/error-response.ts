@@ -7,4 +7,6 @@ export type ErrorResponse<T> = {
 	data?: T;
 	path?: string;
 	status?: number;
+	type?: string;
+	errors?: Record<string, { message: string }[]>;
 };
