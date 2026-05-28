@@ -5,7 +5,7 @@ import { credentialListings } from "./http/credentials/listings";
 import { credentialUpdate } from "./http/credentials/update";
 import { generateCSRF } from "./http/csrf/generateCSRF";
 import { typesListings } from "./http/types/listings";
-import indexHtml from "./index.html";
+// import indexHtml from "./index.html";
 import { createCredentialValidation } from "./validation/credential/create";
 import { updateCredentialValidation } from "./validation/credential/update";
 
@@ -14,8 +14,8 @@ Bun.serve({
 	port: process.env.PORT || "8000",
 	idleTimeout: 35,
 	routes: {
-		"/health": () => new Response("OK", { status: 200 }),
-		"/": indexHtml,
+		"/healthz": () => new Response("OK", { status: 200 }),
+		// "/": indexHtml,
 
 		// csrf
 		"/get-csrf": () => generateCSRF(),
