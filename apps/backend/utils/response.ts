@@ -2,13 +2,26 @@ import type { ErrorParamsType } from "@backend/types/error-param-type-response";
 import type { ErrorResponse } from "@backend/types/error-response";
 import type { SuccessParamsType } from "@backend/types/success-param-type-response";
 import type { SuccessResponse } from "@backend/types/success-response";
-import type { BunRequest } from "bun";
 
 /**
  * this is the class we will use to send the response from backend to frontend
  * we have here both the success and error response api
  */
 export class ResponseFactory {
+	/**
+	 * Get CORS headers based on environment
+	 * Allows your frontend origin to access the backend
+	 */
+	private static getCorsHeaders(): Record<string, string> {
+		const allowedOrigin =
+			process.env.FRONTEND_APP || "https://credets.onrender.com";
+		return {
+			"Access-Control-Allow-Origin": allowedOrigin,
+			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+			"Access-Control-Allow-Headers": "Content-Type, Authorization",
+			"Access-Control-Allow-Credentials": "true",
+		};
+	}
 	/**
 	 * success response api
 	 *
@@ -32,7 +45,10 @@ export class ResponseFactory {
 			status: status || 200,
 		};
 
-		return Response.json({ ...response });
+		return Response.json(response, {
+			status,
+			headers: ResponseFactory.getCorsHeaders(),
+		});
 	}
 
 	/**
@@ -71,6 +87,9 @@ export class ResponseFactory {
 			path: path.url || "unknown",
 		};
 
-		return Response.json({ ...response, status });
+		return Response.json(response, {
+			status,
+			headers: ResponseFactory.getCorsHeaders(),
+		});
 	}
 }
