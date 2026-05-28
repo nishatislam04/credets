@@ -1,3 +1,5 @@
+import { metadata, resize, toWebp } from "imgkit";
+
 type ProcessImageType = {
 	file: File | null | undefined;
 	resizeInWidth: number;
@@ -17,9 +19,9 @@ export async function processImage({
 }: ProcessImageType) {
 	if (!file || file === undefined) return null;
 
-	const inputBuffer = await file.arrayBuffer();
-	const image = new Bun.Image(inputBuffer);
-	const { width: originalW, height: originalH } = await image.metadata();
+	const inputBuffer = Buffer.from(await file.arrayBuffer());
+	const info = await metadata(inputBuffer);
+	const { width: originalW, height: originalH } = info;
 
 	let newWidth = originalW;
 	let newHeight = originalH;
@@ -31,16 +33,23 @@ export async function processImage({
 		newHeight = Math.round(originalH * scale);
 	}
 
-	const compressed = await image
-		.resize(resizeInWidth, { fit: "inside", withoutEnlargement: true })
-		.webp({ quality: outputQuality })
-		.bytes();
+	// Resize if needed
+	let resizedBuffer = inputBuffer;
+	if (newWidth !== originalW || newHeight !== originalH) {
+		resizedBuffer = await resize(inputBuffer, {
+			width: newWidth,
+			fit: "inside",
+		});
+	}
+
+	// Convert to WebP
+	const webpBuffer = await toWebp(resizedBuffer, { quality: outputQuality });
 
 	return {
-		buffer: Buffer.from(compressed),
+		buffer: webpBuffer,
 		format: "webp",
 		width: newWidth,
 		height: newHeight,
-		byteSize: compressed.byteLength,
+		byteSize: webpBuffer.byteLength,
 	};
 }
