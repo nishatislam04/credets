@@ -1,7 +1,6 @@
 import { credentialCreate } from "./http/credentials/create";
 import { credentialPage } from "./http/credentials/credential";
 import { credentailDelete } from "./http/credentials/delete";
-import type { BunRequest } from "bun";
 import { credentialListings } from "./http/credentials/listings";
 import { credentialUpdate } from "./http/credentials/update";
 import { generateCSRF } from "./http/csrf/generateCSRF";
@@ -12,9 +11,10 @@ import { updateCredentialValidation } from "./validation/credential/update";
 
 Bun.serve({
 	development: true,
-	port: "8000",
+	port: process.env.PORT || "8000",
 	idleTimeout: 35,
 	routes: {
+		"/health": () => new Response("OK", { status: 200 }),
 		"/": indexHtml,
 
 		// csrf
@@ -28,7 +28,8 @@ Bun.serve({
 		"/credentials/:credentialId/delete": (req) => credentailDelete(req),
 
 		"/credentials/create/validation": (req) => createCredentialValidation(req),
-		"/credentials/:credentialId/update/validation": (req) => updateCredentialValidation(req),
+		"/credentials/:credentialId/update/validation": (req) =>
+			updateCredentialValidation(req),
 
 		// types
 		"/types/listings": () => typesListings(),
