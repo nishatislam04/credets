@@ -25,16 +25,17 @@ This file gives Codebuff context about your project: goals, commands, convention
   - `@credets/shared-types` — TypeScript types (zod-inferred)
   - `@credets/shared-utils` — shared utility functions
 - **DB** — PostgreSQL 18 in Docker, tables: users, session, types, credentials, credential_images
+- install any missing required shadcn ui component (baseUI)
 
 ## Conventions
 
 - **Formatting:** Biome — tabs, 80 line width (root) / 100 (frontend), double quotes, organize imports on save
 - **Forms:** Always use `FormData` (not JSON) for form submissions; TanStack Form with `<Field>` component; server validation via `onSubmitAsync` returning `{ fields: data.errors }`
-- **Auth:** Single-user system designed (not wired into route guards) — "special password" (static + dynamic date part), session cookies
+- **Auth:** Single-user system designed (not wired into route guards) — "special password" (static + dynamic date part), session cookies. not implemented yet
 - **CSRF:** Custom implementation using `Bun.CSRF.generate()` / `Bun.CSRF.verify()` with 30-minute expiry
 - **Pagination:** Cursor-based via base64-encoded `{ createdAt, id }` composite cursor; frontend uses IntersectionObserver for infinite scroll
 - **Imports:** Frontend uses `#/*` path alias (e.g. `#/components/ui/button`), backend uses `@backend/*`, `@db/*`, `@credets/*`
-- **Validation:** Zod v4; backend has `apps/backend/validation/` dir for dedicated validation endpoints
+- **Validation:** Zod v4; backend has `apps/backend/validation/` dir for dedicated validation endpoints. which is consumed in frontend `onSubmitAsync` function
 - **UI:** shadcn components in `apps/frontend/src/components/ui/`, built on Base UI (not Radix)
 - **TanStack Query:** `gcTime: 0`, `staleTime: 0` — no client caching; fresh data on every mount
 - **TanStack Router:** File-based routing with `createFileRoute()`, `defaultPreload: 'intent'`, `scrollRestoration: true`
@@ -43,15 +44,13 @@ This file gives Codebuff context about your project: goals, commands, convention
 
 ## Gotchas
 
-- No `.env` template exists — you must create `.env` manually with `ENC_KEY`, `CSRF_SECRET_KEY`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `FRONTEND_APP`, `VITE_BACKEND_APP`
-- `ENC_KEY` generated via `openssl rand -hex 32` and must be copied to `apps/backend/`
+- `ENC_KEY` generated via `openssl rand -hex 32` and must be copied to `apps/backend/.env`
 - Backend uses `bun --watch` for dev; frontend uses Vite on port 3000
 - DB inspect via `dblab --config .dblab.yaml` (config at root)
 - Reset DB: `docker compose down -v && docker compose up`
 - `onSubmitAsync` must **always return something** (even if unused) for TanStack Form to work
 - Type-check is only configured for backend (`tsc --noEmit`); frontend relies on Vite/build-time checking
 - `routeTree.gen.ts` is auto-generated — never edit manually
-- Tags are stored as JSONB array but submitted as comma-separated string from the form
 - `@base-ui/react` package exports via `exports` field — only use entries defined in its `package.json` (e.g. `@base-ui/react/alert-dialog`, not subpaths like `index.parts`)
 - Base UI uses `render` prop for composition, **not** Radix's `asChild` pattern
 
@@ -74,17 +73,9 @@ This file gives Codebuff context about your project: goals, commands, convention
 
 Credentials store flexible data in a JSONB `data` column with three discriminated union types:
 
-1. **`single_label`** — `{ type: "single_label", value: string }` — single text value (e.g. password, API key)
-2. **`key_value`** — `{ type: "key_value", key: string, value: string }` — key-value pair (e.g. username → value)
-3. **`information`** — `{ type: "information", value: string }` — long text/multiline content
-
-**Schema:** `packages/shared-schema/src/credentials/create.ts` → `z.discriminatedUnion("type", [...])`
-**Frontend create form:** `DataBlock` component in `routes/credentials/create/-components/Datablock.tsx`
-**Frontend detail renderer:** `CredentialDataRenderer` in `routes/credentials/$credentialId/-components/credential-data.tsx`
-
-- `CopyDisplay` — click-to-copy with checkmark animation, optional secret reveal toggle
-- `MultiLineDisplay` — for information blocks
-- Type-based accent colors per credential type
+1. **`single_label`** — `{ type: "single_label", value: string }`
+2. **`key_value`** — `{ type: "key_value", key: string, value: string }`
+3. **`information`** — `{ type: "information", value: string }`
 
 ## Backend API Endpoints
 
@@ -108,8 +99,6 @@ Defined in `apps/backend/index.ts` using Bun's `routes` object pattern. The back
 
 ## Frontend Routes
 
-File-based routing via `@tanstack/router-plugin/vite` with `autoCodeSplitting: true`.
-
 | Path | File | Component | Status |
 |------|------|-----------|--------|
 
@@ -125,11 +114,6 @@ File-based routing via `@tanstack/router-plugin/vite` with `autoCodeSplitting: t
 
 shadcn/ui components in `apps/frontend/src/components/ui/`:
 
-- **Base:** `badge`, `button`, `card`, `input`, `label`, `select`, `separator`, `skeleton`, `spinner`, `textarea`
-- **Form:** `field` (Field, FieldLabel, FieldContent, FieldDescription, FieldError, FieldGroup), `form`
-- **Display:** `item` (Item, ItemContent, ItemDescription, ItemMedia, ItemTitle), `table`
-- **Custom:** `goey-toaster.tsx` (gooey toast notifications), `alert-dialog.tsx` (Base UI AlertDialog wrapper)
-
 ## Database Tables
 
 **`users`** — id (UUID), name, username (UNIQUE), email (UNIQUE), password (hashed), special_password (encrypted), created_at, updated_at
@@ -138,22 +122,6 @@ shadcn/ui components in `apps/frontend/src/components/ui/`:
 **`credentials`** — id (UUID), title, short_description, long_description, thumbnail_image_data (BYTEA), thumbnail_format, thumbnail_width, thumbnail_height, data (JSONB), notes, tags (JSONB), created_at, updated_at, user_id (FK), types_id (FK)
 **`credential_images`** — id (UUID), image_data (BYTEA), format, width, height, byte_size, sort_order, created_at, updated_at, credential_id (FK, CASCADE on delete)
 
-## Six Credential Types
-
-| value | label | Color |
-|-------|-------|-------|
-
-| `credentials` | Credentials | Blue |
-| `key` | Key | Amber |
-| `api` | API | Purple |
-| `media` | Media | Rose |
-| `game_loadout` | Game Loadout | Emerald |
-| `misc` | Misc | Cyan (fallback: Slate for card) |
-
-## Key Dependencies
-
-**Backend:** `iron-webcrypto`, `date-fns`, `zod`, `bun` (runtime)
-**Frontend:** `react`, `@tanstack/react-router`, `@tanstack/react-query`, `@tanstack/react-form`, `@base-ui/react`, `tailwindcss`, `framer-motion`, `lucide-react`, `@fontsource-variable/inter`, `gooey-toast`, `zod`, `tw-animate-css`, `clsx`, `tailwind-merge`
 
 ## Project Dir Structure (Key Paths)
 
@@ -181,15 +149,3 @@ credets/
 │   └── shared-types/src/credentials/             ← inferred types (create.ts, listings.ts)
 └── docs/                                         ← project documentation + knowledge.md
 ```
-
-## Environment Variables
-
-- `ENC_KEY` — 64-char hex from `openssl rand -hex 32` (for iron-webcrypto seal/unseal)
-- `CSRF_SECRET_KEY` — for `Bun.CSRF.generate()`/`verify()`
-- `DB_USER`, `DB_PASSWORD`, `DB_NAME` — PostgreSQL credentials
-- `FRONTEND_APP` — frontend URL for CORS headers (e.g. `http://localhost:3000`)
-- `VITE_BACKEND_APP` — backend URL for frontend fetch calls (e.g. `http://localhost:8000`)
-
-## Sync Context
-
-`utils/sync-context.ts` scans the project tree and auto-generates `docs/web-chat-ai.md` (the AI context file). Run `bun run sync-context` to regenerate. Static sections (best practices, rules) are hardcoded in the script itself.
