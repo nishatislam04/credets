@@ -2,6 +2,16 @@ import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
 
+// ── Suppress console.* in production (keep console.error for debugging) ─
+if (import.meta.env.PROD) {
+	const noop = () => {};
+	console.log = noop;
+	console.warn = noop;
+	console.info = noop;
+	console.debug = noop;
+	// console.error intentionally left intact for production debugging
+}
+
 const router = createRouter({
   routeTree,
   defaultPreload: 'intent',

@@ -1,3 +1,4 @@
+import { log } from "@backend/utils/logger";
 import { sql } from "../../db/connection";
 
 export async function credentailDelete(req: Request) {
@@ -72,7 +73,7 @@ export async function credentailDelete(req: Request) {
 			},
 		);
 	} catch (error) {
-		console.error("Error deleting credential:", error);
+		log(error, "delete credential error");
 		return new Response(
 			JSON.stringify({
 				success: false,

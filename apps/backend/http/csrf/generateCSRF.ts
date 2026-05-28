@@ -1,3 +1,5 @@
+import { log } from "@backend/utils/logger";
+
 export async function generateCSRF() {
 	try {
 		const csrfToken = Bun.CSRF.generate(process.env.CSRF_SECRET_KEY, {
@@ -21,7 +23,7 @@ export async function generateCSRF() {
 			},
 		});
 	} catch (error) {
-		console.log("generate csrf token: ", error instanceof Error && error.message);
+		log(error instanceof Error ? error.message : error, "generate csrf token");
 		throw new Error("something went wrong while generating csrf token on server");
 	}
 }

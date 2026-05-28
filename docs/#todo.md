@@ -23,10 +23,8 @@ auto focus on those input.
 
 ---
 
-i want you to create me simple and convenient logger so that, our production terminal log does not clutter with logs. so, the source code may have the log func. and in dev, the log will be shown in the local terminal. but in production, that log wont be print.
-meanwhile you are at it, we are using kitty terminal. so, i want you to pretty look the terminal output. the value should be first param and message is optional and later param. if we can add file name and which line the log was print from was shown. that would be much more convenient.
-use bunjs api to achive that, if you need to. or third party tools
-make the value looks colorful and formatted so that we can easily read it and understand the value and the source code too
+i want you to make sure, all the backend source code is using our response factory
+slightly update our response factory if needed. i think i added a type in a response. so, i was talking about that. 
 
 ---
 

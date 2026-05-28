@@ -1,3 +1,4 @@
+import { log } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
@@ -111,7 +112,7 @@ export async function credentialListings(req: BunRequest) {
 			type_value: cred.type_value,
 		}));
 
-		console.log(parsedCredentials);
+		log(parsedCredentials, "credentials listings data");
 
 		return ResponseFactory.success({
 			data: {
@@ -139,6 +140,7 @@ export async function credentialListings(req: BunRequest) {
 
 /* ── Previous offset-based pagination (kept for reference) ──────
 
+import { log } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import type { CredentialType } from "@credets/shared-types/listings";
 import { sql } from "@db/connection";
