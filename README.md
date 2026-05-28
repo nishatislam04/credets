@@ -44,12 +44,16 @@ also paste the `.env` to the root `apps/backend/` dir
 
 ### 3. setup key for env
 
+hit this command twice
+
 ```bash
 openssl rand -hex 32
 ```
 
 and set it in .env var `ENC_KEY`
 we need this to encrypt and decrypt our special password
+`ENC_KEY` we need this to encrypt and decrypt our special password.
+`CSRF_SECRET_KEY` use for csrf verification
 
 ### 4. spin it up [the application source code part]
 
