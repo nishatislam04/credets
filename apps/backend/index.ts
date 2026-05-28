@@ -21,6 +21,9 @@ function escapeHtml(text: string): string {
 		.replaceAll("'", "&#39;");
 }
 
+/** Read the error page template once at startup. */
+const ERROR_PAGE_TEMPLATE = await Bun.file(`${import.meta.dir}/error-page.html`).text();
+
 Bun.serve({
 	development: true,
 	port: process.env.PORT || "8000",
@@ -58,7 +61,7 @@ Bun.serve({
 		const message = error instanceof Error ? error.message : "Internal server error";
 		const stack = error instanceof Error ? (error.stack ?? "") : "";
 
-		const extra = isDev
+		const details = isDev
 			? `<div class="details">
 				<summary>Error details</summary>
 				<pre>${escapeHtml(message)}
@@ -69,99 +72,9 @@ ${escapeHtml(stack)}</pre>
 				If the problem persists, please contact support with the time this occurred.
 			</div>`;
 
-		const page = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>500 — Server Error</title>
-	<style>
-		* { margin: 0; padding: 0; box-sizing: border-box; }
-		body {
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-			min-height: 100vh;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			background: #0a0a0b;
-			color: #e4e4e7;
-			padding: 2rem;
-		}
-		.card {
-			max-width: 640px;
-			width: 100%;
-			background: #18181b;
-			border: 1px solid #27272a;
-			border-radius: 12px;
-			padding: 2.5rem;
-		}
-		.badge {
-			display: inline-block;
-			background: #ef4444;
-			color: #fef2f2;
-			font-size: 0.75rem;
-			font-weight: 600;
-			padding: 0.25rem 0.625rem;
-			border-radius: 999px;
-			letter-spacing: 0.025em;
-			margin-bottom: 1rem;
-		}
-		h1 {
-			font-size: 1.5rem;
-			font-weight: 600;
-			margin-bottom: 0.5rem;
-		}
-		p {
-			color: #a1a1aa;
-			line-height: 1.6;
-			margin-bottom: 0.25rem;
-		}
-		.details { margin-top: 1.5rem; }
-		.details summary {
-			cursor: pointer;
-			font-size: 0.875rem;
-			color: #a1a1aa;
-			user-select: none;
-		}
-		.details summary:hover { color: #e4e4e7; }
-		pre {
-			margin-top: 0.75rem;
-			background: #09090b;
-			border: 1px solid #27272a;
-			border-radius: 8px;
-			padding: 1rem;
-			overflow-x: auto;
-			font-family: "JetBrains Mono", "Fira Code", monospace;
-			font-size: 0.8125rem;
-			line-height: 1.5;
-			color: #ef4444;
-			white-space: pre-wrap;
-			word-break: break-word;
-		}
-		.prod-msg {
-			margin-top: 1.5rem;
-			padding: 1rem;
-			background: #09090b;
-			border: 1px solid #27272a;
-			border-radius: 8px;
-			font-size: 0.875rem;
-			color: #a1a1aa;
-			line-height: 1.6;
-		}
-	</style>
-</head>
-<body>
-	<div class="card">
-		<span class="badge">500</span>
-		<h1>Internal Server Error</h1>
-		<p>Something went wrong on our end. Please try again later.</p>
-		${extra}
-	</div>
-</body>
-</html>`;
+		const page = ERROR_PAGE_TEMPLATE.replace("{{ERROR_DETAILS}}", details);
 
-		return new Response(page.trimStart(), {
+		return new Response(page, {
 			status: 500,
 			headers: {
 				"Content-Type": "text/html; charset=utf-8",

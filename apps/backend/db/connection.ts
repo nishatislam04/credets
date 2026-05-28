@@ -6,7 +6,7 @@ export const sql: SQL = new SQL({
 	username: process.env.DB_USER || "nishat",
 	password: process.env.DB_PASSWORD || "nishat004",
 	database: process.env.DB_NAME || "credets_db",
-	tls: true,
+	tls: process.env.DB_TLS === "true", // Enable TLS via env var (default: false for local dev)
 
 	// Pool configuration
 	max: 1, // Maximum 10 concurrent connections

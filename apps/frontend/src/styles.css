@@ -212,4 +212,27 @@ body {
   border-radius: 1px;
 }
 
+/* 8. Dark mode */
+.dark .gooey-wrapper,
+.dark .gooey-contentExpanded {
+	background: var(--color-card);
+}
+
+.dark .gooey-contentExpanded .gooey-title,
+.dark .gooey-contentExpanded .gooey-description {
+	color: var(--color-card-foreground);
+}
+
+.dark .gooey-contentExpanded .gooey-timestamp {
+	color: var(--color-muted-foreground);
+}
+
+.dark .gooey-contentExpanded .gooey-description::before {
+	background-color: var(--color-border);
+}
+
+.dark .gooey-btn-close {
+	color: var(--color-muted-foreground);
+}
+
 /* ========== GOOEY TOAST OVERRIDES END ========== */

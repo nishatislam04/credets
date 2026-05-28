@@ -23,7 +23,18 @@ auto focus on those input.
 
 ---
 
-
+i want you to finalize my backend for production usage.
+search and research what i am missing for a production environment for my setup
+and how i should fix it and what will be nice to have
+i am free person. cant pay anything. so suggest me some free tools, if you think which might be better for my backend setup. you know what i have already and what is left to implment. 
+so based on that, provide suggestions and reccomendations
+and write those directly in md file so that i can take my sweet time to read it properly
+try to cover all kinds of cases
+i already hosted the backend side at render platform web service. free tier
+and i am willing to use more 3rd party tools and packages if they will help my web project. tell me about them. why i might need them and how to utilize their free resources
+check the .env.production.local file for env keys 
+i am using neon db free tier postgesql
+for now only talk about backend side. later we will talk about frontend side. now focus on backend only
 
 ---
 

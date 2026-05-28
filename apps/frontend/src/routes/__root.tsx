@@ -3,6 +3,7 @@ import { FormDevtoolsPanel } from "@tanstack/react-form-devtools";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { GooeyToaster } from "@/components/ui/goey-toaster";
+import { ThemeProvider } from "@/hooks/useTheme.tsx";
 
 import "../styles.css";
 
@@ -23,7 +24,7 @@ const queryClient = new QueryClient({
 
 function RootComponent() {
 	return (
-		<>
+		<ThemeProvider>
 			<QueryClientProvider client={queryClient}>
 				<Outlet />
 			</QueryClientProvider>
@@ -44,6 +45,6 @@ function RootComponent() {
 					},
 				]}
 			/>
-		</>
+		</ThemeProvider>
 	);
 }
