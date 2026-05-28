@@ -1,14 +1,16 @@
-# this is my ongoing credentials app built on monorepo
+# This is my credentials app to manage my private credentials
 
 ## stacks
 
-- backend are built in bun and exposed api
-- and frontend are built on tanstack router to consume the api's
-- we also have postgresql db support
-- we will be using shadcn ui library to build the frontend
-- we use biome to lint the code!
-- the backend will be hosted on Render
-- but where we will host the frontend? i am still not sure
+- backend are built on `bun` and exposed private api endpoint
+- frontend are built on `tanstack router`
+- postgresql
+- shadcn ui library
+- tanstack form to manage form
+- use bun built in api to manage Image, CSRF, hash-password, sql client
+- biome to lint and format
+- the backend will be hosted on Render (probbably)
+- but where we will host the frontend? i am still not sure. lol
 
 ## guide
 
@@ -24,37 +26,21 @@ git clone git@github.com:nishatislam04/credets.git
 
 ### 2. install
 
-we need to install in 3 directory (probbably)
-
-### 2.1. at root directory
-
 ```bash
   cd credets
   bun i
 ```
 
-### 2.2. at backend directory
-
-```bash
-  cd credets/app/backend/
-  bun i
-```
-
-in development, we had to copy our `ENC_KEY` to `backend/`
-i dont know if we need to do something similar like in production.
-
-### 2.3. at frontend directory
-
-```bash
-  cd credets/app/frontend/
-  bun i
-```
+we duplicate some env var in both root dir and backend dir.
+carefully observe them
 
 ### 3. env setup
 
 ```bash
   cp .env.exmple .env
 ```
+
+also paste the `.env` to the root `apps/backend/` dir
 
 ### 3. setup key for env
 
@@ -63,6 +49,7 @@ openssl rand -hex 32
 ```
 
 and set it in .env var `ENC_KEY`
+we need this to encrypt and decrypt our special password
 
 ### 4. spin it up [the application source code part]
 
@@ -76,19 +63,19 @@ in one terminal,
 bun run dev
 ```
 
-### 4.2 run only backend
+### 4.2 or run backend only
 
 ```bash
   bun run dev:backend
 ```
 
-### 4.3 run only frontend
+### 4.3 or run frontend only
 
 ```bash
   bun run dev:frontend
 ```
 
-### 5. spin up [the database part]
+### 5. spin up [docker-compose]
 
 in a new terminal!
 
@@ -99,23 +86,21 @@ make db-up
 
 ## access
 
-### 1. the backend
+### 1. the backend side at
 
 ```bash
 http://localhost:8000
 ```
 
-### 2. the frontend
+### 2. the frontend side at
 
 ```bash
 http://localhost:3000
 ```
 
-### 3. the prisma studio (database viewer)
+### database inspector
 
-```bash
-http://localhost:5555
-```
+i am personally using `dblab` terminal app to view the database. all the ui looks buggy. so, i had decided to go with terminal app. check the guide at `docs/dblab.md` for details
 
 ### conclusion
 
