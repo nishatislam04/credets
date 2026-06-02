@@ -7,13 +7,15 @@
 	"scripts": {
 		"clean": "rm -rf dist && echo 'Done.'",
 		"dev": "bun run --watch --no-clear-screen --console-depth 10 index.ts",
-		"build": "bun build index.ts --outfile=dist/index.js --target bun",
+		"build": "bun build index.ts --outfile=dist/index.js --target bun && bun run copy:imgkit",
+		"copy:imgkit": "cp node_modules/imgkit-linux-x64-gnu/*.node dist/",
 		"start": "bun run dist/index.js",
 		"type-check": "tsc --noEmit"
 	},
 	"dependencies": {
 		"date-fns": "^4.1.0",
 		"imgkit": "^2.2.1",
+		"imgkit-linux-x64-gnu": "^2.2.1",
 		"iron-webcrypto": "^2.0.0",
 		"zod": "^4.4.3"
 	},

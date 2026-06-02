@@ -34,6 +34,13 @@ publish-dir=apps/frontend/dist
 VITE_BACKEND_APP
 
 
+### frontend redirect rewrite rules
+
+we add this rules since this is our spa application. otherwise, we see 404 upon navigation
+
+source - destination - action
+/*     - /index.html - rewrite
+
 ## database related
 
 neondb database. `.env.production.local` contains our production env var.
