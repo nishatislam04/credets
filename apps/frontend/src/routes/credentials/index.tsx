@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
 import { LoaderIcon, Plus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ThemeToggle } from "#/components/theme-toggle";
 import { Skeleton } from "#/components/ui/skeleton";
 import type { CredentialListItem } from "./-actions/getCredentialsListings";
 import { getCredentialsListings } from "./-actions/getCredentialsListings";
@@ -121,7 +122,10 @@ function RouteComponent() {
 			{/* Page header */}
 			<div className="mb-8 flex items-start justify-between">
 				<div>
-					<h1 className="text-2xl font-bold tracking-tight">Credentials</h1>
+					<div className="flex">
+						<h1 className="text-2xl font-bold tracking-tight">Credentials</h1>
+						<ThemeToggle />
+					</div>
 					<p className="text-sm text-muted-foreground mt-1">
 						Browse your saved credentials, keys, and secrets
 					</p>

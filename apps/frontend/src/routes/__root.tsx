@@ -11,6 +11,7 @@ export const Route = createRootRoute({
 });
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "#/hooks/theme-provider";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -23,7 +24,7 @@ const queryClient = new QueryClient({
 
 function RootComponent() {
 	return (
-		<>
+		<ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
 			<QueryClientProvider client={queryClient}>
 				<Outlet />
 			</QueryClientProvider>
@@ -44,6 +45,6 @@ function RootComponent() {
 					},
 				]}
 			/>
-		</>
+		</ThemeProvider>
 	);
 }
