@@ -72,7 +72,9 @@ const LINE = "━".repeat(50);
  * @param message - Optional human-readable label shown in the header.
  */
 export function log(value: unknown, message?: string): void {
-	if (!isDev) return;
+	if (Bun.env.NODE_ENV === "production") {
+		return;
+	}
 
 	const caller = getCallerInfo();
 
@@ -110,8 +112,8 @@ export function log(value: unknown, message?: string): void {
  * Use sparingly – typically for startup banners or critical boot info.
  */
 export function logAlways(value: unknown, message?: string): void {
-	const cached = process.env.NODE_ENV;
-	(process.env as Record<string, string | undefined>).NODE_ENV = "development";
+	const cached = Bun.env.NODE_ENV;
+	Bun.env.NODE_ENV = "development";
 	log(value, message);
-	(process.env as Record<string, string | undefined>).NODE_ENV = cached;
+	Bun.env.NODE_ENV = cached;
 }
