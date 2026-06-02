@@ -42,6 +42,18 @@ update my single view credential page `data-block` ui component looks so that, i
 
 ---
 
+after creating a todo. when we go back to listings page, we dont see the newly created item. to see it, we need to refresh the page. but that was not how it was supposed to work
+
+---
+
+have the back button at the same line as the top1 header. for both create and edit form page.
+
+---
+
+we cant delete a resource in prod. check out the issue
+
+---
+
 - [x] 1. rewrite bun.image processing with [imgkit](https://github.com/nexus-aissam/imgkit)
 
 - [x] 2. create a logger, production terminal log wont be clutter. even if we have log on the endpoint[6]
