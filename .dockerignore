@@ -13,7 +13,8 @@ README.md
 *.md
 
 # Frontend — not used by backend Docker image
-apps/frontend/
+apps/frontend/*
+!apps/frontend/package.json
 
 # Node modules — will be installed fresh in Docker
 node_modules

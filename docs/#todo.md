@@ -135,6 +135,10 @@ and remove imgkit and its gnu entry
 
 ---
 
+dont show thumbnial where we show images. when there is no images
+when there are images, then thumbnial does not render anyway.
+so, we wont render tubumbnail in da first place
+
 - [x] 1. rewrite bun.image processing with [imgkit](https://github.com/nexus-aissam/imgkit)
 
 - [x] 2. create a logger, production terminal log wont be clutter. even if we have log on the endpoint[6]

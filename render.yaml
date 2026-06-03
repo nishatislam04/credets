@@ -1,95 +1,41 @@
-# ─────────────────────────────────────────────────
-# Render Blueprint — Infrastructure as Code
-# https://render.com/docs/blueprint-spec
-# ─────────────────────────────────────────────────
-#
-# How it works:
-#   1. Commit this file to your repo root
-#   2. Connect your repo to Render
-#   3. Render auto-creates all services listed here
-#   4. On every push to `dev`, Render rebuilds + deploys
-#
-# ── Env vars note ───────────────────────────────
-# Secrets (ENC_KEY, CSRF_SECRET_KEY) have placeholder
-# values below. Replace them with your real values
-# BEFORE the first deploy, or update them in the
-# Render Dashboard after sync.
-
-services:
-  # ── Backend web service (Docker) ──────────────
-  - name: credets-backend
-    type: web
-    runtime: docker
-    plan: free
-    region: singapore
-
-    # ── Repository settings ─────────────────────
-    repo: https://github.com/nishatislam04/credets
-    branch: main
-    autoDeployTrigger: commit # Deploy on every push to `dev`
-
-    # ── Docker settings ─────────────────────────
-    # Dockerfile is inside apps/backend/
-    dockerfilePath: apps/backend/Dockerfile
-    # Build context is the repo root (Dockerfile copies bun.lock, package.json etc.)
-    dockerContext: .
-
-    # ── Health check ────────────────────────────
-    # Render's load balancer pings this before routing traffic.
-    # Keep-alive frequency helps against free-tier spin-down.
-    healthCheckPath: /healthz
-
-    # ── Environment variables ───────────────────
-    envVars:
-      # ── Database ──────────────────────────────
-      - key: DB_HOST
-        value: ep-shiny-mode-aolabxv6-pooler.c-2.ap-southeast-1.aws.neon.tech
-      - key: DB_PORT
-        value: "5432"
-      - key: DB_USER
-        value: neondb_owner
-      - key: DB_PASSWORD
-        sync: false
-      - key: DB_NAME
-        value: credets_db
-      - key: DB_TLS
-        value: "true"
-
-      # ── Encryption ────────────────────────────
-      - key: ENC_KEY
-        sync: false
-      - key: CSRF_SECRET_KEY
-        sync: false
-
-      # ── CORS ──────────────────────────────────
-      # Frontend origin that's allowed to call the backend
-      - key: FRONTEND_APP
-        value: https://credets.pages.dev # ← REPLACE with your frontend URL
-
-      # ── Server ────────────────────────────────
-      - key: PORT
-        value: "8000"
-      - key: NODE_ENV
-        value: production
-
-# ─────────────────────────────────────────────────
-# How to apply this file
-# ─────────────────────────────────────────────────
-#
-# Option A — Connect repo via Render Dashboard:
-#   1. Go to dashboard.render.com → New → Blueprint
-#   2. Select your repo
-#   3. Render reads render.yaml and creates the service
-#   4. Fill in the secret env vars (ENC_KEY, CSRF_SECRET_KEY)
-#   5. First deploy happens automatically
-#
-# Option B — Using render CLI:
-#   render blueprint apply --repo nishatislam04/credets
-#
-# After first deploy, run schema migration:
-#   Render Dashboard → Shell → run:
-#   bun run apps/backend/db/run-prod-schema.ts
-#
-# Then seed data (optional):
-#   Render Dashboard → Shell → run:
-#   bun run apps/backend/db/seed.ts
+projects:
+  - name: My project
+    environments:
+      - name: Production
+        services:
+          - name: credets-backend
+            type: web
+            runtime: docker
+            plan: free
+            region: singapore
+            repo: https://github.com/nishatislam04/credets
+            branch: main
+            autoDeployTrigger: commit
+            dockerfilePath: apps/backend/Dockerfile
+            dockerContext: .
+            healthCheckPath: /healthz
+            envVars:
+              - key: POSTGRES_URL
+                sync: false
+              - key: DB_HOST
+                value: ep-shiny-mode-aolabxv6-pooler.c-2.ap-southeast-1.aws.neon.tech
+              - key: DB_PORT
+                value: "5432"
+              - key: DB_USER
+                value: neondb_owner
+              - key: DB_PASSWORD
+                sync: false
+              - key: DB_NAME
+                value: neondb
+              - key: DB_TLS
+                value: "true"
+              - key: ENC_KEY
+                sync: false
+              - key: CSRF_SECRET_KEY
+                sync: false
+              - key: FRONTEND_APP
+                value: https://credets.onrender.com
+              - key: PORT
+                value: "8000"
+              - key: NODE_ENV
+                value: production
