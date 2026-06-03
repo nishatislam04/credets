@@ -6,16 +6,8 @@ import type {
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, LoaderIcon, Trash2, X } from "lucide-react";
+import { ArrowLeft, LoaderIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import {
-	AlertDialogClose,
-	AlertDialogDescription,
-	AlertDialogPopup,
-	AlertDialogRoot,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "#/components/ui/alert-dialog";
 import {
 	Field,
 	FieldContent,
@@ -42,6 +34,7 @@ import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { DeleteCredentialDialog } from "./-delete/delete-credential-dialog";
 import { getCredentialUpdate } from "./-actions/getCredentialUpdate";
 import { updateCredentialAction } from "./-actions/updateCredentialAction";
 import { updateCredentialValidation } from "./-actions/updateCredentialValidation";
@@ -163,8 +156,6 @@ function RouteComponent() {
 	const [newImages, setNewImages] = useState<File[]>([]);
 	const [thumbnailRemoved, setThumbnailRemoved] = useState(false);
 	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
-	const [isDeleting, setIsDeleting] = useState(false);
-
 	const visibleExistingImages = existingImages.filter((img) => !removedImageIds.includes(img.id));
 
 	// ── Initial data blocks ──
@@ -805,97 +796,19 @@ function RouteComponent() {
 										{isSubmitting ? "..." : "Update"}
 									</Button>
 
-									<AlertDialogTrigger
-										render={
-											<Button
-												type="button"
-												variant="destructive"
-												size="lg"
-												className="px-8 py-4"
-												disabled={isDeleting}
-											>
-												{isDeleting ? (
-													<LoaderIcon className="size-4 animate-spin" />
-												) : (
-													<AlertTriangle className="size-4" />
-												)}
-												{isDeleting ? "Deleting..." : "Delete"}
-											</Button>
-										}
-									/>
+								<DeleteCredentialDialog
+									credentialId={credential.id}
+									credentialTitle={credential.title}
+									csrfToken={csrfToken}
+								/>
 								</div>
 							)}
 						/>
 					</FieldGroup>
 				</Form>
 
-				{/* ── Delete confirmation dialog ── */}
-				<AlertDialogPopup>
-					<AlertDialogTitle>Delete credential</AlertDialogTitle>
-					<AlertDialogDescription>
-						Are you sure you want to delete &ldquo;{credential.title}&rdquo;? This action cannot be
-						undone.
-					</AlertDialogDescription>
-					<div className="flex justify-end gap-3 mt-2">
-						<AlertDialogClose
-							render={
-								<Button type="button" variant="outline" size="sm">
-									Cancel
-								</Button>
-							}
-						/>
-						<AlertDialogClose
-							render={
-								<Button
-									type="button"
-									variant="destructive"
-									size="sm"
-									disabled={isDeleting}
-									onClick={async () => {
-										setIsDeleting(true);
-										try {
-											const res = await fetch(
-												`${import.meta.env.VITE_BACKEND_APP}/credentials/${credential.id}/delete`,
-												{
-													method: "DELETE",
-													headers: {
-														"Content-Type": "application/json",
-													},
-													body: JSON.stringify({ _csrf: csrfToken }),
-												},
-											);
-
-											const data = await res.json();
-
-											if (!res.ok || !data.success) {
-												throw new Error(data.message || "Failed to delete");
-											}
-
-											gooeyToast.success("Credential deleted", {
-												description: `"${credential.title}" has been deleted`,
-											});
-
-											navigate({ to: "/credentials" });
-										} catch (err) {
-											gooeyToast.error("Failed to delete", {
-												description: err instanceof Error ? err.message : "Something went wrong",
-											});
-										} finally {
-											setIsDeleting(false);
-										}
-									}}
-								>
-									<Trash2 className="size-4" />
-									Delete
-								</Button>
-							}
-						/>
-					</div>
-				</AlertDialogPopup>
-
 				{/* ── Image preview overlay ── */}
 				{previewSrc && <ImagePreviewOverlay src={previewSrc} onClose={() => setPreviewSrc(null)} />}
 			</main>
-		</AlertDialogRoot>
 	);
 }

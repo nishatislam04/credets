@@ -83,7 +83,7 @@ we used usequery to fetch data in frontend multiple places. like create form pag
 
 ---
 
-## extract delete ui logics and presentation logic into components
+## extract delete ui logics and presentation logic into components[*]
 
 i want you to extract credential delete logic into new component and import it in edit component. i dont want to clutter edit page anymore than it already is. so, all the backend hitting and ui representation of delete ui components, move it to a separate components. where should we put this delete logic is the real questions. should we create a delete frontend endpoint or just a private routes? since, delete button is in update page. i think it is best to create a private dir inside of update/ named -delete/ and put ui logics and backend hitting logics there
 
