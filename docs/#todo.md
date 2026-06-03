@@ -41,13 +41,13 @@ for now only talk about backend side. later we will talk about frontend side. no
 
 ---
 
-## update credential single page data-block ui looking in dark mode. and keep the light mode as it is
+## update credential single page data-block ui looking in dark mode. and keep the light mode as it is[*]
 
 update my single view credential page `data-block` ui component looks so that, it looks consistent with my other shadcn component. use shadcn ui components if necessary. so that, when we switch theme to dark mode. the data block does not looks weird and out of the world. by the way, right now, the data block bg and text color overall looks dumb in dark mode. but it looks perfect in light mode. update only dark mode to stay consistent with my page and other ui components look
 
 ---
 
-## invalidate credential listings after create a new credential
+## invalidate credential listings after create a new credential[*]
 
 after creating a credential, when we go back to listings page, we dont see the newly created item. to see the new credential item, we need to refresh the page. but that was not how it was supposed to work. maybe the listings were cached or something else. just make sure, after creating a new credential, when we navigate back to listings, we will be able to see new credential item in the top as it was supposed to.
 

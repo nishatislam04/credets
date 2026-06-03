@@ -23,7 +23,7 @@ function CopyDisplay({ value, isSecret = false }: { value: string; isSecret?: bo
 
 	return (
 		<div
-			className="flex cursor-pointer items-center gap-2 rounded-lg border bg-white px-4 py-2.5 transition-colors hover:bg-blue-50/50"
+			className="flex cursor-pointer items-center gap-2 rounded-lg border bg-card px-4 py-2.5 transition-colors hover:bg-accent"
 			onClick={handleCopy}
 			role="button"
 			tabIndex={0}
@@ -70,7 +70,7 @@ function MultiLineDisplay({ value }: { value: string }) {
 
 	return (
 		<div
-			className="min-h-[120px] cursor-pointer rounded-lg border bg-white px-4 py-3 transition-colors hover:bg-blue-50/50"
+			className="min-h-[120px] cursor-pointer rounded-lg border bg-card px-4 py-3 transition-colors hover:bg-accent"
 			onClick={handleCopy}
 			role="button"
 			tabIndex={0}
@@ -79,7 +79,7 @@ function MultiLineDisplay({ value }: { value: string }) {
 			}}
 		>
 			<div className="flex items-start justify-between gap-2">
-				<pre className="flex-1 font-mono text-sm tracking-wide whitespace-pre-wrap break-all text-muted-foreground/80">
+				<pre className="flex-1 font-mono text-sm tracking-wide whitespace-pre-wrap break-all text-card-foreground/80">
 					{value}
 				</pre>
 				<div className="shrink-0 pt-0.5">
@@ -98,7 +98,7 @@ function MultiLineDisplay({ value }: { value: string }) {
 
 function BlockLabel({ children }: { children: string }) {
 	return (
-		<span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600">
+		<span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
 			{children}
 		</span>
 	);
@@ -151,7 +151,7 @@ function InformationBlock({ block }: { block: DataBlockEntry & { type: "informat
 
 function DataBlocksRenderer({ blocks }: { blocks: DataBlockEntry[] }) {
 	return (
-		<div className="divide-y divide-border/20">
+		<div className="divide-y divide-border">
 			{blocks.map((block) => {
 				switch (block.type) {
 					case "single_label":
@@ -235,7 +235,7 @@ export function CredentialDataRenderer({ typeValue, data }: CredentialDataRender
 				<Braces className="size-4.5" />
 				<h2 className="text-base font-semibold uppercase tracking-wider">Data</h2>
 			</div>
-			<div className={`rounded-lg border bg-blue-100/40 ${accent.border} overflow-hidden`}>
+			<div className={`rounded-lg border bg-card ${accent.border} overflow-hidden`}>
 				<DataBlocksRenderer blocks={data} />
 			</div>
 		</div>

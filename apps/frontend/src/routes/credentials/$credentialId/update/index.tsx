@@ -270,8 +270,7 @@ function RouteComponent() {
 	}
 
 	return (
-		<AlertDialogRoot>
-			<main>
+		<main>
 				{/* ── Back link ── */}
 				<Link
 					to="/credentials/$credentialId"
