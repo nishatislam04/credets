@@ -1,0 +1,124 @@
+# ─────────────────────────────────────────────────
+# Render Blueprint — Infrastructure as Code
+# https://render.com/docs/blueprint-spec
+# ─────────────────────────────────────────────────
+#
+# How it works:
+#   1. Commit this file to your repo root
+#   2. Connect your repo to Render
+#   3. Render auto-creates all services listed here
+#   4. On every push to `dev`, Render rebuilds + deploys
+#
+# ── Env vars note ───────────────────────────────
+# Secrets (ENC_KEY, CSRF_SECRET_KEY) are NOT stored
+# in this file. After Render creates the service,
+# go to Dashboard > Environment and paste them in.
+# Render treats any env var without a `value` field
+# as "manual input required" — it will warn you before
+# the first deploy.
+
+services:
+  # ── Backend web service (Docker) ──────────────
+  - name: credets-backend
+    type: web
+    runtime: docker
+    plan: free
+
+    # ── Repository settings ─────────────────────
+    repo: https://github.com/nishatislam04/credets
+    branch: main
+    autoDeployTrigger: commit # Deploy on every push to `dev`
+
+    # ── Docker settings ─────────────────────────
+    # Dockerfile is inside apps/backend/
+    dockerfilePath: apps/backend/Dockerfile
+    # Build context is the repo root (Dockerfile copies bun.lock, package.json etc.)
+    dockerContext: .
+    # Explicit start command (same as Dockerfile's CMD, shown here for clarity)
+    startCommand: bun run apps/backend/index.ts
+
+    # ── Health check ────────────────────────────
+    # Render's load balancer pings this before routing traffic.
+    # Keep-alive frequency helps against free-tier spin-down.
+    healthCheckPath: /healthz
+
+    # ── Environment variables ───────────────────
+    # ── Database (Neon PostgreSQL)
+    #
+    # ╔══════════════════════════════════════════════════════════╗
+    # ║  Do I need ALL of these DB vars?                        ║
+    # ║                                                        ║
+    # ║  YES — your code in db/connection.ts reads each one     ║
+    # ║  individually: DB_HOST, DB_PORT, DB_USER, DB_PASSWORD,  ║
+    # ║  DB_NAME, DB_TLS.                                       ║
+    # ║                                                        ║
+    # ║  NO — POSTGRES_URL is NOT used by any code. It's a      ║
+    # ║  leftover. You can ignore it. The code doesn't read it. ║
+    # ║                                                        ║
+    # ║  To get these values from Neon Console:                 ║
+    # ║  1. Go to neon.tech → your project → Connection Details ║
+    # ║  2. Copy the connection string — it looks like:         ║
+    # ║     postgres://user:pass@ep-xxx.us-east-2.aws.neon.tech/dbname ║
+    # ║  3. Parse it:                                           ║
+    # ║     DB_HOST = ep-xxx.us-east-2.aws.neon.tech            ║
+    # ║     DB_PORT = 5432                                      ║
+    # ║     DB_USER = the "user" part                           ║
+    # ║     DB_PASSWORD = the "pass" part                       ║
+    # ║     DB_NAME = the "dbname" part                         ║
+    # ║     DB_TLS = true                                       ║
+    # ╚══════════════════════════════════════════════════════════╝
+    envVars:
+      # ── Database ──────────────────────────────
+      - key: DB_HOST
+        value: ep-xxx.us-east-2.aws.neon.tech # ← REPLACE with your Neon host
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_USER
+        value: nishat # ← REPLACE with your Neon user
+      - key: DB_PASSWORD
+        # ⚠️ Replace with your actual Neon password.
+        # Written here for blueprint sync; after sync, Render encrypts it at rest.
+        value: your-neon-password
+      - key: DB_NAME
+        value: credets_db
+      - key: DB_TLS
+        value: "true"
+
+      # ── Encryption ────────────────────────────
+      # Paste these in Render Dashboard after the service is created.
+      # Generate with: openssl rand -hex 32
+      - key: ENC_KEY # ← Paste in Dashboard (secret!)
+      - key: CSRF_SECRET_KEY # ← Paste in Dashboard (secret!)
+
+      # ── CORS ──────────────────────────────────
+      # Frontend origin that's allowed to call the backend
+      - key: FRONTEND_APP
+        value: https://credets.pages.dev # ← REPLACE with your frontend URL
+
+      # ── Server ────────────────────────────────
+      - key: PORT
+        value: "8000"
+      - key: NODE_ENV
+        value: production
+
+# ─────────────────────────────────────────────────
+# How to apply this file
+# ─────────────────────────────────────────────────
+#
+# Option A — Connect repo via Render Dashboard:
+#   1. Go to dashboard.render.com → New → Blueprint
+#   2. Select your repo
+#   3. Render reads render.yaml and creates the service
+#   4. Fill in the secret env vars (ENC_KEY, CSRF_SECRET_KEY)
+#   5. First deploy happens automatically
+#
+# Option B — Using render CLI:
+#   render blueprint apply --repo nishatislam04/credets
+#
+# After first deploy, run schema migration:
+#   Render Dashboard → Shell → run:
+#   bun run apps/backend/db/run-prod-schema.ts
+#
+# Then seed data (optional):
+#   Render Dashboard → Shell → run:
+#   bun run apps/backend/db/seed.ts
