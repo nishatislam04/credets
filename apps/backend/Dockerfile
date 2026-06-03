@@ -1,9 +1,9 @@
 # ============================================================
 # Builder Stage
-# Uses full Debian variant to have all build/system tools in
-# case native dependencies (e.g. imgkit) need compilation.
+# Uses Alpine variant (~40 MB) — the project has no native
+# dependencies, so the full Debian variant is unnecessary.
 # ============================================================
-FROM oven/bun:1.3.14-debian AS builder
+FROM oven/bun:1.3.14-alpine AS builder
 
 WORKDIR /app
 
@@ -16,14 +16,13 @@ COPY package.json bun.lock ./
 # Copy workspace package.json files so Bun can resolve
 # workspace dependencies (@credets/*)
 COPY apps/backend/package.json apps/backend/package.json
-COPY apps/frontend/package.json apps/frontend/package.json
 COPY packages/shared-utils/package.json packages/shared-utils/package.json
 COPY packages/shared-schema/package.json packages/shared-schema/package.json
 COPY packages/shared-types/package.json packages/shared-types/package.json
 
-# Install all workspace dependencies with frozen lockfile
-# for reproducible builds
-RUN bun install --frozen-lockfile
+# Install for production — skips devDependencies, reducing
+# image size significantly (no biome, @types/*, etc.)
+RUN bun install --frozen-lockfile --production
 
 # ---------------------------------------------------------
 # Layer 2: Copy source code (only what's needed at runtime)
@@ -35,16 +34,19 @@ COPY packages packages
 
 # ============================================================
 # Runner Stage
-# Uses Alpine variant — statically linked codecs in Bun.Image
-# mean no shared library dependencies needed for image processing.
-# ~40 MB — the smallest variant with full Bun API support.
+# Statically linked codecs in Bun.Image mean no shared library
+# dependencies needed for image processing.
+# ~40 MB base — the smallest variant with full Bun API support.
 # ============================================================
 FROM oven/bun:1.3.14-alpine AS runner
 
 WORKDIR /app
 
-# Copy everything from builder
-COPY --from=builder /app /app
+# Copy only what's needed — selectively, not the entire builder
+COPY --from=builder /app/apps/backend /app/apps/backend
+COPY --from=builder /app/packages /app/packages
+COPY --from=builder /app/node_modules /app/node_modules
+COPY --from=builder /app/tsconfig.json /app/tsconfig.json
 
 # Environment
 ENV NODE_ENV=production

@@ -3,7 +3,7 @@ import { devtools } from "@tanstack/devtools-vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
-import { analyzer } from "vite-bundle-analyzer";
+// import { analyzer } from "vite-bundle-analyzer";
 
 export default defineConfig({
 	resolve: { tsconfigPaths: true },
@@ -14,9 +14,9 @@ export default defineConfig({
 		tailwindcss(),
 		tanstackRouter({ target: "react", autoCodeSplitting: true }),
 		viteReact(),
-		analyzer({
-			defaultSizes: "gzip",
-			summary: true,
-		}),
+		// analyzer({
+		// 	defaultSizes: "gzip",
+		// 	summary: true,
+		// }),
 	],
 });

@@ -1,41 +1,31 @@
-# ── Version control ──
+# Git
 .git
 .gitignore
 
-# ── Environment & secrets ──
+# Environment files — not needed in production image
+.env*
 .env
-.env.*
+.env.*.local
 
-# ── Dependencies ──
-# Already installed inside the Docker image via bun install
+# Docs — not needed at runtime
+docs/
+README.md
+*.md
+
+# Frontend — not used by backend Docker image
+apps/frontend/
+
+# Node modules — will be installed fresh in Docker
 node_modules
 
-# ── OS artifacts ──
+# OS files
 .DS_Store
-Thumbs.db
 
-# ── Documentation ──
-# Not needed at runtime
-*.md
-docs/
-
-# ── Agent/IDE configs ──
-.agents/
-.cta.json
-
-# ── Frontend source (not needed in this Dockerfile) ──
-# These aren't copied by the Dockerfile, but excluding them from the build
-# context reduces the payload sent to the Docker daemon, speeding up builds.
-apps/frontend/node_modules
-apps/frontend/dist
-apps/frontend/src/
-apps/frontend/public/
-apps/frontend/.env
-apps/frontend/index.html
-apps/frontend/vite.config.ts
-apps/frontend/tsconfig.json
-apps/frontend/components.json
-apps/frontend/biome.json
-apps/frontend/skills-lock.json
-apps/frontend/.agents/
-apps/frontend/.cta.json
+# Cache and temp
+.turbo
+.tanstack
+.nitro
+.wrangler
+.output
+.vinxi
+__unconfig*
