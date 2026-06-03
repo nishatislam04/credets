@@ -1,111 +1,117 @@
-# This is my credentials app to manage my private credentials
+# Credets
 
-## stacks
+A monorepo for securely managing private credentials — a full-stack credential management app.
 
-- backend are built on `bun` and exposed private api endpoint
-- frontend are built on `tanstack router`
-- postgresql
-- shadcn ui library
-- tanstack form to manage form
-- use bun built in api to manage Image, CSRF, hash-password, sql client
-- biome to lint and format
-- the backend will be hosted on Render (probbably)
-- but where we will host the frontend? i am still not sure. lol
+## Stack
 
-## guide
+- **Monorepo** — Bun workspaces with shared packages (`packages/`)
+- **Backend** — Bun HTTP server, PostgreSQL, Zod validation
+- **Frontend** — TanStack Router + TanStack Query + TanStack Form
+- **UI** — shadcn/ui with Base UI primitives (`@base-ui/react`)
+- **Language** — TypeScript throughout
+- **Formatting & Linting** — Biome
+- **Hosting** — Backend on Render, Frontend TBD
 
-read the `docs/` for fully understanding the app goal and feature
+## Features
 
-## setup the app
+- Credential listings with infinite scroll
+- Create, update, and delete credentials
+- Image upload support (thumbnail + gallery)
+- Flexible data input (single value, key-pair, text blocks)
+- Search, sort, and filter
+- Security: CSRF protection, encryption-at-rest, password hashing
 
-### 1. clone repo
+## Project Structure
+
+```
+credets/
+├── apps/
+│   ├── backend/        # Bun HTTP API server
+│   └── frontend/       # TanStack Router SPA
+├── packages/
+│   ├── shared-schema/  # Zod schemas (backend validation source of truth)
+│   ├── shared-types/   # TypeScript types shared across packages
+│   └── shared-utils/   # Shared utility functions
+├── docs/               # Project documentation
+├── .agents/skills/     # AI agent skills (shadcn rules, etc.)
+└── docker-compose.yml  # Local PostgreSQL
+```
+
+## Setup
+
+### 1. Clone
 
 ```bash
 git clone git@github.com:nishatislam04/credets.git
+cd credets
 ```
 
-### 2. install
+### 2. Install dependencies
 
 ```bash
-  cd credets
-  bun i
+bun i
 ```
 
-we duplicate some env var in both root dir and backend dir.
-carefully observe them
+Note: Some environment variables are duplicated in both the root `.env` and `apps/backend/.env`. Observe both carefully.
 
-### 3. env setup
+### 3. Environment variables
 
 ```bash
-  cp .env.exmple .env
+cp .env.example .env
+cp .env.example apps/backend/.env
 ```
 
-also paste the `.env` to the root `apps/backend/` dir
-
-### 3. setup key for env
-
-hit this command twice
+Generate encryption keys:
 
 ```bash
 openssl rand -hex 32
 ```
 
-and set it in .env var `ENC_KEY`
-we need this to encrypt and decrypt our special password
-`ENC_KEY` we need this to encrypt and decrypt our special password.
-`CSRF_SECRET_KEY` use for csrf verification
+Set the output as `ENC_KEY` in both `.env` files — this encrypts/decrypts credential secrets.
+`CSRF_SECRET_KEY` is used for CSRF token generation.
 
-### 4. spin it up [the application source code part]
+### 4. Start PostgreSQL
 
-take a look at root `package.json` file
+```bash
+make db-up
+```
 
-### 4.1. run both `frontend` and `backend` application
+### 5. Run the app
 
-in one terminal,
+Start both frontend and backend in one terminal:
 
 ```bash
 bun run dev
 ```
 
-### 4.2 or run backend only
+Or separately:
 
 ```bash
-  bun run dev:backend
+bun run dev:backend   # http://localhost:8000
+bun run dev:frontend  # http://localhost:3000
 ```
 
-### 4.3 or run frontend only
+### 6. Seed the database (optional)
 
 ```bash
-  bun run dev:frontend
+bun run seed
 ```
 
-### 5. spin up [docker-compose]
+## Documentation
 
-in a new terminal!
+All project documentation lives in [`docs/`](./docs). Key documents:
 
-```bash
-cd credets
-make db-up
-```
+| Document | Description |
+|----------|-------------|
+| [`docs/app.md`](./docs/app.md) | App story, requirements, and feature list |
+| [`docs/form.md`](./docs/form.md) | Frontend & backend form processing guide |
+| [`docs/dblab.md`](./docs/dblab.md) | Database inspector setup |
+| [`docs/production.md`](./docs/production.md) | Production deployment notes |
 
-## access
+## AI Agent Skills
 
-### 1. the backend side at
+This project ships with [shadcn/ui](./docs/frontend/shadcn-ui-guide.md) skills for AI agents. The canonical skill files live in:
 
-```bash
-http://localhost:8000
-```
+- **`.agents/skills/shadcn/`** — shadcn rules, patterns, and project-specific deviations
 
-### 2. the frontend side at
-
-```bash
-http://localhost:3000
-```
-
-### database inspector
-
-i am personally using `dblab` terminal app to view the database. all the ui looks buggy. so, i had decided to go with terminal app. check the guide at `docs/dblab.md` for details
-
-### conclusion
-
-good luck me!
+AI agents should also consult `docs/frontend/shadcn-ui-guide.md` for a consolidated reference covering import aliases, component patterns, and library choices specific to this project.

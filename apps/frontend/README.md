@@ -1,204 +1,81 @@
-Welcome to your new TanStack Start app! 
+# @credets/frontend
 
-# Getting Started
+TanStack Router SPA for the Credets credential management app.
 
-To run this application:
+## Stack
+
+- **Framework** — React 19
+- **Routing** — TanStack Router (file-based, `src/routes/`)
+- **Data Fetching** — TanStack Query + Route loaders
+- **Forms** — TanStack Form + Zod validation
+- **UI Library** — [shadcn/ui](https://ui.shadcn.com) with [Base UI](https://base-ui.com) primitives
+- **Styling** — Tailwind CSS v4 (with `@tailwindcss/vite`)
+- **Toast** — `goey-toast`
+- **Icons** — Lucide React
+- **Animations** — Framer Motion
+- **Build Tool** — Vite
+- **Testing** — Vitest + React Testing Library
+- **Linting & Formatting** — Biome
+
+## Routes
+
+| Path | Description |
+|------|-------------|
+| `/` | Home / dashboard |
+| `/credentials` | Credential listings with infinite scroll |
+| `/credentials/create` | Create new credential form |
+| `/credentials/:id` | Single credential detail view |
+| `/credentials/:id/update` | Update credential form |
+
+## shadcn/ui Component Guide
+
+This project uses [shadcn/ui](https://ui.shadcn.com) with **Base UI** primitives (`@base-ui/react`), not Radix UI.
+A comprehensive reference for developers and AI agents can be found at:
+
+**[`docs/frontend/shadcn-ui-guide.md`](../docs/frontend/shadcn-ui-guide.md)**
+
+It covers:
+- Import aliases (`#/` prefix)
+- Project-specific library choices (goey-toast, TanStack Form)
+- Base UI vs Radix API differences
+- Code patterns with correct imports
+
+Canonical skill files for AI agents: `.agents/skills/shadcn/`
+
+## Development
 
 ```bash
-bun install
-bun --bun run dev
-```
-
-# Building For Production
-
-To build this application for production:
-
-```bash
-bun --bun run build
+bun run dev      # Start dev server on http://localhost:3000
+bun run build    # Production build
+bun run preview  # Preview production build
 ```
 
 ## Testing
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
-
 ```bash
-bun --bun run test
+bun run test     # Run Vitest
 ```
-
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `bun install @tailwindcss/vite tailwindcss -D`
 
 ## Linting & Formatting
 
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
-
-
 ```bash
-bun --bun run lint
-bun --bun run format
-bun --bun run check
+bun run lint     # Biome lint
+bun run format   # Biome format
+bun run check    # Biome check (lint + format)
 ```
 
+## Import Aliases
 
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+This project uses the `#/` alias in `package.json` imports:
 
 ```tsx
-import { Link } from "@tanstack/react-router";
+import { cn } from "#/lib/utils";
+import { Button } from "#/components/ui/button";
 ```
 
-Then anywhere in your JSX you can use it like so:
+## Data Flow
 
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+1. Routes use TanStack Router **loaders** for critical data (credential details, CSRF tokens)
+2. Secondary data (type listings) uses **TanStack Query** with `useQuery`
+3. Mutations (create, update, delete) use **Route actions** with `FormData`
+4. Server-side validation errors are returned to TanStack Form's `onSubmitAsync`
