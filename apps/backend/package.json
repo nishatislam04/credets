@@ -5,9 +5,10 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"dev": "bun run --watch --no-clear-screen --console-depth 10 index.ts",
-		"start": "bun index.ts",
-		"type-check": "tsc --noEmit"
+"dev": "bun run --watch --no-clear-screen --console-depth 10 index.ts",
+"dev:staging": "bun --env-file=../.env.staging run --watch --no-clear-screen --console-depth 10 index.ts",
+"start": "bun index.ts",
+"type-check": "tsc --noEmit"
 	},
 	"dependencies": {
 		"date-fns": "^4.1.0",

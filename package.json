@@ -8,8 +8,9 @@
 	],
 	"scripts": {
 		"dev": "concurrently --names \"BACK,FRONT\" --prefix-colors \"green,pink\" \"bun run dev:backend\" \"bun run dev:frontend\"",
-		"dev:backend": "bun run --cwd apps/backend dev",
-		"dev:frontend": "bun run --cwd apps/frontend dev",
+"dev:backend": "bun run --cwd apps/backend dev",
+"dev:backend:staging": "bun run --cwd apps/backend dev:staging",
+"dev:frontend": "bun run --cwd apps/frontend dev",
 		"seed": "bun run apps/backend/db/seed.ts",
 		"sync-context": "bun run utils/sync-context.ts",
 		"sync-context:check": "bun run utils/sync-context.ts --check",
