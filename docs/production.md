@@ -4,8 +4,8 @@
 
 name=credets-backend
 root-dir=null
-build-command=bun install && cd apps/backend && bun run build
-start-command=cd apps/backend && bun dist/index.js
+build-command=bun install
+start-command=bun run --cwd apps/backend start
 health-check=/healthz
 
 ### backend env keys
@@ -27,7 +27,7 @@ NODE_ENV
 
 name=credets
 root-dir=null
-build-command=bun install && cd apps/frontend && bun run build
+build-command=bun install && bun run build:frontend
 publish-dir=apps/frontend/dist
 
 ### frontend env keys

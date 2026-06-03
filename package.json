@@ -13,7 +13,6 @@
 		"seed": "bun run apps/backend/db/seed.ts",
 		"sync-context": "bun run utils/sync-context.ts",
 		"sync-context:check": "bun run utils/sync-context.ts --check",
-		"build": "bun run build:frontend",
 		"build:frontend": "bun run --cwd apps/frontend build"
 	},
 	"devDependencies": {
