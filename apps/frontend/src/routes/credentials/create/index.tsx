@@ -171,9 +171,18 @@ function RouteComponent() {
 
 	return (
 		<main>
-			<p className="capitalize text-4xl text-center my-8 mb-18">
-				creadential create form
-			</p>
+			<div className="relative flex items-center justify-center my-8 mb-18">
+				<Link
+					to="/credentials"
+					className="absolute left-0 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors ml-4 md:ml-12"
+				>
+					<ArrowLeft className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5" />
+					Back to listings
+				</Link>
+				<p className="capitalize text-4xl text-center">
+					creadential create form
+				</p>
+			</div>
 
 			<Form
 				onSubmit={(e) => {

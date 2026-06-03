@@ -245,17 +245,17 @@ function RouteComponent() {
 
 	return (
 		<main>
-				{/* ── Back link ── */}
+			<div className="relative flex items-center justify-center my-8 mb-8">
 				<Link
 					to="/credentials/$credentialId"
 					params={{ credentialId: credential.id }}
-					className="group mb-6 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors ml-4 md:ml-12"
+					className="absolute left-0 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors ml-4 md:ml-12"
 				>
 					<ArrowLeft className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5" />
 					Back to credential
 				</Link>
-
-				<p className="capitalize text-4xl text-center my-8 mb-8">Update credential data</p>
+				<p className="capitalize text-4xl text-center">Update credential data</p>
+			</div>
 
 				<Form
 					onSubmit={(e) => {

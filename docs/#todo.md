@@ -59,7 +59,7 @@ after we delete a credential item, it redirect us back to listings, which is ok.
 
 ---
 
-## back button position consistent accross single page, create and edit form page
+## back button position consistent accross single page, create and edit form page[*]
 
 i want the back button postion consistent for single credential page, create page form, update page form. back button for the create and update page should be at the same line as the header. the header will be postioned at center and the back button should be at the left side. this postion concept should be similar for both create and edit page. back to listings from create page. back to single credential page from edit page
 
@@ -114,7 +114,7 @@ so, tell me everything about it. how can we set it up and do we need to add any 
 
 ---
 
-## normalize shadcn skills. so that any ai agents can pick it up and use it if necessary
+## normalize shadcn skills inside of frontend dir. so any ai agents can pick up and use it if necessary
 
 figure out a way to convert frontend shadcn skills to normlize. meaning any agents or ai will be able to pick it up and analyze it. because, when we install this skills, we chose windsurf profile. and we dont use windsurf ai agents plus we can use any kinds of ai agents. so we want to make sure, the skills are picked up, when needed. never ignored when the agents need to mess around with shadcn ui components
 
