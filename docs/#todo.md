@@ -53,7 +53,7 @@ after creating a credential, when we go back to listings page, we dont see the n
 
 ---
 
-## invalidate credential listings after deleting a credential item
+## invalidate credential listings after deleting a credential item[*]
 
 after we delete a credential item, it redirect us back to listings, which is ok. then in the listings, we still see the old item. while it should not be there. fix this issue.
 

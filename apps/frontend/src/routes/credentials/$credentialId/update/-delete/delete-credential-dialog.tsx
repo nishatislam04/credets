@@ -1,6 +1,6 @@
 import { AlertTriangle, LoaderIcon, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import {
 	AlertDialogClose,
 	AlertDialogDescription,
@@ -25,6 +25,7 @@ export function DeleteCredentialDialog({
 	csrfToken,
 }: DeleteCredentialDialogProps) {
 	const navigate = useNavigate();
+	const router = useRouter();
 	const [isDeleting, setIsDeleting] = useState(false);
 
 	const handleDelete = async () => {
@@ -43,6 +44,9 @@ export function DeleteCredentialDialog({
 				description: `"${credentialTitle}" has been deleted`,
 			});
 
+			// Invalidate cached route data so the listings page re-fetches
+			// instead of showing stale data (including the deleted item).
+			await router.invalidate();
 			navigate({ to: "/credentials" });
 		} catch (err) {
 			gooeyToast.error("Failed to delete", {
