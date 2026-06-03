@@ -12,6 +12,8 @@ WORKDIR /app
 # Changes to source code won't invalidate this layer.
 # ---------------------------------------------------------
 COPY package.json bun.lock ./
+COPY apps/*/package.json ./apps/
+COPY packages/*/package.json ./packages/
 
 # Copy workspace package.json files so Bun can resolve
 # workspace dependencies (@credets/*)
