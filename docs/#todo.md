@@ -71,7 +71,7 @@ we cant delete credential item, in production. when we try to delete a credentia
 
 ---
 
-## important logs should be rendered for the backend side in backend terminal
+## important logs should be rendered for the backend side in backend terminal[*]
 
 we update our logger function to not show unnecessary logs in backend (render) terminal. and it properly working. now the issue is, all kinds of logs are suppressed. which we cant afford to. there are important stuffs, we need to log always. i want you to scan all the codes in backend side and make sure important incidents like creating resources, updating resources, delete resources or any failed attempt should be consoled in the terminal. in other word, make sure these incidents or similar important incidents logs does not suppressed.
 

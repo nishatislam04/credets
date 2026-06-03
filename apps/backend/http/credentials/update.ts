@@ -1,4 +1,5 @@
 import { formatZodError } from "@backend/types/formatZodError";
+import { logAlways } from "@backend/utils/logger";
 import { processImage } from "@backend/utils/processImage";
 import { ResponseFactory } from "@backend/utils/response";
 import { credentialsUpdateSchema } from "@credets/shared-schema/credentials/update";
@@ -214,11 +215,15 @@ export async function credentialUpdate(req: BunRequest) {
 		}));
 
 		await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
-	}		return ResponseFactory.success({
-			data: {},
-			type: "resource-update",
-			message: "Credential updated successfully",
-			status: 200,
-			path: req,
-		});
+	}
+
+	logAlways(credentialId, "credential updated");
+
+	return ResponseFactory.success({
+		data: {},
+		type: "resource-update",
+		message: "Credential updated successfully",
+		status: 200,
+		path: req,
+	});
 }

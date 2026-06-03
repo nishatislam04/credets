@@ -1,5 +1,5 @@
 import type { BunRequest } from "bun";
-import { log } from "@backend/utils/logger";
+import { logAlways } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 
 const req = { url: "/get-csrf" } as BunRequest;
@@ -26,7 +26,7 @@ export async function generateCSRF() {
 			path: req,
 		});
 	} catch (error) {
-		log(error instanceof Error ? error.message : error, "generate csrf token");
+		logAlways(error instanceof Error ? error.message : error, "generate csrf token");
 		throw new Error("something went wrong while generating csrf token on server");
 	}
 }

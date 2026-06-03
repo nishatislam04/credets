@@ -1,5 +1,5 @@
 import type { BunRequest } from "bun";
-import { log } from "@backend/utils/logger";
+import { logAlways } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import { sql } from "../../db/connection";
 
@@ -67,6 +67,8 @@ export async function credentailDelete(req: Request) {
 		// Delete the credential (images will cascade due to ON DELETE CASCADE)
 		await sql`DELETE FROM credentials WHERE id = ${credentialId}`;
 
+		logAlways(existing[0].title, "credential deleted");
+
 		return ResponseFactory.success({
 			data: {},
 			message: `Credential "${existing[0].title}" has been deleted`,
@@ -75,7 +77,7 @@ export async function credentailDelete(req: Request) {
 			path: { url: req.url } as BunRequest,
 		});
 	} catch (error) {
-		log(error, "delete credential error");
+		logAlways(error, "delete credential error");
 		return ResponseFactory.error({
 			error: "Failed to delete credential",
 			message: "Failed to delete credential",

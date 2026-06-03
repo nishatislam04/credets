@@ -1,4 +1,5 @@
 import type { BunRequest } from "bun";
+import { logAlways } from "./utils/logger";
 import { credentialCreate } from "./http/credentials/create";
 import { credentialPage } from "./http/credentials/credential";
 import { credentailDelete } from "./http/credentials/delete";
@@ -46,6 +47,7 @@ Bun.serve({
 	error(error) {
 		const message =
 			error instanceof Error ? error.message : "Internal server error";
+		logAlways(error, "server error");
 		return new Response(message, {
 			status: 500,
 			headers: {
@@ -54,3 +56,8 @@ Bun.serve({
 		});
 	},
 });
+
+logAlways(
+	{ port: process.env.PORT || "8000", env: Bun.env.NODE_ENV || "development" },
+	"server started",
+);

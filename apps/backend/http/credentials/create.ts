@@ -1,4 +1,5 @@
 import { formatZodError } from "@backend/types/formatZodError";
+import { logAlways } from "@backend/utils/logger";
 import { processImage } from "@backend/utils/processImage";
 import { ResponseFactory } from "@backend/utils/response";
 import { credentialsCreateSchema } from "@credets/shared-schema/credentials/create";
@@ -131,7 +132,11 @@ export async function credentialCreate(req: BunRequest) {
 	});
 
 	if (validImages.length > 0)
-		await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;		return ResponseFactory.success({
+		await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
+
+	logAlways(validatedData.data.title, "credential created");
+
+	return ResponseFactory.success({
 		data: {},
 		type: "resource-create",
 		message: "A new credentials added",
