@@ -28,6 +28,8 @@ RUN bun install --frozen-lockfile
 # ---------------------------------------------------------
 # Layer 2: Copy source code (only what's needed at runtime)
 # ---------------------------------------------------------
+# tsconfig.json is required for @backend/* and @db/* path aliases
+COPY tsconfig.json ./
 COPY apps/backend apps/backend
 COPY packages packages
 
