@@ -187,9 +187,9 @@ body {
   /* keep original padding/color etc. from source */
 }
 
-/* 5. Timestamp: never squashed */
+/* 5. Timestamp: hidden entirely (not just squashed) */
 .gooey-contentExpanded .gooey-timestamp {
-  flex-shrink: 0;
+  display: none;
 }
 
 /* 6. Description container: relative for divider pseudo-element */
