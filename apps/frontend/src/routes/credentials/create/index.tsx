@@ -2,8 +2,8 @@ import { credentialsCreateSchema } from "@credets/shared-schema/credentials/crea
 import type { CredentialCreateType } from "@credets/shared-types/credentials/create";
 import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
-import { LoaderIcon, X } from "lucide-react";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { ArrowLeft, LoaderIcon, X } from "lucide-react";
 import { useState } from "react";
 import {
 	Field,
@@ -41,6 +41,38 @@ import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-prev
 
 export const Route = createFileRoute("/credentials/create/")({
 	component: RouteComponent,
+	loader: async () => {
+		const res = await getCSRFtoken();
+		return res.data.token;
+	},
+	pendingComponent: () => (
+		<Item>
+			<ItemMedia variant="icon">
+				<LoaderIcon />
+			</ItemMedia>
+			<ItemContent>
+				<ItemTitle>Preparing form...</ItemTitle>
+			</ItemContent>
+		</Item>
+	),
+	errorComponent: ({ error }) => (
+		<div className="mx-auto w-full max-w-3xl px-4 py-24 text-center">
+			<div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-full bg-destructive/10">
+				<span className="text-2xl text-destructive">!</span>
+			</div>
+			<h2 className="mb-2 text-lg font-semibold">Failed to load form</h2>
+			<p className="mb-6 text-sm text-muted-foreground">
+				{error?.message || "Something went wrong. Please try again later."}
+			</p>
+			<Link
+				to="/credentials"
+				className="inline-flex items-center gap-1.5 text-sm font-medium text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
+			>
+				<ArrowLeft className="size-3.5" />
+				Back to credentials
+			</Link>
+		</div>
+	),
 });
 
 const defaultCredentialValues = (csrfToken: string): CredentialCreateType => ({
@@ -57,19 +89,7 @@ const defaultCredentialValues = (csrfToken: string): CredentialCreateType => ({
 });
 
 function RouteComponent() {
-	const { data: csrfToken, isLoading: csrfTokenLoading } = useQuery({
-		queryKey: ["_csrf"],
-		queryFn: async () => {
-			try {
-				const res = await getCSRFtoken();
-				return res.data.token;
-			} catch (error) {
-				gooeyToast.error(
-					error instanceof Error ? error.message : "failed to fetch csrf token",
-				);
-			}
-		},
-	});
+	const csrfToken = Route.useLoaderData() as string;
 
 	const { data: typesListings, isLoading: isTypesListingsLoading } = useQuery({
 		queryKey: ["types_listings"],
@@ -148,18 +168,6 @@ function RouteComponent() {
 			});
 		},
 	});
-
-	if (csrfTokenLoading)
-		return (
-			<Item>
-				<ItemMedia variant="icon">
-					<LoaderIcon />
-				</ItemMedia>
-				<ItemContent>
-					<ItemTitle>fetching csrf token. please wait a moment</ItemTitle>
-				</ItemContent>
-			</Item>
-		);
 
 	return (
 		<main>

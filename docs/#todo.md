@@ -59,7 +59,7 @@ after we delete a credential item, it redirect us back to listings, which is ok.
 
 ---
 
-## back button position consistent
+## back button position consistent accross single page, create and edit form page
 
 i want the back button postion consistent for single credential page, create page form, update page form. back button for the create and update page should be at the same line as the header. the header will be postioned at center and the back button should be at the left side. this postion concept should be similar for both create and edit page. back to listings from create page. back to single credential page from edit page
 
@@ -77,7 +77,7 @@ we update our logger function to not show unnecessary logs in backend (render) t
 
 ---
 
-## discard usequery approach, anywhere it is used
+## discard usequery approach for form pages[*]
 
 we used usequery to fetch data in frontend multiple places. like create form page, csrf fetching, typeslistings fetching. while, i think, we can keep typeslistings fetching inside of usequery because, it is needed later (after page render) but we should move the csrf fetching inside of tanstack router loader func. since this is important for the form. and show loading state and error state. so move csrf fetching logics to loader function for both create, edit form.
 

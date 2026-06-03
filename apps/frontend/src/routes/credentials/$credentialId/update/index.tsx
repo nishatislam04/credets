@@ -6,8 +6,8 @@ import type {
 import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
-import { ArrowLeft, LoaderIcon, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, X } from "lucide-react";
+import { useState } from "react";
 import {
 	Field,
 	FieldContent,
@@ -78,8 +78,11 @@ function normalizeDataForEdit(data: Record<string, unknown> | DataBlockEntry[]):
 export const Route = createFileRoute("/credentials/$credentialId/update/")({
 	component: RouteComponent,
 	loader: async ({ params }) => {
-		const credential = await getCredentialUpdate(params.credentialId);
-		return credential;
+		const [credential, csrfRes] = await Promise.all([
+			getCredentialUpdate(params.credentialId),
+			getCSRFtoken(),
+		]);
+		return { credential, csrfToken: csrfRes.data.token };
 	},
 	pendingComponent: () => (
 		<div className="mx-auto w-full max-w-3xl px-4 py-10">
@@ -119,23 +122,12 @@ export const Route = createFileRoute("/credentials/$credentialId/update/")({
 // ── Component ───────────────────────────────────────────────────────
 
 function RouteComponent() {
-	const credential = Route.useLoaderData() as CredentialDetail;
+	const data = Route.useLoaderData() as { credential: CredentialDetail; csrfToken: string };
+	const credential = data.credential;
+	const csrfToken = data.csrfToken;
 	const navigate = useNavigate();
 	const router = useRouter();
 	const queryClient = useQueryClient();
-
-	// ── CSRF token ──
-	const { data: csrfToken, isLoading: csrfTokenLoading } = useQuery({
-		queryKey: ["_csrf", "update", credential.id],
-		queryFn: async () => {
-			try {
-				const res = await getCSRFtoken();
-				return res.data.token;
-			} catch (error) {
-				gooeyToast.error(error instanceof Error ? error.message : "failed to fetch csrf token");
-			}
-		},
-	});
 
 	// ── Types listings ──
 	const { data: typesListings, isLoading: isTypesListingsLoading } = useQuery({
@@ -250,26 +242,6 @@ function RouteComponent() {
 			);
 		},
 	});
-
-	// Update CSRF token when it loads
-	useEffect(() => {
-		if (csrfToken) {
-			form.setFieldValue("_csrf", csrfToken);
-		}
-	}, [csrfToken, form]);
-
-	if (csrfTokenLoading) {
-		return (
-			<Item>
-				<ItemMedia variant="icon">
-					<LoaderIcon />
-				</ItemMedia>
-				<ItemContent>
-					<ItemTitle>fetching csrf token. please wait a moment</ItemTitle>
-				</ItemContent>
-			</Item>
-		);
-	}
 
 	return (
 		<main>
