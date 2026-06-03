@@ -1,5 +1,3 @@
-import { metadata, resize, toWebp } from "imgkit";
-
 type ProcessImageType = {
 	file: File | null | undefined;
 	resizeInWidth: number;
@@ -7,21 +5,24 @@ type ProcessImageType = {
 };
 
 /**
- * TODO: OPTIMIZE LATER
- * for now we keep this as simple as props
- * later we will add profile (thumbnail or images)
- * then additonal optioal options support when invoking
+ * Resizes an image to fit within `resizeInWidth` (maintaining aspect ratio)
+ * and converts it to WebP format.
+ *
+ * Uses Bun's built-in Image API (statically linked codecs for JPEG, PNG, WebP,
+ * GIF, BMP — identical output across platforms).
  */
 export async function processImage({
 	file,
 	resizeInWidth,
 	outputQuality,
 }: ProcessImageType) {
-	if (!file || file === undefined) return null;
+	if (!file) return null;
 
-	const inputBuffer = Buffer.from(await file.arrayBuffer());
-	const info = await metadata(inputBuffer);
-	const { width: originalW, height: originalH } = info;
+	const inputBuffer = await file.arrayBuffer();
+
+	// Get original dimensions
+	const meta = await new Bun.Image(inputBuffer).metadata();
+	const { width: originalW, height: originalH } = meta;
 
 	let newWidth = originalW;
 	let newHeight = originalH;
@@ -33,21 +34,22 @@ export async function processImage({
 		newHeight = Math.round(originalH * scale);
 	}
 
-	// Resize if needed
-	let resizedBuffer = inputBuffer;
+	// Build processing pipeline
+	let pipeline = new Bun.Image(inputBuffer);
+
+	// Resize only if needed
 	if (newWidth !== originalW || newHeight !== originalH) {
-		resizedBuffer = await resize(inputBuffer, {
-			width: newWidth,
+		pipeline = pipeline.resize(newWidth, undefined, {
 			fit: "inside",
 		});
 	}
 
-	// Convert to WebP
-	const webpBuffer = await toWebp(resizedBuffer, { quality: outputQuality });
+	// Convert to WebP and get output bytes
+	const webpBuffer = await pipeline.webp({ quality: outputQuality }).bytes();
 
 	return {
 		buffer: webpBuffer,
-		format: "webp",
+		format: "webp" as const,
 		width: newWidth,
 		height: newHeight,
 		byteSize: webpBuffer.byteLength,

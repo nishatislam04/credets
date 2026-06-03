@@ -33,12 +33,11 @@ COPY packages packages
 
 # ============================================================
 # Runner Stage
-# Uses slim variant — Debian-based (glibc) for compatibility
-# with imgkit-linux-x64-gnu, but much smaller than full Debian.
-# ~63 MB vs ~82 MB (full debian) or ~40 MB (alpine/distroless,
-# which don't support glibc binaries).
+# Uses Alpine variant — statically linked codecs in Bun.Image
+# mean no shared library dependencies needed for image processing.
+# ~40 MB — the smallest variant with full Bun API support.
 # ============================================================
-FROM oven/bun:1.3.14-slim AS runner
+FROM oven/bun:1.3.14-alpine AS runner
 
 WORKDIR /app
 

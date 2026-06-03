@@ -89,7 +89,7 @@ i want you to extract credential delete logic into new component and import it i
 
 ---
 
-## create a dockerfile only now
+## create a dockerfile only now[*]
 
 in our render production, they have bun version max support 1.3.4. but we need this bun version 1.3.14. so, we are planning to create a dockerfile and have the max latest bun version there. and choose docker in render. we hope that, it will works.
 i need bun builin image processing. so, i am not sure, which bun varient to go with.
@@ -123,6 +123,15 @@ figure out a way to convert frontend shadcn skills to normlize. meaning any agen
 ## production lazy loading fixing
 
 currently in render free tier, we are facing cold starts. is there any way fix this issue? like tanstack cache or anyhow? when we hit the credentials listings, i see loading skeletons for a long time... so, i was wondering, can we do some work around. like in production, all of our credentials will be highly static. unless we want to update something or delete any. you know, credentials are supposed to be static. since, there is a cold start issue, i was thinking, with the stacks we are using, can we fix this issue anyhow. i want you to detials research about this issue based on our stacks & setup
+
+---
+
+## swap imgkit pkg with bun.image api[*]
+
+we initially had bun to process our images at create backend endpoint. then we saw that, render platform does not support latest bun. so, img processing does not works too. 
+and now that, we have docker with latest bun version. i think render will be able to use our docker bun version to process the images
+so, i want you to swap out imgkit usage in backend. and search bun docs for bun image api usage. and implement the bun image api
+and remove imgkit and its gnu entry
 
 ---
 

@@ -1,35 +1,36 @@
-# Git
+# ── Version control ──
 .git
 .gitignore
 
-# Environment files
+# ── Environment & secrets ──
 .env
 .env.*
-.env.local
-.env.production*
 
-# Dependencies (already installed via Docker)
+# ── Dependencies ──
+# Already installed inside the Docker image via bun install
 node_modules
 
-# OS files
+# ── OS artifacts ──
 .DS_Store
 Thumbs.db
 
-# Documentation (not needed in the image)
+# ── Documentation ──
+# Not needed at runtime
 *.md
-README.md
 docs/
 
-# Agent/IDE configs (not needed)
+# ── Agent/IDE configs ──
 .agents/
 .cta.json
 
-# Frontend source (not needed in this Dockerfile — these still bloat the
-# build context if not excluded)
+# ── Frontend source (not needed in this Dockerfile) ──
+# These aren't copied by the Dockerfile, but excluding them from the build
+# context reduces the payload sent to the Docker daemon, speeding up builds.
 apps/frontend/node_modules
 apps/frontend/dist
 apps/frontend/src/
 apps/frontend/public/
+apps/frontend/.env
 apps/frontend/index.html
 apps/frontend/vite.config.ts
 apps/frontend/tsconfig.json
