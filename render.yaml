@@ -10,12 +10,10 @@
 #   4. On every push to `dev`, Render rebuilds + deploys
 #
 # ── Env vars note ───────────────────────────────
-# Secrets (ENC_KEY, CSRF_SECRET_KEY) are NOT stored
-# in this file. After Render creates the service,
-# go to Dashboard > Environment and paste them in.
-# Render treats any env var without a `value` field
-# as "manual input required" — it will warn you before
-# the first deploy.
+# Secrets (ENC_KEY, CSRF_SECRET_KEY) have placeholder
+# values below. Replace them with your real values
+# BEFORE the first deploy, or update them in the
+# Render Dashboard after sync.
 
 services:
   # ── Backend web service (Docker) ──────────────
@@ -34,8 +32,6 @@ services:
     dockerfilePath: apps/backend/Dockerfile
     # Build context is the repo root (Dockerfile copies bun.lock, package.json etc.)
     dockerContext: .
-    # Explicit start command (same as Dockerfile's CMD, shown here for clarity)
-    startCommand: bun run apps/backend/index.ts
 
     # ── Health check ────────────────────────────
     # Render's load balancer pings this before routing traffic.
@@ -70,11 +66,11 @@ services:
     envVars:
       # ── Database ──────────────────────────────
       - key: DB_HOST
-        value: ep-xxx.us-east-2.aws.neon.tech # ← REPLACE with your Neon host
+        value: ep-shiny-mode-aolabxv6-pooler.c-2.ap-southeast-1.aws.neon.tech # ← REPLACE with your Neon host
       - key: DB_PORT
         value: "5432"
       - key: DB_USER
-        value: nishat # ← REPLACE with your Neon user
+        value: neondb_owner # ← REPLACE with your Neon user
       - key: DB_PASSWORD
         # ⚠️ Replace with your actual Neon password.
         # Written here for blueprint sync; after sync, Render encrypts it at rest.
@@ -85,10 +81,14 @@ services:
         value: "true"
 
       # ── Encryption ────────────────────────────
-      # Paste these in Render Dashboard after the service is created.
+      # ⚠️ IMPORTANT: Replace these with your actual values!
       # Generate with: openssl rand -hex 32
-      - key: ENC_KEY # ← Paste in Dashboard (secret!)
-      - key: CSRF_SECRET_KEY # ← Paste in Dashboard (secret!)
+      # These must match what you've already used (existing encrypted data won't
+      # decrypt if you change ENC_KEY).
+      - key: ENC_KEY
+        value: change-me-to-your-real-enc-key
+      - key: CSRF_SECRET_KEY
+        value: change-me-to-your-real-csrf-secret
 
       # ── CORS ──────────────────────────────────
       # Frontend origin that's allowed to call the backend
