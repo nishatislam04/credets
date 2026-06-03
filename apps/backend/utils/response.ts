@@ -29,6 +29,49 @@ export class ResponseFactory {
 		};
 	}
 	/**
+	 * Return a 204 No Content response with CORS headers for preflight
+	 * (OPTIONS) requests.
+	 *
+	 * Browsers send an OPTIONS preflight before non-simple requests
+	 * (e.g. DELETE, or POST/PUT with Content-Type: application/json).
+	 * This method short-circuits those preflights with the correct CORS
+	 * headers so the actual request is allowed through.
+	 *
+	 * ── Usage ─────────────────────────────────────────────────────
+	 *
+	 * At the top of any route handler that could receive a preflight:
+	 *
+	 * ```ts
+	 * export async function myHandler(req: Request) {
+	 *   // Short-circuit preflight before any logic
+	 *   if (req.method === "OPTIONS") {
+	 *     return ResponseFactory.preflight();
+	 *   }
+	 *
+	 *   // … rest of your handler
+	 * }
+	 * ```
+	 *
+	 * When to use:
+	 *   - Any endpoint the frontend calls with DELETE, PUT, or
+	 *     POST + application/json (non-form/non-plain Content-Type)
+	 *   - Basically, if fetch() sets a "Content-Type" header that
+	 *     isn't formdata/text, the browser will preflight
+	 *
+	 * Why ResponseFactory.preflight() instead of writing headers inline:
+	 *   - Single source of truth — change CORS config in one place
+	 *   - Access-Control-Max-Age is set (86400s) so browsers cache
+	 *     the preflight result for 24h, saving round-trips
+	 *
+	 * @returns {Response} 204 No Content with CORS headers
+	 */
+	static preflight(): Response {
+		const headers = ResponseFactory.getCorsHeaders();
+		headers["Access-Control-Max-Age"] = "86400";
+		return new Response(null, { status: 204, headers });
+	}
+
+	/**
 	 * success response api
 	 *
 	 * usage: ResponseFactory.success({

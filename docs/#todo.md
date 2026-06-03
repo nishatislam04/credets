@@ -65,7 +65,7 @@ i want the back button postion consistent for single credential page, create pag
 
 ---
 
-## fix credential delete issue by fixing the CORS error
+## fix credential delete issue by fixing the CORS error[*]
 
 we cant delete credential item, in production. when we try to delete a credential item, i see CORS issue. please fix the cors issue
 

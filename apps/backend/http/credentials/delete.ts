@@ -4,6 +4,12 @@ import { ResponseFactory } from "@backend/utils/response";
 import { sql } from "../../db/connection";
 
 export async function credentailDelete(req: Request) {
+	// Handle CORS preflight — browser sends OPTIONS before DELETE
+	// with Content-Type: application/json.
+	if (req.method === "OPTIONS") {
+		return ResponseFactory.preflight();
+	}
+
 	try {
 		// Extract credentialId from the URL path: /credentials/:credentialId/delete
 		const url = new URL(req.url);
