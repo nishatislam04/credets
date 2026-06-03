@@ -105,16 +105,16 @@ i want you to create the dockerfile for our backend part only. and design it bas
 ## introduce a new database for our credential_images bin data
 
 currently, we have a free tier of neon database. we store everything there. and we use bunjs sql client to communicate with that neondb in production. we have users, session, types, credentials, credential_images table in neon db.
-i was planning to introduce a new database solely for our `credential_images` in production. so that means, in local, we will use single database to store all models. 
-and we will use at least 2 databases. one for everything except credential_images and another one is for credential_images only. based on bunjs connection.ts file.
-can we do that? and if we do that, what issues may arise?
-should we separate the db like single for local development and 2 for production? it will complicate setup more? or we should also create 2 db locally, which may ease setup?
-if we can accomplish that, we can transform our images more high quality. and lazy image loading (deferred)
+i was planning to introduce a new database solely for our `credential_images` in production. so that means, in local, we will use single database to store all models.
+and we will use at least 2 databases in production. one for everything except credential_images and another one is for credential_images only.
+can we do that? and if we do that, what issues may arise? and how complex it would be
+should we separate the db like single for local development and 2 for production? it will complicate setup more? or we should also create 2 db locally too? which may ease setup?
+if we can accomplish that, we can transform our images more high quality. and lazy credential images loading (deferred)
 so, tell me everything about it. how can we set it up and do we need to add any extra layers for this. everything in details with coding explanation. so that i can understand how it may works and what we need to do
 
 ---
 
-## normalize shadcn skills inside of frontend dir. so any ai agents can pick up and use it if necessary
+## normalize shadcn skills inside of frontend dir. so any ai agents can pick up and use it if necessary[*]
 
 figure out a way to convert frontend shadcn skills to normlize. meaning any agents or ai will be able to pick it up and analyze it. because, when we install this skills, we chose windsurf profile. and we dont use windsurf ai agents plus we can use any kinds of ai agents. so we want to make sure, the skills are picked up, when needed. never ignored when the agents need to mess around with shadcn ui components
 
