@@ -1,4 +1,5 @@
-import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { LoaderIcon, Plus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "#/components/theme-toggle";
@@ -8,54 +9,44 @@ import { getCredentialsListings } from "./-actions/getCredentialsListings";
 import { CredentialCard } from "./-components/credential-card";
 
 export const Route = createFileRoute("/credentials/")({
+	gcTime: 0,
 	component: RouteComponent,
-	loader: async () => getCredentialsListings(),
-	pendingComponent: () => (
-		<div className="mx-auto w-full max-w-3xl px-4 py-8">
-			<div className="mb-8">
-				<Skeleton className="h-8 w-48 rounded-lg" />
-				<Skeleton className="h-4 w-72 mt-2 rounded-lg" />
-			</div>
-
-			<div className="space-y-3">
-				{Array.from({ length: 8 }).map((_) => (
-					<div key={crypto.randomUUID()} className="flex items-center gap-4 rounded-xl border p-4">
-						<Skeleton className="size-12 shrink-0 rounded-full" />
-						<div className="min-w-0 grow space-y-2">
-							<Skeleton className="h-5 w-2/3 rounded-lg" />
-							<Skeleton className="h-3 w-full rounded-lg" />
-							<div className="flex gap-2">
-								<Skeleton className="h-3 w-16 rounded-full" />
-								<Skeleton className="h-3 w-20 rounded-full" />
-							</div>
-						</div>
-					</div>
-				))}
-			</div>
-		</div>
-	),
-	errorComponent: ({ error }) => (
-		<div className="mx-auto w-full max-w-3xl px-4 py-16 text-center">
-			<div className="size-16 mx-auto mb-4 rounded-full bg-destructive/10 flex items-center justify-center">
-				<span className="text-2xl">!</span>
-			</div>
-			<h2 className="text-lg font-semibold mb-2">Failed to load credentials</h2>
-			<p className="text-sm text-muted-foreground">
-				{error?.message || "Something went wrong. Please try again later."}
-			</p>
-		</div>
-	),
 });
 
 function RouteComponent() {
-	const loaderData = useLoaderData({ from: "/credentials/" });
+	// Fetch first page with TanStack Query — guaranteed fresh on every navigation
+	// because gcTime: 0 garbage-collects the query immediately on unmount,
+	// and staleTime: 0 always re-fetches on mount.
+	const {
+		data: firstPage,
+		isLoading,
+		error,
+	} = useQuery({
+		queryKey: ["credentials-listings"],
+		queryFn: () => getCredentialsListings(),
+		staleTime: 0,
+		gcTime: 0,
+	});
 
-	// Accumulate credentials across pages
-	const [credentials, setCredentials] = useState<CredentialListItem[]>(loaderData.credentials);
-	const [nextCursor, setNextCursor] = useState<string | null>(loaderData.nextCursor);
-	const [hasMore, setHasMore] = useState(loaderData.hasMore);
+	// Local accumulator for "load more" items (not dependant on query cache)
+	const [moreItems, setMoreItems] = useState<CredentialListItem[]>([]);
+	// Keep track of the next cursor for the locally accumulated items
+	const [moreCursor, setMoreCursor] = useState<string | null>(null);
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
-	const [loadError, setLoadError] = useState<string | null>(null);
+	const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
+
+	// When firstPage changes (fresh load), reset the local accumulator
+	useEffect(() => {
+		setMoreItems([]);
+		setMoreCursor(null);
+		setIsLoadingMore(false);
+		setLoadMoreError(null);
+	}, [firstPage]);
+
+	// Combine fresh first-page data with locally accumulated items
+	const credentials = [...(firstPage?.credentials ?? []), ...moreItems];
+	const hasMore = firstPage?.hasMore ?? false;
+	const initialCursor = firstPage?.nextCursor ?? null;
 
 	// Ref to prevent duplicate fetches while one is in flight
 	const loadingRef = useRef(false);
@@ -63,28 +54,29 @@ function RouteComponent() {
 	const observerRef = useRef<IntersectionObserver | null>(null);
 
 	const loadMore = useCallback(async () => {
-		if (loadingRef.current || !nextCursor) return;
+		const cursor = moreCursor ?? initialCursor;
+		if (loadingRef.current || !cursor) return;
 		loadingRef.current = true;
 		setIsLoadingMore(true);
-		setLoadError(null);
+		setLoadMoreError(null);
 
 		try {
-			const data = await getCredentialsListings(nextCursor);
-			setCredentials((prev) => [...prev, ...data.credentials]);
-			setNextCursor(data.nextCursor);
-			setHasMore(data.hasMore);
+			const data = await getCredentialsListings(cursor);
+			setMoreItems((prev) => [...prev, ...data.credentials]);
+			setMoreCursor(data.nextCursor);
 		} catch (err) {
-			setLoadError(err instanceof Error ? err.message : "Failed to load more credentials");
+			setLoadMoreError(
+				err instanceof Error ? err.message : "Failed to load more credentials",
+			);
 		} finally {
 			loadingRef.current = false;
 			setIsLoadingMore(false);
 		}
-	}, [nextCursor]);
+	}, [moreCursor, initialCursor]);
 
 	// Set up the IntersectionObserver on the sentinel
 	const sentinelCallback = useCallback(
 		(node: HTMLDivElement | null) => {
-			// Disconnect the previous observer before creating a new one
 			if (observerRef.current) {
 				observerRef.current.disconnect();
 				observerRef.current = null;
@@ -117,6 +109,25 @@ function RouteComponent() {
 		};
 	}, []);
 
+	if (isLoading) {
+		return (
+			<div className="mx-auto w-full max-w-3xl px-4 py-8">
+				<div className="mb-8 flex items-start justify-between">
+					<div>
+						<Skeleton className="h-8 w-40 mb-2" />
+						<Skeleton className="h-4 w-64" />
+					</div>
+					<Skeleton className="h-10 w-24 rounded-lg" />
+				</div>
+				<div className="space-y-3">
+					{[...Array(4)].map((_, i) => (
+						<Skeleton key={i} className="h-24 w-full rounded-xl" />
+					))}
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="mx-auto w-full max-w-3xl px-4 py-8">
 			{/* Page header */}
@@ -139,8 +150,17 @@ function RouteComponent() {
 				</Link>
 			</div>
 
-			{/* Credentials list */}
-			{credentials.length === 0 ? (
+			{/* Error state */}
+			{error && (
+				<div className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-8 text-center">
+					<p className="text-sm text-destructive/80 mb-2">
+						{error instanceof Error ? error.message : "Failed to load credentials"}
+					</p>
+				</div>
+			)}
+
+			{/* Empty state */}
+			{!error && credentials.length === 0 && (
 				<div className="text-center py-24">
 					<div className="size-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
 						<span className="text-2xl text-muted-foreground/40">~</span>
@@ -150,47 +170,54 @@ function RouteComponent() {
 						Create your first credential to get started
 					</p>
 				</div>
-			) : (
-				<div className="space-y-3">
-					{credentials.map((cred) => (
-						<CredentialCard key={cred.id} credential={cred} />
-					))}
-				</div>
 			)}
 
-			{/* Sentinel — observed by IntersectionObserver for infinite scroll */}
-			{hasMore && credentials.length > 0 && (
-				<div ref={sentinelCallback} className="flex justify-center py-8">
-					{isLoadingMore ? (
-						<div className="flex items-center gap-2 text-sm text-muted-foreground/60">
-							<LoaderIcon className="size-4 animate-spin" />
-							<span>Loading more...</span>
+			{/* Credentials list */}
+			{!error && credentials.length > 0 && (
+				<>
+					<div className="space-y-3">
+						{credentials.map((cred) => (
+							<CredentialCard key={cred.id} credential={cred} />
+						))}
+					</div>
+
+					{/* Infinite scroll sentinel */}
+					{hasMore && (
+						<div ref={sentinelCallback} className="flex justify-center py-8">
+							{isLoadingMore ? (
+								<div className="flex items-center gap-2 text-sm text-muted-foreground/60">
+									<LoaderIcon className="size-4 animate-spin" />
+									<span>Loading more...</span>
+								</div>
+							) : (
+								<div className="size-4" />
+							)}
 						</div>
-					) : (
-						<div className="size-4" />
 					)}
-				</div>
-			)}
 
-			{/* Load error */}
-			{loadError && (
-				<div className="text-center py-6">
-					<p className="text-sm text-destructive/80 mb-2">{loadError}</p>
-					<button
-						type="button"
-						onClick={() => loadMore()}
-						className="text-xs text-muted-foreground underline hover:text-foreground transition-colors cursor-pointer"
-					>
-						Try again
-					</button>
-				</div>
-			)}
+					{/* Load more error */}
+					{loadMoreError && (
+						<div className="text-center py-6">
+							<p className="text-sm text-destructive/80 mb-2">{loadMoreError}</p>
+							<button
+								type="button"
+								onClick={() => loadMore()}
+								className="text-xs text-muted-foreground underline hover:text-foreground transition-colors cursor-pointer"
+							>
+								Try again
+							</button>
+						</div>
+					)}
 
-			{/* End of results */}
-			{!hasMore && credentials.length > 0 && (
-				<div className="text-center py-8">
-					<p className="text-xs text-muted-foreground/40">You've reached the end</p>
-				</div>
+					{/* End of results */}
+					{!hasMore && (
+						<div className="text-center py-8">
+							<p className="text-xs text-muted-foreground/40">
+								You&rsquo;ve reached the end
+							</p>
+						</div>
+					)}
+				</>
 			)}
 		</div>
 	);

@@ -4,7 +4,7 @@ import type {
 	DataBlockEntry,
 } from "@credets/shared-types/credentials/listings";
 import { useForm } from "@tanstack/react-form";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, LoaderIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -122,6 +122,7 @@ function RouteComponent() {
 	const credential = Route.useLoaderData() as CredentialDetail;
 	const navigate = useNavigate();
 	const router = useRouter();
+	const queryClient = useQueryClient();
 
 	// ── CSRF token ──
 	const { data: csrfToken, isLoading: csrfTokenLoading } = useQuery({
@@ -236,6 +237,7 @@ function RouteComponent() {
 						success: {
 							label: "view credential",
 							onClick: async () => {
+								queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
 								await router.invalidate();
 								navigate({
 									to: "/credentials/$credentialId",

@@ -1,7 +1,7 @@
 import { credentialsCreateSchema } from "@credets/shared-schema/credentials/create";
 import type { CredentialCreateType } from "@credets/shared-types/credentials/create";
 import { useForm } from "@tanstack/react-form";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { LoaderIcon, X } from "lucide-react";
 import { useState } from "react";
@@ -87,6 +87,7 @@ function RouteComponent() {
 
 	const navigate = useNavigate();
 	const router = useRouter();
+	const queryClient = useQueryClient();
 	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
 	const form = useForm({
@@ -136,6 +137,7 @@ function RouteComponent() {
 					success: {
 						label: "go back to listings",
 					onClick: async () => {
+						queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
 						await router.invalidate();
 						navigate({
 							to: "..",
