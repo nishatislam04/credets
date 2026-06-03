@@ -47,7 +47,7 @@ update my single view credential page `data-block` ui component looks so that, i
 
 ---
 
-## invalidate credential listings after create a new credential 
+## invalidate credential listings after create a new credential
 
 after creating a credential, when we go back to listings page, we dont see the newly created item. to see the new credential item, we need to refresh the page. but that was not how it was supposed to work. maybe the listings were cached or something else. just make sure, after creating a new credential, when we navigate back to listings, we will be able to see new credential item in the top as it was supposed to.
 
@@ -57,7 +57,7 @@ after creating a credential, when we go back to listings page, we dont see the n
 
 after we delete a credential item, it redirect us back to listings, which is ok. then in the listings, we still see the old item. while it should not be there. fix this issue.
 
-----
+---
 
 ## back button position consistent
 
@@ -89,7 +89,7 @@ i want you to extract credential delete logic into new component and import it i
 
 ---
 
-## create a dockerfile
+## create a dockerfile only now
 
 in our render production, they have bun version max support 1.3.4. but we need this bun version 1.3.14. so, we are planning to create a dockerfile and have the max latest bun version there. and choose docker in render. we hope that, it will works.
 i need bun builin image processing. so, i am not sure, which bun varient to go with.
@@ -102,18 +102,14 @@ i want you to create the dockerfile for our backend part only. and design it bas
 
 ---
 
-update build and start command. we will serve our raw files. not the compiled js single file. which will fix imgkit gnu packages removing and importing html files in index.ts in backend (myb)
-
----
-
-# introduce a new database for our credential_images bin data.
+## introduce a new database for our credential_images bin data
 
 currently, we have a free tier of neon database. we store everything there. and we use bunjs sql client to communicate with that neondb in production. we have users, session, types, credentials, credential_images table in neon db.
 i was planning to introduce a new database solely for our `credential_images` in production. so that means, in local, we will use single database to store all models. 
 and we will use at least 2 databases. one for everything except credential_images and another one is for credential_images only. based on bunjs connection.ts file.
 can we do that? and if we do that, what issues may arise?
 should we separate the db like single for local development and 2 for production? it will complicate setup more? or we should also create 2 db locally, which may ease setup?
-if we can accomplish that, we can transform our images more high quality. and lazy image loading (deferred) 
+if we can accomplish that, we can transform our images more high quality. and lazy image loading (deferred)
 so, tell me everything about it. how can we set it up and do we need to add any extra layers for this. everything in details with coding explanation. so that i can understand how it may works and what we need to do
 
 ---
@@ -122,7 +118,7 @@ so, tell me everything about it. how can we set it up and do we need to add any 
 
 figure out a way to convert frontend shadcn skills to normlize. meaning any agents or ai will be able to pick it up and analyze it. because, when we install this skills, we chose windsurf profile. and we dont use windsurf ai agents plus we can use any kinds of ai agents. so we want to make sure, the skills are picked up, when needed. never ignored when the agents need to mess around with shadcn ui components
 
-----
+---
 
 ## production lazy loading fixing
 

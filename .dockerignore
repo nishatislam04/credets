@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.production*
+
+# Dependencies (already installed via Docker)
+node_modules
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation (not needed in the image)
+*.md
+README.md
+docs/
+
+# Agent/IDE configs (not needed)
+.agents/
+.cta.json
+
+# Frontend source (not needed in this Dockerfile — these still bloat the
+# build context if not excluded)
+apps/frontend/node_modules
+apps/frontend/dist
+apps/frontend/src/
+apps/frontend/public/
+apps/frontend/index.html
+apps/frontend/vite.config.ts
+apps/frontend/tsconfig.json
+apps/frontend/components.json
+apps/frontend/biome.json
+apps/frontend/skills-lock.json
+apps/frontend/.agents/
+apps/frontend/.cta.json
