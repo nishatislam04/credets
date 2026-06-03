@@ -5,7 +5,7 @@ import type {
 } from "@credets/shared-types/credentials/listings";
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, LoaderIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -121,6 +121,7 @@ export const Route = createFileRoute("/credentials/$credentialId/update/")({
 function RouteComponent() {
 	const credential = Route.useLoaderData() as CredentialDetail;
 	const navigate = useNavigate();
+	const router = useRouter();
 
 	// ── CSRF token ──
 	const { data: csrfToken, isLoading: csrfTokenLoading } = useQuery({
@@ -234,11 +235,13 @@ function RouteComponent() {
 					action: {
 						success: {
 							label: "view credential",
-							onClick: () =>
+							onClick: async () => {
+								await router.invalidate();
 								navigate({
 									to: "/credentials/$credentialId",
 									params: { credentialId: credential.id },
-								}),
+								});
+							},
 						},
 					},
 				},

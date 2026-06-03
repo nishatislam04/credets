@@ -2,7 +2,7 @@ import { credentialsCreateSchema } from "@credets/shared-schema/credentials/crea
 import type { CredentialCreateType } from "@credets/shared-types/credentials/create";
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { LoaderIcon, X } from "lucide-react";
 import { useState } from "react";
 import {
@@ -86,6 +86,7 @@ function RouteComponent() {
 	});
 
 	const navigate = useNavigate();
+	const router = useRouter();
 	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
 	const form = useForm({
@@ -134,10 +135,12 @@ function RouteComponent() {
 				action: {
 					success: {
 						label: "go back to listings",
-						onClick: () =>
-							navigate({
-								to: "..",
-							}),
+					onClick: async () => {
+						await router.invalidate();
+						navigate({
+							to: "..",
+						});
+					},
 					},
 				},
 			});
