@@ -21,6 +21,7 @@ services:
     type: web
     runtime: docker
     plan: free
+    region: singapore
 
     # ── Repository settings ─────────────────────
     repo: https://github.com/nishatislam04/credets
@@ -39,56 +40,26 @@ services:
     healthCheckPath: /healthz
 
     # ── Environment variables ───────────────────
-    # ── Database (Neon PostgreSQL)
-    #
-    # ╔══════════════════════════════════════════════════════════╗
-    # ║  Do I need ALL of these DB vars?                        ║
-    # ║                                                        ║
-    # ║  YES — your code in db/connection.ts reads each one     ║
-    # ║  individually: DB_HOST, DB_PORT, DB_USER, DB_PASSWORD,  ║
-    # ║  DB_NAME, DB_TLS.                                       ║
-    # ║                                                        ║
-    # ║  NO — POSTGRES_URL is NOT used by any code. It's a      ║
-    # ║  leftover. You can ignore it. The code doesn't read it. ║
-    # ║                                                        ║
-    # ║  To get these values from Neon Console:                 ║
-    # ║  1. Go to neon.tech → your project → Connection Details ║
-    # ║  2. Copy the connection string — it looks like:         ║
-    # ║     postgres://user:pass@ep-xxx.us-east-2.aws.neon.tech/dbname ║
-    # ║  3. Parse it:                                           ║
-    # ║     DB_HOST = ep-xxx.us-east-2.aws.neon.tech            ║
-    # ║     DB_PORT = 5432                                      ║
-    # ║     DB_USER = the "user" part                           ║
-    # ║     DB_PASSWORD = the "pass" part                       ║
-    # ║     DB_NAME = the "dbname" part                         ║
-    # ║     DB_TLS = true                                       ║
-    # ╚══════════════════════════════════════════════════════════╝
     envVars:
       # ── Database ──────────────────────────────
       - key: DB_HOST
-        value: ep-shiny-mode-aolabxv6-pooler.c-2.ap-southeast-1.aws.neon.tech # ← REPLACE with your Neon host
+        value: ep-shiny-mode-aolabxv6-pooler.c-2.ap-southeast-1.aws.neon.tech
       - key: DB_PORT
         value: "5432"
       - key: DB_USER
-        value: neondb_owner # ← REPLACE with your Neon user
+        value: neondb_owner
       - key: DB_PASSWORD
-        # ⚠️ Replace with your actual Neon password.
-        # Written here for blueprint sync; after sync, Render encrypts it at rest.
-        value: your-neon-password
+        sync: false
       - key: DB_NAME
         value: credets_db
       - key: DB_TLS
         value: "true"
 
       # ── Encryption ────────────────────────────
-      # ⚠️ IMPORTANT: Replace these with your actual values!
-      # Generate with: openssl rand -hex 32
-      # These must match what you've already used (existing encrypted data won't
-      # decrypt if you change ENC_KEY).
       - key: ENC_KEY
-        value: change-me-to-your-real-enc-key
+        sync: false
       - key: CSRF_SECRET_KEY
-        value: change-me-to-your-real-csrf-secret
+        sync: false
 
       # ── CORS ──────────────────────────────────
       # Frontend origin that's allowed to call the backend
