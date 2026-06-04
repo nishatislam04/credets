@@ -18,15 +18,15 @@ projects:
               - key: POSTGRES_URL
                 sync: false
               - key: DB_HOST
-                value: ep-shiny-mode-aolabxv6-pooler.c-2.ap-southeast-1.aws.neon.tech
+                sync: false
               - key: DB_PORT
-                value: "5432"
+                sync: false
               - key: DB_USER
-                value: neondb_owner
+                sync: false
               - key: DB_PASSWORD
                 sync: false
               - key: DB_NAME
-                value: neondb
+                sync: false
               - key: DB_TLS
                 value: "true"
               - key: ENC_KEY
