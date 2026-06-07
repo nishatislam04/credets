@@ -1,25 +1,19 @@
-import { formatZodError } from "@backend/types/formatZodError";
 import { logAlways } from "@backend/utils/logger";
 import { processImage } from "@backend/utils/processImage";
 import { ResponseFactory } from "@backend/utils/response";
 import { credentialsUpdateSchema } from "@credets/shared-schema/credentials/update";
 import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
-import { verifyCSRF } from "../csrf/verifyCSRF";
+import { parseAndValidateCredential } from "../../validation/credential/validator";
 
 export async function credentialUpdate(req: BunRequest) {
-	const formData = await req.formData();
-	const _csrf = formData.get("_csrf")?.toString() || "";
+	const result = await parseAndValidateCredential(req, credentialsUpdateSchema);
 
-	const isValidCsrf = verifyCSRF(_csrf);
-	if (!isValidCsrf)
-		return ResponseFactory.error({
-			error: "csrf token expired",
-			type: "csrf-expired",
-			message: "csrf token expired",
-			status: 500,
-			path: req,
-		});
+	if (!result.success) {
+		return result.errorResponse;
+	}
+
+	const { validatedData, images, formData } = result;
 
 	const { credentialId } = req.params;
 
@@ -36,55 +30,8 @@ export async function credentialUpdate(req: BunRequest) {
 		});
 	}
 
-	const title = formData.get("title")?.toString() || "";
-	const short_description = formData.get("short_description")?.toString() || "";
-	const long_description = formData.get("long_description")?.toString() || "";
-	const type = formData.get("type")?.toString() || "";
-	const notes = formData.get("notes")?.toString() || null;
-	const tags = formData.get("tags")?.toString() || null;
-	const data = JSON.parse(formData.get("data")?.toString() || "[]");
 	const existing_images_keep_raw =
 		formData.get("existing_images_keep")?.toString() || null;
-
-	// Extract thumbnail
-	const thumbnail = formData.get("thumbnail") as File | null;
-
-	// Extract new images
-	const images: File[] = [];
-	for (const [key, value] of formData.entries()) {
-		if (key.startsWith("images[") && value instanceof File) {
-			images.push(value);
-		}
-	}
-
-	const validateDisData = {
-		_csrf,
-		title,
-		type,
-		short_description,
-		long_description,
-		thumbnail,
-		images,
-		tags,
-		notes,
-		data,
-		existing_images_keep: existing_images_keep_raw,
-	};
-
-	const validatedData = credentialsUpdateSchema.safeParse(validateDisData);
-
-	if (!validatedData.success) {
-		const errors = formatZodError(validatedData);
-
-		return ResponseFactory.error({
-			error: "Form validation failed",
-			type: "form-validation",
-			message: "Form validation failed",
-			status: 400,
-			path: req,
-			errors,
-		});
-	}
 
 	// Process thumbnail if a new file was provided
 	let thumbnail_image_data = null;
@@ -155,7 +102,8 @@ export async function credentialUpdate(req: BunRequest) {
 	};
 
 	// Handle remove_thumbnail flag
-	const removeThumbnail = formData.get("remove_thumbnail")?.toString() === "true";
+	const removeThumbnail =
+		formData.get("remove_thumbnail")?.toString() === "true";
 
 	if (thumbnail_image_data) {
 		updateFields.thumbnail_image_data = thumbnail_image_data;
