@@ -1,11 +1,10 @@
-import type { BunRequest } from "bun";
 import { logAlways } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
-import { sql } from "../../db/connection";
+import type { BunRequest } from "bun";
+import { deleteCredentialService } from "../../services/credentials/delete";
 
 export async function credentailDelete(req: Request) {
 	// Handle CORS preflight — browser sends OPTIONS before DELETE
-	// with Content-Type: application/json.
 	if (req.method === "OPTIONS") {
 		return ResponseFactory.preflight();
 	}
@@ -14,7 +13,6 @@ export async function credentailDelete(req: Request) {
 		// Extract credentialId from the URL path: /credentials/:credentialId/delete
 		const url = new URL(req.url);
 		const pathParts = url.pathname.split("/").filter(Boolean);
-		// pathParts = ["credentials", ":credentialId", "delete"]
 		const credentialId = pathParts[1];
 
 		if (!credentialId) {
@@ -49,42 +47,35 @@ export async function credentailDelete(req: Request) {
 			});
 		}
 
-		// Check if the credential exists
-		const existing = await sql`
-			SELECT id, title FROM credentials WHERE id = ${credentialId}
-		`;
+		// Delegate to Service Layer
+		const result = await deleteCredentialService(credentialId);
 
-		if (existing.length === 0) {
-			return ResponseFactory.error({
-				error: "Credential not found",
-				message: "Credential not found",
-				type: "not-found",
-				status: 404,
-				path: { url: req.url } as BunRequest,
-			});
-		}
-
-		// Delete the credential (images will cascade due to ON DELETE CASCADE)
-		await sql`DELETE FROM credentials WHERE id = ${credentialId}`;
-
-		logAlways(existing[0].title, "credential deleted");
+		logAlways(result.title, "http: credential deleted");
 
 		return ResponseFactory.success({
 			data: {},
-			message: `Credential "${existing[0].title}" has been deleted`,
+			message: `Credential "${result.title}" has been deleted`,
 			type: "resource-delete",
 			status: 200,
 			path: { url: req.url } as BunRequest,
 		});
 	} catch (error) {
-		logAlways(error, "delete credential error");
+		logAlways(error, "http: error in credentailDelete controller");
+
+		const status =
+			error instanceof Error && error.message === "Credential not found"
+				? 404
+				: 500;
+
 		return ResponseFactory.error({
-			error: "Failed to delete credential",
+			error:
+				error instanceof Error ? error.message : "Failed to delete credential",
 			message: "Failed to delete credential",
-			status: 500,
+			status,
 			path: { url: req.url } as BunRequest,
 			details: {
-				originError: error instanceof Error ? error.message : "unknown server error",
+				originError:
+					error instanceof Error ? error.message : "unknown server error",
 			},
 		});
 	}

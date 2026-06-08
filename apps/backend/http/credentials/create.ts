@@ -1,9 +1,8 @@
 import { logAlways } from "@backend/utils/logger";
-import { processImage } from "@backend/utils/processImage";
 import { ResponseFactory } from "@backend/utils/response";
 import { credentialsCreateSchema } from "@credets/shared-schema/credentials/create";
-import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
+import { createCredentialService } from "../../services/credentials/create";
 import { parseAndValidateCredential } from "../../validation/credential/validator";
 
 export async function credentialCreate(req: BunRequest) {
@@ -15,81 +14,39 @@ export async function credentialCreate(req: BunRequest) {
 
 	const { validatedData, images } = result;
 
-	const thumbnailResult = await processImage({
-		file: validatedData.data.thumbnail,
-		outputQuality: 50,
-		resizeInWidth: 800,
-	});
-	const {
-		buffer: thumbnail_image_data = null,
-		format: thumbnail_format = null,
-		width: thumbnail_width = null,
-		height: thumbnail_height = null,
-	} = thumbnailResult ?? {};
+	try {
+		const createdResult = await createCredentialService({
+			title: validatedData.data.title,
+			type: validatedData.data.type,
+			short_description: validatedData.data.short_description ?? undefined,
+			long_description: validatedData.data.long_description ?? undefined,
+			notes: validatedData.data.notes ?? undefined,
+			tags: validatedData.data.tags ?? undefined,
+			data: validatedData.data.data,
+			thumbnail: validatedData.data.thumbnail ?? null,
+			images,
+		});
 
-	const processedImages = await Promise.all(
-		images.map((file) =>
-			processImage({
-				file,
-				outputQuality: 75,
-				resizeInWidth: 1400,
-			}),
-		),
-	);
+		logAlways(
+			validatedData.data.title,
+			"http: credential created successfully",
+		);
 
-	const validImages = processedImages.filter(
-		(img): img is NonNullable<typeof img> => img !== null,
-	);
-
-	const processedData = JSON.stringify(validatedData.data.data);
-
-	const processedTags = JSON.stringify(
-		validatedData.data.tags?.split(",").map((tag) => tag.trim()),
-	);
-
-	const [{ id: user_id }] = await sql`SELECT id FROM users`;
-	const [{ id: types_id }] =
-		await sql`SELECT id FROM types WHERE value=${validatedData.data.type}`;
-
-	const credentialPayload = {
-		title: validatedData.data.title,
-		short_description: validatedData.data.short_description,
-		long_description: validatedData.data.long_description,
-		thumbnail_image_data,
-		thumbnail_format,
-		thumbnail_width,
-		thumbnail_height,
-		data: processedData,
-		notes: validatedData.data.notes,
-		tags: processedTags,
-		user_id,
-		types_id,
-	};
-
-	const [{ id: credential_id }] =
-		await sql`INSERT INTO credentials ${sql(credentialPayload)} RETURNING id`;
-
-	const credentialImagesPayload = validImages.map((image) => {
-		return {
-			image_data: image.buffer,
-			format: image.format,
-			width: image.width,
-			height: image.height,
-			byte_size: image.byteSize,
-			credential_id,
-		};
-	});
-
-	if (validImages.length > 0)
-		await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
-
-	logAlways(validatedData.data.title, "credential created");
-
-	return ResponseFactory.success({
-		data: {},
-		type: "resource-create",
-		message: "A new credentials added",
-		status: 200,
-		path: req,
-	});
+		return ResponseFactory.success({
+			data: { id: createdResult.id },
+			type: "resource-create",
+			message: "A new credentials added",
+			status: 200,
+			path: req,
+		});
+	} catch (error) {
+		logAlways(error, "http: error in credentialCreate controller");
+		return ResponseFactory.error({
+			error: error instanceof Error ? error.message : "Internal Error",
+			type: "internal-error",
+			message: "Failed to create credential",
+			status: 500,
+			path: req,
+		});
+	}
 }

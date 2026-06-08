@@ -1,0 +1,111 @@
+import { logAlways } from "@backend/utils/logger";
+import { sql } from "@db/connection";
+
+export interface UpdateCredentialRepoInput {
+	credentialId: string;
+	title: string;
+	type: string;
+	short_description: string | null;
+	long_description: string | null;
+	notes: string | null;
+	data: string;
+	tags: string | null;
+	thumbnail: {
+		buffer: Uint8Array;
+		format: string;
+		width: number;
+		height: number;
+	} | null;
+	removeThumbnail: boolean;
+	images: Array<{
+		buffer: Uint8Array;
+		format: string;
+		width: number;
+		height: number;
+		byteSize: number;
+	}>;
+	existingImagesKeep: string[];
+}
+
+export async function updateCredentialRepo(
+	input: UpdateCredentialRepoInput,
+): Promise<void> {
+	logAlways(input.credentialId, "repo: starting db transaction for update");
+
+	try {
+		await sql.begin(async (sql) => {
+			// 1. Verify credential exists
+			const [existingCredential] =
+				await sql`SELECT id FROM credentials WHERE id = ${input.credentialId}`;
+			if (!existingCredential) {
+				throw new Error("Credential not found");
+			}
+
+			// 2. Resolve types_id
+			const [typeRow] =
+				await sql`SELECT id FROM types WHERE value=${input.type}`;
+			if (!typeRow) {
+				throw new Error("Invalid type selected");
+			}
+
+			// 3. Build update payload
+			const updateFields: Record<string, unknown> = {
+				title: input.title,
+				short_description: input.short_description,
+				long_description: input.long_description,
+				data: input.data,
+				notes: input.notes,
+				tags: input.tags,
+				types_id: typeRow.id,
+			};
+
+			if (input.thumbnail) {
+				updateFields.thumbnail_image_data = input.thumbnail.buffer;
+				updateFields.thumbnail_format = input.thumbnail.format;
+				updateFields.thumbnail_width = input.thumbnail.width;
+				updateFields.thumbnail_height = input.thumbnail.height;
+			} else if (input.removeThumbnail) {
+				updateFields.thumbnail_image_data = null;
+				updateFields.thumbnail_format = null;
+				updateFields.thumbnail_width = null;
+				updateFields.thumbnail_height = null;
+			}
+
+			// 4. Update core credential
+			await sql`
+				UPDATE credentials SET ${sql(updateFields)} WHERE id = ${input.credentialId}
+			`;
+
+			// 5. Delete removed images
+			if (input.existingImagesKeep.length > 0) {
+				await sql`
+					DELETE FROM credential_images
+					WHERE credential_id = ${input.credentialId}
+						AND id != ALL(${sql.array(input.existingImagesKeep)})
+				`;
+			} else {
+				await sql`
+					DELETE FROM credential_images
+					WHERE credential_id = ${input.credentialId}
+				`;
+			}
+
+			// 6. Insert new images
+			if (input.images.length > 0) {
+				const credentialImagesPayload = input.images.map((img) => ({
+					image_data: img.buffer,
+					format: img.format,
+					width: img.width,
+					height: img.height,
+					byte_size: img.byteSize,
+					credential_id: input.credentialId,
+				}));
+
+				await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
+			}
+		});
+	} catch (error) {
+		logAlways(error, "repo: db update transaction failed");
+		throw error;
+	}
+}

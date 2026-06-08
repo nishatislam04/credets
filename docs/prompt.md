@@ -1,14 +1,13 @@
-now i want you to create me functional edit endpoint for credentials resource for both backend and frontend.
-for better context check my both frontend and backend endpoint and its relative codes for create endpoint.
-i want you to not touch anything on the create endpoint but carefully watch it for better understanding
-use the shadcn ui library, tanstack form and zod and any other tools (check how we built the create endpoint for both side)
-use tanstack form and router best practises on the frontend side. since this is edit endpoint, we need initial data to fill out our form. so, use the tanstack router loader function to load the initial data. create an action dir and dump the fetching logic there.
-and i am mostly concerned about our data block form section. you can see how complex that was on the create form. so, based on fetched data block type, it needed to render each time for single_label, key-pair, information block. so, like if the fetched data block had 3 information type data, we would need to render 3 block of information block in the edit form and so on and so forth
-we probably need to handle csrf feature too for our edit form, right? if yes, check the backend side and we already have an csrf endpoint. if needed, then use it and validate it with bun api
-before submission on the submit handler, we need to append the values in formdata like we did in the create endpoint, right? do the same for this endpoint too. just code it like we did for our create endpoint
-we have 2 images. one is thumbnail (single) and another is, images (multiple). when we fetch data, and there are images, we also need to handle that too.
-because we are manually saving image binary data directly in the database. to better understand, check the create backend endpoint and our database structure. see, which format we are saving the images. and how to send these images data back to frontend and handling it in frontend form. so, like we may or may not update or delete those image or images or any specific images. given our special circumstances i.e the way we are saving the data in our db, how can we edit them if we want to. i want you to very carefully think and implement the image update or delete feature on the edit form
-similarly, how to update the type_id if we want to. as the types is foreign relationship with our model (credentials)
-so, observe our sql credentials model, create endpoint both side. and implement edit endpoint like that. if its duplicate code (from create endpoint) its ok. dont try to optimize code now. just mimic the create endpoint backend. and handle any cases i forgot to mention and implement our edit endpoint with bun sql client
-dont try to create an util function to reduce duplicate. i will later observe the duplication and come with an result. your job is to plainly implement the feature
-make our edit frontend form ui looks like our existing create endpoint too. quite similar would be ok too.
+first of all, there need several changes on da artifact
+
+we dont want class system for da services. rather create a single file for each responsibity.
+like this /backend/services/credentials/create.ts, /credentials/update.ts etc
+
+also introduce responsitory layer like services too. follow da same folder strategy. for each action create a single file like above. and no class system.
+
+for both layers, wrap the executable code with proper log system and handle the err response
+
+so we will validate & extract validated data in http layer. then pass down the data to services & from services call da repo layer. and make sure success and err response flow back to http layer to client side
+
+and tell me, is there anything more we can do or not for this refactoring in backend side. we will try to follow da same recipe for other resources when we add a new resource
+all da http actions will follow this layers data passing rules. even for delete action too
