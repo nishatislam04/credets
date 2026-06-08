@@ -12,4 +12,6 @@ add them in .env
 
 we will use bunjs s3 client to upload and download our images. we need to update our sql datatype and seed script too (cchek if we need to update seed script)
 
-we just decided not to store img bin in db & for now make sure, we can upload images in supabase storage in development. so update backend accordingly and check docs for proper context
+we just decided not to store img bin in db & for now make sure, we can upload images in supabase storage in development. so update backend accordingly and check docs for proper context. tell me if yu need anything more
+
+later, we will add a development tools to mock da storage behaviour. but not no
