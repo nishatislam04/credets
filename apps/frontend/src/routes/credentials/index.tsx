@@ -133,13 +133,18 @@ function RouteComponent() {
 			{/* Page header */}
 			<div className="mb-8 flex items-start justify-between">
 				<div>
-					<div className="flex">
+					<header className="flex items-center gap-2">
 						<h1 className="text-2xl font-bold tracking-tight">Credentials</h1>
 						<ThemeToggle />
-					</div>
+					</header>
 					<p className="text-sm text-muted-foreground mt-1">
 						Browse your saved credentials, keys, and secrets
 					</p>
+					{credentials.length > 0 && !isLoading && (
+						<p className="text-xs text-muted-foreground/50 mt-2">
+							{credentials.length} credential{credentials.length !== 1 ? "s" : ""}
+						</p>
+					)}
 				</div>
 				<Link
 					to="/credentials/create"
@@ -176,8 +181,14 @@ function RouteComponent() {
 			{!error && credentials.length > 0 && (
 				<>
 					<div className="space-y-3">
-						{credentials.map((cred) => (
-							<CredentialCard key={cred.id} credential={cred} />
+						{credentials.map((cred, idx) => (
+							<div
+								key={cred.id}
+								className="animate-in fade-in slide-in-from-bottom-3 duration-300"
+								style={{ animationDelay: `${idx * 50}ms`, animationFillMode: "backwards" }}
+							>
+								<CredentialCard credential={cred} />
+							</div>
 						))}
 					</div>
 

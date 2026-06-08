@@ -152,23 +152,26 @@ function InformationBlock({ block }: { block: DataBlockEntry & { type: "informat
 function DataBlocksRenderer({ blocks }: { blocks: DataBlockEntry[] }) {
 	return (
 		<div className="divide-y divide-border">
-			{blocks.map((block) => {
+			{blocks.map((block, idx) => {
+				// Stable key: type + position — safe because blocks never reorder
+				const stableKey = `${block.type}-${idx}`;
+
 				switch (block.type) {
 					case "single_label":
 						return (
-							<div key={crypto.randomUUID()}>
+							<div key={stableKey}>
 								<SingleLabelBlock block={block} />
 							</div>
 						);
 					case "key_value":
 						return (
-							<div key={crypto.randomUUID()}>
+							<div key={stableKey}>
 								<KeyValueBlock block={block} />
 							</div>
 						);
 					case "information":
 						return (
-							<div key={crypto.randomUUID()}>
+							<div key={stableKey}>
 								<InformationBlock block={block} />
 							</div>
 						);
