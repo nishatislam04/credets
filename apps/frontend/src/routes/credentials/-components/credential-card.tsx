@@ -1,91 +1,25 @@
+import type { CredentialListItem } from "@credets/shared-types/credentials/listings";
 import { Link } from "@tanstack/react-router";
 import { CalendarDays, ChevronRight, ImageIcon } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent } from "#/components/ui/card";
-
-interface Credential {
-	id: string;
-	title: string;
-	short_description?: string | null;
-	thumbnail_image_data?: string | null;
-	thumbnail_format?: string | null;
-	thumbnail_width?: number | null;
-	thumbnail_height?: number | null;
-	tags?: string[] | null;
-	created_at: string;
-	type_label?: string | null;
-	type_value?: string | null;
-}
+import { TYPE_COLORS, TAG_COLORS, hashString } from "../-utils/colors";
 
 interface CredentialCardProps {
-	credential: Credential;
+	credential: CredentialListItem;
 }
-
-// ── Type colour helper ──────────────────────────────────────────────
-const TYPE_COLORS = [
-	{
-		bg: "bg-blue-100 dark:bg-blue-900/30",
-		text: "text-blue-700 dark:text-blue-300",
-		dot: "bg-blue-500",
-	},
-	{
-		bg: "bg-amber-100 dark:bg-amber-900/30",
-		text: "text-amber-700 dark:text-amber-300",
-		dot: "bg-amber-500",
-	},
-	{
-		bg: "bg-purple-100 dark:bg-purple-900/30",
-		text: "text-purple-700 dark:text-purple-300",
-		dot: "bg-purple-500",
-	},
-	{
-		bg: "bg-rose-100 dark:bg-rose-900/30",
-		text: "text-rose-700 dark:text-rose-300",
-		dot: "bg-rose-500",
-	},
-	{
-		bg: "bg-emerald-100 dark:bg-emerald-900/30",
-		text: "text-emerald-700 dark:text-emerald-300",
-		dot: "bg-emerald-500",
-	},
-	{
-		bg: "bg-cyan-100 dark:bg-cyan-900/30",
-		text: "text-cyan-700 dark:text-cyan-300",
-		dot: "bg-cyan-500",
-	},
-	{
-		bg: "bg-pink-100 dark:bg-pink-900/30",
-		text: "text-pink-700 dark:text-pink-300",
-		dot: "bg-pink-500",
-	},
-];
-
-// Simple hash function to turn strings into numbers
-const hashString = (str: string): number => {
-	let hash = 0;
-	for (let i = 0; i < str.length; i++) {
-		hash = (Math.imul(31, hash) + str.charCodeAt(i)) | 0;
-	}
-	return Math.abs(hash);
-};
 
 export function CredentialCard({ credential }: CredentialCardProps) {
 	const {
 		id,
 		title,
 		short_description,
-		thumbnail_image_data,
-		thumbnail_format,
+		thumbnail_url,
 		tags,
 		created_at,
 		type_label,
 		type_value,
 	} = credential;
-
-	const imageSrc =
-		thumbnail_image_data && thumbnail_format
-			? `data:image/${thumbnail_format};base64,${thumbnail_image_data}`
-			: null;
 
 	const tagList = Array.isArray(tags) ? tags : [];
 
@@ -103,12 +37,12 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 
 	return (
 		<Link to="/credentials/$credentialId" params={{ credentialId: id }} className="group block">
-			<Card className="overflow-hidden rounded-xl border shadow-xs transition-all duration-200 hover:shadow-sm hover:border-primary/15 hover:bg-muted/20 flex flex-row bg-card py-2 sm:py-2 md:py-2">
+			<Card className="overflow-hidden rounded-xl border shadow-xs transition-all duration-200 hover:shadow-sm hover:border-primary/15 hover:bg-muted/20 flex flex-row bg-card py-2">
 				{/* ── Left: Thumbnail ── */}
 				<div className="shrink-0 flex items-center justify-center px-4 py-4 md:px-5 md:py-5">
-					{imageSrc ? (
+					{thumbnail_url ? (
 						<img
-							src={imageSrc}
+							src={thumbnail_url}
 							alt={title}
 							className="size-20 md:size-23 rounded-full object-cover ring-1 ring-border/40"
 						/>
@@ -146,24 +80,20 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 					</p>
 
 					<div className="flex justify-between">
-						{/* Row 3: Tags */}
+						{/* Row 3: Tags — using TAG_COLORS for consistent styling with detail page */}
 						{tagList.length > 0 && (
 							<div className="flex flex-wrap items-center gap-1 mt-2">
-								{tagList.slice(0, 5).map((tag: string) => (
-									<button
-										key={tag}
-										type="button"
-										className="inline-flex items-center rounded-full bg-muted/60 px-2 py-0 h-4 text-[10px] font-medium text-muted-foreground/70 transition-colors duration-150 hover:bg-muted hover:text-foreground cursor-pointer border-0"
-										title={`Search by tag: ${tag}`}
-										onClick={(e) => {
-											// Don't navigate to the credential detail when clicking a tag
-											e.stopPropagation();
-											// Search functionality TBD
-										}}
-									>
-										#{tag}
-									</button>
-								))}
+								{tagList.slice(0, 5).map((tag: string) => {
+									const color = TAG_COLORS[tag.length % TAG_COLORS.length];
+									return (
+										<span
+											key={tag}
+											className={`inline-flex items-center rounded-full px-2 py-0 h-4 text-[10px] font-medium transition-colors duration-150 border-0 ${color.bg} ${color.text}`}
+										>
+											#{tag}
+										</span>
+									);
+								})}
 								{tagList.length > 5 && (
 									<span className="text-[10px] text-muted-foreground/50 ml-0.5">
 										+{tagList.length - 5}

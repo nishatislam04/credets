@@ -9,9 +9,8 @@ interface ImageLightboxProps {
 }
 
 function buildSrc(img: CredentialImage) {
-	return img.image_data && img.format
-		? `data:image/${img.format};base64,${img.image_data}`
-		: null;
+	// Use the S3 URL directly — backend stores image_url, not base64 data
+	return img.image_url ?? null;
 }
 
 export function ImageLightbox({
