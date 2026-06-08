@@ -3,8 +3,11 @@ import { processImage } from "@backend/utils/processImage";
 import {
 	credentialImageKey,
 	credentialThumbnailKey,
+	deleteFromS3,
+	extractKeyFromUrl,
 	uploadToS3,
 } from "@backend/utils/storage";
+import { getCredentialImageUrlsRepo } from "../../repository/credentials/credential";
 import { updateCredentialRepo } from "../../repository/credentials/update";
 
 export interface UpdateCredentialServiceInput {
@@ -29,7 +32,32 @@ export async function updateCredentialService(
 	logAlways(input.credentialId, "service: starting credential update");
 
 	try {
-		// 1. Process new thumbnail if provided
+		// 1. Clean up old S3 objects before processing + uploading new ones
+		//    (order matters: old images must be deleted before new ones are uploaded
+		//     so the S3 keys are freed if we need to overwrite)
+
+		// 1a. Delete old thumbnail from S3 if it's being replaced or removed
+		if (input.thumbnail || input.removeThumbnail) {
+			await deleteFromS3(credentialThumbnailKey(input.credentialId));
+		}
+
+		// 1b. Fetch current images, determine which ones are being removed,
+		//     and delete them from S3
+		const currentImages = await getCredentialImageUrlsRepo(input.credentialId);
+		const removedImages = currentImages.filter(
+			(img) =>
+				img.image_url && !input.existingImagesKeep.includes(img.id),
+		);
+		await Promise.all(
+			removedImages.map(async (img) => {
+				const key = extractKeyFromUrl(img.image_url!);
+				if (key) {
+					await deleteFromS3(key);
+				}
+			}),
+		);
+
+		// 2. Process new thumbnail if provided
 		let thumbnailResult = null;
 		if (input.thumbnail) {
 			thumbnailResult = await processImage({
@@ -39,7 +67,7 @@ export async function updateCredentialService(
 			});
 		}
 
-		// 2. Process new images
+		// 3. Process new images
 		const processedImages = await Promise.all(
 			input.images.map((file) =>
 				processImage({
@@ -54,7 +82,7 @@ export async function updateCredentialService(
 			(img): img is NonNullable<typeof img> => img !== null,
 		);
 
-		// 3. Upload new images to S3
+		// 4. Upload new images to S3
 		let thumbnailUrl: string | null = null;
 		if (thumbnailResult) {
 			const result = await uploadToS3(
@@ -67,13 +95,16 @@ export async function updateCredentialService(
 
 		const imageUploads = await Promise.all(
 			validImages.map(async (img, index) => {
-				const key = credentialImageKey(input.credentialId, `${Date.now()}-${index}.webp`);
+				const key = credentialImageKey(
+					input.credentialId,
+					`${Date.now()}-${index}.webp`,
+				);
 				const result = await uploadToS3(key, img.buffer, "image/webp");
 				return { url: result.url, ...img };
 			}),
 		);
 
-		// 4. Format data fields
+		// 5. Format data fields
 		const processedData = JSON.stringify(input.data);
 		const processedTags = input.tags
 			? JSON.stringify(
@@ -84,7 +115,7 @@ export async function updateCredentialService(
 				)
 			: null;
 
-		// 5. Call Repository Layer
+		// 6. Call Repository Layer
 		await updateCredentialRepo({
 			credentialId: input.credentialId,
 			title: input.title,

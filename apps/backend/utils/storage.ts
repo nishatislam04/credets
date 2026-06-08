@@ -1,4 +1,10 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+	DeleteObjectCommand,
+	DeleteObjectsCommand,
+	ListObjectsV2Command,
+	PutObjectCommand,
+	S3Client,
+} from "@aws-sdk/client-s3";
 import { logAlways } from "./logger";
 
 /** Lazily-initialized S3 client singleton. */
@@ -93,4 +99,99 @@ export function credentialImageKey(
  */
 export function credentialThumbnailKey(credentialId: string): string {
 	return `credentials/${credentialId}/thumbnail.webp`;
+}
+
+/**
+ * Derive the S3 object key from a public Supabase Storage URL.
+ *
+ * Example:
+ *   input:  https://.../storage/v1/object/public/credentials/credentials/{id}/images/0.webp
+ *   output: credentials/{id}/images/0.webp
+ */
+export function extractKeyFromUrl(publicUrl: string): string | null {
+	const bucket = process.env.STORAGE_BUCKET || "credentials";
+	// Public URL format: {baseUrl}/storage/v1/object/public/{bucket}/{key}
+	const marker = `/storage/v1/object/public/${bucket}/`;
+	const idx = publicUrl.indexOf(marker);
+	if (idx === -1) return null;
+	return publicUrl.slice(idx + marker.length);
+}
+
+/**
+ * Generate the S3 prefix for all objects belonging to a credential.
+ * Used to list/delete all images + thumbnail at once.
+ */
+export function credentialPrefix(credentialId: string): string {
+	return `credentials/${credentialId}/`;
+}
+
+/**
+ * Delete a single object from S3.
+ *
+ * S3 delete is idempotent — deleting a non-existent key does NOT throw.
+ */
+export async function deleteFromS3(key: string): Promise<void> {
+	const bucket = process.env.STORAGE_BUCKET || "credentials";
+	const s3 = getS3Client();
+
+	logAlways(key, "storage: deleting file from S3");
+
+	await s3.send(
+		new DeleteObjectCommand({
+			Bucket: bucket,
+			Key: key,
+		}),
+	);
+}
+
+/**
+ * Delete all objects under a given prefix from S3.
+ *
+ * Uses ListObjectsV2 to find all keys, then batch-deletes them with
+ * DeleteObjectsCommand (up to 1,000 per call — handles pagination
+ * automatically via ContinuationToken).
+ *
+ * Best practice for credential cleanup: call with `credentialPrefix(id)`.
+ */
+export async function deletePrefixFromS3(prefix: string): Promise<void> {
+	const bucket = process.env.STORAGE_BUCKET || "credentials";
+	const s3 = getS3Client();
+
+	logAlways(prefix, "storage: deleting prefix from S3");
+
+	let isTruncated = true;
+	let continuationToken: string | undefined;
+
+	while (isTruncated) {
+		const listResponse = await s3.send(
+			new ListObjectsV2Command({
+				Bucket: bucket,
+				Prefix: prefix,
+				ContinuationToken: continuationToken,
+			}),
+		);
+
+		const objects = listResponse.Contents;
+		if (!objects || objects.length === 0) break;
+
+		const keys = objects
+			.filter((obj): obj is typeof obj & { Key: string } => obj.Key != null)
+			.map((obj) => ({ Key: obj.Key }));
+
+		if (keys.length > 0) {
+			await s3.send(
+				new DeleteObjectsCommand({
+					Bucket: bucket,
+					Delete: { Objects: keys },
+				}),
+			);
+			logAlways(
+				`${keys.length} objects deleted`,
+				"storage: batch delete completed",
+			);
+		}
+
+		isTruncated = listResponse.IsTruncated ?? false;
+		continuationToken = listResponse.NextContinuationToken;
+	}
 }

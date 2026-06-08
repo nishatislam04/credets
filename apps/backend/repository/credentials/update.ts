@@ -3,7 +3,9 @@ import { sql } from "@db/connection";
 import { AppError } from "@backend/err/base";
 import { BadRequestError } from "@backend/err/bad-request";
 import { DatabaseError } from "@backend/err/database";
-import { NotFoundError } from "@backend/err/not-found";	export interface UpdateCredentialRepoInput {
+import { NotFoundError } from "@backend/err/not-found";
+
+export interface UpdateCredentialRepoInput {
 	credentialId: string;
 	title: string;
 	type: string;

@@ -1,7 +1,9 @@
 import { AppError } from "@backend/err/base";
 import { DatabaseError } from "@backend/err/database";
 import { logAlways } from "@backend/utils/logger";
-import { sql } from "@db/connection";	export interface CredentialDetailRow {
+import { sql } from "@db/connection";
+
+export interface CredentialDetailRow {
 	id: string;
 	title: string;
 	short_description: string | null;
@@ -19,7 +21,15 @@ import { sql } from "@db/connection";	export interface CredentialDetailRow {
 	updated_at: Date | null;
 	type_label: string | null;
 	type_value: string | null;
-}	export interface CredentialImageRow {
+}
+
+/** Lightweight result for the update S3 cleanup flow. */
+export interface CredentialImageUrlRow {
+	id: string;
+	image_url: string | null;
+}
+
+export interface CredentialImageRow {
 	id: string;
 	image_url: string | null;
 	format: string | null;
@@ -59,6 +69,31 @@ export async function getCredentialDetailRepo(credentialId: string) {
 		return { credential, images };
 	} catch (error) {
 		logAlways(error, "repo: fetch credential detail queries failed");
+
+		if (error instanceof AppError) {
+			throw error;
+		}
+
+		throw new DatabaseError(error);
+	}
+}
+
+/**
+ * Fetch only image IDs + URLs for a credential.
+ * Used by the update service to determine which S3 objects to delete.
+ */
+export async function getCredentialImageUrlsRepo(
+	credentialId: string,
+): Promise<CredentialImageUrlRow[]> {
+	logAlways(credentialId, "repo: fetching credential image URLs");
+
+	try {
+		return await sql<CredentialImageUrlRow[]>`
+			SELECT id, image_url FROM credential_images
+			WHERE credential_id = ${credentialId}
+		`;
+	} catch (error) {
+		logAlways(error, "repo: fetch credential image URLs failed");
 
 		if (error instanceof AppError) {
 			throw error;
