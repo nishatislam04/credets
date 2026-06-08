@@ -1,3 +1,4 @@
+import { encrypt } from "@backend/cipher/encrypt";
 import { sql } from "./connection";
 
 // Helper to generate random between min and max
@@ -436,7 +437,7 @@ async function seed() {
 				title: generateTitle(typeValue, index),
 				short_description: generateShortDescription(typeValue),
 				long_description: `Detailed information about this ${typeValue} item. Created for demonstration purposes.`,
-				data: JSON.stringify(credData.data),
+				data: await encrypt(JSON.stringify(credData.data)),
 				tags: credData.tags ? JSON.stringify(credData.tags) : null,
 				notes: credData.notes,
 			});
