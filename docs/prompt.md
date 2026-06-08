@@ -1,13 +1,15 @@
-first of all, there need several changes on da artifact
+we are going to use supabase storage to store our credentials and credentials images file
 
-we dont want class system for da services. rather create a single file for each responsibity.
-like this /backend/services/credentials/create.ts, /credentials/update.ts etc
+these are da necessary env
+access key id 2fa5cc0bd9e7647f6723924ecaa5ccb7
+secret access key e8686c70cc9592232fbd75c9879112806d1a908ba42dca455177f51c0fc78445
 
-also introduce responsitory layer like services too. follow da same folder strategy. for each action create a single file like above. and no class system.
+endpoint https://ketjsycvccqtqwnxelza.storage.supabase.co/storage/v1/s3
 
-for both layers, wrap the executable code with proper log system and handle the err response
+region ap-southeast-1
 
-so we will validate & extract validated data in http layer. then pass down the data to services & from services call da repo layer. and make sure success and err response flow back to http layer to client side
+add them in .env
 
-and tell me, is there anything more we can do or not for this refactoring in backend side. we will try to follow da same recipe for other resources when we add a new resource
-all da http actions will follow this layers data passing rules. even for delete action too
+we will use bunjs s3 client to upload and download our images. we need to update our sql datatype and seed script too (cchek if we need to update seed script)
+
+we just decided not to store img bin in db & for now make sure, we can upload images in supabase storage in development. so update backend accordingly and check docs for proper context

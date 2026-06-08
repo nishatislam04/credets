@@ -1,4 +1,5 @@
 import type { BunRequest } from "bun";
+import { InternalError } from "@backend/err/internal";
 import { logAlways } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 
@@ -27,6 +28,6 @@ export async function generateCSRF() {
 		});
 	} catch (error) {
 		logAlways(error instanceof Error ? error.message : error, "generate csrf token");
-		throw new Error("something went wrong while generating csrf token on server");
+		throw new InternalError("something went wrong while generating csrf token on server");
 	}
 }
