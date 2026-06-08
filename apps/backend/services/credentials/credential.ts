@@ -1,3 +1,4 @@
+import { decrypt } from "@backend/cipher/decrypt";
 import { logAlways } from "@backend/utils/logger";
 import { getCredentialDetailRepo } from "../../repository/credentials/credential";
 
@@ -23,10 +24,15 @@ export async function getCredentialDetailService(credentialId: string) {
 			thumbnail_format: credential.thumbnail_format,
 			thumbnail_width: credential.thumbnail_width,
 			thumbnail_height: credential.thumbnail_height,
-			data:
-				typeof credential.data === "string"
-					? JSON.parse(credential.data)
-					: credential.data,
+			data: await (async () => {
+				const raw = typeof credential.data === "string"
+					? credential.data
+					: typeof credential.data === "object" && credential.data !== null
+						? JSON.stringify(credential.data)
+						: String(credential.data);
+				const decrypted = await decrypt(raw);
+				return JSON.parse(decrypted);
+			})(),
 			notes: credential.notes,
 			tags:
 				typeof credential.tags === "string"

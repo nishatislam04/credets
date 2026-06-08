@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { encrypt } from "@backend/cipher/encrypt";
 import { logAlways } from "@backend/utils/logger";
 import { processImage } from "@backend/utils/processImage";
 import {
@@ -78,7 +79,7 @@ export async function createCredentialService(
 			short_description: input.short_description || null,
 			long_description: input.long_description || null,
 			notes: input.notes || null,
-			data: JSON.stringify(input.data),
+			data: await encrypt(JSON.stringify(input.data)),
 			tags: input.tags
 				? JSON.stringify(
 						input.tags

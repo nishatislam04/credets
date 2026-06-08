@@ -1,3 +1,4 @@
+import { encrypt } from "@backend/cipher/encrypt";
 import { logAlways } from "@backend/utils/logger";
 import { processImage } from "@backend/utils/processImage";
 import {
@@ -105,7 +106,7 @@ export async function updateCredentialService(
 		);
 
 		// 5. Format data fields
-		const processedData = JSON.stringify(input.data);
+		const processedData = await encrypt(JSON.stringify(input.data));
 		const processedTags = input.tags
 			? JSON.stringify(
 					input.tags

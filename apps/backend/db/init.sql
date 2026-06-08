@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS credentials(
 	thumbnail_format VARCHAR(10) NULL,
 	thumbnail_width INT NULL,
 	thumbnail_height INT NULL,
-	data JSONB NOT NULL,
+	data TEXT NOT NULL,
 	notes TEXT NULL,
 	tags JSONB NULL,
 	created_at TIMESTAMPTZ DEFAULT NOW(),

@@ -50,10 +50,12 @@ then dynamic part will be like todays full date -- "2026-04-29"
 
 ### special-password-encryption
 
-we have created a utilz function at `backend/utls/encrypt.ts` to encrypt any text.
+we have created the cipher util at `@backend/cipher` to encrypt/decrypt text.
 
 ```ts
-const payload = "data to encrypt"
+import { encrypt } from "@backend/cipher/encrypt";
+
+const payload = "data to encrypt";
 const sealedValue = await encrypt(payload);
 ```
 
@@ -62,9 +64,11 @@ then we can store this encrypted data on db.
 
 ### special-password-decryption
 
-we also have a decryption utilz at `backend/utils/decrypt.ts`
+we also have a decryption util at `@backend/cipher`
 
 ```ts
+import { decrypt } from "@backend/cipher/decrypt";
+
  const fetchedUser =
  await sql`SELECT id, name, username, email, password, special_password 
  FROM users WHERE username='nishat004'`;
