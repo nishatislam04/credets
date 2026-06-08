@@ -1,5 +1,11 @@
+import { randomUUID } from "crypto";
 import { logAlways } from "@backend/utils/logger";
 import { processImage } from "@backend/utils/processImage";
+import {
+	credentialImageKey,
+	credentialThumbnailKey,
+	uploadToS3,
+} from "@backend/utils/storage";
 import { createCredentialRepo } from "../../repository/credentials/create";
 
 export interface CreateCredentialServiceInput {
@@ -19,6 +25,9 @@ export async function createCredentialService(
 	input: CreateCredentialServiceInput,
 ) {
 	logAlways(input.title, "service: starting credential creation");
+
+	// Generate credential ID upfront so we can construct S3 paths before DB insert
+	const credentialId = randomUUID();
 
 	try {
 		// 1. Process thumbnail
@@ -43,7 +52,26 @@ export async function createCredentialService(
 			(img): img is NonNullable<typeof img> => img !== null,
 		);
 
-		// 3. Construct DB Repository Payload
+		// 3. Upload to S3
+		let thumbnailUrl: string | null = null;
+		if (thumbnailResult) {
+			const result = await uploadToS3(
+				credentialThumbnailKey(credentialId),
+				thumbnailResult.buffer,
+				"image/webp",
+			);
+			thumbnailUrl = result.url;
+		}
+
+		const imageUploads = await Promise.all(
+			validImages.map(async (img, index) => {
+				const key = credentialImageKey(credentialId, `${index}.webp`);
+				const result = await uploadToS3(key, img.buffer, "image/webp");
+				return { url: result.url, ...img };
+			}),
+		);
+
+		// 4. Construct DB Repository Payload
 		const dbPayload = {
 			title: input.title,
 			type: input.type,
@@ -61,22 +89,23 @@ export async function createCredentialService(
 				: null,
 			thumbnail: thumbnailResult
 				? {
-						buffer: thumbnailResult.buffer,
+						url: thumbnailUrl!,
 						format: thumbnailResult.format,
 						width: thumbnailResult.width,
 						height: thumbnailResult.height,
 					}
 				: null,
-			images: validImages.map((img) => ({
-				buffer: img.buffer,
+			images: imageUploads.map((img) => ({
+				url: img.url,
 				format: img.format,
 				width: img.width,
 				height: img.height,
 				byteSize: img.byteSize,
 			})),
+			id: credentialId,
 		};
 
-		// 4. Call Repository Layer
+		// 5. Call Repository Layer
 		const result = await createCredentialRepo(dbPayload);
 
 		logAlways(result.id, "service: credential creation completed successfully");

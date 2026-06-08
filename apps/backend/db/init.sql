@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS credentials(
 	title TEXT NOT NULL,
 	short_description TEXT NULL,
 	long_description TEXT NULL,
-	thumbnail_image_data BYTEA NULL,
+	thumbnail_url TEXT NULL,
 	thumbnail_format VARCHAR(10) NULL,
 	thumbnail_width INT NULL,
 	thumbnail_height INT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS credentials(
 
 CREATE TABLE IF NOT EXISTS credential_images(
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-	image_data BYTEA NULL,
+	image_url TEXT NULL,
 	format VARCHAR(10) NULL,
 	width INT NULL,
 	height INT NULL,

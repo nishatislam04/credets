@@ -1,5 +1,10 @@
 import { logAlways } from "@backend/utils/logger";
 import { processImage } from "@backend/utils/processImage";
+import {
+	credentialImageKey,
+	credentialThumbnailKey,
+	uploadToS3,
+} from "@backend/utils/storage";
 import { updateCredentialRepo } from "../../repository/credentials/update";
 
 export interface UpdateCredentialServiceInput {
@@ -49,7 +54,26 @@ export async function updateCredentialService(
 			(img): img is NonNullable<typeof img> => img !== null,
 		);
 
-		// 3. Format data fields
+		// 3. Upload new images to S3
+		let thumbnailUrl: string | null = null;
+		if (thumbnailResult) {
+			const result = await uploadToS3(
+				credentialThumbnailKey(input.credentialId),
+				thumbnailResult.buffer,
+				"image/webp",
+			);
+			thumbnailUrl = result.url;
+		}
+
+		const imageUploads = await Promise.all(
+			validImages.map(async (img, index) => {
+				const key = credentialImageKey(input.credentialId, `${Date.now()}-${index}.webp`);
+				const result = await uploadToS3(key, img.buffer, "image/webp");
+				return { url: result.url, ...img };
+			}),
+		);
+
+		// 4. Format data fields
 		const processedData = JSON.stringify(input.data);
 		const processedTags = input.tags
 			? JSON.stringify(
@@ -60,7 +84,7 @@ export async function updateCredentialService(
 				)
 			: null;
 
-		// 4. Call Repository Layer
+		// 5. Call Repository Layer
 		await updateCredentialRepo({
 			credentialId: input.credentialId,
 			title: input.title,
@@ -72,15 +96,15 @@ export async function updateCredentialService(
 			tags: processedTags,
 			thumbnail: thumbnailResult
 				? {
-						buffer: thumbnailResult.buffer,
+						url: thumbnailUrl!,
 						format: thumbnailResult.format,
 						width: thumbnailResult.width,
 						height: thumbnailResult.height,
 					}
 				: null,
 			removeThumbnail: input.removeThumbnail,
-			images: validImages.map((img) => ({
-				buffer: img.buffer,
+			images: imageUploads.map((img) => ({
+				url: img.url,
 				format: img.format,
 				width: img.width,
 				height: img.height,

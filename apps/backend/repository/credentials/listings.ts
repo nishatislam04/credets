@@ -6,13 +6,11 @@ import { sql } from "@db/connection";
 export interface CursorPayload {
 	createdAt: string;
 	id: string;
-}
-
-export interface CredentialRow {
+}	export interface CredentialRow {
 	id: string;
 	title: string;
 	short_description: string | null;
-	thumbnail_image_data: Buffer | null;
+	thumbnail_url: string | null;
 	thumbnail_format: string | null;
 	thumbnail_width: number | null;
 	thumbnail_height: number | null;
@@ -33,7 +31,7 @@ export async function getCredentialsListingsRepo(
 			return await sql<CredentialRow[]>`
 				SELECT
 					c.id, c.title, c.short_description,
-					c.thumbnail_image_data, c.thumbnail_format, c.thumbnail_width, c.thumbnail_height,
+					c.thumbnail_url, c.thumbnail_format, c.thumbnail_width, c.thumbnail_height,
 					c.tags, c.created_at,
 					t.label AS type_label, t.value AS type_value
 				FROM credentials c
@@ -49,7 +47,7 @@ export async function getCredentialsListingsRepo(
 		return await sql<CredentialRow[]>`
 			SELECT
 				c.id, c.title, c.short_description,
-				c.thumbnail_image_data, c.thumbnail_format, c.thumbnail_width, c.thumbnail_height,
+				c.thumbnail_url, c.thumbnail_format, c.thumbnail_width, c.thumbnail_height,
 				c.tags, c.created_at,
 				t.label AS type_label, t.value AS type_value
 			FROM credentials c

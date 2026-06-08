@@ -19,10 +19,7 @@ export async function getCredentialDetailService(credentialId: string) {
 			long_description: credential.long_description,
 			type_label: credential.type_label,
 			type_value: credential.type_value,
-			thumbnail_image_data:
-				credential.thumbnail_image_data != null
-					? Buffer.from(credential.thumbnail_image_data).toString("base64")
-					: null,
+			thumbnail_url: credential.thumbnail_url,
 			thumbnail_format: credential.thumbnail_format,
 			thumbnail_width: credential.thumbnail_width,
 			thumbnail_height: credential.thumbnail_height,
@@ -39,10 +36,7 @@ export async function getCredentialDetailService(credentialId: string) {
 			updated_at: credential.updated_at?.toISOString() ?? null,
 			images: images.map((img) => ({
 				id: img.id,
-				image_data:
-					img.image_data != null
-						? Buffer.from(img.image_data).toString("base64")
-						: null,
+				image_url: img.image_url,
 				format: img.format,
 				width: img.width,
 				height: img.height,

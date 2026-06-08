@@ -2,9 +2,8 @@ import { logAlways } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 import { AppError } from "@backend/err/base";
 import { BadRequestError } from "@backend/err/bad-request";
-import { DatabaseError } from "@backend/err/database";
-
-export interface CreateCredentialRepoInput {
+import { DatabaseError } from "@backend/err/database";	export interface CreateCredentialRepoInput {
+	id: string;
 	title: string;
 	type: string;
 	short_description: string | null;
@@ -13,13 +12,13 @@ export interface CreateCredentialRepoInput {
 	data: string;
 	tags: string | null;
 	thumbnail: {
-		buffer: Uint8Array;
+		url: string;
 		format: string;
 		width: number;
 		height: number;
 	} | null;
 	images: Array<{
-		buffer: Uint8Array;
+		url: string;
 		format: string;
 		width: number;
 		height: number;
@@ -45,10 +44,11 @@ export async function createCredentialRepo(
 			}
 
 			const credentialPayload = {
+				id: input.id,
 				title: input.title,
 				short_description: input.short_description,
 				long_description: input.long_description,
-				thumbnail_image_data: input.thumbnail?.buffer || null,
+				thumbnail_url: input.thumbnail?.url || null,
 				thumbnail_format: input.thumbnail?.format || null,
 				thumbnail_width: input.thumbnail?.width || null,
 				thumbnail_height: input.thumbnail?.height || null,
@@ -65,7 +65,7 @@ export async function createCredentialRepo(
 
 			if (input.images.length > 0) {
 				const imagesPayload = input.images.map((img) => ({
-					image_data: img.buffer,
+					image_url: img.url,
 					format: img.format,
 					width: img.width,
 					height: img.height,

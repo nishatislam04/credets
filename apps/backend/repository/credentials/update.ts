@@ -3,9 +3,7 @@ import { sql } from "@db/connection";
 import { AppError } from "@backend/err/base";
 import { BadRequestError } from "@backend/err/bad-request";
 import { DatabaseError } from "@backend/err/database";
-import { NotFoundError } from "@backend/err/not-found";
-
-export interface UpdateCredentialRepoInput {
+import { NotFoundError } from "@backend/err/not-found";	export interface UpdateCredentialRepoInput {
 	credentialId: string;
 	title: string;
 	type: string;
@@ -15,14 +13,14 @@ export interface UpdateCredentialRepoInput {
 	data: string;
 	tags: string | null;
 	thumbnail: {
-		buffer: Uint8Array;
+		url: string;
 		format: string;
 		width: number;
 		height: number;
 	} | null;
 	removeThumbnail: boolean;
 	images: Array<{
-		buffer: Uint8Array;
+		url: string;
 		format: string;
 		width: number;
 		height: number;
@@ -64,12 +62,12 @@ export async function updateCredentialRepo(
 			};
 
 			if (input.thumbnail) {
-				updateFields.thumbnail_image_data = input.thumbnail.buffer;
+				updateFields.thumbnail_url = input.thumbnail.url;
 				updateFields.thumbnail_format = input.thumbnail.format;
 				updateFields.thumbnail_width = input.thumbnail.width;
 				updateFields.thumbnail_height = input.thumbnail.height;
 			} else if (input.removeThumbnail) {
-				updateFields.thumbnail_image_data = null;
+				updateFields.thumbnail_url = null;
 				updateFields.thumbnail_format = null;
 				updateFields.thumbnail_width = null;
 				updateFields.thumbnail_height = null;
@@ -97,7 +95,7 @@ export async function updateCredentialRepo(
 			// 6. Insert new images
 			if (input.images.length > 0) {
 				const credentialImagesPayload = input.images.map((img) => ({
-					image_data: img.buffer,
+					image_url: img.url,
 					format: img.format,
 					width: img.width,
 					height: img.height,

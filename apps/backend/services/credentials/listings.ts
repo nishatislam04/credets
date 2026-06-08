@@ -43,10 +43,7 @@ export async function getCredentialsListingsService(
 			id: cred.id,
 			title: cred.title,
 			short_description: cred.short_description,
-			thumbnail_image_data:
-				cred.thumbnail_image_data != null
-					? Buffer.from(cred.thumbnail_image_data).toString("base64")
-					: null,
+			thumbnail_url: cred.thumbnail_url,
 			thumbnail_format: cred.thumbnail_format,
 			thumbnail_width: cred.thumbnail_width,
 			thumbnail_height: cred.thumbnail_height,

@@ -3,7 +3,7 @@ export type CredentialListItem = {
 	id: string;
 	title: string;
 	short_description: string | null;
-	thumbnail_image_data: string | null;
+	thumbnail_url: string | null;
 	thumbnail_format: string | null;
 	thumbnail_width: number | null;
 	thumbnail_height: number | null;
@@ -23,7 +23,7 @@ export type CredentialListingsResponse = {
 /** A single credential image returned by the detail endpoint */
 export type CredentialImage = {
 	id: string;
-	image_data: string | null;
+	image_url: string | null;
 	format: string | null;
 	width: number | null;
 	height: number | null;
@@ -45,7 +45,7 @@ export type CredentialDetail = {
 	long_description: string | null;
 	type_label: string | null;
 	type_value: string | null;
-	thumbnail_image_data: string | null;
+	thumbnail_url: string | null;
 	thumbnail_format: string | null;
 	thumbnail_width: number | null;
 	thumbnail_height: number | null;
