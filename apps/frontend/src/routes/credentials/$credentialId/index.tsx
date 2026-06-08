@@ -1,4 +1,4 @@
-import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
+import type { CredentialDetail, DataBlockEntry } from "@credets/shared-types/credentials/listings";
 import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
 import {
 	ArrowLeft,
@@ -266,34 +266,10 @@ function RouteComponent() {
 							</section>
 						)}
 
-						{/* Thumbnail standalone (when no gallery images) */}
-						{!hasImages && thumbnailUri && (
-							<section>
-								<div className="mb-3 flex items-center gap-2">
-									<ImageIcon className="size-4 text-muted-foreground/50" />
-									<h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/50">
-										Thumbnail
-									</h2>
-								</div>
-								<button
-									type="button"
-									onClick={() => openLightbox(0)}
-									className="group relative max-h-72 w-full overflow-hidden rounded-xl border bg-muted/20 ring-1 ring-border/40 transition-all duration-200 hover:ring-primary/30 hover:shadow-md cursor-pointer border-0"
-								>
-									<img
-										src={thumbnailUri}
-										alt={credential.title}
-										className="mx-auto max-h-72 w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
-									/>
-									<div className="absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/[0.02]" />
-								</button>
-							</section>
-						)}
-
 						{/* Data section */}
 						{credential.data && (
 							<section>
-								<CredentialDataRenderer typeValue={credential.type_value} data={credential.data} />
+								<CredentialDataRenderer typeValue={credential.type_value} data={credential.data as DataBlockEntry[]} />
 							</section>
 						)}
 					</div>
@@ -391,25 +367,9 @@ function RouteComponent() {
 			</div>
 
 			{/* ── Lightbox overlay ── */}
-			{lightboxOpen && (
+			{lightboxOpen && hasImages && (
 				<ImageLightbox
-					images={
-						hasImages
-							? credential.images
-							: credential.thumbnail_url
-								? [
-										{
-											id: "thumbnail",
-											image_url: credential.thumbnail_url,
-											format: credential.thumbnail_format,
-											width: credential.thumbnail_width,
-											height: credential.thumbnail_height,
-											byte_size: null,
-											sort_order: 0,
-										},
-									]
-								: []
-					}
+					images={credential.images}
 					initialIndex={lightboxIndex}
 					onClose={() => setLightboxOpen(false)}
 				/>
