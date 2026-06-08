@@ -1,3 +1,4 @@
+import { AppError } from "@backend/err/base";
 import { logAlways } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import { credentialsCreateSchema } from "@credets/shared-schema/credentials/create";
@@ -41,12 +42,26 @@ export async function credentialCreate(req: BunRequest) {
 		});
 	} catch (error) {
 		logAlways(error, "http: error in credentialCreate controller");
+
+		if (error instanceof AppError) {
+			return ResponseFactory.error({
+				error: error.message,
+				type: error.type,
+				message: "Failed to create credential",
+				status: error.status,
+				path: req,
+			});
+		}
+
 		return ResponseFactory.error({
-			error: error instanceof Error ? error.message : "Internal Error",
+			error: "An unexpected error occurred",
 			type: "internal-error",
 			message: "Failed to create credential",
 			status: 500,
 			path: req,
+			details: {
+				originError: error instanceof Error ? error.message : "unknown error",
+			},
 		});
 	}
 }

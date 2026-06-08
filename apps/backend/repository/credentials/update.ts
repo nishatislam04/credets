@@ -1,5 +1,9 @@
 import { logAlways } from "@backend/utils/logger";
 import { sql } from "@db/connection";
+import { AppError } from "@backend/err/base";
+import { BadRequestError } from "@backend/err/bad-request";
+import { DatabaseError } from "@backend/err/database";
+import { NotFoundError } from "@backend/err/not-found";
 
 export interface UpdateCredentialRepoInput {
 	credentialId: string;
@@ -38,14 +42,14 @@ export async function updateCredentialRepo(
 			const [existingCredential] =
 				await sql`SELECT id FROM credentials WHERE id = ${input.credentialId}`;
 			if (!existingCredential) {
-				throw new Error("Credential not found");
+				throw new NotFoundError("Credential");
 			}
 
 			// 2. Resolve types_id
 			const [typeRow] =
 				await sql`SELECT id FROM types WHERE value=${input.type}`;
 			if (!typeRow) {
-				throw new Error("Invalid type selected");
+				throw new BadRequestError("Invalid type selected");
 			}
 
 			// 3. Build update payload
@@ -106,6 +110,11 @@ export async function updateCredentialRepo(
 		});
 	} catch (error) {
 		logAlways(error, "repo: db update transaction failed");
-		throw error;
+
+		if (error instanceof AppError) {
+			throw error;
+		}
+
+		throw new DatabaseError(error);
 	}
 }

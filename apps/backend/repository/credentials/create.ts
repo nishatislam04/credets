@@ -1,5 +1,8 @@
 import { logAlways } from "@backend/utils/logger";
 import { sql } from "@db/connection";
+import { AppError } from "@backend/err/base";
+import { BadRequestError } from "@backend/err/bad-request";
+import { DatabaseError } from "@backend/err/database";
 
 export interface CreateCredentialRepoInput {
 	title: string;
@@ -36,8 +39,8 @@ export async function createCredentialRepo(
 				await sql`SELECT id FROM types WHERE value=${input.type}`;
 
 			if (!typeRow) {
-				throw new Error(
-					`DB Error: Credential type '${input.type}' does not exist`,
+				throw new BadRequestError(
+					`Credential type '${input.type}' does not exist`,
 				);
 			}
 
@@ -76,6 +79,11 @@ export async function createCredentialRepo(
 		});
 	} catch (error) {
 		logAlways(error, "repo: db insert query failed");
-		throw error;
+
+		if (error instanceof AppError) {
+			throw error;
+		}
+
+		throw new DatabaseError(error);
 	}
 }

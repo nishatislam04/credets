@@ -1,4 +1,5 @@
 import type { BunRequest } from "bun";
+import { AppError } from "./err/base";
 import { logAlways } from "./utils/logger";
 import { credentialCreate } from "./http/credentials/create";
 import { credentialPage } from "./http/credentials/credential";
@@ -45,15 +46,28 @@ Bun.serve({
 	},
 
 	error(error) {
-		const message =
-			error instanceof Error ? error.message : "Internal server error";
 		logAlways(error, "server error");
-		return new Response(message, {
-			status: 500,
-			headers: {
-				"Content-Type": "text/plain; charset=utf-8",
+
+		const status = error instanceof AppError ? error.status : 500;
+		const type = error instanceof AppError ? error.type : "internal-error";
+		const message = error instanceof AppError
+			? error.message
+			: "An unexpected error occurred";
+
+		return Response.json(
+			{
+				success: false,
+				error: message,
+				type,
+				message: "Server error",
+				timestamp: new Date().toISOString(),
+				status,
 			},
-		});
+			{
+				status,
+				headers: ResponseFactory.getCorsHeaders(),
+			},
+		);
 	},
 });
 

@@ -1,3 +1,4 @@
+import { AppError } from "@backend/err/base";
 import { logAlways } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import type { BunRequest } from "bun";
@@ -37,9 +38,22 @@ export async function credentialPage(req: BunRequest) {
 		});
 	} catch (error) {
 		logAlways(error, "http: error in credentialPage controller");
+
+		if (error instanceof AppError) {
+			return ResponseFactory.error({
+				error: error.message,
+				type: error.type,
+				message: "Failed to fetch credential",
+				status: error.status,
+				path: req,
+				data: {},
+			});
+		}
+
 		return ResponseFactory.error({
-			error: "database error",
-			message: "failed to fetch credential",
+			error: "An unexpected error occurred",
+			type: "internal-error",
+			message: "Failed to fetch credential",
 			status: 500,
 			path: req,
 			details: {

@@ -1,3 +1,5 @@
+import { AppError } from "@backend/err/base";
+import { DatabaseError } from "@backend/err/database";
 import { logAlways } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 
@@ -61,6 +63,11 @@ export async function getCredentialDetailRepo(credentialId: string) {
 		return { credential, images };
 	} catch (error) {
 		logAlways(error, "repo: fetch credential detail queries failed");
-		throw error;
+
+		if (error instanceof AppError) {
+			throw error;
+		}
+
+		throw new DatabaseError(error);
 	}
 }

@@ -1,5 +1,8 @@
 import { logAlways } from "@backend/utils/logger";
 import { sql } from "@db/connection";
+import { AppError } from "@backend/err/base";
+import { DatabaseError } from "@backend/err/database";
+import { NotFoundError } from "@backend/err/not-found";
 
 export async function deleteCredentialRepo(
 	credentialId: string,
@@ -13,7 +16,7 @@ export async function deleteCredentialRepo(
 			`;
 
 			if (!existing) {
-				throw new Error("Credential not found");
+				throw new NotFoundError("Credential");
 			}
 
 			await sql`DELETE FROM credentials WHERE id = ${credentialId}`;
@@ -22,6 +25,11 @@ export async function deleteCredentialRepo(
 		});
 	} catch (error) {
 		logAlways(error, "repo: delete query failed");
-		throw error;
+
+		if (error instanceof AppError) {
+			throw error;
+		}
+
+		throw new DatabaseError(error);
 	}
 }

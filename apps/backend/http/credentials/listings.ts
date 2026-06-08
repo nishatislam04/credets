@@ -1,3 +1,4 @@
+import { AppError } from "@backend/err/base";
 import { log } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import type { BunRequest } from "bun";
@@ -42,14 +43,27 @@ export async function credentialListings(req: BunRequest) {
 		});
 	} catch (error) {
 		log(error, "http: error in credentialListings controller");
+
+		if (error instanceof AppError) {
+			return ResponseFactory.error({
+				error: error.message,
+				type: error.type,
+				message: "Failed to fetch credentials listings",
+				status: error.status,
+				path: req,
+				data: {},
+			});
+		}
+
 		return ResponseFactory.error({
-			error: "database or server side error",
-			data: {},
-			message: "failed to fetch credentials listings",
+			error: "An unexpected error occurred",
+			type: "internal-error",
+			message: "Failed to fetch credentials listings",
+			status: 500,
 			path: req,
+			data: {},
 			details: {
-				originError:
-					error instanceof Error ? error.message : "unknown server error",
+				originError: error instanceof Error ? error.message : "unknown error",
 			},
 		});
 	}

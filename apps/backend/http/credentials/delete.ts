@@ -1,3 +1,4 @@
+import { AppError } from "@backend/err/base";
 import { logAlways } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import type { BunRequest } from "bun";
@@ -62,20 +63,24 @@ export async function credentailDelete(req: Request) {
 	} catch (error) {
 		logAlways(error, "http: error in credentailDelete controller");
 
-		const status =
-			error instanceof Error && error.message === "Credential not found"
-				? 404
-				: 500;
+		if (error instanceof AppError) {
+			return ResponseFactory.error({
+				error: error.message,
+				type: error.type,
+				message: "Failed to delete credential",
+				status: error.status,
+				path: { url: req.url } as BunRequest,
+			});
+		}
 
 		return ResponseFactory.error({
-			error:
-				error instanceof Error ? error.message : "Failed to delete credential",
+			error: "An unexpected error occurred",
+			type: "internal-error",
 			message: "Failed to delete credential",
-			status,
+			status: 500,
 			path: { url: req.url } as BunRequest,
 			details: {
-				originError:
-					error instanceof Error ? error.message : "unknown server error",
+				originError: error instanceof Error ? error.message : "unknown error",
 			},
 		});
 	}

@@ -18,7 +18,7 @@ export class ResponseFactory {
 	 * Get CORS headers based on environment
 	 * Allows your frontend origin to access the backend
 	 */
-	private static getCorsHeaders(): Record<string, string> {
+	static getCorsHeaders(): Record<string, string> {
 		const allowedOrigin =
 			process.env.FRONTEND_APP || "https://credets.onrender.com";
 		return {

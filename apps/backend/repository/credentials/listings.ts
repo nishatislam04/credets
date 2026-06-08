@@ -1,3 +1,5 @@
+import { AppError } from "@backend/err/base";
+import { DatabaseError } from "@backend/err/database";
 import { logAlways } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 
@@ -57,6 +59,11 @@ export async function getCredentialsListingsRepo(
 		`;
 	} catch (error) {
 		logAlways(error, "repo: credentials listings query failed");
-		throw error;
+
+		if (error instanceof AppError) {
+			throw error;
+		}
+
+		throw new DatabaseError(error);
 	}
 }
