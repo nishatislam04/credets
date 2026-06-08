@@ -33,14 +33,20 @@ function getS3Client(): S3Client {
 	return _s3;
 }
 
-/** Derive the Supabase public object URL from the S3 endpoint + bucket + key. */
+/** Derive the public object URL from the S3 endpoint + bucket + key. */
 function getPublicUrl(key: string): string {
-	const endpoint = process.env.STORAGE_ENDPOINT!;
 	const bucket = process.env.STORAGE_BUCKET || "credentials";
 
+	// If STORAGE_PUBLIC_URL is set, use it directly (e.g. http://localhost:9000 for MinIO)
+	const publicBase = process.env.STORAGE_PUBLIC_URL;
+	if (publicBase) {
+		return `${publicBase.replace(/\/+$/, "")}/${bucket}/${key}`;
+	}
+
+	// Fallback: Supabase format
 	// Endpoint: https://{project}.storage.supabase.co/storage/v1/s3
 	// Public URL: https://{project}.storage.supabase.co/storage/v1/object/public/{bucket}/{key}
-	const baseUrl = endpoint.replace("/storage/v1/s3", "");
+	const baseUrl = process.env.STORAGE_ENDPOINT!.replace("/storage/v1/s3", "");
 	return `${baseUrl}/storage/v1/object/public/${bucket}/${key}`;
 }
 
@@ -102,19 +108,38 @@ export function credentialThumbnailKey(credentialId: string): string {
 }
 
 /**
- * Derive the S3 object key from a public Supabase Storage URL.
+ * Derive the S3 object key from a public storage URL.
+ * Handles both Supabase format and MinIO/local format.
  *
- * Example:
+ * Supabase example:
  *   input:  https://.../storage/v1/object/public/credentials/credentials/{id}/images/0.webp
+ *   output: credentials/{id}/images/0.webp
+ *
+ * MinIO example:
+ *   input:  http://localhost:9000/credentials/credentials/{id}/images/0.webp
  *   output: credentials/{id}/images/0.webp
  */
 export function extractKeyFromUrl(publicUrl: string): string | null {
 	const bucket = process.env.STORAGE_BUCKET || "credentials";
-	// Public URL format: {baseUrl}/storage/v1/object/public/{bucket}/{key}
-	const marker = `/storage/v1/object/public/${bucket}/`;
-	const idx = publicUrl.indexOf(marker);
-	if (idx === -1) return null;
-	return publicUrl.slice(idx + marker.length);
+
+	// Try Supabase format: {baseUrl}/storage/v1/object/public/{bucket}/{key}
+	const supabaseMarker = `/storage/v1/object/public/${bucket}/`;
+	const supabaseIdx = publicUrl.indexOf(supabaseMarker);
+	if (supabaseIdx !== -1) {
+		return publicUrl.slice(supabaseIdx + supabaseMarker.length);
+	}
+
+	// Try MinIO/local format: {baseUrl}/{bucket}/{key}
+	const publicBase = process.env.STORAGE_PUBLIC_URL;
+	if (publicBase) {
+		const base = publicBase.replace(/\/+$/, "");
+		const minioMarker = `${base}/${bucket}/`;
+		if (publicUrl.startsWith(minioMarker)) {
+			return publicUrl.slice(minioMarker.length);
+		}
+	}
+
+	return null;
 }
 
 /**
