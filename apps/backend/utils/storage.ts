@@ -13,7 +13,7 @@ let _s3: S3Client | null = null;
 function getS3Client(): S3Client {
 	if (!_s3) {
 		const endpoint = process.env.STORAGE_ENDPOINT;
-		const region = process.env.STORAGE_REGION || "ap-southeast-1";
+		const region = process.env.STORAGE_REGION;
 		const accessKeyId = process.env.STORAGE_ACCESS_KEY_ID;
 		const secretAccessKey = process.env.STORAGE_SECRET_ACCESS_KEY;
 
@@ -35,7 +35,7 @@ function getS3Client(): S3Client {
 
 /** Derive the public object URL from the S3 endpoint + bucket + key. */
 function getPublicUrl(key: string): string {
-	const bucket = process.env.STORAGE_BUCKET || "credentials";
+	const bucket = process.env.STORAGE_BUCKET;
 
 	// If STORAGE_PUBLIC_URL is set, use it directly (e.g. http://localhost:9000 for MinIO)
 	const publicBase = process.env.STORAGE_PUBLIC_URL;
@@ -43,9 +43,6 @@ function getPublicUrl(key: string): string {
 		return `${publicBase.replace(/\/+$/, "")}/${bucket}/${key}`;
 	}
 
-	// Fallback: Supabase format
-	// Endpoint: https://{project}.storage.supabase.co/storage/v1/s3
-	// Public URL: https://{project}.storage.supabase.co/storage/v1/object/public/{bucket}/{key}
 	const baseUrl = process.env.STORAGE_ENDPOINT!.replace("/storage/v1/s3", "");
 	return `${baseUrl}/storage/v1/object/public/${bucket}/${key}`;
 }
@@ -110,17 +107,9 @@ export function credentialThumbnailKey(credentialId: string): string {
 /**
  * Derive the S3 object key from a public storage URL.
  * Handles both Supabase format and MinIO/local format.
- *
- * Supabase example:
- *   input:  https://.../storage/v1/object/public/credentials/credentials/{id}/images/0.webp
- *   output: credentials/{id}/images/0.webp
- *
- * MinIO example:
- *   input:  http://localhost:9000/credentials/credentials/{id}/images/0.webp
- *   output: credentials/{id}/images/0.webp
  */
 export function extractKeyFromUrl(publicUrl: string): string | null {
-	const bucket = process.env.STORAGE_BUCKET || "credentials";
+	const bucket = process.env.STORAGE_BUCKET;
 
 	// Try Supabase format: {baseUrl}/storage/v1/object/public/{bucket}/{key}
 	const supabaseMarker = `/storage/v1/object/public/${bucket}/`;
@@ -156,7 +145,7 @@ export function credentialPrefix(credentialId: string): string {
  * S3 delete is idempotent — deleting a non-existent key does NOT throw.
  */
 export async function deleteFromS3(key: string): Promise<void> {
-	const bucket = process.env.STORAGE_BUCKET || "credentials";
+	const bucket = process.env.STORAGE_BUCKET;
 	const s3 = getS3Client();
 
 	logAlways(key, "storage: deleting file from S3");
@@ -179,7 +168,7 @@ export async function deleteFromS3(key: string): Promise<void> {
  * Best practice for credential cleanup: call with `credentialPrefix(id)`.
  */
 export async function deletePrefixFromS3(prefix: string): Promise<void> {
-	const bucket = process.env.STORAGE_BUCKET || "credentials";
+	const bucket = process.env.STORAGE_BUCKET;
 	const s3 = getS3Client();
 
 	logAlways(prefix, "storage: deleting prefix from S3");

@@ -25,19 +25,17 @@ export async function getCredentialDetailService(credentialId: string) {
 			thumbnail_width: credential.thumbnail_width,
 			thumbnail_height: credential.thumbnail_height,
 			data: await (async () => {
-				const raw = typeof credential.data === "string"
-					? credential.data
-					: typeof credential.data === "object" && credential.data !== null
-						? JSON.stringify(credential.data)
-						: String(credential.data);
+				const raw =
+					typeof credential.data === "string"
+						? credential.data
+						: typeof credential.data === "object" && credential.data !== null
+							? JSON.stringify(credential.data)
+							: String(credential.data);
 				const decrypted = await decrypt(raw);
 				return JSON.parse(decrypted);
 			})(),
 			notes: credential.notes,
-			tags:
-				typeof credential.tags === "string"
-					? JSON.parse(credential.tags)
-					: credential.tags,
+			tags: JSON.parse(credential.tags),
 			created_at: credential.created_at.toISOString(),
 			updated_at: credential.updated_at?.toISOString() ?? null,
 			images: images.map((img) => ({

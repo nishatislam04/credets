@@ -7,23 +7,25 @@ A monorepo for securely managing private credentials — a full-stack credential
 - **Monorepo** — Bun workspaces with shared packages (`packages/`)
 - **Backend** — Bun HTTP server, PostgreSQL, Zod validation
 - **Frontend** — TanStack Router + TanStack Query + TanStack Form
-- **UI** — shadcn/ui with Base UI primitives (`@base-ui/react`)
-- **Language** — TypeScript throughout
+- **UI** — shadcn/ui with Base UI primitives
 - **Formatting & Linting** — Biome
-- **Hosting** — Backend on Render, Frontend TBD
+- **Hosting** — Backend on Render, Frontend on Render
+- **Image Upload** - minio (local-docker) | supabase storage (production)
 
 ## Features
 
+- Simple authentication and Full systematic Authorization
 - Credential listings with infinite scroll
-- Create, update, and delete credentials
-- Image upload support (thumbnail + gallery)
-- Flexible data input (single value, key-pair, text blocks)
-- Search, sort, and filter
+- Create, update and delete credentials
+- Create, update and delete types
+- Image upload support (thumbnail + gallery) to supabase storage
+- Flexible data input for credential (single value, key-pair, text blocks)
+- Search, sort, and filter in credentials listings
 - Security: CSRF protection, encryption-at-rest, password hashing
 
 ## Project Structure
 
-```
+```bash
 credets/
 ├── apps/
 │   ├── backend/        # Bun HTTP API server
@@ -68,12 +70,12 @@ openssl rand -hex 32
 ```
 
 Set the output as `ENC_KEY` in both `.env` files — this encrypts/decrypts credential secrets.
-`CSRF_SECRET_KEY` is used for CSRF token generation.
+`CSRF_SECRET_KEY` is used for CSRF token generation and verification
 
-### 4. Start PostgreSQL
+### 4. Start docker
 
 ```bash
-make db-up
+docker compose up
 ```
 
 ### 5. Run the app
@@ -91,7 +93,7 @@ bun run dev:backend   # http://localhost:8000
 bun run dev:frontend  # http://localhost:3000
 ```
 
-### 6. Seed the database (optional)
+### 6. Seed the database locally
 
 ```bash
 bun run seed
@@ -103,15 +105,8 @@ All project documentation lives in [`docs/`](./docs). Key documents:
 
 | Document | Description |
 |----------|-------------|
+
 | [`docs/app.md`](./docs/app.md) | App story, requirements, and feature list |
 | [`docs/form.md`](./docs/form.md) | Frontend & backend form processing guide |
 | [`docs/dblab.md`](./docs/dblab.md) | Database inspector setup |
 | [`docs/production.md`](./docs/production.md) | Production deployment notes |
-
-## AI Agent Skills
-
-This project ships with [shadcn/ui](./docs/frontend/shadcn-ui-guide.md) skills for AI agents. The canonical skill files live in:
-
-- **`.agents/skills/shadcn/`** — shadcn rules, patterns, and project-specific deviations
-
-AI agents should also consult `docs/frontend/shadcn-ui-guide.md` for a consolidated reference covering import aliases, component patterns, and library choices specific to this project.

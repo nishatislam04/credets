@@ -34,10 +34,10 @@ import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { DeleteCredentialDialog } from "./-delete/delete-credential-dialog";
 import { getCredentialUpdate } from "./-actions/getCredentialUpdate";
 import { updateCredentialAction } from "./-actions/updateCredentialAction";
 import { updateCredentialValidation } from "./-actions/updateCredentialValidation";
+import { DeleteCredentialDialog } from "./-delete/delete-credential-dialog";
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
@@ -257,48 +257,116 @@ function RouteComponent() {
 				<p className="capitalize text-4xl text-center">Update credential data</p>
 			</div>
 
-				<Form
-					onSubmit={(e) => {
-						e.preventDefault();
-						form.handleSubmit();
-					}}
-					className="px-4 md:px-12"
-				>
-					<FieldGroup>
-						{/* csrf hidden */}
-						<form.Field
-							name="_csrf"
-							children={(field) => {
-								const isInvalid = !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<Input
-											id="_csrf"
-											value={field.state.value}
-											type="hidden"
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && <FieldError errors={field.state.meta.errors} />}
-									</Field>
-								);
-							}}
-						/>
-						{/* Title */}
-						<form.Field
-							name="title"
-							children={(field) => {
-								const isInvalid = !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="title">
-											Title <span className="text-destructive -ml-2">*</span>
+			<Form
+				onSubmit={(e) => {
+					e.preventDefault();
+					form.handleSubmit();
+				}}
+				className="px-4 md:px-12"
+			>
+				<FieldGroup>
+					{/* csrf hidden */}
+					<form.Field
+						name="_csrf"
+						children={(field) => {
+							const isInvalid = !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isInvalid}>
+									<Input
+										id="_csrf"
+										value={field.state.value}
+										type="hidden"
+										aria-invalid={isInvalid}
+									/>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
+					/>
+					{/* Title */}
+					<form.Field
+						name="title"
+						children={(field) => {
+							const isInvalid = !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isInvalid}>
+									<FieldLabel htmlFor="title">
+										Title <span className="text-destructive -ml-2">*</span>
+									</FieldLabel>
+									<Input
+										id="title"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Enter credential title"
+										aria-invalid={isInvalid}
+									/>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
+					/>
+					{/* Type field */}
+					<form.Field
+						name="type"
+						children={(field) => {
+							const isInvalid = !field.state.meta.isValid;
+							return (
+								<Field orientation="responsive" data-invalid={isInvalid}>
+									<FieldContent flex={false}>
+										<FieldLabel className="w-15 mt-2" htmlFor="type">
+											types <span className="text-destructive -ml-2">*</span>
 										</FieldLabel>
-										<Input
-											id="title"
-											value={field.state.value}
+										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+									</FieldContent>
+									<Select
+										name={field.name}
+										value={field.state.value}
+										onValueChange={(value) => {
+											field.handleChange(value || "");
+										}}
+									>
+										<SelectTrigger id="type" aria-invalid={isInvalid}>
+											<SelectValue placeholder="Select a type" />
+										</SelectTrigger>
+										<SelectContent>
+											{isTypesListingsLoading ? (
+												<SelectItem value="" disabled>
+													fetching types...
+												</SelectItem>
+											) : typesListings?.length > 0 ? (
+												typesListings.map((type: { id: string; value: string; label: string }) => (
+													<SelectItem key={type.id} value={type.value}>
+														{type.label}
+													</SelectItem>
+												))
+											) : (
+												<SelectItem value="" disabled>
+													No types available
+												</SelectItem>
+											)}
+										</SelectContent>
+									</Select>
+								</Field>
+							);
+						}}
+					/>
+					{/* Short & Long description side by side */}
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
+						<form.Field
+							name="short_description"
+							children={(field) => {
+								const isInvalid = !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor="short_description">Short description</FieldLabel>
+										<Textarea
+											id="short_description"
+											value={field.state.value ?? ""}
 											onBlur={field.handleBlur}
 											onChange={(e) => field.handleChange(e.target.value)}
-											placeholder="Enter credential title"
+											rows={8}
+											placeholder="Brief summary"
 											aria-invalid={isInvalid}
 										/>
 										{isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -306,485 +374,413 @@ function RouteComponent() {
 								);
 							}}
 						/>
-						{/* Type field */}
 						<form.Field
-							name="type"
+							name="long_description"
 							children={(field) => {
 								const isInvalid = !field.state.meta.isValid;
 								return (
-									<Field orientation="responsive" data-invalid={isInvalid}>
-										<FieldContent flex={false}>
-											<FieldLabel className="w-15 mt-2" htmlFor="type">
-												types <span className="text-destructive -ml-2">*</span>
-											</FieldLabel>
-											{isInvalid && <FieldError errors={field.state.meta.errors} />}
-										</FieldContent>
-										<Select
-											name={field.name}
-											value={field.state.value}
-											onValueChange={(value) => {
-												field.handleChange(value || "");
-											}}
-										>
-											<SelectTrigger id="type" aria-invalid={isInvalid}>
-												<SelectValue placeholder="Select a type" />
-											</SelectTrigger>
-											<SelectContent>
-												{isTypesListingsLoading ? (
-													<SelectItem value="" disabled>
-														fetching types...
-													</SelectItem>
-												) : typesListings?.length > 0 ? (
-													typesListings.map(
-														(type: { id: string; value: string; label: string }) => (
-															<SelectItem key={type.id} value={type.value}>
-																{type.label}
-															</SelectItem>
-														),
-													)
-												) : (
-													<SelectItem value="" disabled>
-														No types available
-													</SelectItem>
-												)}
-											</SelectContent>
-										</Select>
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor="long_description">Long description</FieldLabel>
+										<Textarea
+											id="long_description"
+											value={field.state.value ?? ""}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											rows={8}
+											placeholder="Detailed description"
+											aria-invalid={isInvalid}
+										/>
+										{isInvalid && <FieldError errors={field.state.meta.errors} />}
 									</Field>
 								);
 							}}
 						/>
-						{/* Short & Long description side by side */}
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
-							<form.Field
-								name="short_description"
-								children={(field) => {
-									const isInvalid = !field.state.meta.isValid;
-									return (
-										<Field data-invalid={isInvalid}>
-											<FieldLabel htmlFor="short_description">Short description</FieldLabel>
-											<Textarea
-												id="short_description"
-												value={field.state.value ?? ""}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.value)}
-												rows={8}
-												placeholder="Brief summary"
-												aria-invalid={isInvalid}
+					</div>
+					{/* Data blocks */}
+					<div className="my-6">
+						<h2 className="text-lg font-semibold mb-3">Data items</h2>
+						<form.Field
+							name="data"
+							mode="array"
+							children={(arrayField) => (
+								<div className="space-y-4">
+									{arrayField.state.value.length === 0 && (
+										<Item className="my-8">
+											<ItemContent className="items-center">
+												<ItemTitle className="capitalize text-2xl font-semibold">
+													no data block found
+												</ItemTitle>
+												<ItemDescription>
+													click below action button to create a data block
+												</ItemDescription>
+											</ItemContent>
+										</Item>
+									)}
+									{arrayField.state.value.length > 0 &&
+										arrayField.state.value.map((data, idx) => (
+											<DataBlock
+												key={`${crypto.randomUUID()}`}
+												item={data}
+												idx={idx}
+												form={form}
+												onRemove={() => arrayField.removeValue(idx)}
 											/>
-											{isInvalid && <FieldError errors={field.state.meta.errors} />}
-										</Field>
-									);
-								}}
-							/>
-							<form.Field
-								name="long_description"
-								children={(field) => {
-									const isInvalid = !field.state.meta.isValid;
-									return (
-										<Field data-invalid={isInvalid}>
-											<FieldLabel htmlFor="long_description">Long description</FieldLabel>
-											<Textarea
-												id="long_description"
-												value={field.state.value ?? ""}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.value)}
-												rows={8}
-												placeholder="Detailed description"
-												aria-invalid={isInvalid}
-											/>
-											{isInvalid && <FieldError errors={field.state.meta.errors} />}
-										</Field>
-									);
-								}}
-							/>
-						</div>
-						{/* Data blocks */}
-						<div className="my-6">
-							<h2 className="text-lg font-semibold mb-3">Data items</h2>
-							<form.Field
-								name="data"
-								mode="array"
-								children={(arrayField) => (
-									<div className="space-y-4">
-										{arrayField.state.value.length === 0 && (
-											<Item className="my-8">
-												<ItemContent className="items-center">
-													<ItemTitle className="capitalize text-2xl font-semibold">
-														no data block found
-													</ItemTitle>
-													<ItemDescription>
-														click below action button to create a data block
-													</ItemDescription>
-												</ItemContent>
-											</Item>
-										)}
-										{arrayField.state.value.length > 0 &&
-											arrayField.state.value.map((data, idx) => (
-												<DataBlock
-													key={`${crypto.randomUUID()}`}
-													item={data}
-													idx={idx}
-													form={form}
-													onRemove={() => arrayField.removeValue(idx)}
-												/>
-											))}
+										))}
 
-										<div className="grid grid-cols-3 gap-2">
-											<Button
-												type="button"
-												variant="secondary"
-												onClick={() => arrayField.pushValue({ type: "single_label", value: "" })}
-											>
-												+ Single label
-											</Button>
-											<Button
-												type="button"
-												variant="secondary"
-												onClick={() =>
-													arrayField.pushValue({ type: "key_value", key: "", value: "" })
-												}
-											>
-												+ Key / Value
-											</Button>
-											<Button
-												type="button"
-												variant="secondary"
-												onClick={() => arrayField.pushValue({ type: "information", value: "" })}
-											>
-												+ Information
-											</Button>
-										</div>
+									<div className="grid grid-cols-3 gap-2">
+										<Button
+											type="button"
+											variant="secondary"
+											onClick={() => arrayField.pushValue({ type: "single_label", value: "" })}
+										>
+											+ Single label
+										</Button>
+										<Button
+											type="button"
+											variant="secondary"
+											onClick={() =>
+												arrayField.pushValue({ type: "key_value", key: "", value: "" })
+											}
+										>
+											+ Key / Value
+										</Button>
+										<Button
+											type="button"
+											variant="secondary"
+											onClick={() => arrayField.pushValue({ type: "information", value: "" })}
+										>
+											+ Information
+										</Button>
 									</div>
-								)}
-							/>
-						</div>{" "}
-						{/* ── Thumbnail and Images ── */}
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
-							{/* Thumbnail */}
-							<form.Field
-								name="thumbnail"
-								children={(field) => {
-									const isInvalid = !field.state.meta.isValid;
-									const existingThumbnailSrc =
-										credential.thumbnail_image_data && credential.thumbnail_format
-											? `data:image/${credential.thumbnail_format};base64,${credential.thumbnail_image_data}`
-											: null;
-									const showExisting =
-										!field.state.value && existingThumbnailSrc && !thumbnailRemoved;
-									const showPreview = field.state.value;
-									const previewUrl = showPreview ? URL.createObjectURL(field.state.value) : null;
+								</div>
+							)}
+						/>
+					</div>{" "}
+					{/* ── Thumbnail and Images ── */}
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+						{/* Thumbnail */}
+						<form.Field
+							name="thumbnail"
+							children={(field) => {
+								const isInvalid = !field.state.meta.isValid;
+								const existingThumbnailSrc =
+									credential.thumbnail_image_data && credential.thumbnail_format
+										? `data:image/${credential.thumbnail_format};base64,${credential.thumbnail_image_data}`
+										: null;
+								const showExisting =
+									!field.state.value && existingThumbnailSrc && !thumbnailRemoved;
+								const showPreview = field.state.value;
+								const previewUrl = showPreview ? URL.createObjectURL(field.state.value) : null;
 
-									return (
-										<Field data-invalid={isInvalid}>
-											<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
 
-											{/* Show existing thumbnail with remove + preview */}
-											{showExisting && (
-												<div className="mb-3 max-w-48">
-													<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
+										{/* Show existing thumbnail with remove + preview */}
+										{showExisting && (
+											<div className="mb-3 max-w-48">
+												<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
+													<button
+														type="button"
+														onClick={() => setPreviewSrc(existingThumbnailSrc!)}
+														className="size-full cursor-pointer border-0 bg-transparent p-0"
+													>
+														<img
+															src={existingThumbnailSrc!}
+															alt="Current thumbnail"
+															className="size-full object-cover transition-transform duration-200 hover:scale-105"
+														/>
+													</button>
+													<button
+														type="button"
+														onClick={() => setThumbnailRemoved(true)}
+														className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
+														aria-label="Remove thumbnail"
+													>
+														<X className="size-3" />
+													</button>
+												</div>
+												<p className="mt-1 truncate text-xs text-muted-foreground">
+													Existing thumbnail
+												</p>
+											</div>
+										)}
+
+										{/* Show newly selected thumbnail preview */}
+										{showPreview && previewUrl && (
+											<div className="mb-3 max-w-48">
+												<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
+													<button
+														type="button"
+														onClick={() => setPreviewSrc(previewUrl)}
+														className="size-full cursor-pointer border-0 bg-transparent p-0"
+													>
+														<img
+															src={previewUrl}
+															alt="New thumbnail"
+															className="size-full object-cover transition-transform duration-200 hover:scale-105"
+														/>
+													</button>
+													<button
+														type="button"
+														onClick={() => {
+															field.handleChange(null);
+														}}
+														className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
+														aria-label="Remove thumbnail"
+													>
+														<X className="size-3" />
+													</button>
+												</div>
+												{field.state.value?.name && (
+													<p className="mt-1 truncate text-xs text-muted-foreground">
+														{field.state.value.name}
+													</p>
+												)}
+											</div>
+										)}
+
+										{/* Show removed state */}
+										{thumbnailRemoved && !showPreview && (
+											<p className="text-xs text-destructive mb-2">
+												Thumbnail will be removed on save ·{" "}
+												<button
+													type="button"
+													onClick={() => setThumbnailRemoved(false)}
+													className="underline cursor-pointer border-0 bg-transparent text-muted-foreground hover:text-foreground"
+												>
+													Undo
+												</button>
+											</p>
+										)}
+
+										<Input
+											id="thumbnail"
+											type="file"
+											accept="image/jpeg,image/png,image/webp"
+											onBlur={field.handleBlur}
+											onChange={(e) => {
+												const file = e.target.files?.[0] || null;
+												field.handleChange(file);
+												if (file) setThumbnailRemoved(false);
+											}}
+											aria-invalid={isInvalid}
+										/>
+										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+									</Field>
+								);
+							}}
+						/>
+
+						{/* Images */}
+						<Field>
+							<FieldLabel htmlFor="new-images">Images (multi)</FieldLabel>
+
+							{/* Existing images */}
+							{visibleExistingImages.length > 0 && (
+								<div className="mb-3">
+									<p className="text-xs text-muted-foreground mb-2">
+										Existing images ({visibleExistingImages.length})
+									</p>
+									<div className="grid grid-cols-3 gap-2">
+										{visibleExistingImages.map((img) => {
+											const src = imageSrc(img);
+											return (
+												<div key={img.id} className="group relative">
+													<div className="aspect-square overflow-hidden rounded-lg border bg-muted/20">
+														{src ? (
+															<button
+																type="button"
+																onClick={() => setPreviewSrc(src)}
+																className="size-full cursor-pointer border-0 bg-transparent p-0"
+															>
+																<img
+																	src={src}
+																	alt=""
+																	className="size-full object-cover transition-transform duration-200 hover:scale-105"
+																/>
+															</button>
+														) : (
+															<div className="flex size-full items-center justify-center text-muted-foreground/40 text-xs">
+																No data
+															</div>
+														)}
 														<button
 															type="button"
-															onClick={() => setPreviewSrc(existingThumbnailSrc!)}
-															className="size-full cursor-pointer border-0 bg-transparent p-0"
-														>
-															<img
-																src={existingThumbnailSrc!}
-																alt="Current thumbnail"
-																className="size-full object-cover transition-transform duration-200 hover:scale-105"
-															/>
-														</button>
-														<button
-															type="button"
-															onClick={() => setThumbnailRemoved(true)}
 															className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
-															aria-label="Remove thumbnail"
+															onClick={() => {
+																setRemovedImageIds((prev) => [...prev, img.id]);
+															}}
+															aria-label="Remove image"
 														>
 															<X className="size-3" />
 														</button>
 													</div>
 													<p className="mt-1 truncate text-xs text-muted-foreground">
-														Existing thumbnail
+														Image #{img.id.slice(0, 6)}
 													</p>
 												</div>
-											)}
+											);
+										})}
+									</div>
+								</div>
+							)}
 
-											{/* Show newly selected thumbnail preview */}
-											{showPreview && previewUrl && (
-												<div className="mb-3 max-w-48">
-													<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
+							{/* Removed images summary */}
+							{removedImageIds.length > 0 && (
+								<p className="text-xs text-destructive mb-2">
+									{removedImageIds.length} image{removedImageIds.length > 1 ? "s" : ""} will be
+									removed on save
+								</p>
+							)}
+
+							{/* New images input */}
+							<Input
+								id="new-images"
+								type="file"
+								multiple
+								accept="image/*"
+								onChange={(e) => {
+									const files = e.target.files ? Array.from(e.target.files) : [];
+									const available = 6 - visibleExistingImages.length - newImages.length;
+
+									if (available <= 0) {
+										gooeyToast.error("max 6 images support", {
+											description: "you can have up to 6 images total",
+										});
+										e.target.value = "";
+										return;
+									}
+
+									const toAdd = files.slice(0, available);
+									if (toAdd.length < files.length) {
+										gooeyToast.error("max 6 images support", {
+											description: `Only ${available} more image(s) allowed`,
+										});
+									}
+
+									setNewImages((prev) => [...prev, ...toAdd]);
+									e.target.value = "";
+								}}
+							/>
+
+							{/* New images preview grid */}
+							{newImages.length > 0 && (
+								<div className="mt-3">
+									<p className="text-xs text-muted-foreground mb-2">
+										New images ({newImages.length})
+									</p>
+									<div className="grid grid-cols-3 gap-2">
+										{newImages.map((file, index) => {
+											const fileUrl = URL.createObjectURL(file);
+											return (
+												<div key={`${file.name}-${index}`} className="group relative">
+													<div className="aspect-square overflow-hidden rounded-lg border bg-muted/20">
 														<button
 															type="button"
-															onClick={() => setPreviewSrc(previewUrl)}
+															onClick={() => setPreviewSrc(fileUrl)}
 															className="size-full cursor-pointer border-0 bg-transparent p-0"
 														>
 															<img
-																src={previewUrl}
-																alt="New thumbnail"
+																src={fileUrl}
+																alt={file.name}
 																className="size-full object-cover transition-transform duration-200 hover:scale-105"
 															/>
 														</button>
 														<button
 															type="button"
-															onClick={() => {
-																field.handleChange(null);
-															}}
 															className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
-															aria-label="Remove thumbnail"
+															onClick={() => {
+																setNewImages((prev) => prev.filter((_, i) => i !== index));
+															}}
+															aria-label="Remove image"
 														>
 															<X className="size-3" />
 														</button>
 													</div>
-													{field.state.value?.name && (
-														<p className="mt-1 truncate text-xs text-muted-foreground">
-															{field.state.value.name}
-														</p>
-													)}
+													<p className="mt-1 truncate text-xs text-muted-foreground">{file.name}</p>
 												</div>
-											)}
-
-											{/* Show removed state */}
-											{thumbnailRemoved && !showPreview && (
-												<p className="text-xs text-destructive mb-2">
-													Thumbnail will be removed on save ·{" "}
-													<button
-														type="button"
-														onClick={() => setThumbnailRemoved(false)}
-														className="underline cursor-pointer border-0 bg-transparent text-muted-foreground hover:text-foreground"
-													>
-														Undo
-													</button>
-												</p>
-											)}
-
-											<Input
-												id="thumbnail"
-												type="file"
-												accept="image/jpeg,image/png,image/webp"
-												onBlur={field.handleBlur}
-												onChange={(e) => {
-													const file = e.target.files?.[0] || null;
-													field.handleChange(file);
-													if (file) setThumbnailRemoved(false);
-												}}
-												aria-invalid={isInvalid}
-											/>
-											{isInvalid && <FieldError errors={field.state.meta.errors} />}
-										</Field>
-									);
-								}}
-							/>
-
-							{/* Images */}
-							<Field>
-								<FieldLabel htmlFor="new-images">Images (multi)</FieldLabel>
-
-								{/* Existing images */}
-								{visibleExistingImages.length > 0 && (
-									<div className="mb-3">
-										<p className="text-xs text-muted-foreground mb-2">
-											Existing images ({visibleExistingImages.length})
-										</p>
-										<div className="grid grid-cols-3 gap-2">
-											{visibleExistingImages.map((img) => {
-												const src = imageSrc(img);
-												return (
-													<div key={img.id} className="group relative">
-														<div className="aspect-square overflow-hidden rounded-lg border bg-muted/20">
-															{src ? (
-																<button
-																	type="button"
-																	onClick={() => setPreviewSrc(src)}
-																	className="size-full cursor-pointer border-0 bg-transparent p-0"
-																>
-																	<img
-																		src={src}
-																		alt=""
-																		className="size-full object-cover transition-transform duration-200 hover:scale-105"
-																	/>
-																</button>
-															) : (
-																<div className="flex size-full items-center justify-center text-muted-foreground/40 text-xs">
-																	No data
-																</div>
-															)}
-															<button
-																type="button"
-																className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
-																onClick={() => {
-																	setRemovedImageIds((prev) => [...prev, img.id]);
-																}}
-																aria-label="Remove image"
-															>
-																<X className="size-3" />
-															</button>
-														</div>
-														<p className="mt-1 truncate text-xs text-muted-foreground">
-															Image #{img.id.slice(0, 6)}
-														</p>
-													</div>
-												);
-											})}
-										</div>
+											);
+										})}
 									</div>
-								)}
-
-								{/* Removed images summary */}
-								{removedImageIds.length > 0 && (
-									<p className="text-xs text-destructive mb-2">
-										{removedImageIds.length} image{removedImageIds.length > 1 ? "s" : ""} will be
-										removed on save
-									</p>
-								)}
-
-								{/* New images input */}
-								<Input
-									id="new-images"
-									type="file"
-									multiple
-									accept="image/*"
-									onChange={(e) => {
-										const files = e.target.files ? Array.from(e.target.files) : [];
-										const available = 6 - visibleExistingImages.length - newImages.length;
-
-										if (available <= 0) {
-											gooeyToast.error("max 6 images support", {
-												description: "you can have up to 6 images total",
-											});
-											e.target.value = "";
-											return;
-										}
-
-										const toAdd = files.slice(0, available);
-										if (toAdd.length < files.length) {
-											gooeyToast.error("max 6 images support", {
-												description: `Only ${available} more image(s) allowed`,
-											});
-										}
-
-										setNewImages((prev) => [...prev, ...toAdd]);
-										e.target.value = "";
-									}}
-								/>
-
-								{/* New images preview grid */}
-								{newImages.length > 0 && (
-									<div className="mt-3">
-										<p className="text-xs text-muted-foreground mb-2">
-											New images ({newImages.length})
-										</p>
-										<div className="grid grid-cols-3 gap-2">
-											{newImages.map((file, index) => {
-												const fileUrl = URL.createObjectURL(file);
-												return (
-													<div key={`${file.name}-${index}`} className="group relative">
-														<div className="aspect-square overflow-hidden rounded-lg border bg-muted/20">
-															<button
-																type="button"
-																onClick={() => setPreviewSrc(fileUrl)}
-																className="size-full cursor-pointer border-0 bg-transparent p-0"
-															>
-																<img
-																	src={fileUrl}
-																	alt={file.name}
-																	className="size-full object-cover transition-transform duration-200 hover:scale-105"
-																/>
-															</button>
-															<button
-																type="button"
-																className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
-																onClick={() => {
-																	setNewImages((prev) => prev.filter((_, i) => i !== index));
-																}}
-																aria-label="Remove image"
-															>
-																<X className="size-3" />
-															</button>
-														</div>
-														<p className="mt-1 truncate text-xs text-muted-foreground">
-															{file.name}
-														</p>
-													</div>
-												);
-											})}
-										</div>
-									</div>
-								)}
-							</Field>
-						</div>
-						{/* Notes & Tags side by side */}
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
-							<form.Field
-								name="notes"
-								children={(field) => {
-									const isInvalid = !field.state.meta.isValid;
-									return (
-										<Field data-invalid={isInvalid}>
-											<FieldLabel htmlFor="notes">Notes</FieldLabel>
-											<FieldDescription>optional note about this credential</FieldDescription>
-											<Textarea
-												id="notes"
-												value={field.state.value ?? ""}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.value)}
-												rows={10}
-												aria-invalid={isInvalid}
-											/>
-											{isInvalid && <FieldError errors={field.state.meta.errors} />}
-										</Field>
-									);
-								}}
-							/>
-							<form.Field
-								name="tags"
-								children={(field) => {
-									const isInvalid = !field.state.meta.isValid;
-									return (
-										<Field data-invalid={isInvalid}>
-											<FieldLabel htmlFor="tags">Tags</FieldLabel>
-											<FieldDescription>
-												add comma (,) for more than one tags. you can skip last comma
-											</FieldDescription>
-											<Textarea
-												id="tags"
-												value={field.state.value ?? ""}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.value)}
-												rows={10}
-												aria-invalid={isInvalid}
-											/>
-											{isInvalid && <FieldError errors={field.state.meta.errors} />}
-										</Field>
-									);
-								}}
-							/>
-						</div>
-						{/* Submit */}
-						<form.Subscribe
-							selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
-							children={([canSubmit, isSubmitting, isPristine]) => (
-								<div className="flex items-center justify-center gap-4 my-3">
-									<Button
-										type="submit"
-										size="lg"
-										className="px-12 py-4"
-										disabled={!canSubmit || isPristine}
-									>
-										{isSubmitting ? "..." : "Update"}
-									</Button>
+								</div>
+							)}
+						</Field>
+					</div>
+					{/* Notes & Tags side by side */}
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
+						<form.Field
+							name="notes"
+							children={(field) => {
+								const isInvalid = !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor="notes">Notes</FieldLabel>
+										<FieldDescription>optional note about this credential</FieldDescription>
+										<Textarea
+											id="notes"
+											value={field.state.value ?? ""}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											rows={10}
+											aria-invalid={isInvalid}
+										/>
+										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+									</Field>
+								);
+							}}
+						/>
+						<form.Field
+							name="tags"
+							children={(field) => {
+								const isInvalid = !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor="tags">Tags</FieldLabel>
+										<FieldDescription>
+											add comma (,) for more than one tags. you can skip last comma
+										</FieldDescription>
+										<Textarea
+											id="tags"
+											value={field.state.value ?? ""}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											rows={10}
+											aria-invalid={isInvalid}
+										/>
+										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+									</Field>
+								);
+							}}
+						/>
+					</div>
+					{/* Submit */}
+					<form.Subscribe
+						selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
+						children={([canSubmit, isSubmitting, isPristine]) => (
+							<div className="flex items-center justify-center gap-4 my-3">
+								<Button
+									type="submit"
+									size="lg"
+									className="px-12 py-4"
+									disabled={!canSubmit || isPristine}
+								>
+									{isSubmitting ? "..." : "Update"}
+								</Button>
 
 								<DeleteCredentialDialog
 									credentialId={credential.id}
 									credentialTitle={credential.title}
 									csrfToken={csrfToken}
 								/>
-								</div>
-							)}
-						/>
-					</FieldGroup>
-				</Form>
+							</div>
+						)}
+					/>
+				</FieldGroup>
+			</Form>
 
-				{/* ── Image preview overlay ── */}
-				{previewSrc && <ImagePreviewOverlay src={previewSrc} onClose={() => setPreviewSrc(null)} />}
-			</main>
+			{/* ── Image preview overlay ── */}
+			{previewSrc && <ImagePreviewOverlay src={previewSrc} onClose={() => setPreviewSrc(null)} />}
+		</main>
 	);
 }
