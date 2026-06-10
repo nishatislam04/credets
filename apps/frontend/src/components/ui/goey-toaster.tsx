@@ -56,7 +56,7 @@ const gooeyToast = Object.assign(gooeyToastBase, {
 export { gooeyToast };
 
 function GooeyToaster(props: GooeyToasterProps) {
-	return <GooeyToasterPrimitive position="top-right" preset="bouncy" {...props} />;
+	return <GooeyToasterPrimitive position="top-center" preset="bouncy" {...props} />;
 }
 
 export { GooeyToaster };
