@@ -1,6 +1,6 @@
 # our workflow
 
-0. in the credentials listings page, with intersection observer, we are manually fetching more data automatically. i want you to read the whole page and understand the logics and related components. and then use tanstack query - useinfinitequery for infinite loading operation with intersection observer. now for intersection observer, i want you to use the react intersection observer pkg. i have already installed the observer pkg. i am not sure, but i think, if we have useinfinitequery hook in the credentials listings page, we probably dont need the initial usequery hook in the first place. also update the component based on this research
+- [x] 0. in the credentials listings page, with intersection observer, we are manually fetching more data automatically. i want you to read the whole page and understand the logics and related components. and then use tanstack query - useinfinitequery for infinite loading operation with intersection observer. now for intersection observer, i want you to use the react intersection observer pkg. i have already installed the observer pkg. i am not sure, but i think, if we have useinfinitequery hook in the credentials listings page, we probably dont need the initial usequery hook in the first place. also update the component based on this research
 
 1. in credential create form, when we click the x button in the img preview, the img preview gone as expected but the file input for the thumbnail img. the img file name still exist. we need to clear that
 

@@ -91,8 +91,8 @@ function RouteComponent() {
 				/>
 			)}
 
-			{/* Empty state */}
-			{!isError && credentials.length === 0 && (
+			{/* Empty state — only after first successful fetch, no error, and confirmed zero credentials */}
+			{!!data && !isError && credentials.length === 0 && (
 				<div className="text-center py-24">
 					<CredentialsEmptyState />
 				</div>
