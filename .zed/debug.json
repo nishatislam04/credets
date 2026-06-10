@@ -1,0 +1,31 @@
+[
+	{
+		"label": "Debug Backend (Bun)",
+		"adapter": "JavaScript",
+		"type": "node",
+		"request": "launch",
+		"runtimeExecutable": "bun",
+		"runtimeArgs": ["run", "--inspect=0.0.0.0:9229"],
+		"program": "${ZED_WORKTREE_ROOT}/apps/backend/index.ts",
+		"cwd": "${ZED_WORKTREE_ROOT}/apps/backend",
+		"skipFiles": ["<node_internals>/**"],
+		"console": "integratedTerminal",
+		"env": {
+			"PORT": "8000"
+		}
+	},
+	{
+		"label": "Debug Frontend (Chrome) — start Vite first",
+		"adapter": "JavaScript",
+		"type": "chrome",
+		"request": "launch",
+		"url": "http://localhost:3000",
+		"webRoot": "${ZED_WORKTREE_ROOT}/apps/frontend",
+		"skipFiles": ["<node_internals>/**"],
+		"console": "integratedTerminal",
+		"sourceMapPathOverrides": {
+			"webpack:///./*": "${webRoot}/*",
+			"webpack:///@/*": "${webRoot}/src/*"
+		}
+	}
+]

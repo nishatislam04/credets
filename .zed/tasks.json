@@ -1,0 +1,22 @@
+[
+	{
+		"label": "Start Backend (Bun)",
+		"command": "bun",
+		"args": ["run", "dev"],
+		"cwd": "$ZED_WORKTREE_ROOT/apps/backend",
+		"use_new_terminal": true,
+		"allow_concurrent_runs": false,
+		"reveal": "always",
+		"shell": "system"
+	},
+	{
+		"label": "Start Frontend (Vite)",
+		"command": "bun",
+		"args": ["run", "dev"],
+		"cwd": "$ZED_WORKTREE_ROOT/apps/frontend",
+		"use_new_terminal": true,
+		"allow_concurrent_runs": false,
+		"reveal": "always",
+		"shell": "system"
+	}
+]

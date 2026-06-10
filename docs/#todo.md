@@ -12,7 +12,9 @@
 
 - [] 2. update submit btn locked strategy in update form page... like we update non required field and did not modify or touch any important required field...then the submit btn is locked. fix this tanstack form issue. to unlock i need to change a bit of any important field. which is very weird
 
-5. i sometime i get this err when try to update credential images or thumbnail.. pattern not clear.. but happened multiple times. err at db level. something with syntax
+- [x] when gooeytoast perform close animation. it seems to me, it is a bit lagging. what can we do about that?
+
+5. i sometime i get this err when try to update or delete credential images or thumbnail or without updating images stuffs.. pattern not clear.. but happened multiple times. err at db level. something with syntax. each time, frontend say, something went wrong, then i check docker compose log. i see below err
 
 ```bash
 	credets-db              | 2026-06-09 06:07:59.160 UTC [2791] ERROR:  operator does not exist: uuid <> json at character 81
@@ -49,10 +51,8 @@ credets-db              |
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-
-7. in update form, if thumbnail exist... hint it and preview it in thumbnail file input
 10. we used ai to generate most of the feature. now we want to review the ai implementation manually. create a dedicated docs in docs/ to guide me, how to do it fast and systematic way
-11. figure out how we can debug backend and frontend with zed editor. both end debug is possible. but i am not sure, how to set it up
+11. i have seen yt videos that, we can use our zed editor to debug our app within the editor. so, shwo me how can we set it up. for our backend and frontend. search zed editor docs and online. so that, when any err occur, we can debug the err inside of our editor
 
 ## create form more tasks --frontend
 
