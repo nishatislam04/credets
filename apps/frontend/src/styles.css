@@ -187,51 +187,20 @@ body {
   /* keep original padding/color etc. from source */
 }
 
-/* 5. Timestamp: hidden entirely (not just squashed) */
-.gooey-contentExpanded .gooey-timestamp {
-  display: none;
-}
-
-/* 6. Description container: relative for divider pseudo-element */
-.gooey-contentExpanded .gooey-description {
+/* 5. Description styling: subtle background, padding, rounded corners */
+.toast-description {
   position: relative;
-  margin-top: 16px;
-  padding-top: 12px;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md, 8px);
+  background: oklch(0.97 0 0);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: inherit;
 }
 
-/* 7. The divider line: 80% width, centered, thin gray */
-.gooey-contentExpanded .gooey-description::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 10%;        /* (100% - 80%) / 2 = 10% */
-  width: 80%;
-  height: 1px;
-  background-color: #e0e0e0;
-  border-radius: 1px;
-}
-
-/* 8. Dark mode */
-.dark .gooey-wrapper,
-.dark .gooey-contentExpanded {
-	background: var(--color-card);
-}
-
-.dark .gooey-contentExpanded .gooey-title,
-.dark .gooey-contentExpanded .gooey-description {
-	color: var(--color-card-foreground);
-}
-
-.dark .gooey-contentExpanded .gooey-timestamp {
-	color: var(--color-muted-foreground);
-}
-
-.dark .gooey-contentExpanded .gooey-description::before {
-	background-color: var(--color-border);
-}
-
-.dark .gooey-btn-close {
-	color: var(--color-muted-foreground);
+.dark .toast-description {
+  background: oklch(0.22 0 0);
 }
 
 /* ========== GOOEY TOAST OVERRIDES END ========== */

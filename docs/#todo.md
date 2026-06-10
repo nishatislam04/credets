@@ -2,14 +2,16 @@
 
 - [x] 0. in the credentials listings page, with intersection observer, we are manually fetching more data automatically. i want you to read the whole page and understand the logics and related components. and then use tanstack query - useinfinitequery for infinite loading operation with intersection observer. now for intersection observer, i want you to use the react intersection observer pkg. i have already installed the observer pkg. i am not sure, but i think, if we have useinfinitequery hook in the credentials listings page, we probably dont need the initial usequery hook in the first place. also update the component based on this research
 
-- [] 1. in credential create form, when we click the x button in the img preview, the img preview gone as expected but the file input for the thumbnail img. the img file name still exist. we need to clear that
+- [x] 1. in credential create form, when we click the x button in the img preview, the img preview gone as expected but the file input for the thumbnail img. the img file name still exist. we need to clear that
 
-- [] 4. update our custom logger `log` function naming to `logger` and update all the usage in the backend
+- [x] 4. update our custom logger `log` function naming to `logger` and update all the usage in the backend
 
-- [] 5. i dont like the visual representation of gooeytoast description text. can you update the visual with its container bg and surrounding colors? and make sure, all the gooeytoast state, never shows any timestamp. like no timestamp at all. i already saw timestamp at err toast. so, other state may also show timestamp. but i think the success state does not show timestamp already
+- [x] 5. i dont like the visual representation of gooeytoast description text. can you update the visual with its container bg and surrounding colors? and make sure, all the gooeytoast state, never shows any timestamp. like no timestamp at all. i already saw timestamp at err toast. so, other state may also show timestamp. but i think the success state does not show timestamp already
 
-1. update-form gallery img preview showing "no data" inside of img card. instead of image preview. note that, our image process updated. for local, we use minio and for production, we use supabase storage.
-2. update submit btn locked strategy... like we update non required field and leave unchange of important field...then submit is locked. fix this tanstack form issue. to unlock i need to change a bit of any important field
+- [] 1. update-form gallery img preview showing "no data" inside of img card. instead of image previewing. note that, our image process updated. for local, we use minio and for production, we use supabase storage. and same case, update form, for thumbnail file input, if there are thumbnail exist already, hint it and preview it
+
+- [] 2. update submit btn locked strategy in update form page... like we update non required field and did not modify or touch any important required field...then the submit btn is locked. fix this tanstack form issue. to unlock i need to change a bit of any important field. which is very weird
+
 5. i sometime i get this err when try to update credential images or thumbnail.. pattern not clear.. but happened multiple times. err at db level. something with syntax
 
 ```bash
