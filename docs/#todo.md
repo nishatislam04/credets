@@ -8,7 +8,7 @@
 
 - [x] 5. i dont like the visual representation of gooeytoast description text. can you update the visual with its container bg and surrounding colors? and make sure, all the gooeytoast state, never shows any timestamp. like no timestamp at all. i already saw timestamp at err toast. so, other state may also show timestamp. but i think the success state does not show timestamp already
 
-- [] 1. update-form gallery img preview showing "no data" inside of img card. instead of image previewing. note that, our image process updated. for local, we use minio and for production, we use supabase storage. and same case, update form, for thumbnail file input, if there are thumbnail exist already, hint it and preview it
+- [x] 1. update-form gallery img preview showing "no data" inside of img card. instead of image previewing. note that, our image process updated. for local, we use minio and for production, we use supabase storage. and same case, update form, for thumbnail file input, if there are thumbnail exist already, hint it and preview it
 
 - [] 2. update submit btn locked strategy in update form page... like we update non required field and did not modify or touch any important required field...then the submit btn is locked. fix this tanstack form issue. to unlock i need to change a bit of any important field. which is very weird
 

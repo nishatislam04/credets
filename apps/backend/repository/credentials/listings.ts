@@ -11,9 +11,6 @@ export interface CursorPayload {
 	title: string;
 	short_description: string | null;
 	thumbnail_url: string | null;
-	thumbnail_format: string | null;
-	thumbnail_width: number | null;
-	thumbnail_height: number | null;
 	tags: string;
 	created_at: Date;
 	type_label: string | null;
@@ -31,7 +28,7 @@ export async function getCredentialsListingsRepo(
 			return await sql<CredentialRow[]>`
 				SELECT
 					c.id, c.title, c.short_description,
-					c.thumbnail_url, c.thumbnail_format, c.thumbnail_width, c.thumbnail_height,
+					c.thumbnail_url,
 					c.tags, c.created_at,
 					t.label AS type_label, t.value AS type_value
 				FROM credentials c
@@ -47,7 +44,7 @@ export async function getCredentialsListingsRepo(
 		return await sql<CredentialRow[]>`
 			SELECT
 				c.id, c.title, c.short_description,
-				c.thumbnail_url, c.thumbnail_format, c.thumbnail_width, c.thumbnail_height,
+				c.thumbnail_url,
 				c.tags, c.created_at,
 				t.label AS type_label, t.value AS type_value
 			FROM credentials c

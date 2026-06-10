@@ -4,9 +4,6 @@ export type CredentialListItem = {
 	title: string;
 	short_description: string | null;
 	thumbnail_url: string | null;
-	thumbnail_format: string | null;
-	thumbnail_width: number | null;
-	thumbnail_height: number | null;
 	tags: string[] | null;
 	created_at: string;
 	type_label: string | null;
@@ -24,11 +21,6 @@ export type CredentialListingsResponse = {
 export type CredentialImage = {
 	id: string;
 	image_url: string | null;
-	format: string | null;
-	width: number | null;
-	height: number | null;
-	byte_size: number | null;
-	sort_order: number | null;
 };
 
 /** A single data block entry from the create form */
@@ -46,9 +38,6 @@ export type CredentialDetail = {
 	type_label: string | null;
 	type_value: string | null;
 	thumbnail_url: string | null;
-	thumbnail_format: string | null;
-	thumbnail_width: number | null;
-	thumbnail_height: number | null;
 	/** Can be a flat object (seed) or an array of typed blocks (from create form) */
 	data: Record<string, unknown> | DataBlockEntry[];
 	notes: string | null;

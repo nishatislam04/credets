@@ -9,9 +9,6 @@ export interface CredentialDetailRow {
 	short_description: string | null;
 	long_description: string | null;
 	thumbnail_url: string | null;
-	thumbnail_format: string | null;
-	thumbnail_width: number | null;
-	thumbnail_height: number | null;
 	// biome-ignore lint/suspicious/noExplicitAny: data is JSONB type
 	data: any;
 	notes: string | null;
@@ -32,11 +29,6 @@ export interface CredentialImageUrlRow {
 export interface CredentialImageRow {
 	id: string;
 	image_url: string | null;
-	format: string | null;
-	width: number | null;
-	height: number | null;
-	byte_size: number | null;
-	sort_order: number | null;
 }
 
 export async function getCredentialDetailRepo(credentialId: string) {
@@ -46,8 +38,7 @@ export async function getCredentialDetailRepo(credentialId: string) {
 		const [credential] = await sql<CredentialDetailRow[]>`
 			SELECT
 				c.id, c.title, c.short_description, c.long_description,
-				c.thumbnail_url, c.thumbnail_format,
-				c.thumbnail_width, c.thumbnail_height,
+				c.thumbnail_url,
 				c.data, c.notes, c.tags, c.created_at, c.updated_at,
 				t.label AS type_label, t.value AS type_value
 			FROM credentials c
@@ -60,10 +51,9 @@ export async function getCredentialDetailRepo(credentialId: string) {
 		}
 
 		const images = await sql<CredentialImageRow[]>`
-			SELECT id, image_url, format, width, height, byte_size, sort_order
+			SELECT id, image_url
 			FROM credential_images
 			WHERE credential_id = ${credentialId}
-			ORDER BY sort_order ASC, created_at ASC
 		`;
 
 		return { credential, images };

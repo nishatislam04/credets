@@ -21,9 +21,6 @@ export async function getCredentialDetailService(credentialId: string) {
 			type_label: credential.type_label,
 			type_value: credential.type_value,
 			thumbnail_url: credential.thumbnail_url,
-			thumbnail_format: credential.thumbnail_format,
-			thumbnail_width: credential.thumbnail_width,
-			thumbnail_height: credential.thumbnail_height,
 			data: await (async () => {
 				const raw =
 					typeof credential.data === "string"
@@ -41,11 +38,6 @@ export async function getCredentialDetailService(credentialId: string) {
 			images: images.map((img) => ({
 				id: img.id,
 				image_url: img.image_url,
-				format: img.format,
-				width: img.width,
-				height: img.height,
-				byte_size: img.byte_size,
-				sort_order: img.sort_order,
 			})),
 		};
 
