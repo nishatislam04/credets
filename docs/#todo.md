@@ -1,6 +1,6 @@
 # our workflow
 
-
+0. use infinitequery in credentialsListings to fetch infinity
 1. update-form gallery img preview showing "no data" inside of img card. instead of image preview. note that, our image process updated. for local, we use minio and for production, we use supabase storage.
 2. update submit btn locked strategy... like we update non required field and leave unchange of important field...then submit is locked. fix this tanstack form issue. to unlock i need to change a bit of any important field
 4. remove da thumbnial with cross btn should clear out file input file name from create form

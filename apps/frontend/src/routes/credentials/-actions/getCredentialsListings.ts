@@ -13,9 +13,7 @@ export async function getCredentialsListings(
 		params.set("cursor", cursor);
 	}
 
-	const res = await fetch(
-		`${import.meta.env.VITE_BACKEND_APP}/credentials?${params.toString()}`,
-	);
+	const res = await fetch(`${import.meta.env.VITE_BACKEND_APP}/credentials?${params.toString()}`);
 
 	if (!res.ok) throw new Error("Failed to fetch credentials");
 

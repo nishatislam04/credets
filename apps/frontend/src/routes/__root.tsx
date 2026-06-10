@@ -16,8 +16,8 @@ import { ThemeProvider } from "#/hooks/theme-provider";
 const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
-			gcTime: 0, // turning off client side full cache system
-			staleTime: 0, // turning off client side full cache system
+			staleTime: 15 * 60 * 1000, // 15min
+			gcTime: 3 * 60 * 1000, // 3min
 		},
 	},
 });

@@ -14,13 +14,7 @@ import {
 	FieldLabel,
 } from "#/components/ui/field";
 import { gooeyToast } from "#/components/ui/goey-toaster";
-import {
-	Item,
-	ItemContent,
-	ItemDescription,
-	ItemMedia,
-	ItemTitle,
-} from "#/components/ui/item";
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "#/components/ui/item";
 import {
 	Select,
 	SelectContent,
@@ -28,6 +22,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -37,7 +32,6 @@ import { createCredentialValidation } from "./-actions/createCredentialValidatio
 import { getCSRFtoken } from "./-actions/getCSRFtoken";
 import { getTypesListings } from "./-actions/getTypesListings";
 import { DataBlock } from "./-components/Datablock";
-import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
 
 export const Route = createFileRoute("/credentials/create/")({
 	component: RouteComponent,
@@ -98,15 +92,12 @@ function RouteComponent() {
 				const res = await getTypesListings();
 				return res.data;
 			} catch (error) {
-				gooeyToast.error(
-					error instanceof Error ? error.message : "failed to fetch types",
-				);
+				gooeyToast.error(error instanceof Error ? error.message : "failed to fetch types");
 			}
 		},
 	});
 
 	const navigate = useNavigate();
-	const router = useRouter();
 	const queryClient = useQueryClient();
 	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
@@ -128,8 +119,7 @@ function RouteComponent() {
 							data.message || "something went wrong on server side while validating data",
 						);
 						return {
-							message:
-								"something went wrong on server side while validating credential data",
+							message: "something went wrong on server side while validating credential data",
 						};
 					}
 				} catch (error) {
@@ -155,14 +145,13 @@ function RouteComponent() {
 				},
 				action: {
 					success: {
-						label: "go back to listings",
-					onClick: async () => {
-						queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
-						await router.invalidate();
-						navigate({
-							to: "..",
-						});
-					},
+						label: "Go back to listings",
+						onClick: async () => {
+							queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
+							navigate({
+								to: "/credentials",
+							});
+						},
 					},
 				},
 			});
@@ -179,9 +168,7 @@ function RouteComponent() {
 					<ArrowLeft className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5" />
 					Back to listings
 				</Link>
-				<p className="capitalize text-4xl text-center">
-					creadential create form
-				</p>
+				<p className="capitalize text-4xl text-center">creadential create form</p>
 			</div>
 
 			<Form
@@ -263,13 +250,11 @@ function RouteComponent() {
 													fetching types...
 												</SelectItem>
 											) : typesListings.length > 0 ? (
-												typesListings.map(
-													(type: { id: string; value: string; label: string }) => (
-														<SelectItem key={type.id} value={type.value}>
-															{type.label}
-														</SelectItem>
-													),
-												)
+												typesListings.map((type: { id: string; value: string; label: string }) => (
+													<SelectItem key={type.id} value={type.value}>
+														{type.label}
+													</SelectItem>
+												))
 											) : (
 												<SelectItem value="" disabled>
 													No types available
@@ -363,9 +348,7 @@ function RouteComponent() {
 										<Button
 											type="button"
 											variant="secondary"
-											onClick={() =>
-												arrayField.pushValue({ type: "single_label", value: "" })
-											}
+											onClick={() => arrayField.pushValue({ type: "single_label", value: "" })}
 										>
 											+ Single label
 										</Button>
@@ -381,9 +364,7 @@ function RouteComponent() {
 										<Button
 											type="button"
 											variant="secondary"
-											onClick={() =>
-												arrayField.pushValue({ type: "information", value: "" })
-											}
+											onClick={() => arrayField.pushValue({ type: "information", value: "" })}
 										>
 											+ Information
 										</Button>
@@ -431,9 +412,7 @@ function RouteComponent() {
 													</button>
 												</div>
 												{file?.name && (
-													<p className="mt-1 truncate text-xs text-muted-foreground">
-														{file.name}
-													</p>
+													<p className="mt-1 truncate text-xs text-muted-foreground">{file.name}</p>
 												)}
 											</div>
 										)}
@@ -473,9 +452,7 @@ function RouteComponent() {
 											return { message: `File "${file.name}" is larger than 3MB` };
 										}
 										if (
-											!["image/jpg", "image/jpeg", "image/png", "image/webp"].includes(
-												file.type,
-											)
+											!["image/jpg", "image/jpeg", "image/png", "image/webp"].includes(file.type)
 										) {
 											return { message: `File "${file.name}" is not a valid image type` };
 										}
@@ -501,38 +478,35 @@ function RouteComponent() {
 													{files.map((file, index) => {
 														const fileUrl = URL.createObjectURL(file);
 														return (
-														<div
-															key={`${file.name}-${index}`}
-															className="group relative"
-														>
-															<div className="aspect-square overflow-hidden rounded-lg border bg-muted/20">
-																<button
-																	type="button"
-																	onClick={() => setPreviewSrc(fileUrl)}
-																	className="size-full cursor-pointer border-0 bg-transparent p-0"
-																>
-																	<img
-																		src={fileUrl}
-																		alt={file.name}
-																		className="size-full object-cover transition-transform duration-200 hover:scale-105"
-																	/>
-																</button>
-																<button
-																	type="button"
-																	className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
-																	onClick={() => {
-																		const updated = files.filter((_, i) => i !== index);
-																		field.handleChange(updated);
-																	}}
-																	aria-label="Remove image"
-																>
-																	<X className="size-3" />
-																</button>
+															<div key={`${file.name}-${index}`} className="group relative">
+																<div className="aspect-square overflow-hidden rounded-lg border bg-muted/20">
+																	<button
+																		type="button"
+																		onClick={() => setPreviewSrc(fileUrl)}
+																		className="size-full cursor-pointer border-0 bg-transparent p-0"
+																	>
+																		<img
+																			src={fileUrl}
+																			alt={file.name}
+																			className="size-full object-cover transition-transform duration-200 hover:scale-105"
+																		/>
+																	</button>
+																	<button
+																		type="button"
+																		className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
+																		onClick={() => {
+																			const updated = files.filter((_, i) => i !== index);
+																			field.handleChange(updated);
+																		}}
+																		aria-label="Remove image"
+																	>
+																		<X className="size-3" />
+																	</button>
+																</div>
+																<p className="mt-1 truncate text-xs text-muted-foreground">
+																	{file.name}
+																</p>
 															</div>
-															<p className="mt-1 truncate text-xs text-muted-foreground">
-																{file.name}
-															</p>
-														</div>
 														);
 													})}
 												</div>
@@ -581,9 +555,7 @@ function RouteComponent() {
 								return (
 									<Field data-invalid={isinvalid}>
 										<FieldLabel htmlFor="notes">Notes</FieldLabel>
-										<FieldDescription>
-											optional note about this credential
-										</FieldDescription>
+										<FieldDescription>optional note about this credential</FieldDescription>
 
 										<Textarea
 											id="notes"
@@ -643,13 +615,7 @@ function RouteComponent() {
 			</Form>
 
 			{/* ── Image preview overlay ── */}
-			{previewSrc && (
-				<ImagePreviewOverlay
-					src={previewSrc}
-					onClose={() => setPreviewSrc(null)}
-				/>
-			)}
+			{previewSrc && <ImagePreviewOverlay src={previewSrc} onClose={() => setPreviewSrc(null)} />}
 		</main>
 	);
 }
-
