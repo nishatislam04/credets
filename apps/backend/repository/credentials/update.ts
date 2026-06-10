@@ -85,7 +85,7 @@ export async function updateCredentialRepo(
 				await sql`
 					DELETE FROM credential_images
 					WHERE credential_id = ${input.credentialId}
-						AND id != ALL(${sql.array(input.existingImagesKeep)})
+						AND id != ALL(${sql(input.existingImagesKeep)}::uuid[])
 				`;
 			} else {
 				await sql`

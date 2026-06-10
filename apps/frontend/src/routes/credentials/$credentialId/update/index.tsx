@@ -206,39 +206,42 @@ function RouteComponent() {
 			},
 		},
 		onSubmit: async ({ value }) => {
-			const existingImagesKeep = visibleExistingImages.map((img) => img.id);
-
-			gooeyToast.promise(
-				updateCredentialAction({
+			const existingImagesKeep = visibleExistingImages.map((img) => img.id);			const updatePromise = updateCredentialAction({
 					...value,
 					credentialId: credential.id,
 					newImages,
 					existingImagesKeep,
 					removeThumbnail: thumbnailRemoved,
-				}),
-				{
-					loading: "updating...",
-					success: "credential updated",
-					error: "failed to update the credential",
-					description: {
-						success: "the credential has been updated successfully",
-						error: "Please try again later.",
-					},
-					action: {
-						success: {
-							label: "view credential",
-							onClick: async () => {
-								queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
-								await router.invalidate();
-								navigate({
-									to: "/credentials/$credentialId",
-									params: { credentialId: credential.id },
-								});
+				}).then(() => {
+					// Invalidate caches immediately on success so manual navigation
+					// to the detail page shows fresh data (not stale cached route data).
+					queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
+					router.invalidate();
+				});
+
+				gooeyToast.promise(
+					updatePromise,
+					{
+						loading: "updating...",
+						success: "credential updated",
+						error: "failed to update the credential",
+						description: {
+							success: "the credential has been updated successfully",
+							error: "Please try again later.",
+						},
+						action: {
+							success: {
+								label: "view credential",
+								onClick: async () => {
+									navigate({
+										to: "/credentials/$credentialId",
+										params: { credentialId: credential.id },
+									});
+								},
 							},
 						},
 					},
-				},
-			);
+				);
 		},
 	});
 
