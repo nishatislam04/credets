@@ -4,7 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, LoaderIcon, X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
 	Field,
 	FieldContent,
@@ -99,6 +99,7 @@ function RouteComponent() {
 
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
+	const thumbnailInputRef = useRef<HTMLInputElement>(null);
 	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
 	const form = useForm({
@@ -376,63 +377,72 @@ function RouteComponent() {
 
 					{/* Thumbnail and images side-by side */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<form.Field
-							name="thumbnail"
-							children={(field) => {
-								const isinvalid = !field.state.meta.isValid;
-								const file = field.state.value;
-								const previewUrl = file ? URL.createObjectURL(file) : null;
+					<form.Field
+					name="thumbnail"
+					children={(field) => {
+						const isinvalid = !field.state.meta.isValid;
+						const file = field.state.value;
+						const previewUrl = file ? URL.createObjectURL(file) : null;
 
-								return (
-									<Field data-invalid={isinvalid}>
-										<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
+						const handleRemoveThumbnail = () => {
+							field.handleChange(null);
+							// Clear the file input element so the filename doesn't persist
+							if (thumbnailInputRef.current) {
+								thumbnailInputRef.current.value = "";
+							}
+						};
 
-										{/* Preview selected thumbnail */}
-										{previewUrl && (
-											<div className="mb-3 max-w-48">
-												<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
-													<button
-														type="button"
-														onClick={() => setPreviewSrc(previewUrl)}
-														className="size-full cursor-pointer border-0 bg-transparent p-0"
-													>
-														<img
-															src={previewUrl}
-															alt="Thumbnail preview"
-															className="size-full object-cover transition-transform duration-200 hover:scale-105"
-														/>
-													</button>
-													<button
-														type="button"
-														onClick={() => field.handleChange(null)}
-														className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
-														aria-label="Remove thumbnail"
-													>
-														<X className="size-3" />
-													</button>
-												</div>
-												{file?.name && (
-													<p className="mt-1 truncate text-xs text-muted-foreground">{file.name}</p>
-												)}
-											</div>
+						return (
+							<Field data-invalid={isinvalid}>
+								<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
+
+								{/* Preview selected thumbnail */}
+								{previewUrl && (
+									<div className="mb-3 max-w-48">
+										<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
+											<button
+												type="button"
+												onClick={() => setPreviewSrc(previewUrl)}
+												className="size-full cursor-pointer border-0 bg-transparent p-0"
+											>
+												<img
+													src={previewUrl}
+													alt="Thumbnail preview"
+													className="size-full object-cover transition-transform duration-200 hover:scale-105"
+												/>
+											</button>
+											<button
+												type="button"
+												onClick={handleRemoveThumbnail}
+												className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
+												aria-label="Remove thumbnail"
+											>
+												<X className="size-3" />
+											</button>
+										</div>
+										{file?.name && (
+											<p className="mt-1 truncate text-xs text-muted-foreground">{file.name}</p>
 										)}
+									</div>
+								)}
 
-										<Input
-											id="thumbnail"
-											type="file"
-											accept="image/jpeg,image/png,image/webp"
-											onBlur={field.handleBlur}
-											onChange={(e) => {
-												const file = e.target.files?.[0] || null;
-												field.handleChange(file);
-											}}
-											aria-invalid={isinvalid}
-										/>
-										{isinvalid && <FieldError errors={field.state.meta.errors} />}
-									</Field>
-								);
-							}}
-						/>
+								<Input
+									ref={thumbnailInputRef}
+									id="thumbnail"
+									type="file"
+									accept="image/jpeg,image/png,image/webp"
+									onBlur={field.handleBlur}
+									onChange={(e) => {
+										const file = e.target.files?.[0] || null;
+										field.handleChange(file);
+									}}
+									aria-invalid={isinvalid}
+								/>
+								{isinvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
+				/>
 
 						{/* Images multi-file */}
 						<form.Field
