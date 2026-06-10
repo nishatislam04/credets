@@ -6,7 +6,8 @@ import { sql } from "@db/connection";
 export interface CursorPayload {
 	createdAt: string;
 	id: string;
-}	export interface CredentialRow {
+}
+export interface CredentialRow {
 	id: string;
 	title: string;
 	short_description: string | null;
@@ -35,7 +36,7 @@ export async function getCredentialsListingsRepo(
 				LEFT JOIN types t ON c.types_id = t.id
 				WHERE
 					(c.created_at < ${cursor.createdAt}::timestamptz)
-					OR (c.created_at = ${cursor.createdAt}::timestamptz AND c.id::text < ${cursor.id})
+					OR (c.created_at = ${cursor.createdAt}::timestamptz AND c.id < ${cursor.id}::uuid)
 				ORDER BY c.created_at DESC, c.id DESC
 				LIMIT ${limit + 1}
 			`;
@@ -55,9 +56,7 @@ export async function getCredentialsListingsRepo(
 	} catch (error) {
 		logAlways(error, "repo: credentials listings query failed");
 
-		if (error instanceof AppError) {
-			throw error;
-		}
+		if (error instanceof AppError) throw error;
 
 		throw new DatabaseError(error);
 	}

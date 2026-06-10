@@ -72,9 +72,7 @@ const LINE = "━".repeat(50);
  * @param message - Optional human-readable label shown in the header.
  */
 export function logger(value: unknown, message?: string): void {
-	if (Bun.env.NODE_ENV === "production") {
-		return;
-	}
+	if (Bun.env.NODE_ENV === "production") return;
 
 	const caller = getCallerInfo();
 

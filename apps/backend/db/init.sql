@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS credential_images(
 CREATE UNIQUE INDEX IF NOT EXISTS users_username_idx ON users(username);
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email);
 
+
 CREATE INDEX IF NOT EXISTS credentials_title_idx ON credentials (title);
 CREATE INDEX IF NOT EXISTS credentials_short_description_idx ON credentials (short_description);
 CREATE INDEX IF NOT EXISTS credentials_long_description_idx ON credentials (long_description);
@@ -79,8 +80,10 @@ CREATE INDEX IF NOT EXISTS credentials_tags_idx ON credentials USING GIN (tags);
 CREATE INDEX IF NOT EXISTS credentials_created_at_idx ON credentials(created_at);
 CREATE INDEX IF NOT EXISTS credentials_user_id_idx ON credentials(user_id);
 CREATE INDEX IF NOT EXISTS credentials_types_id_idx ON credentials(types_id);
+CREATE INDEX IF NOT EXISTS credentials_created_at_id_idx ON credentials(created_at DESC, id DESC);
 
 CREATE INDEX IF NOT EXISTS credential_images_credential_id_idx ON credential_images(credential_id);
+
 
 CREATE INDEX IF NOT EXISTS session_user_id_idx ON session(user_id);
 CREATE INDEX IF NOT EXISTS session_token_idx ON session(token);

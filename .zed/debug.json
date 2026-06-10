@@ -11,7 +11,7 @@
 		"skipFiles": ["<node_internals>/**"],
 		"console": "integratedTerminal",
 		"env": {
-			"PORT": "8000"
+			"PORT": "8001"
 		}
 	},
 	{

@@ -13,23 +13,22 @@ export async function credentialListings(req: BunRequest) {
 		const cursorParam = url.searchParams.get("cursor");
 		const limit = Number.isNaN(rawLimit)
 			? 12
-			: Math.min(24, Math.max(1, rawLimit));
+			: Math.min(12, Math.max(1, rawLimit));
 
-		// Decode cursor (base64-encoded JSON { createdAt, id })
+		// Decode cursor
 		let cursor: CursorPayload | null = null;
 		if (cursorParam) {
-			try {
-				const decoded = Buffer.from(cursorParam, "base64").toString("utf-8");
-				cursor = JSON.parse(decoded) as CursorPayload;
-			} catch {
-				// Invalid cursor — ignore, start from the beginning
-			}
+			const decoded = Buffer.from(cursorParam, "base64").toString("utf-8");
+			cursor = JSON.parse(decoded) as CursorPayload;
 		}
 
 		// Call Service Layer
 		const result = await getCredentialsListingsService({ limit, cursor });
 
-		logger(result.credentials, "http: credentials listings fetched successfully");
+		logger(
+			result.credentials,
+			"http: credentials listings fetched successfully",
+		);
 
 		return ResponseFactory.success({
 			data: {
