@@ -7,11 +7,11 @@
  *
  * @example
  * ```ts
- * import { log } from "@backend/utils/logger";
+ * import { logger } from "@backend/utils/logger";
  *
- * log({ key: "value" }, "Payload received");
- * log(42);
- * log("plain string");
+ * logger({ key: "value" }, "Payload received");
+ * logger(42);
+ * logger("plain string");
  * ```
  */
 
@@ -71,7 +71,7 @@ const LINE = "━".repeat(50);
  * @param value   - The value to inspect & print (required, first param).
  * @param message - Optional human-readable label shown in the header.
  */
-export function log(value: unknown, message?: string): void {
+export function logger(value: unknown, message?: string): void {
 	if (Bun.env.NODE_ENV === "production") {
 		return;
 	}
@@ -108,12 +108,12 @@ export function log(value: unknown, message?: string): void {
 }
 
 /**
- * Variant of `log()` that **always** prints (even in production).
+ * Variant of `logger()` that **always** prints (even in production).
  * Use sparingly – typically for startup banners or critical boot info.
  */
 export function logAlways(value: unknown, message?: string): void {
 	const cached = Bun.env.NODE_ENV;
 	Bun.env.NODE_ENV = "development";
-	log(value, message);
+	logger(value, message);
 	Bun.env.NODE_ENV = cached;
 }

@@ -1,5 +1,5 @@
 import { AppError } from "@backend/err/base";
-import { log } from "@backend/utils/logger";
+import { logger } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import type { BunRequest } from "bun";
 import type { CursorPayload } from "../../repository/credentials/listings";
@@ -29,7 +29,7 @@ export async function credentialListings(req: BunRequest) {
 		// Call Service Layer
 		const result = await getCredentialsListingsService({ limit, cursor });
 
-		log(result.credentials, "http: credentials listings fetched successfully");
+		logger(result.credentials, "http: credentials listings fetched successfully");
 
 		return ResponseFactory.success({
 			data: {
@@ -42,7 +42,7 @@ export async function credentialListings(req: BunRequest) {
 			status: 200,
 		});
 	} catch (error) {
-		log(error, "http: error in credentialListings controller");
+		logger(error, "http: error in credentialListings controller");
 
 		if (error instanceof AppError) {
 			return ResponseFactory.error({
