@@ -1,9 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LoaderIcon, Plus } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 import { ThemeToggle } from "#/components/theme-toggle";
-import type { CredentialListItem } from "./-actions/getCredentialsListings";
 import { getCredentialsListings } from "./-actions/getCredentialsListings";
 import { CredentialCard } from "./-components/credential-card";
 import { CredentialsErrorUI } from "./-ui/CredentialsErrorUI";
@@ -17,82 +17,37 @@ export const Route = createFileRoute("/credentials/")({
 
 function RouteComponent() {
 	const {
-		data: firstPage,
+		data,
 		isLoading,
+		isError,
 		error,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
 		isRefetching,
-	} = useQuery({
+	} = useInfiniteQuery({
 		queryKey: ["credentials-listings"],
-		queryFn: () => getCredentialsListings(),
+		queryFn: ({ pageParam }) =>
+			getCredentialsListings(pageParam as string | undefined | null),
+		initialPageParam: undefined as string | undefined,
+		getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
 	});
 
-	// Local accumulator for "load more" items (not dependant on query cache)
-	const [moreItems, setMoreItems] = useState<CredentialListItem[]>([]);
-	// Keep track of the next cursor for the locally accumulated items
-	const [moreCursor, setMoreCursor] = useState<string | null>(null);
-	const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
+	const { ref: sentinelRef, inView } = useInView({ rootMargin: "200px" });
 
-	// Combine fresh first-page data with locally accumulated items
-	const credentials = [...(firstPage?.credentials ?? []), ...moreItems];
-	const initialCursor = firstPage?.nextCursor ?? null;
-	const hasMore = (moreCursor ?? initialCursor) !== null;
-
-	// Ref to prevent duplicate fetches while one is in flight
-	const loadingRef = useRef(false);
-	// Ref to keep the current IntersectionObserver so we can disconnect it
-	const observerRef = useRef<IntersectionObserver | null>(null);
-
-	const loadMore = useCallback(async () => {
-		const cursor = moreCursor ?? initialCursor;
-		if (loadingRef.current || !cursor) return;
-		loadingRef.current = true;
-		setLoadMoreError(null);
-
-		try {
-			const data = await getCredentialsListings(cursor);
-			setMoreItems((prev) => [...prev, ...data.credentials]);
-			setMoreCursor(data.nextCursor);
-		} catch (err) {
-			setLoadMoreError(err instanceof Error ? err.message : "Failed to load more credentials");
-		} finally {
-			loadingRef.current = false;
-		}
-	}, [moreCursor, initialCursor]);
-
-	// Set up the IntersectionObserver on the sentinel
-	const sentinelCallback = useCallback(
-		(node: HTMLDivElement | null) => {
-			if (observerRef.current) {
-				observerRef.current.disconnect();
-				observerRef.current = null;
-			}
-
-			if (!node) return;
-
-			const observer = new IntersectionObserver(
-				(entries) => {
-					if (entries[0]?.isIntersecting && hasMore && !loadingRef.current) {
-						loadMore();
-					}
-				},
-				{ rootMargin: "200px" },
-			);
-
-			observer.observe(node);
-			observerRef.current = observer;
-		},
-		[hasMore, loadMore],
-	);
-
-	// Clean up the observer when the component unmounts
+	// Auto-fetch the next page when the sentinel element enters the viewport
 	useEffect(() => {
-		return () => {
-			if (observerRef.current) {
-				observerRef.current.disconnect();
-				observerRef.current = null;
-			}
-		};
-	}, []);
+		if (inView && hasNextPage && !isFetchingNextPage && !isError) {
+			fetchNextPage();
+		}
+	}, [inView, hasNextPage, isFetchingNextPage, isError, fetchNextPage]);
+
+	// Flatten all pages into a single array of credentials
+	const credentials = data?.pages.flatMap((page) => page.credentials) ?? [];
+
+	// Distinguish initial load error from load-more error
+	const isInitialError = isError && !data?.pages?.length;
+	const isLoadMoreError = isError && (data?.pages?.length ?? 0) > 0;
 
 	if (isLoading) return <CredentialListingsSkeleton isLoading={isLoading} />;
 
@@ -129,25 +84,32 @@ function RouteComponent() {
 				</Link>
 			</div>
 
-			{/* Error state */}
-			{error && <CredentialsErrorUI error={error} />}
+			{/* Initial load error state */}
+			{isInitialError && (
+				<CredentialsErrorUI
+					error={error instanceof Error ? error : new Error("Failed to load credentials")}
+				/>
+			)}
 
 			{/* Empty state */}
-			{!error && credentials.length === 0 && (
+			{!isError && credentials.length === 0 && (
 				<div className="text-center py-24">
 					<CredentialsEmptyState />
 				</div>
 			)}
 
 			{/* Credentials list */}
-			{!error && credentials.length > 0 && (
+			{!isInitialError && credentials.length > 0 && (
 				<>
 					<div className="space-y-3">
 						{credentials.map((cred, idx) => (
 							<div
 								key={cred.id}
-								className="animate-in fade-in slide-in-from-bottom-3 duration-300"
-								style={{ animationDelay: `${idx * 50}ms`, animationFillMode: "backwards" }}
+								className="animate-in fade-in slide-in-from-bottom-3 duration-200"
+								style={{
+									animationDelay: `${Math.min(idx * 30, 300)}ms`,
+									animationFillMode: "backwards",
+								}}
 							>
 								<CredentialCard credential={cred} />
 							</div>
@@ -155,30 +117,31 @@ function RouteComponent() {
 					</div>
 
 					{/* Infinite scroll sentinel */}
-					{hasMore ||
-						(loadingRef.current && (
-							<div ref={sentinelCallback} className="flex justify-center py-8">
-								{isLoading ? (
-									<div className="flex items-center gap-2 text-sm text-muted-foreground/60">
-										<LoaderIcon className="size-4 animate-spin" />
-										<span>Loading more...</span>
-									</div>
-								) : (
-									<div className="size-4" />
-								)}
+					<div ref={sentinelRef} className="flex justify-center py-8">
+						{isFetchingNextPage ? (
+							<div className="flex items-center gap-2 text-sm text-muted-foreground/60">
+								<LoaderIcon className="size-4 animate-spin" />
+								<span>Loading more...</span>
 							</div>
-						))}
+						) : hasNextPage ? (
+							<div className="size-4" />
+						) : (
+							<div className="text-center">
+								<p className="text-xs text-muted-foreground/40">
+									You&rsquo;ve reached the end
+								</p>
+							</div>
+						)}
+					</div>
 
 					{/* Load more error */}
-					{loadMoreError && (
-						<CredentialsLoadMoreError loadMoreError={loadMoreError} loadMore={loadMore} />
-					)}
-
-					{/* End of results */}
-					{!hasMore && (
-						<div className="text-center py-8">
-							<p className="text-xs text-muted-foreground/40">You&rsquo;ve reached the end</p>
-						</div>
+					{isLoadMoreError && error && (
+						<CredentialsLoadMoreError
+							loadMoreError={
+								error instanceof Error ? error.message : "Failed to load more credentials"
+							}
+							loadMore={() => fetchNextPage()}
+						/>
 					)}
 				</>
 			)}

@@ -1,9 +1,17 @@
 # our workflow
 
-0. use infinitequery in credentialsListings to fetch infinity
+0. in the credentials listings page, with intersection observer, we are manually fetching more data automatically. i want you to read the whole page and understand the logics and related components. and then use tanstack query - useinfinitequery for infinite loading operation with intersection observer. now for intersection observer, i want you to use the react intersection observer pkg. i have already installed the observer pkg. i am not sure, but i think, if we have useinfinitequery hook in the credentials listings page, we probably dont need the initial usequery hook in the first place. also update the component based on this research
+
+1. in credential create form, when we click the x button in the img preview, the img preview gone as expected but the file input for the thumbnail img. the img file name still exist. we need to clear that
+
+2. our infinite loading (when we reached at bottom) used to work. but since we have integrated react intersection observer and tanstack use infinitequery hooks. fix the error for why new data is not being fetched after we reach bottom
+
+3. when we scroll down too fast that sometimes the listings component page looks blank and slowly the card render. i want you to make the animation more faster. so, if we scroll too fast, the animation keeps up with us. dont make the implementation too complicated.
+
+4. update our custom logger `log` function naming to `logger` and update all the usage in the backend
+
 1. update-form gallery img preview showing "no data" inside of img card. instead of image preview. note that, our image process updated. for local, we use minio and for production, we use supabase storage.
 2. update submit btn locked strategy... like we update non required field and leave unchange of important field...then submit is locked. fix this tanstack form issue. to unlock i need to change a bit of any important field
-4. remove da thumbnial with cross btn should clear out file input file name from create form
 5. i sometime i get this err when try to update credential images or thumbnail.. pattern not clear.. but happened multiple times. err at db level. something with syntax
 
 ```bash
@@ -42,9 +50,7 @@ credets-db              |
 ```
 
 6. update the description text visuality for our gooeytoast
-7. in update form, if thumbnail exist... hint it or preview it in thumbnail file input
-8. when scrolling in listings, make sure each list appear more faster (for animation)
-9. update our custom log function to logger and update its usage
+7. in update form, if thumbnail exist... hint it and preview it in thumbnail file input
 10. we used ai to generate most of the feature. now we want to review the ai implementation manually. create a dedicated docs in docs/ to guide me, how to do it fast and systematic way
 11. figure out how we can debug backend and frontend with zed editor. both end debug is possible. but i am not sure, how to set it up
 
