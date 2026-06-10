@@ -70,14 +70,8 @@ export const Route = createFileRoute("/credentials/$credentialId/")({
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
-function imageSrc(img: { image_url?: string | null; image_data?: string | null; format?: string | null } | null) {
-	// Direct URL takes priority
-	if (img?.image_url) return img.image_url;
-	// Legacy base64 fallback
-	if (img?.image_data && img?.format) {
-		return `data:image/${img.format};base64,${img.image_data}`;
-	}
-	return null;
+function imageSrc(img: { image_url?: string | null } | null) {
+	return img?.image_url ?? null;
 }
 
 function formatDate(iso: string) {

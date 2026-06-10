@@ -41,9 +41,8 @@ import { DeleteCredentialDialog } from "./-delete/delete-credential-dialog";
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
-function imageSrc(img: { image_data: string | null; format: string | null }) {
-	if (!img.image_data || !img.format) return null;
-	return `data:image/${img.format};base64,${img.image_data}`;
+function imageSrc(img: { image_url?: string | null }) {
+	return img?.image_url ?? null;
 }
 
 /** Convert a flat object (from seed) into typed blocks for editing */
@@ -463,11 +462,8 @@ function RouteComponent() {
 							name="thumbnail"
 							children={(field) => {
 								const isInvalid = !field.state.meta.isValid;
-								const existingThumbnailSrc =
-									credential.thumbnail_image_data && credential.thumbnail_format
-										? `data:image/${credential.thumbnail_format};base64,${credential.thumbnail_image_data}`
-										: null;
-								const showExisting =
+							const existingThumbnailSrc = credential.thumbnail_url || null;
+							const showExisting =
 									!field.state.value && existingThumbnailSrc && !thumbnailRemoved;
 								const showPreview = field.state.value;
 								const previewUrl = showPreview ? URL.createObjectURL(field.state.value) : null;
