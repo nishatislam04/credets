@@ -9,17 +9,20 @@ import {
 	FileText,
 	ImageIcon,
 	Info,
-	Pencil,
 	Tag,
 } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Separator } from "#/components/ui/separator";
 import { Skeleton } from "#/components/ui/skeleton";
+import { hashString, TAG_COLORS, TYPE_COLORS } from "../-utils/colors";
 import { getCredential } from "./-actions/getCredential";
 import { CredentialDataRenderer } from "./-components/credential-data";
 import { ImageLightbox } from "./-components/image-lightbox";
-import { TYPE_COLORS, TAG_COLORS, hashString } from "../-utils/colors";
+import { Gallery } from "./-ui/gallery";
+import { TopHeader } from "./-ui/topHeader";
+import { formatDate } from "./-utils/formatDate";
+import { formatTimeAgo } from "./-utils/formatTImeAgo";
 
 export const Route = createFileRoute("/credentials/$credentialId/")({
 	component: RouteComponent,
@@ -68,36 +71,6 @@ export const Route = createFileRoute("/credentials/$credentialId/")({
 	),
 });
 
-// ── Helpers ─────────────────────────────────────────────────────────
-
-function imageSrc(img: { image_url?: string | null } | null) {
-	return img?.image_url ?? null;
-}
-
-function formatDate(iso: string) {
-	return new Date(iso).toLocaleDateString(undefined, {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-	});
-}
-
-function formatTimeAgo(iso: string) {
-	const diff = Date.now() - new Date(iso).getTime();
-	const mins = Math.floor(diff / 60000);
-	if (mins < 60) return `${mins}m ago`;
-	const hours = Math.floor(mins / 60);
-	if (hours < 24) return `${hours}h ago`;
-	const days = Math.floor(hours / 24);
-	if (days < 30) return `${days}d ago`;
-	const months = Math.floor(days / 30);
-	return `${months}mo ago`;
-}
-
-
-
-// ── Component ───────────────────────────────────────────────────────
-
 function RouteComponent() {
 	const credential = useLoaderData({
 		from: "/credentials/$credentialId/",
@@ -124,23 +97,8 @@ function RouteComponent() {
 		<>
 			<div className="mx-auto w-full max-w-6xl px-4 py-10">
 				{/* ── Back link + Edit button ── */}
-				<div className="mb-8 flex items-center justify-between">
-					<Link
-						to="/credentials"
-						className="group inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors"
-					>
-						<ArrowLeft className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5" />
-						Back to listings
-					</Link>
-					<Link
-						to="/credentials/$credentialId/update"
-						params={{ credentialId: credential.id }}
-						className="inline-flex items-center gap-1.5 rounded-lg border bg-card px-3.5 py-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 shadow-sm transition-all duration-200 hover:bg-accent hover:text-foreground hover:shadow-md active:scale-[0.97]"
-					>
-						<Pencil className="size-3" />
-						Update
-					</Link>
-				</div>
+
+				<TopHeader credentialId={credential.id} />
 
 				{/* ── Header row — thumbnail | title + badge + dates ── */}
 				<div className="h-30 mb-10 flex items-start gap-5">
@@ -158,15 +116,15 @@ function RouteComponent() {
 							/>
 						</button>
 					) : (
-						<div className="flex size-24 shrink-0 items-center justify-center rounded-xl bg-muted/30 ring-1 ring-border/40 sm:size-28">
-							<ImageIcon className="size-8 text-muted-foreground/30" />
+						<div className="flex size-24 shrink-0 items-center justify-center rounded-xl bg-muted/60 ring-1 ring-border/60 sm:size-28">
+							<ImageIcon className="size-8 text-muted-foreground/40" />
 						</div>
 					)}
 
 					{/* Title + badge + dates on the right */}
 					<div className="flex-1 min-h-full">
 						<div className="flex flex-wrap items-center gap-3 mb-2">
-							<h1 className="text-4xl font-bold tracking-tight leading-tight break-words">
+							<h1 className="text-4xl font-bold tracking-tight leading-tight wrap-break-words">
 								{credential.title}
 							</h1>
 							{credential.type_label && (
@@ -209,7 +167,7 @@ function RouteComponent() {
 						{/* Short description — simple & natural */}
 						{credential.short_description && (
 							<section>
-								<h4 className="text-2xl font-semibold leading-relaxed text-card-foreground/70">
+								<h4 className="text-3xl font-semibold font-sans leading-relaxed text-card-foreground/70">
 									{credential.short_description}
 								</h4>
 							</section>
@@ -218,52 +176,22 @@ function RouteComponent() {
 						{/* Long description — simple & natural */}
 						{credential.long_description && (
 							<section>
-								<p className="text-base leading-relaxed mt-20 text-gray-600">
+								<p className="text-xl leading-relaxed mt-20 text-gray-600/90 italic">
 									{credential.long_description}
 								</p>
 							</section>
 						)}
 
 						{/* Image gallery — only credential.images (not thumbnail) */}
-						{hasImages && (
-							<section className="mt-12">
-								<div className="mb-3 flex items-center gap-2">
-									<ImageIcon className="size-4.5" />
-									<h2 className="text-lg font-semibold uppercase tracking-wider">Gallery</h2>
-									<span className="text-[13px] text-muted-foreground/90">
-										{credential.images.length} image
-										{credential.images.length > 1 ? "s" : ""}
-									</span>
-								</div>
-
-								<div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">
-									{credential.images.map((img, i) => {
-										const src = imageSrc(img);
-										if (!src) return null;
-										return (
-											<button
-												key={img.id}
-												type="button"
-												onClick={() => openLightbox(i)}
-												className="group relative w-full overflow-hidden rounded-xl border bg-muted/20 ring-1 ring-border/40 transition-all duration-200 hover:ring-primary/30 hover:shadow-md cursor-pointer border-0 h-[200px]" // ← ADDED fixed height
-											>
-												<img
-													src={src}
-													alt={`gallery ${i + 1}`}
-													className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" // ← CHANGED to h-full and object-cover
-												/>
-												<div className="absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/[0.02]" />
-											</button>
-										);
-									})}
-								</div>
-							</section>
-						)}
+						<Gallery hasImages={hasImages} credential={credential} openLightbox={openLightbox} />
 
 						{/* Data section */}
 						{credential.data && (
 							<section>
-								<CredentialDataRenderer typeValue={credential.type_value} data={credential.data as DataBlockEntry[]} />
+								<CredentialDataRenderer
+									typeValue={credential.type_value}
+									data={credential.data as DataBlockEntry[]}
+								/>
 							</section>
 						)}
 					</div>
@@ -349,7 +277,7 @@ function RouteComponent() {
 				{/* ── Footer separator ── */}
 				<Separator className="my-12" />
 
-				<div className="text-center text-xs text-muted-foreground/30">
+				<div className="text-center text-sm text-muted-foreground/50">
 					Created {formatDate(credential.created_at)}
 					{credential.updated_at && credential.updated_at !== credential.created_at && (
 						<>

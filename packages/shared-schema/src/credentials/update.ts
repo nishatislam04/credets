@@ -39,10 +39,6 @@ export const credentialsUpdateSchema = z.object({
 	short_description: z
 		.string()
 		.min(5, "credentials short description can not be less than 5 characters")
-		.max(
-			50,
-			"credentials short description can not be greater than 50 characters",
-		)
 		.optional()
 		.or(z.literal("")),
 	long_description: z
