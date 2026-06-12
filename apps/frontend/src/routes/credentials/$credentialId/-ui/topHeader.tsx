@@ -6,6 +6,7 @@ export function TopHeader({ credentialId }: { credentialId: string }) {
 		<div className="mb-8 flex items-center justify-between">
 			<Link
 				to="/credentials"
+				preload="intent"
 				className="group inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors"
 			>
 				<ArrowLeft className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5" />

@@ -107,3 +107,9 @@ auto focus on the first input. for single label, focus on the first input. for k
 - [] think about a img optimizing in tanstack router like we had in nextjs out of the box
 
 - [] make single view page, short description and long description more stand out between them. like short description has more priority than long description and even tho they have quite a space between them but there are not actually much distance between them.. when we look at it. design my whole short description and long description fully based on its surrounding attributes. if needed, install and use external fonts. i just to make this 2 description block looks good. handle short description line breaking, i m not talking abt trimming it. the line space
+
+- [] figure out, if we can defer loading images in the loader for the single page view. so that important texts can be load first and images can load lazily. try to do it within route loader
+
+- [] in single view page, clicking on the thumbnial would open the thumbnial lightbox. not the images gallery. right now, when we click the thumbnial, we see the images gallery with all the images. but it should have shown the thumbnial preview only
+
+- [] we need to re-work on our imges gallery
