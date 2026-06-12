@@ -132,6 +132,8 @@ function RouteComponent() {
 						label: "Go back to listings",
 						onClick: async () => {
 							queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
+							queryClient.invalidateQueries({ queryKey: ["types_listings"] });
+							queryClient.invalidateQueries({ queryKey: ["type_children"] });
 							navigate({
 								to: "/credentials",
 							});
