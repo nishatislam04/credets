@@ -105,32 +105,45 @@ export async function updateCredentialRepo(
 				typesId = typeRow.id;
 			}
 
-			// 3. Build update payload
-			const updateFields: Record<string, unknown> = {
-				title: input.title,
-				short_description: input.short_description,
-				long_description: input.long_description,
-				data: input.data,
-				notes: input.notes,
-				tags: input.tags,
-				types_id: typesId,
-			};
+			// 3. Build update SET clause using nested SQL fragments
+			//    Note: Can't use sql(object) in UPDATE context — Bun's SQL driver
+			//    checks that the helper fragment starts with INSERT/UPDATE/IN,
+			//    but sql(object) generates "(col1, col2, ...) = (...)" which starts
+			//    with '(' and fails the check.
+			let setClause = sql`
+				title = ${input.title},
+				short_description = ${input.short_description},
+				long_description = ${input.long_description},
+				data = ${input.data},
+				notes = ${input.notes},
+				tags = ${input.tags},
+				types_id = ${typesId}
+			`;
 
 			if (input.thumbnail) {
-				updateFields.thumbnail_url = input.thumbnail.url;
-				updateFields.thumbnail_format = input.thumbnail.format;
-				updateFields.thumbnail_width = input.thumbnail.width;
-				updateFields.thumbnail_height = input.thumbnail.height;
+				setClause = sql`
+					${setClause},
+					thumbnail_url = ${input.thumbnail.url},
+					thumbnail_format = ${input.thumbnail.format},
+					thumbnail_width = ${input.thumbnail.width},
+					thumbnail_height = ${input.thumbnail.height}
+				`;
 			} else if (input.removeThumbnail) {
-				updateFields.thumbnail_url = null;
-				updateFields.thumbnail_format = null;
-				updateFields.thumbnail_width = null;
-				updateFields.thumbnail_height = null;
+				setClause = sql`
+					${setClause},
+					thumbnail_url = NULL,
+					thumbnail_format = NULL,
+					thumbnail_width = NULL,
+					thumbnail_height = NULL
+				`;
 			}
+
+			setClause = sql`${setClause}, updated_at = NOW()`;
 
 			// 4. Update core credential
 			await sql`
-				UPDATE credentials SET ${sql(updateFields)} WHERE id = ${input.credentialId}
+				UPDATE credentials SET ${setClause}
+				WHERE id = ${input.credentialId}
 			`;
 
 			// 5. Delete removed images

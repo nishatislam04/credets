@@ -26,7 +26,7 @@ and if any input fields have values in it and if we try to delete the block, sho
 
 - [] in single view page, for description, i see multiple line blend into a single line in the ui. so, i create multi line in the create form textarea input with newline (pressing enter) and when i check the single page long description section, i see the lines are kinda merged together.it did not follow the style of formatting we had in create form. first, fix this. now in this simple text area, we may try to design our long description block. like multiple spaces between each line. any visual indentation in the create form. i also want to see them exactly like that in single view page. by the way, same apply for short description. but surprisingly, notes ui block render as multiline, if the input was mulitiline. handle it both in single view page and listings card too
 
-- [] i tried to update tags block and i got this err. i dont think, this backend err happend because of tags block. i mean it might happen for other block too. please fix it thoroghly. and tell me why it occured
+- [] i tried to update tags block and i got this err. i dont think, this backend err happend because of tags block. i mean it might happen for other block too. please fix it thoroghly. and tell me why it occured. this err only happen when i try to update an credential item
 
 ```bash
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -114,3 +114,7 @@ and if any input fields have values in it and if we try to delete the block, sho
 - [] we need to re-work on our imges gallery
 
 - [x] when we press enter, it confirm our current types and create a new types. but our cursor still stay at old types input field. the cursor should also jump to newly generated input field
+
+- [] in our types field, when we type something on the input, it should act like a search box. based on the input, it will filter based on the fetched listings. and if it does not have any matching types, then we can create one. so, it will act as either search old type or create new one
+
+- [] when we create a new type manually and then navigate around without refresh the browser. then we try to create a new credential, we type the previous types.. but the dropdown does not show the previous types in the drop down listings. we can only see it, when we refresh the page. i wonder, why this behavior keep happening. we create something or update anything. and we still see old data... untill we refresh the page. the issue yu try to fix above for not showing new thumbnial img after updating, is still persist. but we will handle that thumbnial issue later. first fix this new credential not showing untill we refresh the browser issue
