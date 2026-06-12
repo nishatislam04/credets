@@ -37,6 +37,7 @@ export type CredentialDetail = {
 	long_description: string | null;
 	type_label: string | null;
 	type_value: string | null;
+	type_path: Array<{ label: string; value: string }>;
 	thumbnail_url: string | null;
 	/** Can be a flat object (seed) or an array of typed blocks (from create form) */
 	data: Record<string, unknown> | DataBlockEntry[];

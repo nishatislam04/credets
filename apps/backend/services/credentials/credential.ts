@@ -1,6 +1,9 @@
 import { decrypt } from "@backend/cipher/decrypt";
 import { logAlways } from "@backend/utils/logger";
-import { getCredentialDetailRepo } from "../../repository/credentials/credential";
+import {
+	getCredentialDetailRepo,
+	getTypeHierarchyRepo,
+} from "../../repository/credentials/credential";
 
 export async function getCredentialDetailService(credentialId: string) {
 	logAlways(credentialId, "service: starting getCredentialDetailService");
@@ -12,6 +15,9 @@ export async function getCredentialDetailService(credentialId: string) {
 			return null;
 		}
 
+		// Fetch the full type hierarchy (root → leaf)
+		const typePath = await getTypeHierarchyRepo(credential.types_id);
+
 		// Serialise
 		const parsed = {
 			id: credential.id,
@@ -20,6 +26,7 @@ export async function getCredentialDetailService(credentialId: string) {
 			long_description: credential.long_description,
 			type_label: credential.type_label,
 			type_value: credential.type_value,
+			type_path: typePath,
 			thumbnail_url: credential.thumbnail_url,
 			data: await (async () => {
 				const raw =

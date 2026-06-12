@@ -1,8 +1,9 @@
 import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
-import { Check, Copy, FileText, Info, Tag } from "lucide-react";
+import { Check, Copy, FileText, Info, Tag, FolderTree } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { TAG_COLORS } from "../../-utils/colors";
+import { TypeTree } from "../-components/TypeTree";
 
 export function Sidebar({ credential }: { credential: CredentialDetail }) {
 	const [copiedId, setCopiedId] = useState(false);
@@ -46,7 +47,18 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 				</button>
 			</section>
 
-			{/* Notes — second */}
+			{/* Type hierarchy — second */}
+			{credential.type_path && credential.type_path.length > 0 && (
+				<section className="mt-4">
+					<div className="mb-2.5 flex items-center gap-2">
+						<FolderTree className="size-4.5" />
+						<h2 className="text-base font-semibold uppercase tracking-wider">Type</h2>
+					</div>
+					<TypeTree path={credential.type_path} />
+				</section>
+			)}
+
+			{/* Notes — third */}
 			{credential.notes && (
 				<section className="mt-4">
 					<div className="mb-2.5 flex items-center gap-2">
