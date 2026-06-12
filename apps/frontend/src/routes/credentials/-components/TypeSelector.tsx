@@ -1,14 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import {
+	AlertDialogBackdrop,
+	AlertDialogClose,
+	AlertDialogDescription,
+	AlertDialogPopup,
+	AlertDialogRoot,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "#/components/ui/alert-dialog";
 import { Button } from "#/components/ui/button";
 import {
 	Combobox,
 	ComboboxContent,
-	ComboboxInput,
-	ComboboxList,
-	ComboboxItem,
 	ComboboxEmpty,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxList,
 } from "#/components/ui/combobox";
 import { getTypeChildren, type TypeChild } from "#/routes/credentials/-actions/getTypeChildren";
 import { getTypesListings } from "#/routes/credentials/create/-actions/getTypesListings";
@@ -32,14 +41,13 @@ interface ComboboxItemOption {
 
 /**
  * TypeSelector allows users to select or create hierarchical types.
- * Each level uses a shadcn combobox. Clicking "+" adds a new level.
- * Changing a parent level resets all deeper levels.
+ * Each level uses a shadcn combobox at 30% width.
+ * Clicking "+" below the combobox adds a new level underneath.
+ * Pressing Enter on a novel input registers it as a new type immediately.
+ * Clearing a type that has children shows a confirmation AlertDialog.
  */
 export function TypeSelector({ types, onTypesChange }: TypeSelectorProps) {
-	// Track how many levels the user has expanded via the "+" button
 	const [expandedLevels, setExpandedLevels] = useState(0);
-
-	// How many combobox instances to show
 	const levelsToShow = Math.max(1, types.length + 1, expandedLevels + 1);
 
 	const handleLevelChange = useCallback(
@@ -59,18 +67,22 @@ export function TypeSelector({ types, onTypesChange }: TypeSelectorProps) {
 	}, []);
 
 	return (
-		<div className="flex flex-col gap-2">
-			{Array.from({ length: levelsToShow }).map((_, levelIndex) => (
-				<TypeLevel
-					key={levelIndex}
-					levelIndex={levelIndex}
-					parentValue={levelIndex > 0 ? types[levelIndex - 1]?.value : undefined}
-					currentType={types[levelIndex] ?? null}
-					onChange={(entry) => handleLevelChange(levelIndex, entry)}
-					isLastVisible={levelIndex === levelsToShow - 1}
-					onAddLevel={handleAddLevel}
-				/>
-			))}
+		<div className="flex flex-col gap-3">
+			{Array.from({ length: levelsToShow }).map((_, levelIndex) => {
+				const childCount = Math.max(0, types.length - levelIndex - 1);
+				return (
+					<TypeLevel
+						key={levelIndex}
+						levelIndex={levelIndex}
+						parentValue={levelIndex > 0 ? types[levelIndex - 1]?.value : undefined}
+						currentType={types[levelIndex] ?? null}
+						onChange={(entry) => handleLevelChange(levelIndex, entry)}
+						childCount={childCount}
+						isLastVisible={levelIndex === levelsToShow - 1}
+						onAddLevel={handleAddLevel}
+					/>
+				);
+			})}
 		</div>
 	);
 }
@@ -82,6 +94,7 @@ interface TypeLevelProps {
 	parentValue: string | undefined;
 	currentType: TypePathEntry | null;
 	onChange: (entry: TypePathEntry | null) => void;
+	childCount: number;
 	isLastVisible: boolean;
 	onAddLevel: () => void;
 }
@@ -91,10 +104,12 @@ function TypeLevel({
 	parentValue,
 	currentType,
 	onChange,
+	childCount,
 	isLastVisible,
 	onAddLevel,
 }: TypeLevelProps) {
 	const [inputValue, setInputValue] = useState("");
+	const [dialogOpen, setDialogOpen] = useState(false);
 
 	// ── Fetch options for this level ──
 	const { data: options = [], isLoading: isOptionsLoading } = useQuery({
@@ -111,9 +126,8 @@ function TypeLevel({
 	});
 
 	// ── Build items for the combobox ──
-	// Existing items from the API + optional "Create" item for custom input
 	const items = useMemo<ComboboxItemOption[]>(() => {
-		const existingItems: ComboboxItemOption[] = options.map((opt) => ({
+		const existing: ComboboxItemOption[] = options.map((opt) => ({
 			id: opt.id,
 			value: opt.value,
 			label: opt.label,
@@ -122,34 +136,45 @@ function TypeLevel({
 
 		const trimmed = inputValue.trim();
 		if (trimmed.length > 0) {
-			const isDuplicate = existingItems.some(
+			const exists = existing.some(
 				(item) =>
 					item.label.toLowerCase() === trimmed.toLowerCase() ||
 					item.value.toLowerCase() === trimmed.toLowerCase(),
 			);
-			if (!isDuplicate) {
-				const slugValue = trimmed
+			if (!exists) {
+				const slug = trimmed
 					.toLowerCase()
 					.replace(/[^a-z0-9]+/g, "_")
 					.replace(/^_|_$/g, "");
-				existingItems.push({
-					id: `__create__${slugValue}`,
-					value: `__create__${slugValue}`,
+				existing.push({
+					id: `__create__${slug}`,
+					value: `__create__${slug}`,
 					label: `Create "${trimmed}"`,
 					isNew: true,
 				});
 			}
 		}
 
-		return existingItems;
+		return existing;
 	}, [options, inputValue]);
 
-	// Handle item selection
+	// ── Register a new type from the current typed input ──
+	const commitInputAsType = useCallback(() => {
+		const trimmed = inputValue.trim();
+		if (!trimmed) return;
+		const slug = trimmed
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, "_")
+			.replace(/^_|_$/g, "");
+		onChange({ value: slug, label: trimmed });
+		setInputValue(trimmed);
+	}, [inputValue, onChange]);
+
+	// ── Handle item selection from dropdown ──
 	const handleValueChange = useCallback(
 		(newValue: string | null) => {
 			if (!newValue) {
-				onChange(null);
-				setInputValue("");
+				// Clear was triggered — this is handled by our custom X button / dialog
 				return;
 			}
 
@@ -157,15 +182,14 @@ function TypeLevel({
 			if (!item) return;
 
 			if (item.isNew) {
-				// Extract the actual label from "Create \"label\"" format
-				const match = item.label.match(/^Create "(.+)"$/);
-				const actualLabel = match ? match[1] : item.label;
-				const slugValue = actualLabel
+				const slug = item.label
+					.replace(/^Create "(.+)"$/, "$1")
 					.toLowerCase()
 					.replace(/[^a-z0-9]+/g, "_")
 					.replace(/^_|_$/g, "");
-				onChange({ value: slugValue, label: actualLabel });
-				setInputValue(actualLabel);
+				const label = item.label.replace(/^Create "(.+)"$/, "$1");
+				onChange({ value: slug, label });
+				setInputValue(label);
 			} else {
 				onChange({ value: item.value, label: item.label });
 				setInputValue(item.label);
@@ -174,61 +198,152 @@ function TypeLevel({
 		[items, onChange],
 	);
 
-	return (
-		<div className="flex items-center gap-2">
-			<div className="flex-1">
-				<Combobox
-					value={currentType?.value ?? null}
-					onValueChange={handleValueChange}
-					onInputValueChange={(val: string) => setInputValue(val)}
-				>
-					<ComboboxInput
-						placeholder={
-							levelIndex === 0
-								? "Select or type a new type..."
-								: "Select or type a new sub-type..."
-						}
-						showClear={!!currentType}
-						showTrigger={true}
-					/>
-					<ComboboxContent>
-						<ComboboxList>
-							{isOptionsLoading && items.length === 0 && (
-								<div className="px-3 py-2 text-sm text-muted-foreground">Loading...</div>
-							)}
-							{!isOptionsLoading && items.length === 0 && (
-								<ComboboxEmpty>No options found. Type to create a new one.</ComboboxEmpty>
-							)}
-							{items.map((item) => (
-								<ComboboxItem key={item.id} value={item.value}>
-									{item.isNew ? (
-										<span className="flex items-center gap-2">
-											<Plus className="size-3.5" />
-											<span className="italic">{item.label}</span>
-										</span>
-									) : (
-										item.label
-									)}
-								</ComboboxItem>
-							))}
-						</ComboboxList>
-					</ComboboxContent>
-				</Combobox>
-			</div>
+	// ── Handle clearing this level ──
+	const handleClear = useCallback(() => {
+		if (childCount > 0) {
+			setDialogOpen(true);
+		} else {
+			onChange(null);
+			setInputValue("");
+		}
+	}, [childCount, onChange]);
 
-			{/* Plus button to add next level - only on last visible level when a type is selected */}
-			{isLastVisible && !!currentType && (
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					onClick={onAddLevel}
-					aria-label="Add sub-type"
-					className="shrink-0"
-				>
-					<Plus className="size-4" />
-				</Button>
-			)}
+	// ── Confirm clear (from dialog) ──
+	const handleConfirmClear = useCallback(() => {
+		setDialogOpen(false);
+		onChange(null);
+		setInputValue("");
+	}, [onChange]);
+
+	return (
+		<div>
+			<div className="flex flex-col gap-1.5">
+				{/* Row: combobox + X button side by side */}
+				<div className="flex items-center gap-2">
+					{/* Combobox at 30% width */}
+					<div className="w-[30%] min-w-[200px]">
+						<Combobox
+							value={currentType?.value ?? null}
+							onValueChange={handleValueChange}
+							onInputValueChange={(val: string) => setInputValue(val)}
+						>
+							<ComboboxInput
+								placeholder={
+									levelIndex === 0
+										? "Select or type a new type..."
+										: "Select or type a new sub-type..."
+								}
+								showClear={false}
+								showTrigger={true}
+								onKeyDown={(e: React.KeyboardEvent) => {
+									if (e.key === "Enter" && inputValue.trim()) {
+										e.preventDefault();
+										const trimmed = inputValue.trim();
+										// Check if input exactly matches an existing item
+										const exactMatch = items.find(
+											(item) =>
+												!item.isNew &&
+												(item.label.toLowerCase() === trimmed.toLowerCase() ||
+													item.value.toLowerCase() === trimmed.toLowerCase()),
+										);
+										if (exactMatch) {
+											onChange({ value: exactMatch.value, label: exactMatch.label });
+											setInputValue(exactMatch.label);
+										} else {
+											commitInputAsType();
+										}
+									}
+								}}
+							/>
+							<ComboboxContent>
+								<ComboboxList>
+									{isOptionsLoading && items.length === 0 && (
+										<div className="px-3 py-2 text-sm text-muted-foreground">
+											Loading...
+										</div>
+									)}
+									{!isOptionsLoading && items.length === 0 && (
+										<ComboboxEmpty>
+											No options found. Type to create a new one.
+										</ComboboxEmpty>
+									)}
+									{items.map((item) => (
+										<ComboboxItem key={item.id} value={item.value}>
+											{item.isNew ? (
+												<span className="flex items-center gap-2">
+													<Plus className="size-3.5" />
+													<span className="italic">{item.label}</span>
+												</span>
+											) : (
+												item.label
+											)}
+										</ComboboxItem>
+									))}
+								</ComboboxList>
+							</ComboboxContent>
+						</Combobox>
+					</div>
+
+					{/* X clear button — side by side with combobox */}
+					{!!currentType && childCount > 0 && (
+						<AlertDialogRoot open={dialogOpen} onOpenChange={setDialogOpen}>
+							<AlertDialogTrigger
+								className="inline-flex items-center justify-center rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer border-0 bg-transparent"
+								aria-label="Remove type and children"
+							>
+								<X className="size-3.5" />
+							</AlertDialogTrigger>
+							<AlertDialogBackdrop />
+							<AlertDialogPopup>
+								<AlertDialogTitle>Remove this type?</AlertDialogTitle>
+								<AlertDialogDescription>
+									Removing "{currentType.label}" will also remove{" "}
+									{childCount === 1 ? "the sub-type" : `${childCount} sub-types`}{" "}
+									under it. This action cannot be undone.
+								</AlertDialogDescription>
+								<div className="flex justify-end gap-3 mt-2">
+									<AlertDialogClose className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors cursor-pointer border-0 bg-transparent">
+										Cancel
+									</AlertDialogClose>
+									<Button
+										type="button"
+										variant="destructive"
+										size="sm"
+										onClick={handleConfirmClear}
+									>
+										Remove
+									</Button>
+								</div>
+							</AlertDialogPopup>
+						</AlertDialogRoot>
+					)}
+
+					{/* Simple X clear button when no children */}
+					{!!currentType && childCount === 0 && (
+						<button
+							type="button"
+							onClick={handleClear}
+							className="inline-flex items-center justify-center rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer border-0 bg-transparent"
+							aria-label="Remove type"
+						>
+							<X className="size-3.5" />
+						</button>
+					)}
+				</div>
+
+				{/* Plus button — below the combobox row */}
+				{isLastVisible && !!currentType && (
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-xs"
+						onClick={onAddLevel}
+						aria-label="Add sub-type"
+					>
+						<Plus className="size-3.5" />
+					</Button>
+				)}
+			</div>
 		</div>
 	);
 }
