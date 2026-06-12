@@ -238,7 +238,7 @@ export function CredentialDataRenderer({ typeValue, data }: CredentialDataRender
 				<Braces className="size-4.5" />
 				<h2 className="text-base font-semibold uppercase tracking-wider">Data</h2>
 			</div>
-			<div className={`rounded-lg border bg-card ${accent.border} overflow-hidden`}>
+			<div className={`rounded-lg border bg-gradient-to-br from-primary/[0.04] to-transparent ${accent.border} overflow-hidden dark:from-primary/[0.07]`}>
 				<DataBlocksRenderer blocks={data} />
 			</div>
 		</div>
