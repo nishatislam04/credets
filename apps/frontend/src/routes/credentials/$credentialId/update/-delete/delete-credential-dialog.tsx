@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, LoaderIcon, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import {
 	AlertDialogClose,
 	AlertDialogDescription,
@@ -72,22 +72,38 @@ export function DeleteCredentialDialog({
 						{isDeleting ? (
 							<LoaderIcon className="size-4 animate-spin" />
 						) : (
-							<AlertTriangle className="size-4" />
+							<Trash2 className="size-4" />
 						)}
 						{isDeleting ? "Deleting..." : "Delete"}
 					</Button>
 				}
 			/>
 			<AlertDialogPopup>
-				<AlertDialogTitle>Delete credential</AlertDialogTitle>
-				<AlertDialogDescription>
-					Are you sure you want to delete &ldquo;{credentialTitle}&rdquo;? This action cannot
-					be undone.
+				{/* Large warning icon */}
+				<div className="mx-auto flex size-16 items-center justify-center rounded-full bg-destructive/10 ring-1 ring-destructive/20">
+					<AlertTriangle className="size-8 text-destructive" />
+				</div>
+
+				<AlertDialogTitle className="text-center text-xl text-foreground">
+					Delete credential
+				</AlertDialogTitle>
+
+				<AlertDialogDescription className="text-center">
+					This will permanently delete{" "}
+					<span className="font-semibold text-foreground">&ldquo;{credentialTitle}&rdquo;</span> and
+					all its associated data, including images and files. This action{" "}
+					<strong className="text-destructive">cannot be undone</strong>.
 				</AlertDialogDescription>
-				<div className="flex justify-end gap-3 mt-2">
+
+				<div className="mt-2 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-xs text-destructive/70">
+					This action is irreversible. Once deleted, you will not be able to recover the credential
+					or any of its associated data.
+				</div>
+
+				<div className="flex justify-end gap-3 mt-6">
 					<AlertDialogClose
 						render={
-							<Button type="button" variant="outline" size="sm">
+							<Button type="button" variant="outline" size="lg" disabled={isDeleting}>
 								Cancel
 							</Button>
 						}
@@ -97,12 +113,17 @@ export function DeleteCredentialDialog({
 							<Button
 								type="button"
 								variant="destructive"
-								size="sm"
+								size="lg"
+								className="gap-2 px-6 shadow-lg shadow-destructive/25 hover:shadow-xl hover:shadow-destructive/30 transition-all duration-200"
 								disabled={isDeleting}
 								onClick={handleDelete}
 							>
-								<Trash2 className="size-4" />
-								Delete
+								{isDeleting ? (
+									<LoaderIcon className="size-4 animate-spin" />
+								) : (
+									<Trash2 className="size-4" />
+								)}
+								{isDeleting ? "Deleting..." : "Yes, delete it"}
 							</Button>
 						}
 					/>

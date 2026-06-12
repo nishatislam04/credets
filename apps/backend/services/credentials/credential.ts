@@ -39,7 +39,7 @@ export async function getCredentialDetailService(credentialId: string) {
 				return JSON.parse(decrypted);
 			})(),
 			notes: credential.notes,
-			tags: JSON.parse(credential.tags),
+			tags: credential.tags ? JSON.parse(credential.tags) : [],
 			created_at: credential.created_at.toISOString(),
 			updated_at: credential.updated_at?.toISOString() ?? null,
 			images: images.map((img) => ({

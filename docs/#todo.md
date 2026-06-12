@@ -15,7 +15,8 @@
 - [] make the credential delete dialog more destructive looking with coloring, icons and with other factors. so that, it looks like we are deleting something important haha
 
 - [] when click on single-label, key-value, information.
-auto focus on the first input. for single label, focus on the first input. for key-value, focus on the key input. for information input, focus on the textarea input. when page render, we generate a defualt first single input field. forget about focusing that one. only focus input fields, when we click the button to generate the input field
+auto focus on the first input. for single label, focus on the first input. for key-value, focus on the key input. for information input, focus on the textarea input. when page render, we generate a defualt first single input field. forget about focusing that one. only focus input fields, when we click the button to generate the input field.
+and if any input fields have values in it and if we try to delete the block, show us a shadcn alert dialog for confirmation. make it looks more destructive and colorful. like something important are being deleting.
 
 - [] make all listings, single page view, create form page, edit form page with shadcn-scroll area component. i did not install the component yet
 

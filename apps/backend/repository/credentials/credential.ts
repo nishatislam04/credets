@@ -10,8 +10,7 @@ import { sql } from "@db/connection";	export interface CredentialDetailRow {
 	// biome-ignore lint/suspicious/noExplicitAny: data is JSONB type
 	data: any;
 	notes: string | null;
-	// biome-ignore lint/suspicious/noExplicitAny: tags is JSONB type
-	tags: any;
+	tags: string | null;
 	created_at: Date;
 	updated_at: Date | null;
 	type_label: string | null;

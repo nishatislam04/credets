@@ -44,7 +44,7 @@ export async function getCredentialsListingsService(
 			title: cred.title,
 			short_description: cred.short_description,
 			thumbnail_url: cred.thumbnail_url,
-			tags: JSON.parse(cred.tags) ?? [],
+			tags: cred.tags ? JSON.parse(cred.tags) : [],
 			created_at: cred.created_at.toISOString(),
 			type_label: cred.type_label,
 			type_value: cred.type_value,

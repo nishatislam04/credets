@@ -15,11 +15,40 @@ export async function credentialListings(req: BunRequest) {
 			? 12
 			: Math.min(12, Math.max(1, rawLimit));
 
-		// Decode cursor
+		// Decode & validate cursor
 		let cursor: CursorPayload | null = null;
 		if (cursorParam) {
-			const decoded = Buffer.from(cursorParam, "base64").toString("utf-8");
-			cursor = JSON.parse(decoded) as CursorPayload;
+			let decoded: string;
+			try {
+				decoded = Buffer.from(cursorParam, "base64").toString("utf-8");
+			} catch {
+				return ResponseFactory.error({
+					error: "bad request",
+					message: "Invalid cursor format: must be a valid base64-encoded string",
+					status: 400,
+					path: req,
+				});
+			}
+
+			try {
+				const parsed = JSON.parse(decoded);
+				if (!parsed.createdAt || !parsed.id) {
+					return ResponseFactory.error({
+						error: "bad request",
+						message: "Invalid cursor payload: must contain 'createdAt' and 'id' fields",
+						status: 400,
+						path: req,
+					});
+				}
+				cursor = parsed as CursorPayload;
+			} catch {
+				return ResponseFactory.error({
+					error: "bad request",
+					message: "Invalid cursor payload: must be valid JSON",
+					status: 400,
+					path: req,
+				});
+			}
 		}
 
 		// Call Service Layer

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Plus, X } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	AlertDialogBackdrop,
 	AlertDialogClose,
@@ -48,6 +48,7 @@ interface ComboboxItemOption {
  */
 export function TypeSelector({ types, onTypesChange }: TypeSelectorProps) {
 	const [expandedLevels, setExpandedLevels] = useState(0);
+	const [focusLevel, setFocusLevel] = useState<number | null>(null);
 	const levelsToShow = Math.max(1, types.length + 1, expandedLevels + 1);
 
 	const handleLevelChange = useCallback(
@@ -58,6 +59,8 @@ export function TypeSelector({ types, onTypesChange }: TypeSelectorProps) {
 			}
 			const newTypes = [...types.slice(0, levelIndex), entry];
 			onTypesChange(newTypes);
+			// Request focus on the next level after a type is committed
+			setFocusLevel(levelIndex + 1);
 		},
 		[types, onTypesChange],
 	);
@@ -70,6 +73,7 @@ export function TypeSelector({ types, onTypesChange }: TypeSelectorProps) {
 		<div className="flex flex-col gap-3">
 			{Array.from({ length: levelsToShow }).map((_, levelIndex) => {
 				const childCount = Math.max(0, types.length - levelIndex - 1);
+				const shouldFocus = focusLevel === levelIndex;
 				return (
 					<TypeLevel
 						key={levelIndex}
@@ -77,6 +81,8 @@ export function TypeSelector({ types, onTypesChange }: TypeSelectorProps) {
 						parentValue={levelIndex > 0 ? types[levelIndex - 1]?.value : undefined}
 						currentType={types[levelIndex] ?? null}
 						onChange={(entry) => handleLevelChange(levelIndex, entry)}
+						onFocused={() => setFocusLevel(null)}
+						shouldFocus={shouldFocus}
 						childCount={childCount}
 						isLastVisible={levelIndex === levelsToShow - 1}
 						onAddLevel={handleAddLevel}
@@ -94,6 +100,8 @@ interface TypeLevelProps {
 	parentValue: string | undefined;
 	currentType: TypePathEntry | null;
 	onChange: (entry: TypePathEntry | null) => void;
+	shouldFocus?: boolean;
+	onFocused?: () => void;
 	childCount: number;
 	isLastVisible: boolean;
 	onAddLevel: () => void;
@@ -104,11 +112,25 @@ function TypeLevel({
 	parentValue,
 	currentType,
 	onChange,
+	shouldFocus,
+	onFocused,
 	childCount,
 	isLastVisible,
 	onAddLevel,
 }: TypeLevelProps) {
 	const [inputValue, setInputValue] = useState("");
+	const levelRef = useRef<HTMLDivElement>(null);
+
+	// Auto-focus this level's input when shouldFocus becomes true
+	useEffect(() => {
+		if (shouldFocus && levelRef.current) {
+			const input = levelRef.current.querySelector("input");
+			if (input) {
+				input.focus();
+				onFocused?.();
+			}
+		}
+	}, [shouldFocus, onFocused]);
 	const [dialogOpen, setDialogOpen] = useState(false);
 
 	// ── Fetch options for this level ──
@@ -216,7 +238,7 @@ function TypeLevel({
 	}, [onChange]);
 
 	return (
-		<div>
+		<div ref={levelRef}>
 			<div className="flex flex-col gap-1.5">
 				{/* Row: combobox + X button side by side */}
 				<div className="flex items-center gap-2">

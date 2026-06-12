@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS credentials(
 	thumbnail_height INT NULL,
 	data TEXT NOT NULL,
 	notes TEXT NULL,
-	tags JSONB NULL,
+	tags TEXT NULL,
 	created_at TIMESTAMPTZ DEFAULT NOW(),
 	updated_at TIMESTAMPTZ DEFAULT NOW(),
 	user_id UUID NULL,
@@ -79,7 +79,6 @@ CREATE INDEX IF NOT EXISTS credentials_short_description_idx ON credentials (sho
 CREATE INDEX IF NOT EXISTS credentials_long_description_idx ON credentials (long_description);
 CREATE INDEX IF NOT EXISTS credentials_data_idx ON credentials USING GIN (data);
 CREATE INDEX IF NOT EXISTS credentials_notes_idx ON credentials (notes);
-CREATE INDEX IF NOT EXISTS credentials_tags_idx ON credentials USING GIN (tags);
 CREATE INDEX IF NOT EXISTS credentials_created_at_idx ON credentials(created_at);
 CREATE INDEX IF NOT EXISTS credentials_user_id_idx ON credentials(user_id);
 CREATE INDEX IF NOT EXISTS credentials_types_id_idx ON credentials(types_id);

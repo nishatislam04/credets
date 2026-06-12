@@ -12,7 +12,7 @@ export interface CredentialRow {
 	title: string;
 	short_description: string | null;
 	thumbnail_url: string | null;
-	tags: string;
+	tags: string | null;
 	created_at: Date;
 	type_label: string | null;
 	type_value: string | null;
