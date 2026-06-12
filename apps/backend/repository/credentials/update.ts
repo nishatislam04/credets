@@ -105,73 +105,94 @@ export async function updateCredentialRepo(
 				typesId = typeRow.id;
 			}
 
-			// 3. Build update SET clause using nested SQL fragments
-			//    Note: Can't use sql(object) in UPDATE context — Bun's SQL driver
-			//    checks that the helper fragment starts with INSERT/UPDATE/IN,
-			//    but sql(object) generates "(col1, col2, ...) = (...)" which starts
-			//    with '(' and fails the check.
-			let setClause = sql`
-				title = ${input.title},
-				short_description = ${input.short_description},
-				long_description = ${input.long_description},
-				data = ${input.data},
-				notes = ${input.notes},
-				tags = ${input.tags},
-				types_id = ${typesId}
-			`;
+			// 3. Build UPDATE SET clause as a raw parameterized query
+			//    Using sql.unsafe() to avoid Bun's SQL helper/fragment checks
+			//    which don't work correctly in UPDATE context.
+			const setParts: string[] = [];
+			const params: unknown[] = [];
+			let idx = 1;
+
+			setParts.push(`title = $${idx++}`);
+			params.push(input.title);
+
+			setParts.push(`short_description = $${idx++}`);
+			params.push(input.short_description);
+
+			setParts.push(`long_description = $${idx++}`);
+			params.push(input.long_description);
+
+			setParts.push(`data = $${idx++}`);
+			params.push(input.data);
+
+			setParts.push(`notes = $${idx++}`);
+			params.push(input.notes);
+
+			setParts.push(`tags = $${idx++}`);
+			params.push(input.tags);
+
+			setParts.push(`types_id = $${idx++}`);
+			params.push(typesId);
 
 			if (input.thumbnail) {
-				setClause = sql`
-					${setClause},
-					thumbnail_url = ${input.thumbnail.url},
-					thumbnail_format = ${input.thumbnail.format},
-					thumbnail_width = ${input.thumbnail.width},
-					thumbnail_height = ${input.thumbnail.height}
-				`;
+				setParts.push(`thumbnail_url = $${idx++}`);
+				params.push(input.thumbnail.url);
+				setParts.push(`thumbnail_format = $${idx++}`);
+				params.push(input.thumbnail.format);
+				setParts.push(`thumbnail_width = $${idx++}`);
+				params.push(input.thumbnail.width);
+				setParts.push(`thumbnail_height = $${idx++}`);
+				params.push(input.thumbnail.height);
 			} else if (input.removeThumbnail) {
-				setClause = sql`
-					${setClause},
-					thumbnail_url = NULL,
-					thumbnail_format = NULL,
-					thumbnail_width = NULL,
-					thumbnail_height = NULL
-				`;
+				setParts.push(`thumbnail_url = NULL`);
+				setParts.push(`thumbnail_format = NULL`);
+				setParts.push(`thumbnail_width = NULL`);
+				setParts.push(`thumbnail_height = NULL`);
 			}
 
-			setClause = sql`${setClause}, updated_at = NOW()`;
+			setParts.push(`updated_at = NOW()`);
 
-			// 4. Update core credential
-			await sql`
-				UPDATE credentials SET ${setClause}
-				WHERE id = ${input.credentialId}
-			`;
+			params.push(input.credentialId);
+			const updateQuery = `UPDATE credentials SET ${setParts.join(", ")} WHERE id = $${idx}`;
+
+			await sql.unsafe(updateQuery, params);
 
 			// 5. Delete removed images
+			//    Using sql.unsafe() to avoid Bun's SQL helper checks that reject
+			//    helpers in DELETE context (only INSERT, UPDATE, IN are allowed).
 			if (input.existingImagesKeep.length > 0) {
-				await sql`
-					DELETE FROM credential_images
-					WHERE credential_id = ${input.credentialId}
-						AND id != ALL(${sql(input.existingImagesKeep)}::uuid[])
-				`;
+				const keepIds = input.existingImagesKeep
+					.map((id, i) => `$${i + 1}::uuid`)
+					.join(", ");
+				const delParams = [...input.existingImagesKeep, input.credentialId];
+				const delIdx = input.existingImagesKeep.length + 1;
+				await sql.unsafe(
+					`DELETE FROM credential_images WHERE credential_id = $${delIdx} AND id != ALL(ARRAY[${keepIds}])`,
+					delParams,
+				);
 			} else {
-				await sql`
-					DELETE FROM credential_images
-					WHERE credential_id = ${input.credentialId}
-				`;
+				await sql.unsafe(
+					"DELETE FROM credential_images WHERE credential_id = $1",
+					[input.credentialId],
+				);
 			}
 
 			// 6. Insert new images
+			//    Build a multi-row INSERT manually to avoid Bun's sql(object) helper.
 			if (input.images.length > 0) {
-				const credentialImagesPayload = input.images.map((img) => ({
-					image_url: img.url,
-					format: img.format,
-					width: img.width,
-					height: img.height,
-					byte_size: img.byteSize,
-					credential_id: input.credentialId,
-				}));
+				const cols = ["image_url", "format", "width", "height", "byte_size", "credential_id"];
+				const valueRows: string[] = [];
+				const insertParams: unknown[] = [];
+				let pi = 1;
 
-				await sql`INSERT INTO credential_images ${sql(credentialImagesPayload)}`;
+				for (const img of input.images) {
+					valueRows.push(`($${pi++}, $${pi++}, $${pi++}, $${pi++}, $${pi++}, $${pi++})`);
+					insertParams.push(img.url, img.format, img.width, img.height, img.byteSize, input.credentialId);
+				}
+
+				await sql.unsafe(
+					`INSERT INTO credential_images (${cols.join(", ")}) VALUES ${valueRows.join(", ")}`,
+					insertParams,
+				);
 			}
 		});
 	} catch (error) {
