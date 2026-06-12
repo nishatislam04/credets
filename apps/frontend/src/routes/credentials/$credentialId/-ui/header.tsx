@@ -30,7 +30,7 @@ export function Header({
 					<img
 						src={thumbnailUri}
 						alt={credential.title}
-						className="size-24 object-cover transition-transform duration-300 sm:size-28"
+						className="size-24 object-cover transition-transform duration-300 ease-out group-hover:scale-[1.05] sm:size-28"
 					/>
 				</button>
 			) : (
