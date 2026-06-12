@@ -134,10 +134,15 @@ function RouteComponent() {
 	// ── Initial data blocks ──
 	const initialDataBlocks = normalizeDataForEdit(credential.data);
 
-	// Build initial types array from the credential's type value
-	const initialTypes: TypePathEntry[] = credential.type_value
-		? [{ value: credential.type_value, label: credential.type_label || credential.type_value }]
-		: [];
+	// Build initial types array from the credential's full type path (root → leaf)
+	const initialTypes: TypePathEntry[] = Array.isArray(credential.type_path) && credential.type_path.length > 0
+		? credential.type_path.map((entry: { value: string; label: string }) => ({
+				value: entry.value,
+				label: entry.label,
+			}))
+		: credential.type_value
+			? [{ value: credential.type_value, label: credential.type_label || credential.type_value }]
+			: [];
 
 	// ── Form ──
 	const form = useForm({
