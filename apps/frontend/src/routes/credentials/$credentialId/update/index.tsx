@@ -134,6 +134,7 @@ function RouteComponent() {
 	const [newImages, setNewImages] = useState<File[]>([]);
 	const [thumbnailRemoved, setThumbnailRemoved] = useState(false);
 	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+	const [focusBlockIndex, setFocusBlockIndex] = useState<number | null>(null);
 	const visibleExistingImages = existingImages.filter((img) => !removedImageIds.includes(img.id));
 
 	// ── Initial data blocks ──
@@ -412,10 +413,12 @@ function RouteComponent() {
 									{arrayField.state.value.length > 0 &&
 										arrayField.state.value.map((data, idx) => (
 											<DataBlock
-												key={`${crypto.randomUUID()}`}
+												key={idx}
 												item={data}
 												idx={idx}
 												form={form}
+												shouldFocus={focusBlockIndex === idx}
+												onFocused={() => setFocusBlockIndex(null)}
 												onRemove={() => arrayField.removeValue(idx)}
 											/>
 										))}
@@ -424,23 +427,33 @@ function RouteComponent() {
 										<Button
 											type="button"
 											variant="secondary"
-											onClick={() => arrayField.pushValue({ type: "single_label", value: "" })}
+											onClick={() => {
+												const newIdx = arrayField.state.value.length;
+												setFocusBlockIndex(newIdx);
+												arrayField.pushValue({ type: "single_label", value: "" });
+											}}
 										>
 											+ Single label
 										</Button>
 										<Button
 											type="button"
 											variant="secondary"
-											onClick={() =>
-												arrayField.pushValue({ type: "key_value", key: "", value: "" })
-											}
+											onClick={() => {
+												const newIdx = arrayField.state.value.length;
+												setFocusBlockIndex(newIdx);
+												arrayField.pushValue({ type: "key_value", key: "", value: "" });
+											}}
 										>
 											+ Key / Value
 										</Button>
 										<Button
 											type="button"
 											variant="secondary"
-											onClick={() => arrayField.pushValue({ type: "information", value: "" })}
+											onClick={() => {
+												const newIdx = arrayField.state.value.length;
+												setFocusBlockIndex(newIdx);
+												arrayField.pushValue({ type: "information", value: "" });
+											}}
 										>
 											+ Information
 										</Button>
