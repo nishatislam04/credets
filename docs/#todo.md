@@ -10,11 +10,11 @@
 
 - [x] in listings, when we recive malformed params. we return with 400 and clear msg and show it in frontend. basically cursor validation
 
-- [] in the single page, when we have images, when we click on the thumbnial img on the title, the slideshow open and we can see all the images. but that was not how it was supposed to work. first of clicking on the thumbnial would preview the thumbnial only, not the images. then when we click on images, the slideshow open as expected
+- [x] in the single page, when we have images, and then when we click on the thumbnial img on the title, the slideshow open and we can see all the images. but that was not how it was supposed to work. first of clicking on the thumbnial would preview the thumbnial only, not the images. then when we click on images, the slideshow open as expected
 
-- [] make the credential delete dialog more destructive looking with coloring, icons and with other factors. so that, it looks like we are deleting something important haha
+- [x] make the credential delete dialog more destructive looking with coloring, icons and with other factors. so that, it looks like we are deleting something important haha
 
-- [] when click on single-label, key-value, information.
+- [] when click on single-label, key-value, information from create form
 auto focus on the first input. for single label, focus on the first input. for key-value, focus on the key input. for information input, focus on the textarea input. when page render, we generate a defualt first single input field. forget about focusing that one. only focus input fields, when we click the button to generate the input field.
 and if any input fields have values in it and if we try to delete the block, show us a shadcn alert dialog for confirmation. make it looks more destructive and colorful. like something important are being deleting.
 
@@ -111,8 +111,6 @@ and if any input fields have values in it and if we try to delete the block, sho
 
 - [] figure out, if we can defer loading images in the loader for the single page view. so that important texts can be load first and images can load lazily. try to do it within route loader
 
-- [] in single view page, clicking on the thumbnial would open the thumbnial lightbox. not the images gallery. right now, when we click the thumbnial, we see the images gallery with all the images. but it should have shown the thumbnial preview only
-
 - [] we need to re-work on our imges gallery
 
-- [] when we press enter, it confirm our current types and create a new types. but our cursor still stay at old types input field. the cursor should also jump to newly generated input field
+- [x] when we press enter, it confirm our current types and create a new types. but our cursor still stay at old types input field. the cursor should also jump to newly generated input field

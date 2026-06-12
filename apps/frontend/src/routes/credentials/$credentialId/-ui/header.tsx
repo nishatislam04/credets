@@ -7,11 +7,11 @@ import { formatTimeAgo } from "../-utils/formatTImeAgo";
 
 export function Header({
 	thumbnailUri,
-	openLightbox,
+	onThumbnailClick,
 	credential,
 }: {
 	thumbnailUri: string | null;
-	openLightbox: (index: number) => void;
+	onThumbnailClick: () => void;
 	credential: CredentialDetail;
 }) {
 	const typeValue = credential.type_value ?? "";
@@ -24,7 +24,7 @@ export function Header({
 			{thumbnailUri ? (
 				<button
 					type="button"
-					onClick={() => openLightbox(0)}
+					onClick={onThumbnailClick}
 					className="group shrink-0 overflow-hidden rounded-xl ring-1 ring-border/40 transition-all duration-200 hover:ring-primary/30 hover:shadow-md cursor-pointer border-0"
 				>
 					<img

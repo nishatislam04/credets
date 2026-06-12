@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { Separator } from "#/components/ui/separator";
 import { Skeleton } from "#/components/ui/skeleton";
+import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
 import { TAG_COLORS } from "../-utils/colors";
 import { getCredential } from "./-actions/getCredential";
 import { ImageLightbox } from "./-components/image-lightbox";
@@ -73,6 +74,7 @@ function RouteComponent() {
 	}) as CredentialDetail;
 	const [lightboxOpen, setLightboxOpen] = useState(false);
 	const [lightboxIndex, setLightboxIndex] = useState(0);
+	const [thumbnailPreviewOpen, setThumbnailPreviewOpen] = useState(false);
 
 	const hasImages = Array.isArray(credential.images) && credential.images.length > 0;
 	const thumbnailUri = credential.thumbnail_url;
@@ -90,7 +92,11 @@ function RouteComponent() {
 				<TopHeader credentialId={credential.id} />
 
 				{/* ── Header row — thumbnail | title + badge + dates ── */}
-				<Header thumbnailUri={thumbnailUri} openLightbox={openLightbox} credential={credential} />
+				<Header
+					thumbnailUri={thumbnailUri}
+					onThumbnailClick={() => setThumbnailPreviewOpen(true)}
+					credential={credential}
+				/>
 
 				<Separator className="my-12" />
 
@@ -108,7 +114,16 @@ function RouteComponent() {
 				<Footer credential={credential} />
 			</div>
 
-			{/* ── Lightbox overlay ── */}
+			{/* ── Thumbnail preview overlay — single image, no slideshow ── */}
+			{thumbnailPreviewOpen && thumbnailUri && (
+				<ImagePreviewOverlay
+					src={thumbnailUri}
+					onClose={() => setThumbnailPreviewOpen(false)}
+					alt={credential.title}
+				/>
+			)}
+
+			{/* ── Image gallery slideshow overlay — for gallery images only ── */}
 			{lightboxOpen && hasImages && (
 				<ImageLightbox
 					images={credential.images}
