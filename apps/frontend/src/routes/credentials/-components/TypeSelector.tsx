@@ -149,29 +149,40 @@ function TypeLevel({
 
 	// ── Build items for the combobox ──
 	const items = useMemo<ComboboxItemOption[]>(() => {
-		const existing: ComboboxItemOption[] = options.map((opt) => ({
+		const rawInput = inputValue.trim();
+		const trimmed = rawInput.toLowerCase();
+
+		// Filter options based on input value (search-as-you-type)
+		const filtered = options.filter((opt) => {
+			if (!trimmed) return true; // Show all when no input
+			return (
+				opt.label.toLowerCase().includes(trimmed) ||
+				opt.value.toLowerCase().includes(trimmed)
+			);
+		});
+
+		const existing: ComboboxItemOption[] = filtered.map((opt) => ({
 			id: opt.id,
 			value: opt.value,
 			label: opt.label,
 			isNew: false,
 		}));
 
-		const trimmed = inputValue.trim();
-		if (trimmed.length > 0) {
-			const exists = existing.some(
-				(item) =>
-					item.label.toLowerCase() === trimmed.toLowerCase() ||
-					item.value.toLowerCase() === trimmed.toLowerCase(),
+		// Add "Create" option if typed text has no exact match among ALL options
+		if (rawInput.length > 0) {
+			const exactMatch = options.some(
+				(opt) =>
+					opt.label.toLowerCase() === trimmed ||
+					opt.value.toLowerCase() === trimmed,
 			);
-			if (!exists) {
+			if (!exactMatch) {
 				const slug = trimmed
-					.toLowerCase()
 					.replace(/[^a-z0-9]+/g, "_")
 					.replace(/^_|_$/g, "");
 				existing.push({
 					id: `__create__${slug}`,
 					value: `__create__${slug}`,
-					label: `Create "${trimmed}"`,
+					label: `Create "${rawInput}"`,
 					isNew: true,
 				});
 			}
@@ -248,6 +259,7 @@ function TypeLevel({
 							value={currentType?.value ?? null}
 							onValueChange={handleValueChange}
 							onInputValueChange={(val: string) => setInputValue(val)}
+							filter={null}
 						>
 							<ComboboxInput
 								placeholder={
