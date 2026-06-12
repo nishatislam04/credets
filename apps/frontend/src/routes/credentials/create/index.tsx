@@ -119,7 +119,7 @@ function RouteComponent() {
 		},
 
 		onSubmit: async ({ value }) => {
-			gooeyToast.promise(createCredentialAction(value), {
+			await gooeyToast.promise(createCredentialAction(value), {
 				loading: "creating...",
 				success: "created a new credential",
 				error: "failed to create the credential",
@@ -141,6 +141,7 @@ function RouteComponent() {
 					},
 				},
 			});
+			form.reset(form.state.values);
 		},
 	});
 
@@ -596,7 +597,7 @@ function RouteComponent() {
 					</div>
 					<form.Subscribe
 						selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
-						children={([canSubmit, isSubmitting]) => (
+						children={([canSubmit, isSubmitting, isPristine]) => (
 							<div className="w-full flex flex-col items-center gap-3">
 								{/* Validation error hint — shows when form has been touched but is invalid */}
 								{!canSubmit && !isSubmitting && (
@@ -607,7 +608,12 @@ function RouteComponent() {
 										</span>
 									</div>
 								)}
-								<Button type="submit" size="lg" className="my-3 px-12 py-4" disabled={!canSubmit}>
+								<Button
+									type="submit"
+									size="lg"
+									className="my-3 px-12 py-4"
+									disabled={!canSubmit || isPristine}
+								>
 									{isSubmitting ? "..." : "Submit"}
 								</Button>
 							</div>

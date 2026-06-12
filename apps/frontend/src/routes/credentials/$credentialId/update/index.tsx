@@ -17,7 +17,7 @@ import {
 	FieldLabel,
 } from "#/components/ui/field";
 import { gooeyToast } from "#/components/ui/goey-toaster";
-import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "#/components/ui/item";
+import { Item, ItemContent, ItemDescription, ItemTitle } from "#/components/ui/item";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
 import { type TypePathEntry, TypeSelector } from "#/routes/credentials/-components/TypeSelector";
 import { getCSRFtoken } from "#/routes/credentials/create/-actions/getCSRFtoken";
@@ -220,7 +220,7 @@ function RouteComponent() {
 				await router.invalidate();
 			});
 
-			gooeyToast.promise(updatePromise, {
+			await gooeyToast.promise(updatePromise, {
 				loading: "updating...",
 				success: "credential updated",
 				error: "failed to update the credential",
@@ -240,6 +240,8 @@ function RouteComponent() {
 					},
 				},
 			});
+
+			form.reset(form.state.values);
 		},
 	});
 
@@ -762,7 +764,7 @@ function RouteComponent() {
 					{/* Submit */}
 					<form.Subscribe
 						selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
-						children={([canSubmit, isSubmitting]) => (
+						children={([canSubmit, isSubmitting, isPristine]) => (
 							<div className="flex flex-col items-center gap-3 my-3">
 								{/* Validation error hint — shows when form has been touched but is invalid */}
 								{!canSubmit && !isSubmitting && (
@@ -774,7 +776,12 @@ function RouteComponent() {
 									</div>
 								)}
 								<div className="flex items-center justify-center gap-4">
-									<Button type="submit" size="lg" className="px-12 py-4" disabled={!canSubmit}>
+									<Button
+										type="submit"
+										size="lg"
+										className="px-12 py-4"
+										disabled={!canSubmit || isPristine}
+									>
 										{isSubmitting ? "..." : "Update"}
 									</Button>
 
