@@ -74,6 +74,11 @@ export const Route = createFileRoute("/credentials/$credentialId/update/")({
 			getCredentialUpdate(params.credentialId),
 			getCSRFtoken(),
 		]);
+		// Cache-bust thumbnail URL so the browser re-fetches the image
+		// when the credential is updated (S3 key is deterministic).
+		if (credential.thumbnail_url && credential.updated_at) {
+			credential.thumbnail_url = `${credential.thumbnail_url}?v=${Date.parse(credential.updated_at)}`;
+		}
 		return { credential, csrfToken: csrfRes.data.token };
 	},
 	pendingComponent: () => (
@@ -197,18 +202,18 @@ function RouteComponent() {
 			},
 		},
 		onSubmit: async ({ value }) => {
-			const existingImagesKeep = visibleExistingImages.map((img) => img.id);			const updatePromise = updateCredentialAction({
-					...value,
-					credentialId: credential.id,
-					newImages,
-					existingImagesKeep,
-					removeThumbnail: thumbnailRemoved,
-				}).then(() => {
-					// Invalidate caches immediately on success so manual navigation
-					// to the detail page shows fresh data (not stale cached route data).
-					queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
-					router.invalidate();
-				});
+			const existingImagesKeep = visibleExistingImages.map((img) => img.id);					const updatePromise = updateCredentialAction({
+						...value,
+						credentialId: credential.id,
+						newImages,
+						existingImagesKeep,
+						removeThumbnail: thumbnailRemoved,
+					}).then(async () => {
+						// Invalidate caches *before* the success toast appears so that
+						// navigating to the detail page always reads fresh loader data.
+						queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
+						await router.invalidate();
+					});
 
 				gooeyToast.promise(
 					updatePromise,

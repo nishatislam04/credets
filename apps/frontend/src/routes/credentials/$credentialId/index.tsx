@@ -11,11 +11,18 @@ import { Content } from "./-ui/content";
 import { Footer } from "./-ui/footer";
 import { Header } from "./-ui/header";
 import { Sidebar } from "./-ui/sidebar";
-import { TopHeader } from "./-ui/topHeader";
-
-export const Route = createFileRoute("/credentials/$credentialId/")({
+import { TopHeader } from "./-ui/topHeader";	export const Route = createFileRoute("/credentials/$credentialId/")({
 	component: RouteComponent,
-	loader: async ({ params }) => getCredential(params.credentialId),
+	loader: async ({ params }) => {
+		const credential = await getCredential(params.credentialId);
+		// Add cache-busting version to thumbnail URL so the browser
+		// re-fetches the image when the credential is updated (the S3 key
+		// is deterministic so the URL never changes between updates).
+		if (credential.thumbnail_url && credential.updated_at) {
+			credential.thumbnail_url = `${credential.thumbnail_url}?v=${Date.parse(credential.updated_at)}`;
+		}
+		return credential;
+	},
 	pendingComponent: () => (
 		<div className="mx-auto w-full max-w-5xl px-4 py-10">
 			<Skeleton className="mb-8 h-6 w-24 rounded-lg" />
