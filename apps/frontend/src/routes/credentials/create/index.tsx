@@ -16,7 +16,7 @@ import {
 import { gooeyToast } from "#/components/ui/goey-toaster";
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "#/components/ui/item";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
-import { TypeSelector, type TypePathEntry } from "#/routes/credentials/-components/TypeSelector";
+import { type TypePathEntry, TypeSelector } from "#/routes/credentials/-components/TypeSelector";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -183,7 +183,6 @@ function RouteComponent() {
 							);
 						}}
 					/>
-
 					{/*title*/}
 					<form.Field
 						name="title"
@@ -206,7 +205,8 @@ function RouteComponent() {
 								</Field>
 							);
 						}}
-					/>					{/* types field - using hierarchical TypeSelector */}
+					/>{" "}
+					{/* types field - using hierarchical TypeSelector */}
 					<form.Field
 						name="type"
 						children={(field) => {
@@ -236,7 +236,8 @@ function RouteComponent() {
 													onTypesChange={(newTypes) => {
 														typesField.handleChange(newTypes);
 														// Sync the leaf type value to the parent "type" field
-														const leafValue = newTypes.length > 0 ? newTypes[newTypes.length - 1].value : "";
+														const leafValue =
+															newTypes.length > 0 ? newTypes[newTypes.length - 1].value : "";
 														field.handleChange(leafValue);
 													}}
 												/>
@@ -247,7 +248,6 @@ function RouteComponent() {
 							);
 						}}
 					/>
-
 					{/*side-by-side short and long desciption*/}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
 						<form.Field
@@ -293,7 +293,6 @@ function RouteComponent() {
 							}}
 						/>
 					</div>
-
 					{/* Data array */}
 					<div className="my-6">
 						<h2 className="text-lg font-semibold mb-3">Data items</h2>
@@ -366,7 +365,6 @@ function RouteComponent() {
 							)}
 						/>
 					</div>
-
 					{/* Thumbnail and images side-by side */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<form.Field
@@ -547,7 +545,6 @@ function RouteComponent() {
 							}}
 						/>
 					</div>
-
 					{/* Notes & Tags side by side */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
 						<form.Field
@@ -597,17 +594,20 @@ function RouteComponent() {
 							}}
 						/>
 					</div>
-
 					<form.Subscribe
 						selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
-						children={([canSubmit, isSubmitting, isPristine]) => (
-							<div className="w-full flex justify-center items-center">
-								<Button
-									type="submit"
-									size="lg"
-									className="my-3 px-12 py-4"
-									disabled={!canSubmit || isPristine}
-								>
+						children={([canSubmit, isSubmitting]) => (
+							<div className="w-full flex flex-col items-center gap-3">
+								{/* Validation error hint — shows when form has been touched but is invalid */}
+								{!canSubmit && !isSubmitting && (
+									<div className="flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/[0.04] px-4 py-2.5 text-sm text-destructive/80">
+										<span className="size-1.5 rounded-full bg-destructive/60 shrink-0" />
+										<span>
+											There are validation errors that need to be fixed before submitting.
+										</span>
+									</div>
+								)}
+								<Button type="submit" size="lg" className="my-3 px-12 py-4" disabled={!canSubmit}>
 									{isSubmitting ? "..." : "Submit"}
 								</Button>
 							</div>

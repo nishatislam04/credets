@@ -19,7 +19,7 @@ import {
 import { gooeyToast } from "#/components/ui/goey-toaster";
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "#/components/ui/item";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
-import { TypeSelector, type TypePathEntry } from "#/routes/credentials/-components/TypeSelector";
+import { type TypePathEntry, TypeSelector } from "#/routes/credentials/-components/TypeSelector";
 import { getCSRFtoken } from "#/routes/credentials/create/-actions/getCSRFtoken";
 import { DataBlock } from "#/routes/credentials/create/-components/Datablock";
 import { Button } from "@/components/ui/button";
@@ -141,14 +141,15 @@ function RouteComponent() {
 	const initialDataBlocks = normalizeDataForEdit(credential.data);
 
 	// Build initial types array from the credential's full type path (root → leaf)
-	const initialTypes: TypePathEntry[] = Array.isArray(credential.type_path) && credential.type_path.length > 0
-		? credential.type_path.map((entry: { value: string; label: string }) => ({
-				value: entry.value,
-				label: entry.label,
-			}))
-		: credential.type_value
-			? [{ value: credential.type_value, label: credential.type_label || credential.type_value }]
-			: [];
+	const initialTypes: TypePathEntry[] =
+		Array.isArray(credential.type_path) && credential.type_path.length > 0
+			? credential.type_path.map((entry: { value: string; label: string }) => ({
+					value: entry.value,
+					label: entry.label,
+				}))
+			: credential.type_value
+				? [{ value: credential.type_value, label: credential.type_label || credential.type_value }]
+				: [];
 
 	// ── Form ──
 	const form = useForm({
@@ -203,44 +204,42 @@ function RouteComponent() {
 			},
 		},
 		onSubmit: async ({ value }) => {
-			const existingImagesKeep = visibleExistingImages.map((img) => img.id);					const updatePromise = updateCredentialAction({
-						...value,
-						credentialId: credential.id,
-						newImages,
-						existingImagesKeep,
-						removeThumbnail: thumbnailRemoved,
-					}).then(async () => {
-						// Invalidate caches *before* the success toast appears so that
-						// navigating to the detail page always reads fresh loader data.
-						queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
-						queryClient.invalidateQueries({ queryKey: ["types_listings"] });
-						queryClient.invalidateQueries({ queryKey: ["type_children"] });
-						await router.invalidate();
-					});
+			const existingImagesKeep = visibleExistingImages.map((img) => img.id);
+			const updatePromise = updateCredentialAction({
+				...value,
+				credentialId: credential.id,
+				newImages,
+				existingImagesKeep,
+				removeThumbnail: thumbnailRemoved,
+			}).then(async () => {
+				// Invalidate caches *before* the success toast appears so that
+				// navigating to the detail page always reads fresh loader data.
+				queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
+				queryClient.invalidateQueries({ queryKey: ["types_listings"] });
+				queryClient.invalidateQueries({ queryKey: ["type_children"] });
+				await router.invalidate();
+			});
 
-				gooeyToast.promise(
-					updatePromise,
-					{
-						loading: "updating...",
-						success: "credential updated",
-						error: "failed to update the credential",
-						description: {
-							success: "the credential has been updated successfully",
-							error: "Please try again later.",
-						},
-						action: {
-							success: {
-								label: "view credential",
-								onClick: async () => {
-									navigate({
-										to: "/credentials/$credentialId",
-										params: { credentialId: credential.id },
-									});
-								},
-							},
+			gooeyToast.promise(updatePromise, {
+				loading: "updating...",
+				success: "credential updated",
+				error: "failed to update the credential",
+				description: {
+					success: "the credential has been updated successfully",
+					error: "Please try again later.",
+				},
+				action: {
+					success: {
+						label: "view credential",
+						onClick: async () => {
+							navigate({
+								to: "/credentials/$credentialId",
+								params: { credentialId: credential.id },
+							});
 						},
 					},
-				);
+				},
+			});
 		},
 	});
 
@@ -336,7 +335,8 @@ function RouteComponent() {
 													types={typesField.state.value as TypePathEntry[]}
 													onTypesChange={(newTypes) => {
 														typesField.handleChange(newTypes);
-														const leafValue = newTypes.length > 0 ? newTypes[newTypes.length - 1].value : "";
+														const leafValue =
+															newTypes.length > 0 ? newTypes[newTypes.length - 1].value : "";
 														field.handleChange(leafValue);
 													}}
 												/>
@@ -471,8 +471,8 @@ function RouteComponent() {
 							name="thumbnail"
 							children={(field) => {
 								const isInvalid = !field.state.meta.isValid;
-							const existingThumbnailSrc = credential.thumbnail_url || null;
-							const showExisting =
+								const existingThumbnailSrc = credential.thumbnail_url || null;
+								const showExisting =
 									!field.state.value && existingThumbnailSrc && !thumbnailRemoved;
 								const showPreview = field.state.value;
 								const previewUrl = showPreview ? URL.createObjectURL(field.state.value) : null;
@@ -762,22 +762,28 @@ function RouteComponent() {
 					{/* Submit */}
 					<form.Subscribe
 						selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
-						children={([canSubmit, isSubmitting, isPristine]) => (
-							<div className="flex items-center justify-center gap-4 my-3">
-								<Button
-									type="submit"
-									size="lg"
-									className="px-12 py-4"
-									disabled={!canSubmit || isPristine}
-								>
-									{isSubmitting ? "..." : "Update"}
-								</Button>
+						children={([canSubmit, isSubmitting]) => (
+							<div className="flex flex-col items-center gap-3 my-3">
+								{/* Validation error hint — shows when form has been touched but is invalid */}
+								{!canSubmit && !isSubmitting && (
+									<div className="flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/[0.04] px-4 py-2.5 text-sm text-destructive/80">
+										<span className="size-1.5 rounded-full bg-destructive/60 shrink-0" />
+										<span>
+											There are validation errors that need to be fixed before submitting.
+										</span>
+									</div>
+								)}
+								<div className="flex items-center justify-center gap-4">
+									<Button type="submit" size="lg" className="px-12 py-4" disabled={!canSubmit}>
+										{isSubmitting ? "..." : "Update"}
+									</Button>
 
-								<DeleteCredentialDialog
-									credentialId={credential.id}
-									credentialTitle={credential.title}
-									csrfToken={csrfToken}
-								/>
+									<DeleteCredentialDialog
+										credentialId={credential.id}
+										credentialTitle={credential.title}
+										csrfToken={csrfToken}
+									/>
+								</div>
 							</div>
 						)}
 					/>
