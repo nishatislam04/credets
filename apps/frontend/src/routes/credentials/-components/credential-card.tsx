@@ -75,7 +75,7 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 					</div>
 
 					{/* Row 2: Short description */}
-					<p className="text-xs leading-relaxed text-muted-foreground/80 line-clamp-2 overflow-hidden mt-4">
+					<p className="text-xs leading-relaxed text-muted-foreground/80 line-clamp-2 overflow-hidden mt-4 whitespace-pre-wrap">
 						{short_description || "no description provided"}
 					</p>
 

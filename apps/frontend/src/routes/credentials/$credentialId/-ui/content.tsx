@@ -27,7 +27,7 @@ export function Content({
 							Summary
 						</span>
 
-						<h4 className="text-4xl font-semibold leading-[1.3] tracking-tight text-card-foreground/80 selection:bg-primary/15">
+						<h4 className="text-4xl font-semibold leading-[1.3] tracking-tight text-card-foreground/80 selection:bg-primary/15 whitespace-pre-wrap">
 							{credential.short_description}
 						</h4>
 					</div>
@@ -46,7 +46,7 @@ export function Content({
 							<Quote className="size-8 text-primary/10 -ml-1" />
 						</div>
 
-						<p className="font-serif text-[1.35rem] leading-[1.75] tracking-[0.01em] text-muted-foreground/70 dark:text-muted-foreground/80 selection:bg-primary/10">
+						<p className="font-serif text-[1.35rem] leading-[1.75] tracking-[0.01em] text-muted-foreground/70 dark:text-muted-foreground/80 selection:bg-primary/10 whitespace-pre-wrap">
 							{credential.long_description}
 						</p>
 					</div>
