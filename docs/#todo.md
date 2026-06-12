@@ -1,6 +1,6 @@
 # our workflow
 
-- [] 2. update submit btn locked strategy in update form page... like we update non required field and did not modify or touch any important required field...then the submit btn is locked. fix this tanstack form issue. to unlock i need to change a bit of any important field. which is very weird
+- [] 2. update submit btn locked strategy in update form page... like we update non required field and did not modify or touch any important required field or any fields...then the submit btn is locked. to make the submit btn unlock, we need to change any fields. fix this tanstack form issue. to unlock i need to change a bit of any field. which is very weird
 
 - [x] when we update thumbnial img it shows success. then we go to single view page from the success toast. but we see old thumbnial img. then when i refresh the page, i see new thumbnial img
 
@@ -14,7 +14,7 @@
 
 - [x] make the credential delete dialog more destructive looking with coloring, icons and with other factors. so that, it looks like we are deleting something important haha
 
-- [] when click on single-label, key-value, information from create form
+- [x] when click on single-label, key-value, information from create form
 auto focus on the first input. for single label, focus on the first input. for key-value, focus on the key input. for information input, focus on the textarea input. when page render, we generate a defualt first single input field. forget about focusing that one. only focus input fields, when we click the button to generate the input field.
 and if any input fields have values in it and if we try to delete the block, show us a shadcn alert dialog for confirmation. make it looks more destructive and colorful. like something important are being deleting.
 
@@ -24,9 +24,9 @@ and if any input fields have values in it and if we try to delete the block, sho
 
 - [] when we submit a form for create, update. and if it success, the submit btn should be locked untill any form value changes again. implement this feat for both form
 
-- [] in single view page, for description, i see multiple line blend into a single line in the ui. so, i create multi line in the create form textarea input with newline (pressing enter) and when i check the single page long description section, i see the lines are kinda merged together.it did not follow the style of formatting we had in create form. first, fix this. now in this simple text area, we may try to design our long description block. like multiple spaces between each line. any visual indentation in the create form. i also want to see them exactly like that in single view page. by the way, same apply for short description. but surprisingly, notes ui block render as multiline, if the input was mulitiline. handle it both in single view page and listings card too
+- [x] in single view page, for description, i see multiple line blend into a single line in the ui. so, i create multi line in the create form textarea input with newline (pressing enter) and when i check the single page long description section, i see the lines are kinda merged together.it did not follow the style of formatting we had in create form. first, fix this. now in this simple text area, we may try to design our long description block. like multiple spaces between each line. any visual indentation in the create form. i also want to see them exactly like that in single view page. by the way, same apply for short description. but surprisingly, notes ui block render as multiline, if the input was mulitiline. handle it both in single view page and listings card too
 
-- [] i tried to update tags block and i got this err. i dont think, this backend err happend because of tags block. i mean it might happen for other block too. please fix it thoroghly. and tell me why it occured. this err only happen when i try to update an credential item
+- [x] i tried to update tags block and i got this err. i dont think, this backend err happend because of tags block. i mean it might happen for other block too. please fix it thoroghly. and tell me why it occured. this err only happen when i try to update an credential item
 
 ```bash
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -107,7 +107,7 @@ and if any input fields have values in it and if we try to delete the block, sho
 
 - [] we will use `unpic/react` pkg to handle our img in frontend. they also provide supabase support. now i dont know what i need to do with supabase options. since, we will upload our img at supabase storage. and this unpic library support supabase, figure out if we can utilize it anyhow. and also check credentials create backend endpoint, where we r processing thumbnial and images with bunjs raw api. see, if we need any changes on that level or not or any kind of optimization there or not
 
-- [] make single view page, short description and long description more stand out between them. like short description has more priority than long description and even tho they have quite a space between them but there are not actually much distance between them.. when we look at it. design my whole short description and long description fully based on its surrounding attributes. if needed, install and use external fonts. i just to make this 2 description block looks good. handle short description line breaking, i m not talking abt trimming it. the line space
+- [x] make single view page, short description and long description more stand out between them. like short description has more priority than long description and even tho they have quite a space between them but there are not actually much distance between them.. when we look at it. design my whole short description and long description fully based on its surrounding attributes. if needed, install and use external fonts. i just to make this 2 description block looks good. handle short description line breaking, i m not talking abt trimming it. the line space
 
 - [] figure out, if we can defer loading images in the loader for the single page view. so that important texts can be load first and images can load lazily. try to do it within route loader
 
@@ -115,6 +115,6 @@ and if any input fields have values in it and if we try to delete the block, sho
 
 - [x] when we press enter, it confirm our current types and create a new types. but our cursor still stay at old types input field. the cursor should also jump to newly generated input field
 
-- [] in our types field, when we type something on the input, it should act like a search box. based on the input, it will filter based on the fetched listings. and if it does not have any matching types, then we can create one. so, it will act as either search old type or create new one
+- [x] in our types field, when we type something on the input, it should act like a search box. based on the input, it will filter based on the fetched listings. and if it does not have any matching types, then we can create one. so, it will act as either search old type or create new one
 
-- [] when we create a new type manually and then navigate around without refresh the browser. then we try to create a new credential, we type the previous types.. but the dropdown does not show the previous types in the drop down listings. we can only see it, when we refresh the page. i wonder, why this behavior keep happening. we create something or update anything. and we still see old data... untill we refresh the page. the issue yu try to fix above for not showing new thumbnial img after updating, is still persist. but we will handle that thumbnial issue later. first fix this new credential not showing untill we refresh the browser issue
+- [x] when we create a new type manually and then navigate around without refresh the browser. then we try to create a new credential, we type the previous types.. but the dropdown does not show the previous types in the drop down listings. we can only see it, when we refresh the page. i wonder, why this behavior keep happening. we create something or update anything. and we still see old data... untill we refresh the page. the issue yu try to fix above for not showing new thumbnial img after updating, is still persist. but we will handle that thumbnial issue later. first fix this new credential not showing untill we refresh the browser issue

@@ -7,9 +7,7 @@ import { TYPE_COLORS, TAG_COLORS, hashString } from "../-utils/colors";
 
 interface CredentialCardProps {
 	credential: CredentialListItem;
-}
-
-export function CredentialCard({ credential }: CredentialCardProps) {
+}	export function CredentialCard({ credential }: CredentialCardProps) {
 	const {
 		id,
 		title,
@@ -17,9 +15,17 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 		thumbnail_url,
 		tags,
 		created_at,
+		updated_at,
 		type_label,
 		type_value,
 	} = credential;
+
+	// Cache-bust thumbnail URL so the browser re-fetches the image
+	// when the credential is updated (S3 key is deterministic).
+	const cacheBustedThumbnail =
+		thumbnail_url && updated_at
+			? `${thumbnail_url}?v=${Date.parse(updated_at)}`
+			: thumbnail_url;
 
 	const tagList = Array.isArray(tags) ? tags : [];
 
@@ -37,17 +43,17 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 
 	return (
 		<Link to="/credentials/$credentialId" params={{ credentialId: id }} className="group block">
-			<Card className="overflow-hidden rounded-xl border shadow-xs transition-all duration-200 hover:shadow-sm hover:border-primary/15 hover:bg-muted/20 flex flex-row bg-card py-2">
+			<Card className="overflow-hidden rounded-xl border shadow-xs transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md hover:border-primary/20 hover:bg-primary/[0.02] active:translate-y-0 active:shadow-xs flex flex-row bg-card py-2">
 				{/* ── Left: Thumbnail ── */}
 				<div className="shrink-0 flex items-center justify-center px-4 py-4 md:px-5 md:py-5">
-					{thumbnail_url ? (
+					{cacheBustedThumbnail ? (
 						<img
-							src={thumbnail_url}
+							src={cacheBustedThumbnail}
 							alt={title}
-							className="size-20 md:size-23 rounded-full object-cover ring-1 ring-border/40"
+							className="size-20 md:size-23 rounded-full object-cover ring-1 ring-border/40 transition-transform duration-300 ease-out group-hover:scale-[1.04]"
 						/>
 					) : (
-						<div className="size-20 md:size-23 rounded-full bg-linear-to-br from-muted-foreground/10 to-muted-foreground/5 ring-1 ring-border/30 flex items-center justify-center">
+						<div className="size-20 md:size-23 rounded-full bg-linear-to-br from-muted-foreground/10 to-muted-foreground/5 ring-1 ring-border/30 flex items-center justify-center transition-transform duration-300 ease-out group-hover:scale-[1.04]">
 							<ImageIcon className="size-5 md:size-6 text-muted-foreground/30" />
 						</div>
 					)}
@@ -56,8 +62,10 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 				{/* ── Right: Content ── */}
 				<CardContent className="flex flex-col min-w-0 grow gap-1.5 px-0 py-4 pr-4 md:pr-5">
 					{/* Row 1: Title + Type badge */}
-					<div className="flex items-center gap-2 min-w-0">
-						<h3 className="font-semibold text-lg md:text-xl leading-snug truncate group-hover:text-primary transition-colors duration-200">
+					<div className="flex items-center gap-3 min-w-0">
+						{/* Tiny accent dot for visual anchor */}
+						<span className="shrink-0 size-1.5 rounded-full bg-primary/30" />
+						<h3 className="font-semibold text-lg md:text-xl leading-snug truncate tracking-tight group-hover:text-primary transition-colors duration-200">
 							{title || "title not found"}
 						</h3>
 						{type_label && (
@@ -75,9 +83,13 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 					</div>
 
 					{/* Row 2: Short description */}
-					<p className="text-xs leading-relaxed text-muted-foreground/80 line-clamp-2 overflow-hidden mt-4 whitespace-pre-wrap">
-						{short_description || "no description provided"}
-					</p>
+					<div className="relative mt-4 pl-4">
+						{/* Subtle left bar echoing single page accent */}
+						<div className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-gradient-to-b from-primary/30 to-primary/5" />
+						<p className="text-sm leading-relaxed text-muted-foreground/75 line-clamp-2 overflow-hidden whitespace-pre-wrap">
+							{short_description || "no description provided"}
+						</p>
+					</div>
 
 					<div className="flex justify-between">
 						{/* Row 3: Tags — using TAG_COLORS for consistent styling with detail page */}

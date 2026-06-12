@@ -6,6 +6,7 @@ export type CredentialListItem = {
 	thumbnail_url: string | null;
 	tags: string[] | null;
 	created_at: string;
+	updated_at: string | null;
 	type_label: string | null;
 	type_value: string | null;
 };

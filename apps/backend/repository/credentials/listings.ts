@@ -14,6 +14,7 @@ export interface CredentialRow {
 	thumbnail_url: string | null;
 	tags: string | null;
 	created_at: Date;
+	updated_at: Date | null;
 	type_label: string | null;
 	type_value: string | null;
 }
@@ -30,7 +31,7 @@ export async function getCredentialsListingsRepo(
 				SELECT
 					c.id, c.title, c.short_description,
 					c.thumbnail_url,
-					c.tags, c.created_at,
+					c.tags, c.created_at, c.updated_at,
 					t.label AS type_label, t.value AS type_value
 				FROM credentials c
 				LEFT JOIN types t ON c.types_id = t.id
@@ -46,7 +47,7 @@ export async function getCredentialsListingsRepo(
 			SELECT
 				c.id, c.title, c.short_description,
 				c.thumbnail_url,
-				c.tags, c.created_at,
+				c.tags, c.created_at, c.updated_at,
 				t.label AS type_label, t.value AS type_value
 			FROM credentials c
 			LEFT JOIN types t ON c.types_id = t.id
