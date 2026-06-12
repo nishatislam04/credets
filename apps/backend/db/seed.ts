@@ -29,7 +29,7 @@ function information(value: string): DataBlock {
 
 // Generate titles based on type
 const generateTitle = (type: string, index: number): string => {
-	const titles = {
+	const titles: Record<string, string[]> = {
 		credentials: [
 			`GitHub Account ${index}`,
 			`Netflix Profile ${index}`,
@@ -78,13 +78,31 @@ const generateTitle = (type: string, index: number): string => {
 			`Docker Compose ${index}`,
 			`CI/CD Pipeline ${index}`,
 		],
+		// Child types
+		facebook: [
+			`Dad's Account ${index}`,
+			`Profile ${index}`,
+			`Memories ${index}`,
+		],
+		twitter: [
+			`Tweet Thread ${index}`,
+			`List ${index}`,
+		],
+		github_pat: [
+			`Repo Access ${index}`,
+			`CI Token ${index}`,
+		],
+		stripe_key: [
+			`Live Key ${index}`,
+			`Test Key ${index}`,
+		],
 	};
-	return randomPick(titles[type as keyof typeof titles] || [`Item ${index}`]);
+	return randomPick(titles[type] || [`Item ${index}`]);
 };
 
 // Generate short description
 const generateShortDescription = (type: string): string => {
-	const descriptions = {
+	const descriptions: Record<string, string> = {
 		credentials: "Login credentials for online service",
 		key: "Security key and access credentials",
 		api: "API authentication and tokens",
@@ -92,14 +110,19 @@ const generateShortDescription = (type: string): string => {
 		game_loadout: "Gaming configuration and loadout",
 		misc: "Miscellaneous information and notes",
 	};
-	return descriptions[type as keyof typeof descriptions] || "Credential item";
+	return descriptions[type] || "Credential item";
 };
 
-// ── Credential generators producing DataBlockEntry[] ────────────────
+// ── Credential generators ───────────────────────────────────────────
 
-const generators = {
+const generators: Record<string, (_i: number) => {
+	type: string;
+	data: DataBlock[];
+	tags: string[] | null;
+	notes: string | null;
+}> = {
 	credentials: (_i: number) => ({
-		type: "credentials" as const,
+		type: "credentials",
 		data: randomPick<DataBlock[]>([
 			[
 				singleLabel("P@ssw0rd!23"),
@@ -140,7 +163,7 @@ const generators = {
 	}),
 
 	key: (_i: number) => ({
-		type: "key" as const,
+		type: "key",
 		data: randomPick<DataBlock[]>([
 			[
 				keyValue("Type", "SSH — RSA"),
@@ -176,7 +199,7 @@ const generators = {
 	}),
 
 	api: (_i: number) => ({
-		type: "api" as const,
+		type: "api",
 		data: randomPick<DataBlock[]>([
 			[
 				keyValue("Service", randomPick(["OpenAI", "Stripe", "Twilio", "SendGrid", "GitHub"])),
@@ -205,7 +228,7 @@ const generators = {
 	}),
 
 	media: (_i: number) => ({
-		type: "media" as const,
+		type: "media",
 		data: randomPick<DataBlock[]>([
 			[
 				singleLabel("How to Build a REST API"),
@@ -240,7 +263,7 @@ const generators = {
 	}),
 
 	game_loadout: (_i: number) => ({
-		type: "game_loadout" as const,
+		type: "game_loadout",
 		data: randomPick<DataBlock[]>([
 			[
 				singleLabel(randomPick(["Dust II", "Mirage", "Inferno", "Overpass"])),
@@ -278,7 +301,7 @@ const generators = {
 	}),
 
 	misc: (_i: number) => ({
-		type: "misc" as const,
+		type: "misc",
 		data: randomPick<DataBlock[]>([
 			[
 				singleLabel("SSL Certificate Renewal"),
@@ -324,58 +347,122 @@ async function seed() {
 	await sql`DELETE FROM users`;
 	await sql`DELETE FROM types`;
 
-	console.log("📂 Inserting credential types...");
+	console.log("📂 Inserting credential types (root + children)...");
 
-	// Insert types with capitalized labels and lowercase values
-	const typesData = [
-		{
-			label: "Credentials",
-			value: "credentials",
-			description: "Standard login credentials for websites, apps, and services",
-		},
-		{
-			label: "Key",
-			value: "key",
-			description: "SSH keys, API keys, license keys, and encryption keys",
-		},
-		{
-			label: "API",
-			value: "api",
-			description: "API tokens, service accounts, and platform credentials",
-		},
-		{
-			label: "Media",
-			value: "media",
-			description: "Media assets, collections, and content references",
-		},
-		{
-			label: "Game Loadout",
-			value: "game_loadout",
-			description: "Gaming configurations, loadouts, and character builds",
-		},
-		{
-			label: "Misc",
-			value: "misc",
-			description: "Miscellaneous notes, configurations, and quick references",
-		},
+	// ── Insert root types ──
+	const rootTypes = [
+		{ label: "Credentials", value: "credentials", description: "Standard login credentials for websites, apps, and services" },
+		{ label: "Key", value: "key", description: "SSH keys, API keys, license keys, and encryption keys" },
+		{ label: "API", value: "api", description: "API tokens, service accounts, and platform credentials" },
+		{ label: "Media", value: "media", description: "Media assets, collections, and content references" },
+		{ label: "Game Loadout", value: "game_loadout", description: "Gaming configurations, loadouts, and character builds" },
+		{ label: "Misc", value: "misc", description: "Miscellaneous notes, configurations, and quick references" },
 	];
 
-	// Build a mapping from `value` (lowercase) to database `id`
-	const typeMap = new Map<string, string>();
+	const typeMap = new Map<string, string>(); // value → id
 
-	for (const type of typesData) {
+	for (const type of rootTypes) {
 		const [inserted] = await sql`
 			INSERT INTO types (label, value, description)
 			VALUES (${type.label}, ${type.value}, ${type.description})
-			ON CONFLICT (label) DO UPDATE SET value = EXCLUDED.value, description = EXCLUDED.description
+			ON CONFLICT (parent_id, label) WHERE parent_id IS NULL DO UPDATE SET value = EXCLUDED.value, description = EXCLUDED.description
 			RETURNING id, value
 		`;
 		typeMap.set(inserted.value, inserted.id);
 	}
 
+	// ── Insert child types under root types ──
+	// Under "Credentials"
+	const credentialsId = typeMap.get("credentials");
+	if (credentialsId) {
+		const children = [
+			{ label: "Social Media", value: "social_media", description: "Social media platform accounts" },
+			{ label: "Email", value: "email", description: "Email account credentials" },
+			{ label: "Banking", value: "banking", description: "Bank and financial account credentials" },
+		];
+		for (const child of children) {
+			const [inserted] = await sql`
+				INSERT INTO types (label, value, description, parent_id)
+				VALUES (${child.label}, ${child.value}, ${child.description}, ${credentialsId}::uuid)
+				ON CONFLICT (parent_id, label) WHERE parent_id = ${credentialsId}::uuid DO UPDATE SET description = EXCLUDED.description
+				RETURNING id, value
+			`;
+			typeMap.set(inserted.value, inserted.id);
+		}
+	}
+
+	// Under "Key"
+	const keyId = typeMap.get("key");
+	if (keyId) {
+		const children = [
+			{ label: "SSH", value: "ssh", description: "SSH key pairs" },
+			{ label: "License", value: "license", description: "Software license keys" },
+		];
+		for (const child of children) {
+			const [inserted] = await sql`
+				INSERT INTO types (label, value, description, parent_id)
+				VALUES (${child.label}, ${child.value}, ${child.description}, ${keyId}::uuid)
+				RETURNING id, value
+			`;
+			typeMap.set(inserted.value, inserted.id);
+		}
+	}
+
+	// Under "API"
+	const apiId = typeMap.get("api");
+	if (apiId) {
+		const children = [
+			{ label: "SaaS", value: "saas", description: "SaaS platform API tokens" },
+			{ label: "Cloud", value: "cloud", description: "Cloud provider credentials" },
+		];
+		for (const child of children) {
+			const [inserted] = await sql`
+				INSERT INTO types (label, value, description, parent_id)
+				VALUES (${child.label}, ${child.value}, ${child.description}, ${apiId}::uuid)
+				RETURNING id, value
+			`;
+			typeMap.set(inserted.value, inserted.id);
+		}
+	}
+
+	// ── Insert grandchild types (2nd level children) ──
+	// Under "Social Media" → child of "Credentials"
+	const socialMediaId = typeMap.get("social_media");
+	if (socialMediaId) {
+		const children = [
+			{ label: "Facebook", value: "facebook", description: "Facebook accounts" },
+			{ label: "Twitter", value: "twitter", description: "Twitter/X accounts" },
+		];
+		for (const child of children) {
+			const [inserted] = await sql`
+				INSERT INTO types (label, value, description, parent_id)
+				VALUES (${child.label}, ${child.value}, ${child.description}, ${socialMediaId}::uuid)
+				RETURNING id, value
+			`;
+			typeMap.set(inserted.value, inserted.id);
+		}
+	}
+
+	// Under "SaaS" → child of "API"
+	const saasId = typeMap.get("saas");
+	if (saasId) {
+		const children = [
+			{ label: "GitHub PAT", value: "github_pat", description: "GitHub Personal Access Tokens" },
+			{ label: "Stripe Key", value: "stripe_key", description: "Stripe API keys" },
+		];
+		for (const child of children) {
+			const [inserted] = await sql`
+				INSERT INTO types (label, value, description, parent_id)
+				VALUES (${child.label}, ${child.value}, ${child.description}, ${saasId}::uuid)
+				RETURNING id, value
+			`;
+			typeMap.set(inserted.value, inserted.id);
+		}
+	}
+
 	console.log("👤 Creating test user...");
 
-	// Create test user with hashed passwords
+	// Create test user
 	const passwordHash = await Bun.password.hash("TestPass123!");
 	const specialPasswordHash = await Bun.password.hash("SpecialPass456!");
 
@@ -407,23 +494,20 @@ async function seed() {
 
 	console.log("   Session token:", sessionToken);
 
-	// Create credentials (no images, thumbnails left null)
+	// Create credentials
 	console.log("📦 Creating credentials...");
 
-	const typeValues = ["credentials", "key", "api", "media", "game_loadout", "misc"];
+	const allTypeValues = Array.from(typeMap.keys());
+	const totalCredentials = 500;
 	const batchSize = 50;
 	let created = 0;
-	const totalCredentials = 500;
 
 	for (let i = 0; i < totalCredentials; i += batchSize) {
-		const batch = [];
 		const currentBatchSize = Math.min(batchSize, totalCredentials - i);
 
 		for (let j = 0; j < currentBatchSize; j++) {
 			const index = i + j + 1;
-			const typeValue = typeValues[index % typeValues.length];
-			const generator = generators[typeValue as keyof typeof generators];
-			const credData = generator(index);
+			const typeValue = allTypeValues[index % allTypeValues.length];
 			const typeId = typeMap.get(typeValue);
 
 			if (!typeId) {
@@ -431,34 +515,35 @@ async function seed() {
 				continue;
 			}
 
-			batch.push({
-				user_id: user.id,
-				types_id: typeId,
-				title: generateTitle(typeValue, index),
-				short_description: generateShortDescription(typeValue),
-				long_description: `Detailed information about this ${typeValue} item. Created for demonstration purposes.`,
-				data: await encrypt(JSON.stringify(credData.data)),
-				tags: credData.tags ? JSON.stringify(credData.tags) : null,
-				notes: credData.notes,
-			});
-		}
+			const generator = generators[typeValue];
+			const credData = generator
+				? generator(index)
+				: {
+						type: typeValue,
+						data: [singleLabel(`Sample data for ${typeValue}`)],
+						tags: null,
+						notes: null,
+					};
 
-		// Insert batch one by one
-		for (const cred of batch) {
 			await sql`
 				INSERT INTO credentials (
 					user_id, types_id, title, short_description,
 					long_description, data, tags, notes
 				) VALUES (
-					${cred.user_id}, ${cred.types_id}, ${cred.title}, ${cred.short_description},
-					${cred.long_description}, ${cred.data},
-					${cred.tags}, ${cred.notes}
+					${user.id}, ${typeId}::uuid, ${generateTitle(typeValue, index)},
+					${generateShortDescription(typeValue)},
+					${`Detailed information about this ${typeValue} item.`},
+					${await encrypt(JSON.stringify(credData.data))},
+					${credData.tags ? JSON.stringify(credData.tags) : null},
+					${credData.notes}
 				)
 			`;
 			created++;
 		}
 
-		console.log(`   Created ${created}/${totalCredentials} credentials...`);
+		if (created % batchSize === 0 || created === totalCredentials) {
+			console.log(`   Created ${created}/${totalCredentials} credentials...`);
+		}
 	}
 
 	console.log("\n✅ Seed completed successfully!");
@@ -466,8 +551,7 @@ async function seed() {
 	console.log("   - 1 User (john@example.com / TestPass123!)");
 	console.log("   - 1 Active Session (30 days)");
 	console.log(`   - ${totalCredentials} Credentials across all types`);
-	console.log("   - 6 Credential Types (label capitalized, value lowercase)");
-	console.log("   - No images or thumbnails inserted (as requested)");
+	console.log(`   - ${typeMap.size} Credential Types (root + children + grandchildren)`);
 
 	// Show distribution
 	const distribution = await sql`

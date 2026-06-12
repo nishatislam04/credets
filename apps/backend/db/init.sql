@@ -24,11 +24,14 @@ CREATE TABLE IF NOT EXISTS session(
 -- TYPES TABLE
 CREATE TABLE IF NOT EXISTS types(
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-	label VARCHAR(100) UNIQUE NOT NULL,
-	value VARCHAR(100) UNIQUE NOT NULL,
+	label VARCHAR(100) NOT NULL,
+	value VARCHAR(100) NOT NULL,
 	description TEXT,
+	parent_id UUID DEFAULT NULL REFERENCES types(id) ON DELETE RESTRICT,
 	created_at TIMESTAMPTZ DEFAULT NOW(),
-	updated_at TIMESTAMPTZ DEFAULT NOW()
+	updated_at TIMESTAMPTZ DEFAULT NOW(),
+	UNIQUE(parent_id, label),
+	UNIQUE(parent_id, value)
 );
 
 -- CREDENTIALS TABLE
@@ -80,6 +83,10 @@ CREATE INDEX IF NOT EXISTS credentials_tags_idx ON credentials USING GIN (tags);
 CREATE INDEX IF NOT EXISTS credentials_created_at_idx ON credentials(created_at);
 CREATE INDEX IF NOT EXISTS credentials_user_id_idx ON credentials(user_id);
 CREATE INDEX IF NOT EXISTS credentials_types_id_idx ON credentials(types_id);
+
+CREATE INDEX IF NOT EXISTS types_parent_id_idx ON types(parent_id);
+CREATE INDEX IF NOT EXISTS types_parent_id_value_idx ON types(parent_id, value);
+CREATE INDEX IF NOT EXISTS types_parent_id_label_idx ON types(parent_id, label);
 CREATE INDEX IF NOT EXISTS credentials_created_at_id_idx ON credentials(created_at DESC, id DESC);
 
 CREATE INDEX IF NOT EXISTS credential_images_credential_id_idx ON credential_images(credential_id);

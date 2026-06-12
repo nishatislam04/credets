@@ -4,7 +4,7 @@ import type {
 	DataBlockEntry,
 } from "@credets/shared-types/credentials/listings";
 import { useForm } from "@tanstack/react-form";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, X } from "lucide-react";
 import { useState } from "react";
@@ -18,16 +18,9 @@ import {
 } from "#/components/ui/field";
 import { gooeyToast } from "#/components/ui/goey-toaster";
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "#/components/ui/item";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
+import { TypeSelector, type TypePathEntry } from "#/routes/credentials/-components/TypeSelector";
 import { getCSRFtoken } from "#/routes/credentials/create/-actions/getCSRFtoken";
-import { getTypesListings } from "#/routes/credentials/create/-actions/getTypesListings";
 import { DataBlock } from "#/routes/credentials/create/-components/Datablock";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -128,19 +121,6 @@ function RouteComponent() {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 
-	// ── Types listings ──
-	const { data: typesListings, isLoading: isTypesListingsLoading } = useQuery({
-		queryKey: ["types_listings"],
-		queryFn: async () => {
-			try {
-				const res = await getTypesListings();
-				return res.data;
-			} catch (error) {
-				gooeyToast.error(error instanceof Error ? error.message : "failed to fetch types");
-			}
-		},
-	});
-
 	// ── Image state ──
 	const existingImages: CredentialImage[] = Array.isArray(credential.images)
 		? credential.images
@@ -154,12 +134,18 @@ function RouteComponent() {
 	// ── Initial data blocks ──
 	const initialDataBlocks = normalizeDataForEdit(credential.data);
 
+	// Build initial types array from the credential's type value
+	const initialTypes: TypePathEntry[] = credential.type_value
+		? [{ value: credential.type_value, label: credential.type_label || credential.type_value }]
+		: [];
+
 	// ── Form ──
 	const form = useForm({
 		defaultValues: {
 			_csrf: csrfToken || "",
 			title: credential.title || "",
 			type: credential.type_value || "",
+			types: initialTypes,
 			short_description: credential.short_description || "",
 			long_description: credential.long_description || "",
 			thumbnail: null as File | null,
@@ -308,7 +294,7 @@ function RouteComponent() {
 							);
 						}}
 					/>
-					{/* Type field */}
+					{/* Type field - using hierarchical TypeSelector */}
 					<form.Field
 						name="type"
 						children={(field) => {
@@ -321,34 +307,29 @@ function RouteComponent() {
 										</FieldLabel>
 										{isInvalid && <FieldError errors={field.state.meta.errors} />}
 									</FieldContent>
-									<Select
-										name={field.name}
-										value={field.state.value}
-										onValueChange={(value) => {
-											field.handleChange(value || "");
-										}}
-									>
-										<SelectTrigger id="type" aria-invalid={isInvalid}>
-											<SelectValue placeholder="Select a type" />
-										</SelectTrigger>
-										<SelectContent>
-											{isTypesListingsLoading ? (
-												<SelectItem value="" disabled>
-													fetching types...
-												</SelectItem>
-											) : typesListings?.length > 0 ? (
-												typesListings.map((type: { id: string; value: string; label: string }) => (
-													<SelectItem key={type.id} value={type.value}>
-														{type.label}
-													</SelectItem>
-												))
-											) : (
-												<SelectItem value="" disabled>
-													No types available
-												</SelectItem>
+									<div className="flex-1">
+										{/* Hidden type field synced with leaf value */}
+										<Input
+											id="type"
+											value={field.state.value}
+											type="hidden"
+											aria-invalid={isInvalid}
+										/>
+										<form.Field
+											name="types"
+											mode="array"
+											children={(typesField) => (
+												<TypeSelector
+													types={typesField.state.value as TypePathEntry[]}
+													onTypesChange={(newTypes) => {
+														typesField.handleChange(newTypes);
+														const leafValue = newTypes.length > 0 ? newTypes[newTypes.length - 1].value : "";
+														field.handleChange(leafValue);
+													}}
+												/>
 											)}
-										</SelectContent>
-									</Select>
+										/>
+									</div>
 								</Field>
 							);
 						}}

@@ -26,6 +26,11 @@ const dataBlockSchema = z.discriminatedUnion("type", [
 	informationSchema,
 ]);
 
+const typePathEntrySchema = z.object({
+	value: z.string().min(1, "type value is required"),
+	label: z.string().min(1, "type label is required"),
+});
+
 export const credentialsUpdateSchema = z.object({
 	_csrf: z
 		.string()
@@ -36,6 +41,7 @@ export const credentialsUpdateSchema = z.object({
 		.min(4, "credentials title need to be at least 4 characters")
 		.max(30, "credentials title can not be greater than 30 characters"),
 	type: z.string().min(1, "type is required"),
+	types: z.array(typePathEntrySchema).min(1, "At least one type is required").default([]),
 	short_description: z
 		.string()
 		.min(5, "credentials short description can not be less than 5 characters")

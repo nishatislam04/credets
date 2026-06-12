@@ -9,12 +9,13 @@ import {
 	uploadToS3,
 } from "@backend/utils/storage";
 import { getCredentialImageUrlsRepo } from "../../repository/credentials/credential";
-import { updateCredentialRepo } from "../../repository/credentials/update";
+import { updateCredentialRepo, type TypePathEntry } from "../../repository/credentials/update";
 
 export interface UpdateCredentialServiceInput {
 	credentialId: string;
 	title: string;
 	type: string;
+	types_path: TypePathEntry[];
 	short_description?: string;
 	long_description?: string;
 	notes?: string;
@@ -121,6 +122,7 @@ export async function updateCredentialService(
 			credentialId: input.credentialId,
 			title: input.title,
 			type: input.type,
+			types_path: input.types_path,
 			short_description: input.short_description || null,
 			long_description: input.long_description || null,
 			notes: input.notes || null,

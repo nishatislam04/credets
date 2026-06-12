@@ -7,11 +7,15 @@ import {
 	credentialThumbnailKey,
 	uploadToS3,
 } from "@backend/utils/storage";
-import { createCredentialRepo } from "../../repository/credentials/create";
+import {
+	createCredentialRepo,
+	type TypePathEntry,
+} from "../../repository/credentials/create";
 
 export interface CreateCredentialServiceInput {
 	title: string;
 	type: string;
+	types_path: TypePathEntry[];
 	short_description?: string;
 	long_description?: string;
 	notes?: string;
@@ -76,6 +80,7 @@ export async function createCredentialService(
 		const dbPayload = {
 			title: input.title,
 			type: input.type,
+			types_path: input.types_path,
 			short_description: input.short_description || null,
 			long_description: input.long_description || null,
 			notes: input.notes || null,

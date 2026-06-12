@@ -12,7 +12,7 @@
 
 - [] in the single page, when we have images, when we click on the thumbnial img on the title, the slideshow open and we can see all the images. but that was not how it was supposed to work. first of clicking on the thumbnial would preview the thumbnial only, not the images. then when we click on images, the slideshow open as expected 
 
- - [] make the credential delete dialog more destructive looking with coloring, icons and with other factors. so that, it looks like we are deleting something important haha
+- [] make the credential delete dialog more destructive looking with coloring, icons and with other factors. so that, it looks like we are deleting something important haha
 
 - [] 1. when click on single-label, key-value, information.
 auto focus on the first input. for single label, focus on the first input. for key-value, focus on the key input. for information input, focus on the textarea input. when page render, we generate a defualt first single input field. forget about focusing that one. only focus input fields, when we click the button to generate the input field
@@ -104,7 +104,7 @@ auto focus on the first input. for single label, focus on the first input. for k
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-- [] think about a img optimizing in tanstack router like we had in nextjs out of the box
+- [] we will use `unpic/react` pkg to handle our img in frontend. they also provide supabase support. now i dont know what i need to do with supabase options. since, we will upload our img at supabase storage. and this unpic library support supabase, figure out if we can utilize it anyhow. and also check credentials create backend endpoint, where we r processing thumbnial and images with bunjs raw api. see, if we need any changes on that level or not or any kind of optimization there or not
 
 - [] make single view page, short description and long description more stand out between them. like short description has more priority than long description and even tho they have quite a space between them but there are not actually much distance between them.. when we look at it. design my whole short description and long description fully based on its surrounding attributes. if needed, install and use external fonts. i just to make this 2 description block looks good. handle short description line breaking, i m not talking abt trimming it. the line space
 

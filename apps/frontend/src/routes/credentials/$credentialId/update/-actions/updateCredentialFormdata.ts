@@ -5,6 +5,7 @@ interface UpdateFormValues {
 	credentialId: string;
 	title: string;
 	type: string;
+	types?: Array<{ value: string; label: string }>;
 	short_description?: string | null;
 	long_description?: string | null;
 	thumbnail: File | null;
@@ -29,6 +30,9 @@ export function createUpdateCredentialFormdata(value: UpdateFormValues) {
 	formdata.append("_csrf", value._csrf);
 	formdata.append("type", value.type);
 	formdata.append("title", value.title);
+	if (value.types && value.types.length > 0) {
+		formdata.append("types_path", JSON.stringify(value.types));
+	}
 
 	if (value.short_description) {
 		formdata.append("short_description", value.short_description);

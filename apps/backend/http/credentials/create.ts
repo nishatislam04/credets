@@ -13,12 +13,25 @@ export async function credentialCreate(req: BunRequest) {
 		return result.errorResponse;
 	}
 
-	const { validatedData, images } = result;
+	const { validatedData, images, formData } = result;
+
+	// Extract types_path from formdata
+	const typesPathRaw = formData.get("types_path")?.toString() || null;
+	const types_path: Array<{ value: string; label: string }> = typesPathRaw
+		? (() => {
+				try {
+					return JSON.parse(typesPathRaw);
+				} catch {
+					return [];
+				}
+			})()
+		: [];
 
 	try {
 		const createdResult = await createCredentialService({
 			title: validatedData.data.title,
 			type: validatedData.data.type,
+			types_path,
 			short_description: validatedData.data.short_description ?? undefined,
 			long_description: validatedData.data.long_description ?? undefined,
 			notes: validatedData.data.notes ?? undefined,

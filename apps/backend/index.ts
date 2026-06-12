@@ -8,6 +8,7 @@ import { credentialListings } from "./http/credentials/listings";
 import { credentialUpdate } from "./http/credentials/update";
 import { generateCSRF } from "./http/csrf/generateCSRF";
 import { typesListings } from "./http/types/listings";
+import { typesChildren } from "./http/types/children";
 import { ResponseFactory } from "./utils/response";
 // import indexHtml from "./index.html";
 import { createCredentialValidation } from "./validation/credential/create";
@@ -43,6 +44,7 @@ Bun.serve({
 
 		// types
 		"/types/listings": () => typesListings(),
+		"/types/children": (req) => typesChildren(req),
 	},
 
 	error(error) {

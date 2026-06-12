@@ -43,11 +43,24 @@ export async function credentialUpdate(req: BunRequest) {
 			})()
 		: [];
 
+	// Extract types_path
+	const typesPathRaw = formData.get("types_path")?.toString() || null;
+	const types_path: Array<{ value: string; label: string }> = typesPathRaw
+		? (() => {
+				try {
+					return JSON.parse(typesPathRaw);
+				} catch {
+					return [];
+				}
+			})()
+		: [];
+
 	try {
 		await updateCredentialService({
 			credentialId,
 			title: validatedData.data.title ?? "",
 			type: validatedData.data.type ?? "",
+			types_path,
 			short_description: validatedData.data.short_description ?? undefined,
 			long_description: validatedData.data.long_description ?? undefined,
 			notes: validatedData.data.notes ?? undefined,

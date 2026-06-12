@@ -7,6 +7,9 @@ export function createCredentialFormdata(value: CredentialCreateType) {
 	formdata.append("_csrf", value._csrf);
 	formdata.append("type", value.type);
 	formdata.append("title", value.title);
+	if (value.types && value.types.length > 0) {
+		formdata.append("types_path", JSON.stringify(value.types));
+	}
 	value.short_description &&
 		formdata.append("short_description", value.short_description || "");
 	value.long_description &&

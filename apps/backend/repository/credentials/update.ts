@@ -5,10 +5,56 @@ import { BadRequestError } from "@backend/err/bad-request";
 import { DatabaseError } from "@backend/err/database";
 import { NotFoundError } from "@backend/err/not-found";
 
+/** A single entry in the types hierarchy path */
+export interface TypePathEntry {
+	value: string;
+	label: string;
+}
+
+/**
+ * Walk the types_path hierarchy, creating any missing types along the way.
+ * Returns the leaf type ID.
+ */
+async function resolveOrCreateTypePath(
+	client: typeof sql,
+	typesPath: TypePathEntry[],
+): Promise<string> {
+	let parentId: string | null = null;
+	let leafId: string | null = null;
+
+	for (const entry of typesPath) {
+		// Try to find existing type under current parent
+		const [existing] = parentId
+			? await client`SELECT id FROM types WHERE parent_id = ${parentId}::uuid AND value = ${entry.value}`
+			: await client`SELECT id FROM types WHERE parent_id IS NULL AND value = ${entry.value}`;
+
+		if (existing) {
+			leafId = existing.id;
+			parentId = existing.id;
+		} else {
+			// Create new type
+			const [created] = await client`
+				INSERT INTO types (label, value, parent_id)
+				VALUES (${entry.label}, ${entry.value}, ${parentId})
+				RETURNING id
+			`;
+			leafId = created.id;
+			parentId = created.id;
+		}
+	}
+
+	if (!leafId) {
+		throw new BadRequestError("Failed to resolve or create type hierarchy");
+	}
+
+	return leafId;
+}
+
 export interface UpdateCredentialRepoInput {
 	credentialId: string;
 	title: string;
 	type: string;
+	types_path: TypePathEntry[];
 	short_description: string | null;
 	long_description: string | null;
 	notes: string | null;
@@ -46,10 +92,17 @@ export async function updateCredentialRepo(
 			}
 
 			// 2. Resolve types_id
-			const [typeRow] =
-				await sql`SELECT id FROM types WHERE value=${input.type}`;
-			if (!typeRow) {
-				throw new BadRequestError("Invalid type selected");
+			let typesId: string;
+			if (input.types_path && input.types_path.length > 0) {
+				typesId = await resolveOrCreateTypePath(sql, input.types_path);
+			} else {
+				// Fallback to old behavior for backward compat
+				const [typeRow] =
+					await sql`SELECT id FROM types WHERE value=${input.type}`;
+				if (!typeRow) {
+					throw new BadRequestError("Invalid type selected");
+				}
+				typesId = typeRow.id;
 			}
 
 			// 3. Build update payload
@@ -60,7 +113,7 @@ export async function updateCredentialRepo(
 				data: input.data,
 				notes: input.notes,
 				tags: input.tags,
-				types_id: typeRow.id,
+				types_id: typesId,
 			};
 
 			if (input.thumbnail) {

@@ -1,8 +1,8 @@
 import { credentialsCreateSchema } from "@credets/shared-schema/credentials/create";
 import type { CredentialCreateType } from "@credets/shared-types/credentials/create";
 import { useForm } from "@tanstack/react-form";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, LoaderIcon, X } from "lucide-react";
 import { useRef, useState } from "react";
 import {
@@ -15,14 +15,8 @@ import {
 } from "#/components/ui/field";
 import { gooeyToast } from "#/components/ui/goey-toaster";
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "#/components/ui/item";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
+import { TypeSelector, type TypePathEntry } from "#/routes/credentials/-components/TypeSelector";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -30,7 +24,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { createCredentialAction } from "./-actions/createCredentialAction";
 import { createCredentialValidation } from "./-actions/createCredentialValidation";
 import { getCSRFtoken } from "./-actions/getCSRFtoken";
-import { getTypesListings } from "./-actions/getTypesListings";
 import { DataBlock } from "./-components/Datablock";
 
 export const Route = createFileRoute("/credentials/create/")({
@@ -73,6 +66,7 @@ const defaultCredentialValues = (csrfToken: string): CredentialCreateType => ({
 	_csrf: csrfToken || "",
 	title: "",
 	type: "",
+	types: [],
 	short_description: undefined,
 	long_description: undefined,
 	thumbnail: null,
@@ -84,18 +78,6 @@ const defaultCredentialValues = (csrfToken: string): CredentialCreateType => ({
 
 function RouteComponent() {
 	const csrfToken = Route.useLoaderData() as string;
-
-	const { data: typesListings, isLoading: isTypesListingsLoading } = useQuery({
-		queryKey: ["types_listings"],
-		queryFn: async () => {
-			try {
-				const res = await getTypesListings();
-				return res.data;
-			} catch (error) {
-				gooeyToast.error(error instanceof Error ? error.message : "failed to fetch types");
-			}
-		},
-	});
 
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
@@ -221,8 +203,7 @@ function RouteComponent() {
 								</Field>
 							);
 						}}
-					/>
-					{/* types field */}
+					/>					{/* types field - using hierarchical TypeSelector */}
 					<form.Field
 						name="type"
 						children={(field) => {
@@ -235,34 +216,30 @@ function RouteComponent() {
 										</FieldLabel>
 										{isInvalid && <FieldError errors={field.state.meta.errors} />}
 									</FieldContent>
-									<Select
-										name={field.name}
-										value={field.state.value}
-										onValueChange={(value) => {
-											field.handleChange(value || "");
-										}}
-									>
-										<SelectTrigger id="type" aria-invalid={isInvalid}>
-											<SelectValue placeholder="Select a type" />
-										</SelectTrigger>
-										<SelectContent>
-											{isTypesListingsLoading ? (
-												<SelectItem value="" disabled>
-													fetching types...
-												</SelectItem>
-											) : typesListings.length > 0 ? (
-												typesListings.map((type: { id: string; value: string; label: string }) => (
-													<SelectItem key={type.id} value={type.value}>
-														{type.label}
-													</SelectItem>
-												))
-											) : (
-												<SelectItem value="" disabled>
-													No types available
-												</SelectItem>
+									<div className="flex-1">
+										{/* Sync hidden type field with leaf value */}
+										<Input
+											id="type"
+											value={field.state.value}
+											type="hidden"
+											aria-invalid={isInvalid}
+										/>
+										<form.Field
+											name="types"
+											mode="array"
+											children={(typesField) => (
+												<TypeSelector
+													types={typesField.state.value as TypePathEntry[]}
+													onTypesChange={(newTypes) => {
+														typesField.handleChange(newTypes);
+														// Sync the leaf type value to the parent "type" field
+														const leafValue = newTypes.length > 0 ? newTypes[newTypes.length - 1].value : "";
+														field.handleChange(leafValue);
+													}}
+												/>
 											)}
-										</SelectContent>
-									</Select>
+										/>
+									</div>
 								</Field>
 							);
 						}}
@@ -377,72 +354,72 @@ function RouteComponent() {
 
 					{/* Thumbnail and images side-by side */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<form.Field
-					name="thumbnail"
-					children={(field) => {
-						const isinvalid = !field.state.meta.isValid;
-						const file = field.state.value;
-						const previewUrl = file ? URL.createObjectURL(file) : null;
+						<form.Field
+							name="thumbnail"
+							children={(field) => {
+								const isinvalid = !field.state.meta.isValid;
+								const file = field.state.value;
+								const previewUrl = file ? URL.createObjectURL(file) : null;
 
-						const handleRemoveThumbnail = () => {
-							field.handleChange(null);
-							// Clear the file input element so the filename doesn't persist
-							if (thumbnailInputRef.current) {
-								thumbnailInputRef.current.value = "";
-							}
-						};
+								const handleRemoveThumbnail = () => {
+									field.handleChange(null);
+									// Clear the file input element so the filename doesn't persist
+									if (thumbnailInputRef.current) {
+										thumbnailInputRef.current.value = "";
+									}
+								};
 
-						return (
-							<Field data-invalid={isinvalid}>
-								<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
+								return (
+									<Field data-invalid={isinvalid}>
+										<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
 
-								{/* Preview selected thumbnail */}
-								{previewUrl && (
-									<div className="mb-3 max-w-48">
-										<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
-											<button
-												type="button"
-												onClick={() => setPreviewSrc(previewUrl)}
-												className="size-full cursor-pointer border-0 bg-transparent p-0"
-											>
-												<img
-													src={previewUrl}
-													alt="Thumbnail preview"
-													className="size-full object-cover transition-transform duration-200 hover:scale-105"
-												/>
-											</button>
-											<button
-												type="button"
-												onClick={handleRemoveThumbnail}
-												className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
-												aria-label="Remove thumbnail"
-											>
-												<X className="size-3" />
-											</button>
-										</div>
-										{file?.name && (
-											<p className="mt-1 truncate text-xs text-muted-foreground">{file.name}</p>
+										{/* Preview selected thumbnail */}
+										{previewUrl && (
+											<div className="mb-3 max-w-48">
+												<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
+													<button
+														type="button"
+														onClick={() => setPreviewSrc(previewUrl)}
+														className="size-full cursor-pointer border-0 bg-transparent p-0"
+													>
+														<img
+															src={previewUrl}
+															alt="Thumbnail preview"
+															className="size-full object-cover transition-transform duration-200 hover:scale-105"
+														/>
+													</button>
+													<button
+														type="button"
+														onClick={handleRemoveThumbnail}
+														className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
+														aria-label="Remove thumbnail"
+													>
+														<X className="size-3" />
+													</button>
+												</div>
+												{file?.name && (
+													<p className="mt-1 truncate text-xs text-muted-foreground">{file.name}</p>
+												)}
+											</div>
 										)}
-									</div>
-								)}
 
-								<Input
-									ref={thumbnailInputRef}
-									id="thumbnail"
-									type="file"
-									accept="image/jpeg,image/png,image/webp"
-									onBlur={field.handleBlur}
-									onChange={(e) => {
-										const file = e.target.files?.[0] || null;
-										field.handleChange(file);
-									}}
-									aria-invalid={isinvalid}
-								/>
-								{isinvalid && <FieldError errors={field.state.meta.errors} />}
-							</Field>
-						);
-					}}
-				/>
+										<Input
+											ref={thumbnailInputRef}
+											id="thumbnail"
+											type="file"
+											accept="image/jpeg,image/png,image/webp"
+											onBlur={field.handleBlur}
+											onChange={(e) => {
+												const file = e.target.files?.[0] || null;
+												field.handleChange(file);
+											}}
+											aria-invalid={isinvalid}
+										/>
+										{isinvalid && <FieldError errors={field.state.meta.errors} />}
+									</Field>
+								);
+							}}
+						/>
 
 						{/* Images multi-file */}
 						<form.Field
