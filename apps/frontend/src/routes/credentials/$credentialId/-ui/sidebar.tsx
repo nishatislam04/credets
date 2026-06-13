@@ -2,6 +2,7 @@ import type { CredentialDetail } from "@credets/shared-types/credentials/listing
 import { Check, Copy, FileText, Info, Tag, FolderTree } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "#/components/ui/badge";
+import { RichTextRenderer } from "#/components/ui/rich-text-renderer";
 import { TAG_COLORS } from "../../-utils/colors";
 import { TypeTree } from "../-components/TypeTree";
 
@@ -66,9 +67,10 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 						<h2 className="text-base font-semibold uppercase tracking-wider">Notes</h2>
 					</div>
 					<div className="rounded-xl border bg-card px-4 py-3">
-						<p className="text-sm leading-relaxed text-card-foreground/80 whitespace-pre-wrap">
-							{credential.notes}
-						</p>
+						<RichTextRenderer
+							content={credential.notes}
+							className="text-sm leading-relaxed text-card-foreground/80"
+						/>
 					</div>
 				</section>
 			)}

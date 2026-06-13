@@ -8,7 +8,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createLazyFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, X } from "lucide-react";
 import { useState } from "react";
-import { CredetsImage } from "#/components/ui/image";
 import {
 	Field,
 	FieldContent,
@@ -18,7 +17,10 @@ import {
 	FieldLabel,
 } from "#/components/ui/field";
 import { gooeyToast } from "#/components/ui/goey-toaster";
+import { CredetsImage } from "#/components/ui/image";
 import { Item, ItemContent, ItemDescription, ItemTitle } from "#/components/ui/item";
+import { RichTextEditor } from "#/components/ui/rich-text-editor";
+import { Textarea } from "#/components/ui/textarea";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
 import { type TypePathEntry, TypeSelector } from "#/routes/credentials/-components/TypeSelector";
 import { DataBlock } from "#/routes/credentials/create/-components/Datablock";
@@ -26,7 +28,6 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { TagInput } from "@/components/ui/tag-input";
-import { Textarea } from "@/components/ui/textarea";
 import { updateCredentialAction } from "./-actions/updateCredentialAction";
 import { updateCredentialValidation } from "./-actions/updateCredentialValidation";
 import { DeleteCredentialDialog } from "./-delete/delete-credential-dialog";
@@ -300,50 +301,42 @@ function RouteComponent() {
 						}}
 					/>
 					{/* Short & Long description side by side */}
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
-						<form.Field
-							name="short_description"
-							children={(field) => {
-								const isInvalid = !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="short_description">Short description</FieldLabel>
-										<Textarea
-											id="short_description"
-											value={field.state.value ?? ""}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											rows={8}
-											placeholder="Brief summary"
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && <FieldError errors={field.state.meta.errors} />}
-									</Field>
-								);
-							}}
-						/>
-						<form.Field
-							name="long_description"
-							children={(field) => {
-								const isInvalid = !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="long_description">Long description</FieldLabel>
-										<Textarea
-											id="long_description"
-											value={field.state.value ?? ""}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											rows={8}
-											placeholder="Detailed description"
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && <FieldError errors={field.state.meta.errors} />}
-									</Field>
-								);
-							}}
-						/>
-					</div>
+					<form.Field
+						name="short_description"
+						children={(field) => {
+							const isInvalid = !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isInvalid}>
+									<FieldLabel htmlFor="short_description">Short description</FieldLabel>
+									<RichTextEditor
+										value={field.state.value}
+										onChange={(val) => field.handleChange(val)}
+										placeholder="Write a short description..."
+										minHeight="300px"
+									/>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
+					/>
+					<form.Field
+						name="long_description"
+						children={(field) => {
+							const isInvalid = !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isInvalid}>
+									<FieldLabel htmlFor="long_description">Long description</FieldLabel>
+									<RichTextEditor
+										value={field.state.value}
+										onChange={(val) => field.handleChange(val)}
+										placeholder="Write a detailed description..."
+										minHeight="300px"
+									/>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
+					/>
 					{/* Data blocks */}
 					<div className="my-6">
 						<h2 className="text-lg font-semibold mb-3">Data items</h2>
@@ -671,7 +664,7 @@ function RouteComponent() {
 						</Field>
 					</div>
 					{/* Notes & Tags side by side */}
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
+					<div className="my-8 space-y-6">
 						<form.Field
 							name="notes"
 							children={(field) => {
@@ -680,13 +673,11 @@ function RouteComponent() {
 									<Field data-invalid={isInvalid}>
 										<FieldLabel htmlFor="notes">Notes</FieldLabel>
 										<FieldDescription>optional note about this credential</FieldDescription>
-										<Textarea
-											id="notes"
-											value={field.state.value ?? ""}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											rows={10}
-											aria-invalid={isInvalid}
+										<RichTextEditor
+											value={field.state.value}
+											onChange={(val) => field.handleChange(val)}
+											placeholder="Add any notes..."
+											minHeight="200px"
 										/>
 										{isInvalid && <FieldError errors={field.state.meta.errors} />}
 									</Field>
@@ -703,6 +694,7 @@ function RouteComponent() {
 										<FieldDescription>
 											Press Enter or comma (,) to add a tag. up to 15 tags allowed.
 										</FieldDescription>
+
 										<TagInput
 											id="tags"
 											value={field.state.value ?? ""}

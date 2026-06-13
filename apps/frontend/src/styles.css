@@ -221,3 +221,11 @@ body {
 }
 
 /* ========== GOOEY TOAST OVERRIDES END ========== */
+
+/* tiptap override */
+.tiptap.ProseMirror {
+	border: 0;
+	outline: 0;
+	padding: 0.5rem !important;
+	height: 300px;
+}

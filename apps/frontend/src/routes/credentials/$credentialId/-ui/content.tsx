@@ -1,12 +1,9 @@
 import type { CredentialDetail, DataBlockEntry } from "@credets/shared-types/credentials/listings";
 import { Quote, TextQuote } from "lucide-react";
+import { RichTextRenderer } from "#/components/ui/rich-text-renderer";
 import { CredentialDataRenderer } from "../-components/credential-data";
 
-export function Content({
-	credential,
-}: {
-	credential: CredentialDetail;
-}) {
+export function Content({ credential }: { credential: CredentialDetail }) {
 	return (
 		<div className="space-y-8 lg:col-span-2 lg:border-r lg:border-border/30 lg:pr-8">
 			{/* ── Short description — hero / pull-quote ── */}
@@ -22,9 +19,13 @@ export function Content({
 							Summary
 						</span>
 
-						<h4 className="text-4xl font-semibold leading-[1.3] tracking-tight text-card-foreground/80 selection:bg-primary/15 whitespace-pre-wrap">
+						{/*<h4 className="text-4xl font-semibold leading-[1.3] tracking-tight text-card-foreground/80 selection:bg-primary/15 whitespace-pre-wrap">
 							{credential.short_description}
-						</h4>
+						</h4>*/}
+						<RichTextRenderer
+							content={credential.short_description}
+							className="font-serif text-[1.35rem] leading-[1.75] tracking-[0.01em] text-muted-foreground/70 dark:text-muted-foreground/80 selection:bg-primary/10"
+						/>
 					</div>
 				</section>
 			)}
@@ -41,9 +42,10 @@ export function Content({
 							<Quote className="size-8 text-primary/10 -ml-1" />
 						</div>
 
-						<p className="font-serif text-[1.35rem] leading-[1.75] tracking-[0.01em] text-muted-foreground/70 dark:text-muted-foreground/80 selection:bg-primary/10 whitespace-pre-wrap">
-							{credential.long_description}
-						</p>
+						<RichTextRenderer
+							content={credential.long_description}
+							className="font-serif text-[1.35rem] leading-[1.75] tracking-[0.01em] text-muted-foreground/70 dark:text-muted-foreground/80 selection:bg-primary/10"
+						/>
 					</div>
 				</section>
 			)}
