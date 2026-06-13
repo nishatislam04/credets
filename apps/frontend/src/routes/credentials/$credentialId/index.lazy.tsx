@@ -6,6 +6,7 @@ import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-prev
 import { Content } from "./-ui/content";
 import { Footer } from "./-ui/footer";
 import { Header } from "./-ui/header";
+import { ImageGallery } from "./-components/ImageGallery";
 import { Sidebar } from "./-ui/sidebar";
 import { TopHeader } from "./-ui/topHeader";
 
@@ -42,11 +43,19 @@ function RouteComponent() {
 
 				<Separator className="my-12" />
 
+				{/* ── Descriptions + data (2/3) with sidebar (1/3) ── */}
 				<div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-					<Content credential={credential} hasImages={hasImages} openLightbox={openGalleryPreview} />
-
+					<Content credential={credential} />
 					<Sidebar credential={credential} />
 				</div>
+
+				{/* ── Gallery — full width below the grid, so it can breathe ── */}
+				{hasImages && (
+					<ImageGallery
+						images={credential.images}
+						onImageClick={openGalleryPreview}
+					/>
+				)}
 
 				<Footer credential={credential} />
 			</div>

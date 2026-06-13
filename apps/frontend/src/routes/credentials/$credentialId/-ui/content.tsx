@@ -1,19 +1,14 @@
 import type { CredentialDetail, DataBlockEntry } from "@credets/shared-types/credentials/listings";
 import { Quote, TextQuote } from "lucide-react";
 import { CredentialDataRenderer } from "../-components/credential-data";
-import { ImageGallery } from "../-components/ImageGallery";
 
 export function Content({
 	credential,
-	hasImages,
-	openLightbox,
 }: {
 	credential: CredentialDetail;
-	hasImages: boolean;
-	openLightbox: (index: number) => void;
 }) {
 	return (
-		<div className="space-y-8 lg:col-span-2">
+		<div className="space-y-8 lg:col-span-2 lg:border-r lg:border-border/30 lg:pr-8">
 			{/* ── Short description — hero / pull-quote ── */}
 			{credential.short_description && (
 				<section className="relative">
@@ -53,19 +48,11 @@ export function Content({
 				</section>
 			)}
 
-			{/* ── Decorative section divider before gallery ── */}
-			{(credential.short_description || credential.long_description) && (
-				<div className="relative py-4">
-					<div className="absolute left-0 right-0 top-1/2 h-px bg-gradient-to-r from-transparent via-border/20 to-transparent" />
+			{/* Subtle divider before data section */}
+			{(credential.short_description || credential.long_description) && credential.data && (
+				<div className="relative py-2">
+					<div className="absolute left-0 right-0 top-1/2 h-px bg-gradient-to-r from-border/20 via-border/30 to-transparent" />
 				</div>
-			)}
-
-			{/* Image gallery — only credential.images (not thumbnail) */}
-			{hasImages && (
-				<ImageGallery
-					images={credential.images}
-					onImageClick={openLightbox}
-				/>
 			)}
 
 			{/* Data section */}
