@@ -19,29 +19,41 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
 const CredentialsIndexRoute = CredentialsIndexRouteImport.update({
   id: '/credentials/',
   path: '/credentials/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() =>
+  import('./routes/credentials/index.lazy').then((d) => d.Route),
+)
 const CredentialsCreateIndexRoute = CredentialsCreateIndexRouteImport.update({
   id: '/credentials/create/',
   path: '/credentials/create/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() =>
+  import('./routes/credentials/create/index.lazy').then((d) => d.Route),
+)
 const CredentialsCredentialIdIndexRoute =
   CredentialsCredentialIdIndexRouteImport.update({
     id: '/credentials/$credentialId/',
     path: '/credentials/$credentialId/',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any).lazy(() =>
+    import('./routes/credentials/$credentialId/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 const CredentialsCredentialIdUpdateIndexRoute =
   CredentialsCredentialIdUpdateIndexRouteImport.update({
     id: '/credentials/$credentialId/update/',
     path: '/credentials/$credentialId/update/',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any).lazy(() =>
+    import('./routes/credentials/$credentialId/update/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute

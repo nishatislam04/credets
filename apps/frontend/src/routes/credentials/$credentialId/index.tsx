@@ -1,18 +1,9 @@
-import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
-import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
-import { Separator } from "#/components/ui/separator";
 import { Skeleton } from "#/components/ui/skeleton";
-import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
 import { getCredential } from "./-actions/getCredential";
-import { Content } from "./-ui/content";
-import { Footer } from "./-ui/footer";
-import { Header } from "./-ui/header";
-import { Sidebar } from "./-ui/sidebar";
-import { TopHeader } from "./-ui/topHeader";
+
 export const Route = createFileRoute("/credentials/$credentialId/")({
-	component: RouteComponent,
 	loader: async ({ params }) => {
 		const credential = await getCredential(params.credentialId);
 		// Add cache-busting version to thumbnail URL so the browser
@@ -26,7 +17,6 @@ export const Route = createFileRoute("/credentials/$credentialId/")({
 	pendingComponent: () => (
 		<div className="mx-auto w-full max-w-5xl px-4 py-10">
 			<Skeleton className="mb-8 h-6 w-24 rounded-lg" />
-			{/* Title row */}
 			<div className="mb-3 flex items-start gap-4">
 				<Skeleton className="size-20 shrink-0 rounded-xl" />
 				<div className="min-w-0 flex-1 space-y-2">
@@ -66,70 +56,3 @@ export const Route = createFileRoute("/credentials/$credentialId/")({
 		</div>
 	),
 });
-
-function RouteComponent() {
-	const credential = useLoaderData({
-		from: "/credentials/$credentialId/",
-	}) as CredentialDetail;
-	const [galleryPreviewOpen, setGalleryPreviewOpen] = useState(false);
-	const [galleryPreviewIndex, setGalleryPreviewIndex] = useState(0);
-	const [thumbnailPreviewOpen, setThumbnailPreviewOpen] = useState(false);
-
-	const hasImages = Array.isArray(credential.images) && credential.images.length > 0;
-	const thumbnailUri = credential.thumbnail_url;
-
-	const openGalleryPreview = (index: number) => {
-		setGalleryPreviewIndex(index);
-		setGalleryPreviewOpen(true);
-	};
-
-	return (
-		<>
-			<div className="mx-auto w-full max-w-6xl px-4 py-10">
-				{/* ── Back link + Edit button ── */}
-
-				<TopHeader credentialId={credential.id} />
-
-				{/* ── Header row — thumbnail | title + badge + dates ── */}
-				<Header
-					thumbnailUri={thumbnailUri}
-					onThumbnailClick={() => setThumbnailPreviewOpen(true)}
-					credential={credential}
-				/>
-
-				<Separator className="my-12" />
-
-				{/* ── Two-column layout ── */}
-				<div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-					{/* ── Left column (2/3) — description, gallery, data ── */}
-					<Content credential={credential} hasImages={hasImages} openLightbox={openGalleryPreview} />
-
-					{/* ── Right column (1/3) — sidebar ── */}
-					<Sidebar credential={credential} />
-				</div>
-
-				{/* ── Footer separator ── */}
-
-				<Footer credential={credential} />
-			</div>
-
-			{/* ── Thumbnail preview overlay — single image, no slideshow ── */}
-			{thumbnailPreviewOpen && thumbnailUri && (
-				<ImagePreviewOverlay
-					src={thumbnailUri}
-					onClose={() => setThumbnailPreviewOpen(false)}
-					alt={credential.title}
-				/>
-			)}
-
-			{/* ── Gallery image preview overlay — single image fullscreen ── */}
-			{galleryPreviewOpen && hasImages && credential.images[galleryPreviewIndex]?.image_url && (
-				<ImagePreviewOverlay
-					src={credential.images[galleryPreviewIndex].image_url}
-					onClose={() => setGalleryPreviewOpen(false)}
-					alt={`Gallery image ${galleryPreviewIndex + 1}`}
-				/>
-			)}
-		</>
-	);
-}

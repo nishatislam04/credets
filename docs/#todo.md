@@ -35,3 +35,5 @@ make changes of our backend create endpoint tags processing and db changes if ne
 	we can follow this, when any our ui component are too large and we want to split it and lazy load it!
 
 	for manual ui components lazy loading, show me how you will decide which ui components to lazy load and why and whats the best approach with tanstack router best practises
+
+- [] in single view page, because of sidebar in desktop (large view), our gallery still looks small. what should we do? one thing im sure that, i want my gallery component occupy full width (with both left side and right side). then in desktop view, where should we put sidebar? can you update the layout for our single page so that, the gallery can breath?

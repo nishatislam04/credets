@@ -41,17 +41,17 @@ Create a self‑contained RTE component that:
 
 ### Common Extensions & Toolbar Blocks
 
-Include at least the following extensions (provided by `reactjs-tiptap-editor` by default or via extra packages). Assume the library already bundles them; if not, add instructions to install them.
+Include at least the following extensions (provided by `reactjs-tiptap-editor` by default or via extra packages). install from the [docs page](https://reactjs-tiptap-editor.vercel.app/guide/getting-started.html)
 
 | Extension         | Toolbar Button           | Bubble Menu |
 | ----------------- | ------------------------ | ----------- |
 | Bold              | Bold (`B`)               | Yes         |
 | Italic            | Italic (`I`)             | Yes         |
-| Underline         | Underline (`U`)          | Optional    |
+| Underline         | Underline (`U`)          | yes    |
 | Strike            | Strikethrough            | Yes         |
 | Heading           | Heading dropdown (h1,h2,h3) | No       |
-| Bullet List       | Bullet list              | Yes (if selection) |
-| Ordered List      | Numbered list            | Yes         |
+| Bullet List       | Bullet list              | no (if selection) |
+| Ordered List      | Numbered list            | no         |
 | Blockquote        | Quote                    | No          |
 | Code Block        | Code block               | No          |
 | Link              | Link (with modal/prompt) | Yes         |
@@ -61,39 +61,39 @@ Include at least the following extensions (provided by `reactjs-tiptap-editor` b
 | Undo / Redo       | Undo / Redo arrows       | No          |
 
 Additionally, support:
-- **Placeholder** (e.g., “Write something...”).
-- **Tables** (if the library includes table extension).
+
+- **Placeholder** (e.g., “long description or whatever...”).
 
 ### Edge Cases & Validation
+
 - **Empty content**: When `value` is `null` or empty, the editor should show the placeholder and store an empty JSON structure (e.g., `{ type: "doc", content: [] }`).
 - **Large content**: No performance degradation with ~10k words; ensure the editor is not re‑initialised unnecessarily.
 - **Duplicate instances**: Two editors on the same page must not interfere with each other (each has its own state, toolbar, and bubble menu).
 - **Paste handling**: Pasted content should be sanitised to prevent XSS (the library may already do this, but ensure it’s enabled).
-- **Mobile view**: Toolbar buttons should be tappable and the bubble menu should not overflow the viewport.
+- **Mobile view**: Toolbar buttons should be tappable and the bubble menu should not overflow the viewport. and make it responsive
 - **Form reset**: When the form resets (e.g., after submission), the editor content must reset accordingly via the `value` prop.
-- **Lazy loading fallback**: The skeleton should have the same height as the editor to avoid layout shift.
+- focus on ui: make necessary changes so that, the rte and its container height and width are comfortable to use and responsive
 
 ## Tasks for the AI
+
 1. **Provide installation commands** for `reactjs-tiptap-editor` and any peer dependencies (e.g., `@tiptap/react`, `@tiptap/starter-kit`, `lucide-react` for icons).
 2. **Write the main editor component** (`RichTextEditor`) that:
    - Imports the necessary extensions and styles.
    - Configures the toolbar and bubble menu (follow the library’s API).
    - Uses `forwardRef` if needed.
    - Handles `value` and `onChange` correctly.
-3. **Create a lazy wrapper** using `React.lazy` and `Suspense` to enable code splitting.
-4. **Show how to use the editor inside a TanStack Form**:
-   - Provide a snippet of the form field using `<RichTextEditor value={field.state.value} onChange={field.handleChange} />`.
-5. **Add Tailwind CSS integration** (if needed) to style the editor’s content area (`.ProseMirror`).
-6. **Write a brief example** of saving the editor’s JSON output to an API and re‑hydrating the editor from stored JSON.
-7. **Include a note on accessibility** (ARIA labels, keyboard navigation).
+3. **Add Tailwind CSS integration** (if needed) to style the editor’s content area (`.ProseMirror`).
+4. **Include a note on accessibility** (ARIA labels, keyboard navigation).
 
 ## Expected Output Format
+
 - Provide code blocks with explanations.
-- Do not assume any specific file structure – the AI should describe where each piece of code could live (e.g., “in a `components/rich-text-editor` folder”).
+- Do not assume any specific file structure – the AI should describe where each piece of code could live (e.g., “in a `-components/rich-text-editor` folder”).
 - Use TypeScript interfaces for all component props.
-- Ensure all imports are correct and use path aliases (like `@/components/ui/skeleton`) if applicable.
+- Ensure all imports are correct and use path aliases
 
 ## Deliverables
+
 A complete implementation guide that the developer can copy and paste into their existing TanStack Router + TanStack Form project, with minimal modifications.
 
 ---
