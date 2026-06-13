@@ -1,7 +1,6 @@
 "use client";
 
-import { Image as UnpicImage } from "@unpic/react/base";
-import { transform } from "unpic/providers/supabase";
+import { Image as UnpicImage } from "@unpic/react";
 import type { ImgHTMLAttributes } from "react";
 
 // ── Types ───────────────────────────────────────────────────────────
@@ -52,9 +51,9 @@ export interface CredetsImageProps {
 /**
  * **CredetsImage** — a custom image component powered by Unpic.
  *
- * Uses the **Supabase Storage provider** to automatically generate responsive
- * srcsets and optimize images on the fly via Supabase's built‑in image
- * transformation API (imgix).
+ * Automatically detects the image CDN from the URL and generates responsive
+ * srcsets. Supports **Supabase Storage** (via its built‑in image transformation
+ * API), along with dozens of other CDNs — no configuration needed.
  *
  * ---
  *
@@ -132,7 +131,6 @@ export function CredetsImage({
 		<UnpicImage
 			src={src}
 			alt={alt}
-			transformer={transform}
 			layout={layout}
 			loading={loading}
 			{...(rest as any)}

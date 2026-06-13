@@ -114,9 +114,9 @@ For `blob:` URLs created via `URL.createObjectURL()` (e.g. local file previews i
 
 ## How It Works
 
-1. **Unpic auto‑detection** — When a Supabase Storage URL is passed, Unpic recognizes the CDN and uses the Supabase provider to generate responsive srcsets.
-2. **On‑the‑fly optimization** — Supabase's image transformation API (powered by imgix) resizes and optimizes images at request time based on the `width`, `height`, and `quality` parameters.
-3. **Fallback** — For URLs that are not recognized as Supabase (e.g. MinIO for local development), the component renders the image as-is without transformation.
+1. **Unpic auto‑detection** — The component uses the main `@unpic/react` `Image` component, which automatically detects the CDN from the URL (Supabase, Cloudinary, imgix, etc.) and applies the correct transformer internally. No explicit provider imports needed.
+2. **On‑the‑fly optimization** — For Supabase Storage URLs, Unpic recognizes the `/storage/v1/object/public/` pattern and uses Supabase's image transformation API (powered by imgix) to generate responsive srcsets.
+3. **Fallback** — For URLs that are not recognized (e.g. MinIO for local development), the component renders the image as-is without transformation.
 4. **Blob URLs** — Automatically detected and rendered as plain `<img>` tags to avoid transformer errors.
 
 ---
@@ -127,7 +127,7 @@ Images are processed server‑side using Bun's built‑in Image API and converte
 
 | Image type   | Quality | Max width | Format |
 |-------------|---------|-----------|--------|
-| Thumbnail   | 80      | 800px     | WebP   |
-| Gallery     | 88      | 1400px    | WebP   |
+| Thumbnail   | 75      | 800px     | WebP   |
+| Gallery     | 85      | 1400px    | WebP   |
 
 These quality settings are higher than before because Supabase Storage provides its own CDN with on‑demand optimization, so storing higher‑quality originals is safe.

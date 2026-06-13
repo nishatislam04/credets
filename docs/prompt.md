@@ -149,7 +149,7 @@ Sync rules:
 - Main carousel `"select"` event → read `mainApi.selectedScrollSnap()`, set `selectedIndex`, then `thumbApi.scrollTo(index)` to bring the active thumb into view.
 - Attach listeners only after the Embla API exists; also listen to `"reInit"` (handles resize); clean up with `.off()` on unmount.
 
-## i am just pasting the gallery component for your inpiration. dont follow it blindly. if these reference code match our Requirements, then follow otherwise prioratize Requirements more
+## i am just pasting the gallery component for your inpiration from another AI agent. dont follow it blindly. if these coding reference matches our Requirements, then follow it. otherwise prioratize Requirements more
 
 ### `src/components/image-gallery.tsx`
 
@@ -158,10 +158,6 @@ import { useCallback, useEffect, useState } from "react"
 import useEmblaCarousel from "embla-carousel-react"
 import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures"
 import { ChevronUp, ChevronDown } from "lucide-react"
-
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { galleryImages } from "@/data/gallery"
 
 export function ImageGallery() {
   // selectedIndex is the single source of truth for "which image is active".
