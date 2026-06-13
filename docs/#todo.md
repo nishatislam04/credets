@@ -1,10 +1,13 @@
 # our workflow
 
-- [] we will use `unpic/react` pkg to handle our img in frontend. they also provide supabase support. now i dont know what i need to do with supabase options. since, we will upload our img at supabase storage. and this unpic library support supabase, figure out if we can utilize it anyhow. and also check credentials create backend endpoint, where we r processing thumbnial and images with bunjs raw api. see, if we need any changes on that level or not or any kind of optimization there or not
+- [] we will use `unpic/react` pkg to handle our img in frontend. since we use supabase storage, utilize unpic supabase adapter to fine tune images. and also check credentials create backend endpoint, where we r processing thumbnial and images with bunjs raw api. bump up the quality of images a bit since we are using supabase storage. and see, if we need any changes on that level or not or any kind of optimization there or not. we wont use the placeholder feature now
+references: https://unpic.pics/learn/, https://unpic.pics/img/react/, https://unpic.pics/providers/supabase/
+read these docs and related pages and read my img processing and storing process. and create a dedicated custom Image component which we can use anywhere in frontend and render the image optimizely. so study it and create a dedicated docs of using this custom Image component api and implement this Image component all over the frontend
+
 
 - [] figure out, if we can defer loading images in the loader for the single page view. so that important texts can be load first and images can load lazily. try to do it within route loader
 
-- [] You are an expert React developer. Generate a complete, production‑ready TagInput component using Shadcn UI (Input, Badge) and Lucide X icon. for both create and update form tags block. update old textarea component to this new custom component
+- [x] You are an expert React developer. Generate a complete, production‑ready TagInput component using Shadcn UI (Input, Badge) and Lucide X icon. for both create and update form tags block. update old textarea component to this new custom component
 Requirements:
 · created Tags are displayed as badges above the input field.
 · Each badge has an X button to remove it.
@@ -30,3 +33,5 @@ make changes of our backend create endpoint tags processing and db changes if ne
 	and then for more granular code-splitting, utilize React.lazy with dynamic import
 	and import the lazy component inside of React.suspense block
 	we can follow this, when any our ui component are too large and we want to split it and lazy load it!
+
+	for manual ui components lazy loading, show me how you will decide which ui components to lazy load and why and whats the best approach with tanstack router best practises

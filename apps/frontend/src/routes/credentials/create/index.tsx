@@ -20,6 +20,7 @@ import { type TypePathEntry, TypeSelector } from "#/routes/credentials/-componen
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { TagInput } from "@/components/ui/tag-input";
 import { Textarea } from "@/components/ui/textarea";
 import { createCredentialAction } from "./-actions/createCredentialAction";
 import { createCredentialValidation } from "./-actions/createCredentialValidation";
@@ -569,8 +570,7 @@ function RouteComponent() {
 									</Field>
 								);
 							}}
-						/>
-						<form.Field
+						/>						<form.Field
 							name="tags"
 							children={(field) => {
 								const isinvalid = !field.state.meta.isValid;
@@ -578,22 +578,23 @@ function RouteComponent() {
 									<Field data-invalid={isinvalid}>
 										<FieldLabel htmlFor="tags">Tags</FieldLabel>
 										<FieldDescription>
-											add comma (,) for more than one tags. you can skip last comma
+											Press Enter or comma (,) to add a tag. up to 15 tags allowed.
 										</FieldDescription>
 
-										<Textarea
+										<TagInput
 											id="tags"
 											value={field.state.value ?? ""}
 											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											rows={10}
+											onChange={(newTags) => field.handleChange(newTags)}
+											placeholder="e.g. database, production, aws"
 											aria-invalid={isinvalid}
+											maxTags={15}
 										/>
 										{isinvalid && <FieldError errors={field.state.meta.errors} />}
 									</Field>
-								);
-							}}
-						/>
+							);
+						}}
+					/>
 					</div>
 					<form.Subscribe
 						selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}

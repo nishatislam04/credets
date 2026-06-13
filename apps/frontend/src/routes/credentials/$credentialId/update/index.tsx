@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TagInput } from "@/components/ui/tag-input";
 import { Textarea } from "@/components/ui/textarea";
 import { getCredentialUpdate } from "./-actions/getCredentialUpdate";
 import { updateCredentialAction } from "./-actions/updateCredentialAction";
@@ -745,21 +746,22 @@ function RouteComponent() {
 									<Field data-invalid={isInvalid}>
 										<FieldLabel htmlFor="tags">Tags</FieldLabel>
 										<FieldDescription>
-											add comma (,) for more than one tags. you can skip last comma
+											Press Enter or comma (,) to add a tag. up to 15 tags allowed.
 										</FieldDescription>
-										<Textarea
+										<TagInput
 											id="tags"
 											value={field.state.value ?? ""}
 											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											rows={10}
+											onChange={(newTags) => field.handleChange(newTags)}
+											placeholder="e.g. database, production, aws"
 											aria-invalid={isInvalid}
+											maxTags={15}
 										/>
 										{isInvalid && <FieldError errors={field.state.meta.errors} />}
 									</Field>
-								);
-							}}
-						/>
+							);
+						}}
+					/>
 					</div>
 					{/* Submit */}
 					<form.Subscribe
