@@ -6,7 +6,6 @@ import { Separator } from "#/components/ui/separator";
 import { Skeleton } from "#/components/ui/skeleton";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
 import { getCredential } from "./-actions/getCredential";
-import { ImageLightbox } from "./-components/image-lightbox";
 import { Content } from "./-ui/content";
 import { Footer } from "./-ui/footer";
 import { Header } from "./-ui/header";
@@ -72,16 +71,16 @@ function RouteComponent() {
 	const credential = useLoaderData({
 		from: "/credentials/$credentialId/",
 	}) as CredentialDetail;
-	const [lightboxOpen, setLightboxOpen] = useState(false);
-	const [lightboxIndex, setLightboxIndex] = useState(0);
+	const [galleryPreviewOpen, setGalleryPreviewOpen] = useState(false);
+	const [galleryPreviewIndex, setGalleryPreviewIndex] = useState(0);
 	const [thumbnailPreviewOpen, setThumbnailPreviewOpen] = useState(false);
 
 	const hasImages = Array.isArray(credential.images) && credential.images.length > 0;
 	const thumbnailUri = credential.thumbnail_url;
 
-	const openLightbox = (index: number) => {
-		setLightboxIndex(index);
-		setLightboxOpen(true);
+	const openGalleryPreview = (index: number) => {
+		setGalleryPreviewIndex(index);
+		setGalleryPreviewOpen(true);
 	};
 
 	return (
@@ -103,7 +102,7 @@ function RouteComponent() {
 				{/* ── Two-column layout ── */}
 				<div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
 					{/* ── Left column (2/3) — description, gallery, data ── */}
-					<Content credential={credential} hasImages={hasImages} openLightbox={openLightbox} />
+					<Content credential={credential} hasImages={hasImages} openLightbox={openGalleryPreview} />
 
 					{/* ── Right column (1/3) — sidebar ── */}
 					<Sidebar credential={credential} />
@@ -123,12 +122,12 @@ function RouteComponent() {
 				/>
 			)}
 
-			{/* ── Image gallery slideshow overlay — for gallery images only ── */}
-			{lightboxOpen && hasImages && (
-				<ImageLightbox
-					images={credential.images}
-					initialIndex={lightboxIndex}
-					onClose={() => setLightboxOpen(false)}
+			{/* ── Gallery image preview overlay — single image fullscreen ── */}
+			{galleryPreviewOpen && hasImages && credential.images[galleryPreviewIndex]?.image_url && (
+				<ImagePreviewOverlay
+					src={credential.images[galleryPreviewIndex].image_url}
+					onClose={() => setGalleryPreviewOpen(false)}
+					alt={`Gallery image ${galleryPreviewIndex + 1}`}
 				/>
 			)}
 		</>

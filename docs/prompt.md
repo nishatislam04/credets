@@ -1,46 +1,46 @@
 # Prompt for Implementing a Rich Text Editor (RTE) with `reactjs-tiptap-editor`
 
-You are an expert frontend developer. Your task is to implement a **scalable, lazy‑loadable Rich Text Editor** using the `reactjs-tiptap-editor` library in a React application that uses **TanStack Router** and **TanStack Form**. The editor will be used for two fields: `long_description` and `notes`. You must provide code and configuration that is production‑ready, modular, and follows best practices.
+You are an expert frontend developer. Your task is to implement a **scalable, lazy‑loadable Rich Text Editor** using the `reactjs-tiptap-editor` library. The editor will be used for two fields: `long_description` and `notes` in both create and update form. You must provide code and configuration that is production‑ready, modular, and follows best practices.
 
 ## Goal
+
 Create a self‑contained RTE component that:
-- Can be **lazy loaded** (code‑split) to reduce initial bundle size.
+
 - Integrates seamlessly with **TanStack Form** as a controlled component (receives `value` and `onChange`).
-- Supports a rich toolbar and a **bubble menu** for basic formatting.
+- Supports a rich toolbar and a simple basic **bubble menu** for basic formatting.
 - Is reusable for both description and notes fields (two instances on the same page).
 - Is built on top of `reactjs-tiptap-editor` (a TipTap wrapper with pre‑styled UI).
 
 ## Requirements
 
 ### Functional Requirements
-1. **Lazy Loading**:
-   - The editor component must be dynamically imported when it is first rendered (e.g., when the user navigates to the form page or when the editor container becomes visible).
-   - Provide a fallback skeleton (e.g., `Skeleton` from Shadcn) during loading.
 
-2. **TanStack Form Integration**:
+1. **TanStack Form Integration**:
    - Expose a React component that accepts `value` (TipTap JSON or HTML) and `onChange` callback.
    - When the editor content changes, call `onChange` with the updated content (preferably JSON for structured data, but HTML is acceptable if specified).
    - Do not break form submission or validation.
 
-3. **Rich Toolbar**:
+2. **Rich Toolbar**:
    - Include the most common extensions (see list below) and corresponding toolbar buttons.
    - Toolbar should be positioned above the editor area.
    - Buttons must have clear visual feedback (active/inactive states) and be accessible.
 
-4. **Bubble Menu**:
-   - Provide a bubble menu that appears when text is selected, allowing quick formatting (bold, italic, link, etc.).
+3. **Bubble Menu**:
+   - Provide a bubble menu that appears when text is selected, allowing quick formatting
    - The bubble menu should not conflict with the main toolbar.
 
-5. **Styling**:
+4. **Styling**:
    - The editor should visually match the existing Shadcn / Tailwind CSS design system.
    - Apply consistent border, focus ring, padding, and typography classes.
-   - Ensure dark mode compatibility if your app supports it.
+   - Ensure dark mode compatibility
 
-6. **Data Persistence**:
-   - The editor’s output (JSON) must be saved to PostgreSQL (via your Bun backend). You don’t need to implement the backend, but the component should produce a serializable value.
+5. **Data Persistence**:
+   - The editor’s output (JSON) must be saved to PostgreSQL (via your Bun backend). check the backend, if it is ready to process and save json data in db
    - When editing existing content, the editor must be initialised with the stored JSON.
+   - the rte output should be rendered in our single page view. i.e the way we are creating content, it should looks same in single page view
 
 ### Common Extensions & Toolbar Blocks
+
 Include at least the following extensions (provided by `reactjs-tiptap-editor` by default or via extra packages). Assume the library already bundles them; if not, add instructions to install them.
 
 | Extension         | Toolbar Button           | Bubble Menu |

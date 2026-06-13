@@ -1,7 +1,7 @@
 import type { CredentialDetail, DataBlockEntry } from "@credets/shared-types/credentials/listings";
 import { Quote, TextQuote } from "lucide-react";
 import { CredentialDataRenderer } from "../-components/credential-data";
-import { Gallery } from "./gallery";
+import { ImageGallery } from "../-components/ImageGallery";
 
 export function Content({
 	credential,
@@ -61,7 +61,12 @@ export function Content({
 			)}
 
 			{/* Image gallery — only credential.images (not thumbnail) */}
-			<Gallery hasImages={hasImages} credential={credential} openLightbox={openLightbox} />
+			{hasImages && (
+				<ImageGallery
+					images={credential.images}
+					onImageClick={openLightbox}
+				/>
+			)}
 
 			{/* Data section */}
 			{credential.data && (

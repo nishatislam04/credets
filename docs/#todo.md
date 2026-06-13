@@ -1,6 +1,6 @@
 # our workflow
 
-- [] we will use `unpic/react` pkg to handle our img in frontend. since we use supabase storage, utilize unpic supabase adapter to fine tune images. and also check credentials create backend endpoint, where we r processing thumbnial and images with bunjs raw api. bump up the quality of images a bit since we are using supabase storage. and see, if we need any changes on that level or not or any kind of optimization there or not. we wont use the placeholder feature now
+- [x] we will use `unpic/react` pkg to handle our img in frontend. since we use supabase storage, utilize unpic supabase adapter to fine tune images. and also check credentials create backend endpoint, where we r processing thumbnial and images with bunjs raw api. bump up the quality of images a bit since we are using supabase storage. and see, if we need any changes on that level or not or any kind of optimization there or not. we wont use the placeholder feature now
 references: https://unpic.pics/learn/, https://unpic.pics/img/react/, https://unpic.pics/providers/supabase/
 read these docs and related pages and read my img processing and storing process. and create a dedicated custom Image component which we can use anywhere in frontend and render the image optimizely. so study it and create a dedicated docs of using this custom Image component api and implement this Image component all over the frontend
 

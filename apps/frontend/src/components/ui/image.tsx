@@ -44,6 +44,11 @@ export interface CredetsImageProps {
 	sizes?: string;
 	/** @deprecated Use `loading` instead — image decoding hint is set automatically */
 	decoding?: "async" | "sync" | "auto";
+	/**
+	 * Whether the image is draggable. Set to `false` inside carousels to
+	 * prevent the browser's native image-drag from fighting the scroll gesture.
+	 */
+	draggable?: boolean;
 }
 
 // ── Component ───────────────────────────────────────────────────────
