@@ -600,15 +600,17 @@ function RouteComponent() {
 						selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
 						children={([canSubmit, isSubmitting, isPristine]) => (
 							<div className="w-full flex flex-col items-center gap-3">
-								{/* Validation error hint — shows when form has been touched but is invalid */}
-								{!canSubmit && !isSubmitting && (
-									<div className="flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/[0.04] px-4 py-2.5 text-sm text-destructive/80">
-										<span className="size-1.5 rounded-full bg-destructive/60 shrink-0" />
-										<span>
-											There are validation errors that need to be fixed before submitting.
-										</span>
-									</div>
-								)}
+								{/* Validation error hint — fixed min-height prevents layout shift */}
+								<div className="min-h-[44px]">
+									{!canSubmit && !isSubmitting && (
+										<div className="flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/[0.04] px-4 py-2.5 text-sm text-destructive/80">
+											<span className="size-1.5 rounded-full bg-destructive/60 shrink-0" />
+											<span>
+												There are validation errors that need to be fixed before submitting.
+											</span>
+										</div>
+									)}
+								</div>
 								<Button
 									type="submit"
 									size="lg"
