@@ -1,6 +1,7 @@
 import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
 import { CalendarDays, Clock, ImageIcon } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
+import { CredetsImage } from "#/components/ui/image";
 import { hashString, TYPE_COLORS } from "../../-utils/colors";
 import { formatDate } from "../-utils/formatDate";
 import { formatTimeAgo } from "../-utils/formatTImeAgo";
@@ -27,9 +28,11 @@ export function Header({
 					onClick={onThumbnailClick}
 					className="group shrink-0 overflow-hidden rounded-xl ring-1 ring-border/40 transition-all duration-200 hover:ring-primary/30 hover:shadow-md cursor-pointer border-0"
 				>
-					<img
+					<CredetsImage
 						src={thumbnailUri}
 						alt={credential.title}
+						width={112}
+						height={112}
 						className="size-24 object-cover transition-transform duration-300 ease-out group-hover:scale-[1.05] sm:size-28"
 					/>
 				</button>

@@ -1,5 +1,6 @@
 import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
 import { ImageIcon } from "lucide-react";
+import { CredetsImage } from "#/components/ui/image";
 
 function imageSrc(img: { image_url?: string | null } | null) {
 	return img?.image_url ?? null;
@@ -37,9 +38,10 @@ export function Gallery({
 							onClick={() => openLightbox(i)}
 							className="group relative w-full overflow-hidden rounded-xl bg-muted/20 ring-1 ring-border/40 transition-all duration-200 hover:ring-primary/30 hover:shadow-md cursor-pointer border-0 h-50"
 						>
-							<img
+							<CredetsImage
 								src={src}
-								alt={`gallery ${i + 1}`}
+								alt={`Gallery image ${i + 1}`}
+								layout="fullWidth"
 								className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
 							/>
 							<div className="absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/2" />

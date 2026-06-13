@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { CredentialImage } from "@credets/shared-types/credentials/listings";
+import { CredetsImage } from "#/components/ui/image";
 
 interface ImageLightboxProps {
 	images: CredentialImage[];
@@ -88,9 +89,10 @@ export function ImageLightbox({
 			{/* Image */}
 			<div className="relative flex h-screen w-screen items-center justify-center">
 				{src ? (
-					<img
+					<CredetsImage
 						src={src}
 						alt={`Image ${index + 1} of ${images.length}`}
+						layout="fullWidth"
 						className="max-h-[95vh] max-w-[95vw] md:max-h-[92vh] md:max-w-[92vw] rounded-lg object-contain shadow-2xl"
 					/>
 				) : (

@@ -17,6 +17,7 @@ import { gooeyToast } from "#/components/ui/goey-toaster";
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "#/components/ui/item";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
 import { type TypePathEntry, TypeSelector } from "#/routes/credentials/-components/TypeSelector";
+import { CredetsImage } from "#/components/ui/image";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -397,9 +398,10 @@ function RouteComponent() {
 														onClick={() => setPreviewSrc(previewUrl)}
 														className="size-full cursor-pointer border-0 bg-transparent p-0"
 													>
-														<img
+														<CredetsImage
 															src={previewUrl}
 															alt="Thumbnail preview"
+															unoptimized
 															className="size-full object-cover transition-transform duration-200 hover:scale-105"
 														/>
 													</button>
@@ -487,11 +489,12 @@ function RouteComponent() {
 																		onClick={() => setPreviewSrc(fileUrl)}
 																		className="size-full cursor-pointer border-0 bg-transparent p-0"
 																	>
-																		<img
-																			src={fileUrl}
-																			alt={file.name}
-																			className="size-full object-cover transition-transform duration-200 hover:scale-105"
-																		/>
+														<CredetsImage
+															src={fileUrl}
+															alt={file.name}
+															unoptimized
+															className="size-full object-cover transition-transform duration-200 hover:scale-105"
+														/>
 																	</button>
 																	<button
 																		type="button"

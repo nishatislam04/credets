@@ -105,7 +105,7 @@ A complete implementation guide that the developer can copy and paste into their
 
 # TASK: Build a synced dual-axis image gallery
 
-Build a fully functional image gallery component for my existing **Vite + React 19 + TypeScript + Tailwind CSS v4** app that uses **TanStack Router**. Do not scaffold a new project — integrate into the existing one.
+Build a fully functional image gallery component
 
 ## Visual / behavioral spec
 
@@ -120,9 +120,11 @@ A horizontal two-column layout inside a bounded-height container:
   - Scrollable HORIZONTALLY by: mouse wheel (vertical wheel remapped to horizontal) AND click-drag.
   - NO arrow/prev/next buttons here.
   - Below the main image, show the current position as `current/total`, e.g. `2/6`.
-- Clicking a thumbnail moves the main viewer to that image.
+- Clicking a thumbnail (left img) moves the main viewer to that image.
 - Scrolling/dragging the main viewer updates the active thumbnail AND scrolls the rail to keep it in view.
 - The two scrollers stay perfectly in sync via a single source-of-truth index.
+- when total images length is 3 and below. simply render all images in Y axis. when the total images length are more than 3, then implement above gallery system
+- when we click on any right side of img, the big img preview should show the image big with overlay. so that we can just single view the image nicely without any distraction
 
 ## Tech & libraries (use exactly these)
 
@@ -130,9 +132,9 @@ A horizontal two-column layout inside a bounded-height container:
 - **embla-carousel-wheel-gestures** — plugin enabling mouse-wheel scrolling and remapping wheel axis.
 - **lucide-react** — for `ChevronUp` / `ChevronDown` icons.
 - Tailwind v4 utility classes for all styling (no config file needed; v4 is CSS-first).
-- A `cn` helper (clsx + tailwind-merge) at `@/lib/utils` and a shadcn-style `Button` at `@/components/ui/button`. If they don't exist, create them (standard shadcn implementations).
 
-Install: `pnpm add embla-carousel-react embla-carousel-wheel-gestures lucide-react`
+Install: `bun add -D embla-carousel-react embla-carousel-wheel-gestures lucide-react`
+should we install with -D or omit it?
 
 ## Architecture (the key idea)
 
@@ -142,32 +144,15 @@ There are **two independent Embla carousels** that share **one piece of React st
 2. **Thumbnail carousel** — `axis: "y"`, `dragFree: true`, `containScroll: "keepSnaps"`, with `WheelGesturesPlugin({ forceWheelAxis: "y" })`. Fixed-height viewport so only a few thumbnails show and the rest scroll.
 
 Sync rules:
+
 - Clicking a thumbnail → `mainApi.scrollTo(index)` (drives the main image; never the reverse).
 - Main carousel `"select"` event → read `mainApi.selectedScrollSnap()`, set `selectedIndex`, then `thumbApi.scrollTo(index)` to bring the active thumb into view.
 - Attach listeners only after the Embla API exists; also listen to `"reInit"` (handles resize); clean up with `.off()` on unmount.
 
-## Files to create
-
-### `src/data/gallery.ts`
-```ts
-export type GalleryImage = {
-  id: string
-  src: string
-  alt: string
-}
-
-// Replace src values with your own images (public/ paths or remote URLs).
-export const galleryImages: GalleryImage[] = [
-  { id: "1", src: "/images/img-1.png", alt: "Describe image 1" },
-  { id: "2", src: "/images/img-2.png", alt: "Describe image 2" },
-  { id: "3", src: "/images/img-3.png", alt: "Describe image 3" },
-  { id: "4", src: "/images/img-4.png", alt: "Describe image 4" },
-  { id: "5", src: "/images/img-5.png", alt: "Describe image 5" },
-  { id: "6", src: "/images/img-6.png", alt: "Describe image 6" },
-]
-```
+## i am just pasting the gallery component for your inpiration. dont follow it blindly. if these reference code match our Requirements, then follow otherwise prioratize Requirements more
 
 ### `src/components/image-gallery.tsx`
+
 ```tsx
 import { useCallback, useEffect, useState } from "react"
 import useEmblaCarousel from "embla-carousel-react"
@@ -314,34 +299,16 @@ export function ImageGallery() {
 }
 ```
 
-### Render it in a TanStack Router route
-In the target route component (e.g. `src/routes/index.tsx` or wherever), import and render it centered:
-```tsx
-import { ImageGallery } from "@/components/image-gallery"
-
-export function GalleryPage() {
-  return (
-    <main className="flex min-h-svh items-center justify-center bg-background p-4">
-      <ImageGallery />
-    </main>
-  )
-}
-```
-(Wire `GalleryPage` into your existing `createFileRoute` / route tree — keep my router setup intact.)
-
 ## Important implementation rules / edge cases
 
-- `@/` must resolve to `src/` — ensure the alias exists in BOTH `vite.config.ts` (`resolve.alias`) and `tsconfig.json` (`compilerPaths`). If TanStack Router config is present, this is usually already set.
 - Set `draggable={false}` on every `<img>` so the browser's native image-drag doesn't fight Embla's drag gesture.
 - Use `loop: false` so it doesn't wrap past the last image; `containScroll: "keepSnaps"` prevents dead-zone over-scroll at the ends.
 - The whole gallery has a bounded height via `h-[clamp(20rem,60vh,32rem)]`; both columns stretch to fill it (`items-stretch`, `grow`). This is what keeps the proportions correct — the main image fills the height rather than blowing up the layout.
-- Make sure Tailwind tokens (`--primary`, `--muted`, `--muted-foreground`, `--background`, `--foreground`) exist in your `globals.css`/`index.css` `@theme`. If not, either add them or swap the classes for literal Tailwind colors.
 - Accessibility: thumbnails are real `<button>`s with `aria-label` and `aria-current`; the position indicator uses `aria-live="polite"` to announce changes.
-- If you don't have real images yet, point `src` at any placeholder; the `|| "/placeholder.svg"` fallback keeps it from breaking.
 
 ## Acceptance criteria
 1. Left rail scrolls via wheel, drag, and the two outside chevron buttons.
 2. Right viewer scrolls horizontally via wheel and drag, with no arrow buttons.
-3. Clicking a thumbnail changes the main image; scrolling the main image updates + scrolls to the active thumbnail.
+3. Clicking a thumbnail (left side img) changes the main image; scrolling the main image updates + scrolls to the active thumbnail.
 4. `current/total` indicator updates live and is correct at both ends.
 5. Layout stays balanced (wide main image, narrow thumbnail index) and is responsive.

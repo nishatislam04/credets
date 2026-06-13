@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { CalendarDays, ChevronRight, ImageIcon } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent } from "#/components/ui/card";
+import { CredetsImage } from "#/components/ui/image";
 import { TYPE_COLORS, TAG_COLORS, hashString } from "../-utils/colors";
 
 interface CredentialCardProps {
@@ -47,9 +48,11 @@ interface CredentialCardProps {
 				{/* ── Left: Thumbnail ── */}
 				<div className="shrink-0 flex items-center justify-center px-4 py-4 md:px-5 md:py-5">
 					{cacheBustedThumbnail ? (
-						<img
+						<CredetsImage
 							src={cacheBustedThumbnail}
 							alt={title}
+							width={92}
+							height={92}
 							className="size-20 md:size-23 rounded-full object-cover ring-1 ring-border/40 transition-transform duration-300 ease-out group-hover:scale-[1.04]"
 						/>
 					) : (

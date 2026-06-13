@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, X } from "lucide-react";
 import { useState } from "react";
+import { CredetsImage } from "#/components/ui/image";
 import {
 	Field,
 	FieldContent,
@@ -493,11 +494,13 @@ function RouteComponent() {
 														onClick={() => setPreviewSrc(existingThumbnailSrc!)}
 														className="size-full cursor-pointer border-0 bg-transparent p-0"
 													>
-														<img
-															src={existingThumbnailSrc!}
-															alt="Current thumbnail"
-															className="size-full object-cover transition-transform duration-200 hover:scale-105"
-														/>
+													<CredetsImage
+														src={existingThumbnailSrc!}
+														alt="Current thumbnail"
+														width={192}
+														height={192}
+														className="size-full object-cover transition-transform duration-200 hover:scale-105"
+													/>
 													</button>
 													<button
 														type="button"
@@ -523,9 +526,10 @@ function RouteComponent() {
 														onClick={() => setPreviewSrc(previewUrl)}
 														className="size-full cursor-pointer border-0 bg-transparent p-0"
 													>
-														<img
+														<CredetsImage
 															src={previewUrl}
 															alt="New thumbnail"
+															unoptimized
 															className="size-full object-cover transition-transform duration-200 hover:scale-105"
 														/>
 													</button>
@@ -602,9 +606,11 @@ function RouteComponent() {
 																onClick={() => setPreviewSrc(src)}
 																className="size-full cursor-pointer border-0 bg-transparent p-0"
 															>
-																<img
+																<CredetsImage
+																	// biome-ignore lint/a11y/noRedundantAlt: intentionally empty alt for decorative image
 																	src={src}
 																	alt=""
+																	layout="fullWidth"
 																	className="size-full object-cover transition-transform duration-200 hover:scale-105"
 																/>
 															</button>
@@ -689,9 +695,10 @@ function RouteComponent() {
 															onClick={() => setPreviewSrc(fileUrl)}
 															className="size-full cursor-pointer border-0 bg-transparent p-0"
 														>
-															<img
+															<CredetsImage
 																src={fileUrl}
 																alt={file.name}
+																unoptimized
 																className="size-full object-cover transition-transform duration-200 hover:scale-105"
 															/>
 														</button>

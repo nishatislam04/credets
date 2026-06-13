@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
+import { CredetsImage } from "#/components/ui/image";
 
 interface ImagePreviewOverlayProps {
 	src: string;
@@ -51,9 +52,10 @@ export function ImagePreviewOverlay({
 
 			{/* Image */}
 			<div className="relative flex h-screen w-screen items-center justify-center p-4">
-				<img
+				<CredetsImage
 					src={src}
 					alt={alt}
+					layout="fullWidth"
 					className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
 				/>
 			</div>

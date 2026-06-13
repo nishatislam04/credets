@@ -38,7 +38,7 @@ export async function createCredentialService(
 		// 1. Process thumbnail
 		const thumbnailResult = await processImage({
 			file: input.thumbnail,
-			outputQuality: 50,
+			outputQuality: 75,
 			resizeInWidth: 800,
 		});
 
@@ -47,7 +47,7 @@ export async function createCredentialService(
 			input.images.map((file) =>
 				processImage({
 					file,
-					outputQuality: 75,
+					outputQuality: 85,
 					resizeInWidth: 1400,
 				}),
 			),
