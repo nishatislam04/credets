@@ -1,81 +1,347 @@
-# type redesign
+# Prompt for Implementing a Rich Text Editor (RTE) with `reactjs-tiptap-editor`
 
-## goal
+You are an expert frontend developer. Your task is to implement a **scalable, lazy‑loadable Rich Text Editor** using the `reactjs-tiptap-editor` library in a React application that uses **TanStack Router** and **TanStack Form**. The editor will be used for two fields: `long_description` and `notes`. You must provide code and configuration that is production‑ready, modular, and follows best practices.
 
-we will redesign our credential-types system.
-right now we have simple single shadcn select component for a single lvl of types.
-but we want to have multiple lvl of types.
+## Goal
+Create a self‑contained RTE component that:
+- Can be **lazy loaded** (code‑split) to reduce initial bundle size.
+- Integrates seamlessly with **TanStack Form** as a controlled component (receives `value` and `onChange`).
+- Supports a rich toolbar and a **bubble menu** for basic formatting.
+- Is reusable for both description and notes fields (two instances on the same page).
+- Is built on top of `reactjs-tiptap-editor` (a TipTap wrapper with pre‑styled UI).
 
-## backend overview
+## Requirements
 
-in the backend types model, we will have a parent_id column.
-when it is null, meaning it is root. when there is a reference, meaning current type is child of that referenced types.
-and we cant delete any types from any level. as it will break our hierarchy level.
-we can only update types label.. but we wont handle it in this phase. later, when we implemente a types manangement system.
-right now, we are only creating and select types only and no delete operation
+### Functional Requirements
+1. **Lazy Loading**:
+   - The editor component must be dynamically imported when it is first rendered (e.g., when the user navigates to the form page or when the editor container becomes visible).
+   - Provide a fallback skeleton (e.g., `Skeleton` from Shadcn) during loading.
 
-## frontend overview
+2. **TanStack Form Integration**:
+   - Expose a React component that accepts `value` (TipTap JSON or HTML) and `onChange` callback.
+   - When the editor content changes, call `onChange` with the updated content (preferably JSON for structured data, but HTML is acceptable if specified).
+   - Do not break form submission or validation.
 
-in frontend, we will use shadcn combobox component for our types system, instead of plain select component.
-so, here it is how it will work:
+3. **Rich Toolbar**:
+   - Include the most common extensions (see list below) and corresponding toolbar buttons.
+   - Toolbar should be positioned above the editor area.
+   - Buttons must have clear visual feedback (active/inactive states) and be accessible.
 
-### root level ui dataflow
+4. **Bubble Menu**:
+   - Provide a bubble menu that appears when text is selected, allowing quick formatting (bold, italic, link, etc.).
+   - The bubble menu should not conflict with the main toolbar.
 
-in initial page load, we will fetch all the existing root types from db in route loader. so that we can render all the root types instantly when the page load inside of our first combobox instance (we will auto generate our first instance of combobox). now, we can either choose any existing types from the listings or type any string on the text input box from the combobox component and when we confirm it, this new string will be considered a new types for the 1st lvl. and hence our root type (1st lvl) have been successfully managed
+5. **Styling**:
+   - The editor should visually match the existing Shadcn / Tailwind CSS design system.
+   - Apply consistent border, focus ring, padding, and typography classes.
+   - Ensure dark mode compatibility if your app supports it.
 
-and now beside the first combobox input, we will have a plus icon. clicking on it, will have several incidents going on
+6. **Data Persistence**:
+   - The editor’s output (JSON) must be saved to PostgreSQL (via your Bun backend). You don’t need to implement the backend, but the component should produce a serializable value.
+   - When editing existing content, the editor must be initialised with the stored JSON.
 
-### second and more combobox dataflow
+### Common Extensions & Toolbar Blocks
+Include at least the following extensions (provided by `reactjs-tiptap-editor` by default or via extra packages). Assume the library already bundles them; if not, add instructions to install them.
 
-first, generate a new combobox instance again.
-second, we will have a dedicated actions. from there we will hit our backend for new types. here's how to query: based on the 1st lvl type (previous type) we will ask backend, if any types is available under this 1st type and then we will render those new types, if have any. then we either choose one from the listings or create a new 2nd lvl types by typing it out
-then similarly for 3rd types, we first hit the plus btn and it will generate us a combobox again. and it will ask the backend, if any types exist in db when our parent is our previous type (2nd lvl) and if found any, we generate it otherwise we create one
+| Extension         | Toolbar Button           | Bubble Menu |
+| ----------------- | ------------------------ | ----------- |
+| Bold              | Bold (`B`)               | Yes         |
+| Italic            | Italic (`I`)             | Yes         |
+| Underline         | Underline (`U`)          | Optional    |
+| Strike            | Strikethrough            | Yes         |
+| Heading           | Heading dropdown (h1,h2,h3) | No       |
+| Bullet List       | Bullet list              | Yes (if selection) |
+| Ordered List      | Numbered list            | Yes         |
+| Blockquote        | Quote                    | No          |
+| Code Block        | Code block               | No          |
+| Link              | Link (with modal/prompt) | Yes         |
+| Image             | Image (upload or URL)    | No          |
+| Horizontal Rule   | Divider                  | No          |
+| Clear Formatting  | Eraser / Clear marks     | Optional    |
+| Undo / Redo       | Undo / Redo arrows       | No          |
 
-here carefully observe, we are dynamically fetching types based on our previous type.
-when we are in 4th type. we ask backend, if there are any child exist in 3rd level or any types belong to 3rd types
+Additionally, support:
+- **Placeholder** (e.g., “Write something...”).
+- **Tables** (if the library includes table extension).
 
-now, do you think we can implement this feature? is it doable? how much db models need to be changed based on this? this children types lookup in db seems complex and expensive to me in postgres database. try to implement this feature
+### Edge Cases & Validation
+- **Empty content**: When `value` is `null` or empty, the editor should show the placeholder and store an empty JSON structure (e.g., `{ type: "doc", content: [] }`).
+- **Large content**: No performance degradation with ~10k words; ensure the editor is not re‑initialised unnecessarily.
+- **Duplicate instances**: Two editors on the same page must not interfere with each other (each has its own state, toolbar, and bubble menu).
+- **Paste handling**: Pasted content should be sanitised to prevent XSS (the library may already do this, but ensure it’s enabled).
+- **Mobile view**: Toolbar buttons should be tappable and the bubble menu should not overflow the viewport.
+- **Form reset**: When the form resets (e.g., after submission), the editor content must reset accordingly via the `value` prop.
+- **Lazy loading fallback**: The skeleton should have the same height as the editor to avoid layout shift.
 
-### goal high level overview
+## Tasks for the AI
+1. **Provide installation commands** for `reactjs-tiptap-editor` and any peer dependencies (e.g., `@tiptap/react`, `@tiptap/starter-kit`, `lucide-react` for icons).
+2. **Write the main editor component** (`RichTextEditor`) that:
+   - Imports the necessary extensions and styles.
+   - Configures the toolbar and bubble menu (follow the library’s API).
+   - Uses `forwardRef` if needed.
+   - Handles `value` and `onChange` correctly.
+3. **Create a lazy wrapper** using `React.lazy` and `Suspense` to enable code splitting.
+4. **Show how to use the editor inside a TanStack Form**:
+   - Provide a snippet of the form field using `<RichTextEditor value={field.state.value} onChange={field.handleChange} />`.
+5. **Add Tailwind CSS integration** (if needed) to style the editor’s content area (`.ProseMirror`).
+6. **Write a brief example** of saving the editor’s JSON output to an API and re‑hydrating the editor from stored JSON.
+7. **Include a note on accessibility** (ARIA labels, keyboard navigation).
 
-i just want to make sure, we can create new types from credential page, if the types does not exist already. so that, we dont need to go types page and create a new one and come back to credential page to create the credential. now, the way i think we can do this by using shadcn combobox. we either select existing item from the listings or type the new listings and somehow confirm it and this new text in text input will act as our new types.
-now i think we probably need to modify shadcn combobox component for this behaviour. because, i dont think, we can achive our goal from shadcn combobox out of the box. we also need to check how can we confirm changes in the text input from the combobox for creating a new type.
+## Expected Output Format
+- Provide code blocks with explanations.
+- Do not assume any specific file structure – the AI should describe where each piece of code could live (e.g., “in a `components/rich-text-editor` folder”).
+- Use TypeScript interfaces for all component props.
+- Ensure all imports are correct and use path aliases (like `@/components/ui/skeleton`) if applicable.
 
-### fetching sub types
+## Deliverables
+A complete implementation guide that the developer can copy and paste into their existing TanStack Router + TanStack Form project, with minimal modifications.
 
-we will use tanstack query to lazily load sub tree with a loading spinner. only when the plus button was pressed.
+---
 
-### sub tree creation
+**Now, generate the response with the exact code and instructions.**
 
-when we type out a new type in the combobox input. we wont create the type in the db immidiately. rather, when the whole form is submitted. so, the lookup case. we need current value to look up in the child, right? take it directly from the form. finally, the types wont be created instantly. but only after the final submission for the credential creation
 
-### shadcn combobox component
+---
 
-1. we probably need this option [custom items](https://ui.shadcn.com/docs/components/base/combobox#custom-items)
-2. we also need this [clear feature](https://ui.shadcn.com/docs/components/base/combobox#clear-button)
-3. and maybe this. so, that we can show some hinting icon for [structuring](https://ui.shadcn.com/docs/components/base/combobox#input-group)
+# TASK: Build a synced dual-axis image gallery
 
-## some edge cases needed to be handled
+Build a fully functional image gallery component for my existing **Vite + React 19 + TypeScript + Tailwind CSS v4** app that uses **TanStack Router**. Do not scaffold a new project — integrate into the existing one.
 
-### edge case needed to be handle in both frontend and backend
+## Visual / behavioral spec
 
-now, lets say, user have already created 4 types in hierarchy way. now he decided to update or delete 2nd or any types in above the tree. we need handle both backend and frontend for that too
+A horizontal two-column layout inside a bounded-height container:
 
-## change types at any level case
+- **LEFT column** = a narrow VERTICAL thumbnail rail used purely as an index.
+  - Thumbnails are deliberately small/narrow (they're just an index).
+  - Scrollable by: mouse wheel, click-drag (up/down), AND two chevron buttons.
+  - The chevron Up / Down buttons sit ABOVE and BELOW the rail viewport (pushed "far outside"), never overlapping the images, so they don't distract.
+  - The active thumbnail is highlighted (colored border + full opacity); inactive ones are dimmed.
+- **RIGHT column** = a much WIDER main image viewer.
+  - Scrollable HORIZONTALLY by: mouse wheel (vertical wheel remapped to horizontal) AND click-drag.
+  - NO arrow/prev/next buttons here.
+  - Below the main image, show the current position as `current/total`, e.g. `2/6`.
+- Clicking a thumbnail moves the main viewer to that image.
+- Scrolling/dragging the main viewer updates the active thumbnail AND scrolls the rail to keep it in view.
+- The two scrollers stay perfectly in sync via a single source-of-truth index.
 
-Changing a parent resets all deeper levels. Because the children combobox is always populated by the currently selected parent.
-example - If you originally had “Social Media → Facebook → Dad” and you change the first level to “Game Loadouts”, the old sub‑chain “Facebook → Dad” no longer makes sense under “Game Loadouts”. The UI should clear level 2 and beyond, and the user rebuilds from there. i think there are more edge cases for this case, but for simplicity, whenever any types is changed, we will reset its child types and it can occur at any level.
+## Tech & libraries (use exactly these)
 
-## rename types
+- **embla-carousel-react** — the carousel engine (gives drag-to-scroll for free). This is the same engine shadcn/ui's Carousel is built on.
+- **embla-carousel-wheel-gestures** — plugin enabling mouse-wheel scrolling and remapping wheel axis.
+- **lucide-react** — for `ChevronUp` / `ChevronDown` icons.
+- Tailwind v4 utility classes for all styling (no config file needed; v4 is CSS-first).
+- A `cn` helper (clsx + tailwind-merge) at `@/lib/utils` and a shadcn-style `Button` at `@/components/ui/button`. If they don't exist, create them (standard shadcn implementations).
 
-so lets say user already built their 5 level of types. but not created the credential yet. so, at once, they have decided to rename a types at any level. just rename type. so, if that targetted rename type is new (do not exist on db yet) they can rename it and doing this wont break the hierarchy (i.e resetting the child nodes) but if they try rename any existing types that exist already on db. we cant let them rename it in current phase. we will let them rename it, if it does not exist in db already. but we wont let them rename it, if it already exist in db. we will have a system later, when they can rename existing type
+Install: `pnpm add embla-carousel-react embla-carousel-wheel-gestures lucide-react`
 
-## delete types
+## Architecture (the key idea)
 
-we wont let user delete any types anyhow
-in db, we wont let any types being deleted anyhow. even if they're referenced or not. if any referenced type is being tried to be deleted, we will simply restrict the operation and generate a helpful message specifying this delete operation is not permitted
-when user press x button on the combobox to clear out current types item. if it is leap item (meaning last item) we will let them remove it (not delete) but if they try to remove any parents type, that have child types already. we will show an shadcn alert dialog saying, removing this item will remove this item and all the items afterward
+There are **two independent Embla carousels** that share **one piece of React state**: `selectedIndex`. That state is the single source of truth for "which image is active."
 
-### duplicate case
+1. **Main carousel** — `axis: "x"`, with `WheelGesturesPlugin({ forceWheelAxis: "x" })` so a normal vertical scroll wheel moves it sideways. Drag is on by default.
+2. **Thumbnail carousel** — `axis: "y"`, `dragFree: true`, `containScroll: "keepSnaps"`, with `WheelGesturesPlugin({ forceWheelAxis: "y" })`. Fixed-height viewport so only a few thumbnails show and the rest scroll.
 
-when user try to create a new type, that already exist on the parent. we wont let them create this new type. as duplicate type under a parent does not make sense
+Sync rules:
+- Clicking a thumbnail → `mainApi.scrollTo(index)` (drives the main image; never the reverse).
+- Main carousel `"select"` event → read `mainApi.selectedScrollSnap()`, set `selectedIndex`, then `thumbApi.scrollTo(index)` to bring the active thumb into view.
+- Attach listeners only after the Embla API exists; also listen to `"reInit"` (handles resize); clean up with `.off()` on unmount.
+
+## Files to create
+
+### `src/data/gallery.ts`
+```ts
+export type GalleryImage = {
+  id: string
+  src: string
+  alt: string
+}
+
+// Replace src values with your own images (public/ paths or remote URLs).
+export const galleryImages: GalleryImage[] = [
+  { id: "1", src: "/images/img-1.png", alt: "Describe image 1" },
+  { id: "2", src: "/images/img-2.png", alt: "Describe image 2" },
+  { id: "3", src: "/images/img-3.png", alt: "Describe image 3" },
+  { id: "4", src: "/images/img-4.png", alt: "Describe image 4" },
+  { id: "5", src: "/images/img-5.png", alt: "Describe image 5" },
+  { id: "6", src: "/images/img-6.png", alt: "Describe image 6" },
+]
+```
+
+### `src/components/image-gallery.tsx`
+```tsx
+import { useCallback, useEffect, useState } from "react"
+import useEmblaCarousel from "embla-carousel-react"
+import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures"
+import { ChevronUp, ChevronDown } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { galleryImages } from "@/data/gallery"
+
+export function ImageGallery() {
+  // selectedIndex is the single source of truth for "which image is active".
+  const [selectedIndex, setSelectedIndex] = useState(0)
+
+  // MAIN carousel: horizontal. Vertical mouse-wheel is remapped to the x-axis
+  // (forceWheelAxis: "x") so a normal scroll wheel moves it sideways. Dragging
+  // is enabled by default in Embla.
+  const [mainRef, mainApi] = useEmblaCarousel({ axis: "x", loop: false }, [
+    WheelGesturesPlugin({ forceWheelAxis: "x" }),
+  ])
+
+  // THUMBNAIL rail: vertical index strip. It shows several slides at once
+  // (height set via CSS), and the wheel naturally scrolls it on the y-axis.
+  const [thumbRef, thumbApi] = useEmblaCarousel(
+    { axis: "y", loop: false, dragFree: true, containScroll: "keepSnaps" },
+    [WheelGesturesPlugin({ forceWheelAxis: "y" })],
+  )
+
+  // Clicking a thumbnail moves the main carousel to that image.
+  const onThumbClick = useCallback(
+    (index: number) => {
+      if (!mainApi) return
+      mainApi.scrollTo(index)
+    },
+    [mainApi],
+  )
+
+  // Whenever the main carousel settles on a new slide, update the active index
+  // and bring the matching thumbnail into view in the vertical rail.
+  const onSelect = useCallback(() => {
+    if (!mainApi || !thumbApi) return
+    const index = mainApi.selectedScrollSnap()
+    setSelectedIndex(index)
+    thumbApi.scrollTo(index)
+  }, [mainApi, thumbApi])
+
+  useEffect(() => {
+    if (!mainApi) return
+    onSelect()
+    mainApi.on("select", onSelect)
+    mainApi.on("reInit", onSelect)
+    return () => {
+      mainApi.off("select", onSelect)
+      mainApi.off("reInit", onSelect)
+    }
+  }, [mainApi, onSelect])
+
+  const total = galleryImages.length
+
+  return (
+    <div className="flex h-[clamp(20rem,60vh,32rem)] w-full max-w-6xl items-stretch gap-4 sm:gap-6">
+      {/* LEFT: narrow vertical thumbnail index with arrows pushed far outside */}
+      <div className="flex w-24 flex-col items-center gap-2 sm:w-28 md:w-32">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label="Scroll thumbnails up"
+          onClick={() => thumbApi?.scrollPrev()}
+          className="rounded-full text-muted-foreground hover:text-foreground"
+        >
+          <ChevronUp className="size-5" />
+        </Button>
+
+        {/* Embla viewport (fixed height -> only a few thumbnails visible) */}
+        <div ref={thumbRef} className="w-full grow overflow-hidden">
+          <div className="flex h-full flex-col">
+            {galleryImages.map((image, index) => (
+              <button
+                key={image.id}
+                type="button"
+                onClick={() => onThumbClick(index)}
+                aria-label={`Show image ${index + 1}: ${image.alt}`}
+                aria-current={index === selectedIndex}
+                className={cn(
+                  "relative mb-3 aspect-[3/2] w-full shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 transition-all",
+                  index === selectedIndex
+                    ? "border-primary opacity-100"
+                    : "border-transparent opacity-60 hover:opacity-90",
+                )}
+              >
+                <img
+                  src={image.src || "/placeholder.svg"}
+                  alt={image.alt}
+                  className="size-full object-cover"
+                  draggable={false}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label="Scroll thumbnails down"
+          onClick={() => thumbApi?.scrollNext()}
+          className="rounded-full text-muted-foreground hover:text-foreground"
+        >
+          <ChevronDown className="size-5" />
+        </Button>
+      </div>
+
+      {/* RIGHT: wide main viewer, horizontally scrollable, no arrow buttons */}
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
+        <div ref={mainRef} className="grow overflow-hidden rounded-2xl">
+          <div className="flex h-full">
+            {galleryImages.map((image) => (
+              <div key={image.id} className="min-w-0 shrink-0 grow-0 basis-full">
+                <div className="size-full overflow-hidden bg-muted">
+                  <img
+                    src={image.src || "/placeholder.svg"}
+                    alt={image.alt}
+                    className="size-full object-cover"
+                    draggable={false}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Position indicator: current / total */}
+        <p
+          className="text-center text-sm font-medium tabular-nums text-muted-foreground"
+          aria-live="polite"
+        >
+          {selectedIndex + 1}/{total}
+        </p>
+      </div>
+    </div>
+  )
+}
+```
+
+### Render it in a TanStack Router route
+In the target route component (e.g. `src/routes/index.tsx` or wherever), import and render it centered:
+```tsx
+import { ImageGallery } from "@/components/image-gallery"
+
+export function GalleryPage() {
+  return (
+    <main className="flex min-h-svh items-center justify-center bg-background p-4">
+      <ImageGallery />
+    </main>
+  )
+}
+```
+(Wire `GalleryPage` into your existing `createFileRoute` / route tree — keep my router setup intact.)
+
+## Important implementation rules / edge cases
+
+- `@/` must resolve to `src/` — ensure the alias exists in BOTH `vite.config.ts` (`resolve.alias`) and `tsconfig.json` (`compilerPaths`). If TanStack Router config is present, this is usually already set.
+- Set `draggable={false}` on every `<img>` so the browser's native image-drag doesn't fight Embla's drag gesture.
+- Use `loop: false` so it doesn't wrap past the last image; `containScroll: "keepSnaps"` prevents dead-zone over-scroll at the ends.
+- The whole gallery has a bounded height via `h-[clamp(20rem,60vh,32rem)]`; both columns stretch to fill it (`items-stretch`, `grow`). This is what keeps the proportions correct — the main image fills the height rather than blowing up the layout.
+- Make sure Tailwind tokens (`--primary`, `--muted`, `--muted-foreground`, `--background`, `--foreground`) exist in your `globals.css`/`index.css` `@theme`. If not, either add them or swap the classes for literal Tailwind colors.
+- Accessibility: thumbnails are real `<button>`s with `aria-label` and `aria-current`; the position indicator uses `aria-live="polite"` to announce changes.
+- If you don't have real images yet, point `src` at any placeholder; the `|| "/placeholder.svg"` fallback keeps it from breaking.
+
+## Acceptance criteria
+1. Left rail scrolls via wheel, drag, and the two outside chevron buttons.
+2. Right viewer scrolls horizontally via wheel and drag, with no arrow buttons.
+3. Clicking a thumbnail changes the main image; scrolling the main image updates + scrolls to the active thumbnail.
+4. `current/total` indicator updates live and is correct at both ends.
+5. Layout stays balanced (wide main image, narrow thumbnail index) and is responsive.

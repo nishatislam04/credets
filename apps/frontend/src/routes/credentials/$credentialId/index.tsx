@@ -5,14 +5,14 @@ import { useState } from "react";
 import { Separator } from "#/components/ui/separator";
 import { Skeleton } from "#/components/ui/skeleton";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
-import { TAG_COLORS } from "../-utils/colors";
 import { getCredential } from "./-actions/getCredential";
 import { ImageLightbox } from "./-components/image-lightbox";
 import { Content } from "./-ui/content";
 import { Footer } from "./-ui/footer";
 import { Header } from "./-ui/header";
 import { Sidebar } from "./-ui/sidebar";
-import { TopHeader } from "./-ui/topHeader";	export const Route = createFileRoute("/credentials/$credentialId/")({
+import { TopHeader } from "./-ui/topHeader";
+export const Route = createFileRoute("/credentials/$credentialId/")({
 	component: RouteComponent,
 	loader: async ({ params }) => {
 		const credential = await getCredential(params.credentialId);

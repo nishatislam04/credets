@@ -1,28 +1,11 @@
-import { createReactPlugin } from "@tanstack/devtools-utils/react";
-import { TanStackDevtools } from "@tanstack/react-devtools";
-import { FormDevtoolsPanel, formDevtoolsPlugin } from "@tanstack/react-form-devtools";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
-import {
-	TanStackRouterDevtools,
-	TanStackRouterDevtoolsPanel,
-} from "@tanstack/react-router-devtools";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { GooeyToaster } from "@/components/ui/goey-toaster";
 
 import "../styles.css";
 
 export const Route = createRootRoute({
 	component: RootComponent,
-});
-
-// Create the plugins with the utility
-const [RouterPlugin] = createReactPlugin({
-	name: "TanStack Router",
-	Component: TanStackRouterDevtoolsPanel,
-});
-
-const [FormPlugin] = createReactPlugin({
-	name: "TanStack Form",
-	Component: FormDevtoolsPanel,
 });
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
