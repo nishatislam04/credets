@@ -39,3 +39,15 @@ projects:
                 value: "8000"
               - key: NODE_ENV
                 value: production
+              - key: STORAGE_ACCESS_KEY_ID
+                sync: false
+              - key: STORAGE_SECRET_ACCESS_KEY
+                sync: false
+              - key: STORAGE_ENDPOINT
+                sync: false
+              - key: STORAGE_PUBLIC_URL
+                sync: false
+              - key: STORAGE_REGION
+                sync: false
+              - key: STORAGE_BUCKET
+                sync: false
