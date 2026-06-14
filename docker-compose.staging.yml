@@ -1,0 +1,39 @@
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: "credets-storage"
+    restart: unless-stopped
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY_ID:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_ACCESS_KEY:-minioadmin}
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - credets-network
+
+  createbuckets:
+    image: minio/mc:latest
+    container_name: "credets-create-buckets"
+    restart: on-failure
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: /bin/sh -c "
+      mc alias set local http://minio:9000 $${STORAGE_ACCESS_KEY_ID:-minioadmin} $${STORAGE_SECRET_ACCESS_KEY:-minioadmin} &&
+      mc mb local/$${STORAGE_BUCKET:-credentials} --ignore-existing &&
+      mc anonymous set public local/$${STORAGE_BUCKET:-credentials} &&
+      exit 0
+      "
+    networks:
+      - credets-network
+
+volumes:
+  minio-data:
+
+networks:
+  credets-network:
+    driver: bridge

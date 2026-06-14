@@ -9,12 +9,15 @@
 	"scripts": {
 		"dev": "concurrently --names \"BACK,FRONT\" --prefix-colors \"green,pink\" \"bun run dev:backend\" \"bun run dev:frontend\"",
 		"dev:backend": "bun run --cwd apps/backend dev",
-		"dev:backend:staging": "bun run --cwd apps/backend dev:staging",
 		"dev:frontend": "bun run --cwd apps/frontend dev",
+		"build:frontend": "bun run --cwd apps/frontend build",
+		"build:frontend:staging": "bun run --cwd apps/frontend build --mode staging",
+		"preview:frontend:staging": "bun run --cwd apps/frontend staging",
+		"start:backend:staging": "bun run --cwd apps/backend staging",
+		"staging": "bun run build:frontend:staging && concurrently --names \"MINIO,FRONT,BACK\" --prefix-colors \"blue,pink,green\" \"docker compose -f docker-compose.staging.yml up\" \"bun run preview:frontend:staging\" \"bun run start:backend:staging\"",
 		"seed": "bun run apps/backend/db/seed.ts",
 		"sync-context": "bun run utils/sync-context.ts",
-		"sync-context:check": "bun run utils/sync-context.ts --check",
-		"build:frontend": "bun run --cwd apps/frontend build"
+		"sync-context:check": "bun run utils/sync-context.ts --check"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.5",
