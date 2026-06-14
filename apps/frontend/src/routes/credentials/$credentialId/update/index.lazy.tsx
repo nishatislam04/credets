@@ -7,7 +7,7 @@ import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { createLazyFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, X } from "lucide-react";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import {
 	Field,
 	FieldContent,
@@ -19,8 +19,6 @@ import {
 import { gooeyToast } from "#/components/ui/goey-toaster";
 import { CredetsImage } from "#/components/ui/image";
 import { Item, ItemContent, ItemDescription, ItemTitle } from "#/components/ui/item";
-import { RichTextEditor } from "#/components/ui/rich-text-editor";
-import { Textarea } from "#/components/ui/textarea";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
 import { type TypePathEntry, TypeSelector } from "#/routes/credentials/-components/TypeSelector";
 import { DataBlock } from "#/routes/credentials/create/-components/Datablock";
@@ -32,7 +30,7 @@ import { updateCredentialAction } from "./-actions/updateCredentialAction";
 import { updateCredentialValidation } from "./-actions/updateCredentialValidation";
 import { DeleteCredentialDialog } from "./-delete/delete-credential-dialog";
 
-// ── Helpers ─────────────────────────────────────────────────────────
+const RichTextEditor = lazy(() => import("#/components/ui/rich-text-editor"));
 
 function imageSrc(img: { image_url?: string | null }) {
 	return img?.image_url ?? null;
@@ -308,12 +306,14 @@ function RouteComponent() {
 							return (
 								<Field data-invalid={isInvalid}>
 									<FieldLabel htmlFor="short_description">Short description</FieldLabel>
-									<RichTextEditor
-										value={field.state.value}
-										onChange={(val) => field.handleChange(val)}
-										placeholder="Write a short description..."
-										minHeight="300px"
-									/>
+									<Suspense fallback={<p>loading rte</p>}>
+										<RichTextEditor
+											value={field.state.value}
+											onChange={(val) => field.handleChange(val)}
+											placeholder="Write a short description..."
+											minHeight="300px"
+										/>
+									</Suspense>
 									{isInvalid && <FieldError errors={field.state.meta.errors} />}
 								</Field>
 							);
@@ -326,12 +326,14 @@ function RouteComponent() {
 							return (
 								<Field data-invalid={isInvalid}>
 									<FieldLabel htmlFor="long_description">Long description</FieldLabel>
-									<RichTextEditor
-										value={field.state.value}
-										onChange={(val) => field.handleChange(val)}
-										placeholder="Write a detailed description..."
-										minHeight="300px"
-									/>
+									<Suspense fallback={<p>loading rte</p>}>
+										<RichTextEditor
+											value={field.state.value}
+											onChange={(val) => field.handleChange(val)}
+											placeholder="Write a detailed description..."
+											minHeight="300px"
+										/>
+									</Suspense>
 									{isInvalid && <FieldError errors={field.state.meta.errors} />}
 								</Field>
 							);
@@ -673,12 +675,14 @@ function RouteComponent() {
 									<Field data-invalid={isInvalid}>
 										<FieldLabel htmlFor="notes">Notes</FieldLabel>
 										<FieldDescription>optional note about this credential</FieldDescription>
-										<RichTextEditor
-											value={field.state.value}
-											onChange={(val) => field.handleChange(val)}
-											placeholder="Add any notes..."
-											minHeight="200px"
-										/>
+										<Suspense fallback={<p>loading rte</p>}>
+											<RichTextEditor
+												value={field.state.value}
+												onChange={(val) => field.handleChange(val)}
+												placeholder="Add any notes..."
+												minHeight="200px"
+											/>
+										</Suspense>
 										{isInvalid && <FieldError errors={field.state.meta.errors} />}
 									</Field>
 								);

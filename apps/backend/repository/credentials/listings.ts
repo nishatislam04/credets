@@ -1,6 +1,6 @@
 import { AppError } from "@backend/err/base";
 import { DatabaseError } from "@backend/err/database";
-import { logAlways } from "@backend/utils/logger";
+import { logAlways, logger } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 
 export interface CursorPayload {
@@ -23,7 +23,7 @@ export async function getCredentialsListingsRepo(
 	limit: number,
 	cursor: CursorPayload | null,
 ): Promise<CredentialRow[]> {
-	logAlways(cursor, `repo: fetching credentials listings with limit: ${limit}`);
+	logger(cursor, `repo: fetching credentials listings with limit: ${limit}`);
 
 	try {
 		if (cursor) {

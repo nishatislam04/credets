@@ -84,7 +84,7 @@ lowlight.register("ts", ts);
  * Renders a rich toolbar above the content area with a bubble menu for inline
  * formatting (bold, italic, underline, strike, link).
  */
-export function RichTextEditor({
+export default function RichTextEditor({
 	value,
 	onChange,
 	placeholder,

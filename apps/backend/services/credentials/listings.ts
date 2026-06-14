@@ -1,4 +1,4 @@
-import { logAlways } from "@backend/utils/logger";
+import { logAlways, logger } from "@backend/utils/logger";
 import {
 	type CredentialRow,
 	type CursorPayload,
@@ -13,7 +13,7 @@ export interface GetCredentialsListingsServiceInput {
 export async function getCredentialsListingsService(
 	input: GetCredentialsListingsServiceInput,
 ) {
-	logAlways(input, "service: starting getCredentialsListingsService");
+	logger(input, "service: starting getCredentialsListingsService");
 
 	try {
 		const credentials = await getCredentialsListingsRepo(

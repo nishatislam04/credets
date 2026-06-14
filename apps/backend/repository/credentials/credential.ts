@@ -1,7 +1,8 @@
 import { AppError } from "@backend/err/base";
 import { DatabaseError } from "@backend/err/database";
-import { logAlways } from "@backend/utils/logger";
-import { sql } from "@db/connection";	export interface CredentialDetailRow {
+import { logAlways, logger } from "@backend/utils/logger";
+import { sql } from "@db/connection";
+export interface CredentialDetailRow {
 	id: string;
 	title: string;
 	short_description: string | null;
@@ -30,7 +31,7 @@ export interface CredentialImageRow {
 }
 
 export async function getCredentialDetailRepo(credentialId: string) {
-	logAlways(credentialId, "repo: fetching credential detail");
+	logger(credentialId, "repo: fetching credential detail");
 
 	try {
 		const [credential] = await sql<CredentialDetailRow[]>`

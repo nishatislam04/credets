@@ -1,12 +1,12 @@
 import { decrypt } from "@backend/cipher/decrypt";
-import { logAlways } from "@backend/utils/logger";
+import { logAlways, logger } from "@backend/utils/logger";
 import {
 	getCredentialDetailRepo,
 	getTypeHierarchyRepo,
 } from "../../repository/credentials/credential";
 
 export async function getCredentialDetailService(credentialId: string) {
-	logAlways(credentialId, "service: starting getCredentialDetailService");
+	logger(credentialId, "service: starting getCredentialDetailService");
 
 	try {
 		const { credential, images } = await getCredentialDetailRepo(credentialId);
