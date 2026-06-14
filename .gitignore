@@ -1,3 +1,6 @@
+# cut out build-preview
+apps/frontend/bundle-report
+
 # dependencies (bun install)
 node_modules
 apps/backend/prisma/
