@@ -1,5 +1,6 @@
 # cut out build-preview
 apps/frontend/bundle-report
+apps/frontend/stats.html
 
 # dependencies (bun install)
 node_modules

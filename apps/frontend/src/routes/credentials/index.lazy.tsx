@@ -3,8 +3,8 @@ import { createLazyFileRoute, Link } from "@tanstack/react-router";
 import { LoaderIcon, Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
-import { Skeleton } from "#/components/ui/skeleton";
 import { ThemeToggle } from "#/components/theme-toggle";
+import { Skeleton } from "#/components/ui/skeleton";
 import { getCredentialsListings } from "./-actions/getCredentialsListings";
 import { CredentialCard } from "./-components/credential-card";
 import { CredentialsErrorUI } from "./-ui/CredentialsErrorUI";
@@ -27,8 +27,7 @@ function RouteComponent() {
 		isRefetching,
 	} = useInfiniteQuery({
 		queryKey: ["credentials-listings"],
-		queryFn: ({ pageParam }) =>
-			getCredentialsListings(pageParam as string | undefined | null),
+		queryFn: ({ pageParam }) => getCredentialsListings(pageParam as string | undefined | null),
 		initialPageParam: undefined as string | undefined,
 		getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
 	});
@@ -61,7 +60,7 @@ function RouteComponent() {
 				</div>
 				<div className="space-y-3">
 					{[...Array(12)].map((_, i) => (
-						<Skeleton key={i} className="h-24 w-full rounded-xl" />
+						<Skeleton key={crypto.randomUUID()} className="h-24 w-full rounded-xl" />
 					))}
 				</div>
 			</div>
@@ -144,9 +143,7 @@ function RouteComponent() {
 							<div className="size-4" />
 						) : (
 							<div className="text-center">
-								<p className="text-xs text-muted-foreground/40">
-									You&rsquo;ve reached the end
-								</p>
+								<p className="text-xs text-muted-foreground/40">You&rsquo;ve reached the end</p>
 							</div>
 						)}
 					</div>

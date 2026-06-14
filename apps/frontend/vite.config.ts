@@ -7,6 +7,14 @@ import { statsPlugin } from "vite-bundle-explorer/plugin";
 
 export default defineConfig({
 	resolve: { tsconfigPaths: true },
+	build: {
+		rolldownOptions: {
+			output: {
+				// This keeps the original file name in the output for better debugging
+				chunkFileNames: "assets/[name]-[hash].js",
+			},
+		},
+	},
 	plugins: [
 		devtools({
 			consolePiping: { enabled: false },
