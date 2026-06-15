@@ -14,8 +14,8 @@ import { ThemeProvider } from "#/hooks/theme-provider";
 const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
-			staleTime: 15 * 60 * 1000, // 15min
-			gcTime: 3 * 60 * 1000, // 3min
+			gcTime: 1000 * 60 * 60 * 24, // 24hr
+			staleTime: 1000 * 60 * 60 * 20, // 20hr
 		},
 	},
 });
