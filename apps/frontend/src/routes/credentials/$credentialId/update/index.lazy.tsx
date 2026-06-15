@@ -306,7 +306,18 @@ function RouteComponent() {
 							return (
 								<Field data-invalid={isInvalid}>
 									<FieldLabel htmlFor="short_description">Short description</FieldLabel>
-									<Suspense fallback={<p>loading rte</p>}>
+									<Suspense
+										fallback={
+											<div
+												className={cn(
+													"overflow-hidden rounded-xl border border-input bg-background p-3",
+												)}
+												style={{ height: "358px" }}
+											>
+												<div className="animate-pulse text-muted-foreground">Loading editor…</div>
+											</div>
+										}
+									>
 										<RichTextEditor
 											value={field.state.value}
 											onChange={(val) => field.handleChange(val)}
@@ -326,7 +337,18 @@ function RouteComponent() {
 							return (
 								<Field data-invalid={isInvalid}>
 									<FieldLabel htmlFor="long_description">Long description</FieldLabel>
-									<Suspense fallback={<p>loading rte</p>}>
+									<Suspense
+										fallback={
+											<div
+												className={cn(
+													"overflow-hidden rounded-xl border border-input bg-background p-3",
+												)}
+												style={{ height: "358px" }}
+											>
+												<div className="animate-pulse text-muted-foreground">Loading editor…</div>
+											</div>
+										}
+									>
 										<RichTextEditor
 											value={field.state.value}
 											onChange={(val) => field.handleChange(val)}
@@ -675,7 +697,18 @@ function RouteComponent() {
 									<Field data-invalid={isInvalid}>
 										<FieldLabel htmlFor="notes">Notes</FieldLabel>
 										<FieldDescription>optional note about this credential</FieldDescription>
-										<Suspense fallback={<p>loading rte</p>}>
+										<Suspense
+											fallback={
+												<div
+													className={cn(
+														"overflow-hidden rounded-xl border border-input bg-background p-3",
+													)}
+													style={{ height: "358px" }}
+												>
+													<div className="animate-pulse text-muted-foreground">Loading editor…</div>
+												</div>
+											}
+										>
 											<RichTextEditor
 												value={field.state.value}
 												onChange={(val) => field.handleChange(val)}

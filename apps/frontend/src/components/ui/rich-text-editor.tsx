@@ -8,7 +8,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Text from "@tiptap/extension-text";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { EditorContent, useEditor } from "@tiptap/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RichTextProvider } from "reactjs-tiptap-editor";
 import { Blockquote, RichTextBlockquote } from "reactjs-tiptap-editor/blockquote";
 import { Bold, RichTextBold } from "reactjs-tiptap-editor/bold";
@@ -93,6 +93,13 @@ export default function RichTextEditor({
 	className,
 }: RichTextEditorProps) {
 	const prevValueRef = useRef(value);
+	// ── Readiness gate ────────────────────────────────────────────
+	// `isEditorReady` is only set to true inside a useEffect — i.e. after
+	// React has committed the render to the DOM.  This guarantees that
+	// RichTextProvider (and all its child toolbar components) only mount
+	// on a committed frame, never during a speculative concurrent render
+	// where editor.extensionManager can still be null.
+	const [isEditorReady, setIsEditorReady] = useState(false);
 
 	// Parse the initial content from the JSON-stringified value
 	const initialContent = (() => {
@@ -136,6 +143,14 @@ export default function RichTextEditor({
 		},
 	});
 
+	// ── Confirm editor readiness after commit ─────────────────────
+	useEffect(() => {
+		if (editor?.extensionManager) {
+			setIsEditorReady(true);
+		}
+		return () => setIsEditorReady(false);
+	}, [editor]);
+
 	// Sync external value changes (e.g. form reset) to the editor
 	useEffect(() => {
 		if (editor && value !== prevValueRef.current) {
@@ -160,6 +175,20 @@ export default function RichTextEditor({
 			editor.setEditable(!disabled);
 		}
 	}, [disabled, editor]);
+
+	if (!isEditorReady || !editor || !editor.extensionManager) {
+		return (
+			<div
+				className={cn(
+					"overflow-hidden rounded-xl border border-input bg-background p-3",
+					className,
+				)}
+				style={{ height: "358px" }}
+			>
+				<div className="animate-pulse text-muted-foreground">Loading editor…</div>
+			</div>
+		);
+	}
 
 	return (
 		<div
