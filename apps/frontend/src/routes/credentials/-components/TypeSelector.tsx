@@ -69,7 +69,7 @@ export function TypeSelector({ types, onTypesChange }: TypeSelectorProps) {
 	}, []);
 
 	return (
-		<div className="flex flex-col gap-3">
+		<div className="flex flex-col items-start gap-3 w-full">
 			{Array.from({ length: levelsToShow }).map((_, levelIndex) => {
 				const childCount = Math.max(0, types.length - levelIndex - 1);
 				const shouldFocus = focusLevel === levelIndex;
