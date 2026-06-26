@@ -23,22 +23,6 @@ A monorepo for securely managing private credentials — a full-stack credential
 - Search, sort, and filter in credentials listings
 - Security: CSRF protection, encryption-at-rest, password hashing
 
-## Project Structure
-
-```bash
-credets/
-├── apps/
-│   ├── backend/        # Bun HTTP API server
-│   └── frontend/       # TanStack Router SPA
-├── packages/
-│   ├── shared-schema/  # Zod schemas (backend validation source of truth)
-│   ├── shared-types/   # TypeScript types shared across packages
-│   └── shared-utils/   # Shared utility functions
-├── docs/               # Project documentation
-├── .agents/skills/     # AI agent skills (shadcn rules, etc.)
-└── docker-compose.yml  # Local PostgreSQL
-```
-
 ## Setup
 
 ### 1. Clone
@@ -101,12 +85,4 @@ bun run seed
 
 ## Documentation
 
-All project documentation lives in [`docs/`](./docs). Key documents:
-
-| Document | Description |
-|----------|-------------|
-
-| [`docs/app.md`](./docs/app.md) | App story, requirements, and feature list |
-| [`docs/form.md`](./docs/form.md) | Frontend & backend form processing guide |
-| [`docs/dblab.md`](./docs/dblab.md) | Database inspector setup |
-| [`docs/production.md`](./docs/production.md) | Production deployment notes |
+All project documentation lives in [`docs/`](./docs)
