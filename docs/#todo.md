@@ -1,39 +1,45 @@
 # our workflow
 
-- [x] we will use `unpic/react` pkg to handle our img in frontend. since we use supabase storage, utilize unpic supabase adapter to fine tune images. and also check credentials create backend endpoint, where we r processing thumbnial and images with bunjs raw api. bump up the quality of images a bit since we are using supabase storage. and see, if we need any changes on that level or not or any kind of optimization there or not. we wont use the placeholder feature now
-references: https://unpic.pics/learn/, https://unpic.pics/img/react/, https://unpic.pics/providers/supabase/
-read these docs and related pages and read my img processing and storing process. and create a dedicated custom Image component which we can use anywhere in frontend and render the image optimizely. so study it and create a dedicated docs of using this custom Image component api and implement this Image component all over the frontend
+- [] apply credential version system
+	the version will start with 0 and whenever we update the credential, it will go from 0 to 1 and then another update then it will go from 1 to 2. as simple as that. update our credential model and create and update backend for this feature. and in single view page, show this version information in sidebar
 
+- [] in single view page, when we scroll through on images gallery. on the left side, we can see a active border which is correct. but the left sidebar does not scroll through. ok, let me explain, on the left sidebar, we have small images and right side, we have big one img showing. right now, left sidebar only show 5 img and thats ok. but when we scroll to 6th image from the right side. the left sidebar does not scroll down. i want this left side images container to be interactive too based on active. is that possible?
 
-- [] figure out, if we can defer loading images in the loader for the single page view. so that important texts can be load first and images can load lazily. try to do it within route loader
+- [] when i scroll up and down on the left sidebar images, it shows bounce animation. which is nice. but its not properly handled. so like the left sidebar shows first 5 images and when i want to scroll to 6th and which is the last item on the left sidebar, i can scroll to bottom but it then bounce back to showing first 5 images again. so, i cant really choose the 6th image from the left sidebar to view it. i am talking about only the left sidebar
 
-- [x] You are an expert React developer. Generate a complete, production‑ready TagInput component using Shadcn UI (Input, Badge) and Lucide X icon. for both create and update form tags block. update old textarea component to this new custom component
-Requirements:
-· created Tags are displayed as badges above the input field.
-· Each badge has an X button to remove it.
-· Pressing Enter or Comma creates a new tag from the current input value, then clears the input.
-· Prevent duplicate tags (case‑insensitive by default).
-· max 15 tag item support
-· Support disabled, placeholder, className and error state
-· Ignore empty or whitespace‑only tags.
-· Add ARIA labels for accessibility.
-· Provide a brief usage lite-example.
-· Include inline comments explaining key logic (keyboard, paste, duplicates).”
-make changes of our backend create endpoint tags processing and db changes if need to. we will show this tags in listings and single page and populate in update form. so make sure, all cases works
+- [] clicking on the arrow up and down button on the left sidebar actually does nothing. no navigation. can you fix it?
 
+- [] our custom rte does not pick up our night mode theme. but its ok working on the light theme. fix it. found a [docs](https://reactjs-tiptap-editor.vercel.app/guide/custom-theme.html)
 
+- [] i have applied our rte system for short description too. but then i realized the short description should not have access to full rte system. the short description should have only access to bubble menu with basic text formatting and like before shadcn and tanstack form integrated textarea component. can we do that? or it might be too complex? i just want the simple shadcn textarea form component with our basic bubble menu with basic text formatting
 
-- [] implement lazy loading and code-splitting
-	tho vite.auto-code-split may handle many stuffs internally. but we want more control!
+- [] in rte, when we select text the bg color should be our primary or accent color... (was it bluish or green color)
 
-	first follow this approach, divide all the routes `index.tsx` file into 2 files
-	critical loader and component should be inside of `index.tsx` and nothing else
-	non critical component should be extracted into `index.lazy.tsx` in da same dir
+- [] when we click an toolbar item like bold or italic or underline we should auto focus on the editor. so that user can tap the effect and start typing right away. but i got a feeling, we need to granularly control it otherwise specific extension may show weird behavior or not. i am not sure, but for some specific text formatting, i need this behavior that clicking on those item would focus the editor for instant writting
 
-	and then for more granular code-splitting, utilize React.lazy with dynamic import
-	and import the lazy component inside of React.suspense block
-	we can follow this, when any our ui component are too large and we want to split it and lazy load it!
+- [] i am not sure how i should handle it or how standard rte handle this specific situation. i click an item on the toolbar menu and its shown clicked and then i focus on editor and start typing and i can see the formatting applied. then i press enter to go to new line. the toolbar item still shown active but when i start type i see the text in normal formatting. so, first we need to handle that active state of item (in toolbar) in new line and second, should the formatting only apply for the first line or it was supposed to be applied for multi line? right now, the toolbar item formatting apply for single line only
 
-	for manual ui components lazy loading, show me how you will decide which ui components to lazy load and why and whats the best approach with tanstack router best practises
+- [] rte, when we write inline code, beautify the whole code interface and update font and match it against our theme mode and spacious it. so that it looks like an inline code
 
-- [] in single view page, because of sidebar in desktop (large view), our gallery still looks small. what should we do? one thing im sure that, i want my gallery component occupy full width (with both left side and right side). then in desktop view, where should we put sidebar? can you update the layout for our single page so that, the gallery can breath?
+- [] rte, for codeblock, we need some major re-working for codeblock block
+	1. first fix this fundamental issue. i initialize codeblock by this ```js and wrote console.log(hello) and then move this line to 2nd line went to 1st line and tried to write some code in 1st line. but after a char was written or any operation was done in first line... my cursor auto jump to 2nd line at the end and my new characters are written there. this seems way confusing to me... why its happening. update: its happening for simple plain text also. not just inside of codeblock. what kind of issue is this? how can we solve it?
+	2. if you check the rte, you will see that, i have tried to set up lowlight and stuffs for highlight syntax feature from this docs [tiptap-codeblock-docs](https://tiptap.dev/docs/editor/extensions/nodes/code-block-lowlight) i am not sure, if my configuration was correct. but with above ```js i dont see any syntax highlighting. can you fix this issue for me?
+	3. just like notion, i want to have language dropdown support on this codeblock on the right side. so, when we initialize a codeblock from the tools, it will auto select plaintext unless we manually choose a supported language from the dropdown. and when user initialize codeblock with ```js or ```css we will auto show this language on the dropdown label like which language syntax will be applied. and user might choose an unknown or unsupported language too. so handle that scenario too
+
+- [] rte, text-color [tiptap-text-color-guide](https://reactjs-tiptap-editor.vercel.app/extensions/Color/) i want to see this text coloring feature in both bubble menu and toolbar. we will show some presets of colors to be choosen only. cover most used and essential colors. just like notion with dropdown menu for color applying
+
+- [] implement a very basic and simple input validation on link field. so that they cant just provide anything garbadge and make it looks like an valid url.
+
+- [] implement emoji system [docs](https://reactjs-tiptap-editor.vercel.app/extensions/Emoji/)
+
+- [] implement custom font system [docs](https://tiptap.dev/docs/editor/extensions/functionality/fontfamily) cover most common fonts and essential fonts. and show the dropdown in both toolbar and in bubble menu. so that we can implement a hell lots of different kinds of fonts
+
+- [] implement highlight coloring system [docs](https://reactjs-tiptap-editor.vercel.app/extensions/Highlight/) read necessary docs to implement this system. cover most common and essential coloring presets in dropdown in both toolbar and bubble menu
+
+- [] i want this line height extensions too in dropdown on toolbar menu [docs](https://reactjs-tiptap-editor.vercel.app/extensions/LineHeight/)
+
+- [] text-align extention needed with dropdown menu on toolbar menu [docs](https://reactjs-tiptap-editor.vercel.app/extensions/TextAlign/)
+
+- [] add this indent extention too [docs](https://reactjs-tiptap-editor.vercel.app/extensions/Indent/)
+
+- [] image extension [docs](https://reactjs-tiptap-editor.vercel.app/extensions/Image/) i want this img extension implemented and working on my rte. based on our stacks and setup, how we should handle it? since this is ultimately a form submission and we will be storing images in s3 object. and we may want to show img in long description but we dont want to show img in notes block.. so, we need to handle it. and we also need to view this img whenever we try to read data
