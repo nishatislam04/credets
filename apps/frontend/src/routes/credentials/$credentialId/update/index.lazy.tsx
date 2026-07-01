@@ -19,6 +19,7 @@ import {
 import { gooeyToast } from "#/components/ui/goey-toaster";
 import { CredetsImage } from "#/components/ui/image";
 import { Item, ItemContent, ItemDescription, ItemTitle } from "#/components/ui/item";
+import { cn } from "#/lib/utils";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
 import { type TypePathEntry, TypeSelector } from "#/routes/credentials/-components/TypeSelector";
 import { DataBlock } from "#/routes/credentials/create/-components/Datablock";
@@ -264,13 +265,13 @@ function RouteComponent() {
 							const isInvalid = !field.state.meta.isValid;
 							return (
 								<Field orientation="responsive" data-invalid={isInvalid}>
-									<FieldContent flex={false}>
+									<FieldContent className="flex-none">
 										<FieldLabel className="w-15 mt-2" htmlFor="type">
 											types <span className="text-destructive -ml-2">*</span>
 										</FieldLabel>
 										{isInvalid && <FieldError errors={field.state.meta.errors} />}
 									</FieldContent>
-									<div className="flex-1">
+									<div className="flex-1 w-full">
 										{/* Hidden type field synced with leaf value */}
 										<Input
 											id="type"

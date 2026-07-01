@@ -185,13 +185,13 @@ function RouteComponent() {
 							const isInvalid = !field.state.meta.isValid;
 							return (
 								<Field orientation="responsive" data-invalid={isInvalid}>
-									<FieldContent flex={false}>
+									<FieldContent className="flex-none">
 										<FieldLabel className="w-15 mt-2" htmlFor="type">
 											types <span className="text-destructive -ml-2">*</span>
 										</FieldLabel>
 										{isInvalid && <FieldError errors={field.state.meta.errors} />}
 									</FieldContent>
-									<div className="flex-1">
+									<div className="flex-1 w-full">
 										{/* Sync hidden type field with leaf value */}
 										<Input
 											id="type"
