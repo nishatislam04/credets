@@ -1,8 +1,34 @@
 import { useEffect, useRef, useState } from "react";
+import { cn } from "#/lib/utils";
+
+/** Check whether a TipTap content string is effectively empty
+ *  (null, undefined, empty doc, or a doc with only an empty paragraph). */
+function isContentEmpty(content: string | null | undefined): boolean {
+	if (!content) return true;
+	try {
+		const json = JSON.parse(content);
+		if (json && typeof json === "object" && json.type === "doc") {
+			if (!json.content || json.content.length === 0) return true;
+			// Single empty paragraph is also empty
+			if (
+				json.content.length === 1 &&
+				json.content[0].type === "paragraph" &&
+				(!json.content[0].content || json.content[0].content.length === 0)
+			) {
+				return true;
+			}
+			return false;
+		}
+	} catch {
+		// Not valid JSON — treat as non-empty (it has content to display)
+	}
+	return false;
+}
 
 /**
  * Renders TipTap JSON content as sanitized HTML.
  * Lightweight — doesn't pull in the full editor, just a minimal renderer.
+ * Returns null when content is empty (no visible output).
  */
 export function RichTextRenderer({
 	content,
@@ -14,6 +40,9 @@ export function RichTextRenderer({
 }) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [html, setHtml] = useState<string>("");
+
+	// Render nothing if the content is empty
+	if (isContentEmpty(content)) return null;
 
 	useEffect(() => {
 		if (!content) {
@@ -40,7 +69,7 @@ export function RichTextRenderer({
 	return (
 		<div
 			ref={containerRef}
-			className={className}
+			className={cn("rich-content", className)}
 			dangerouslySetInnerHTML={html ? { __html: html } : undefined}
 		/>
 	);
