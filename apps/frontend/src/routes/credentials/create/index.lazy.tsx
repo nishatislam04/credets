@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { TagInput } from "@/components/ui/tag-input";
+import { Textarea } from "@/components/ui/textarea";
 import { createCredentialAction } from "./-actions/createCredentialAction";
 import { createCredentialValidation } from "./-actions/createCredentialValidation";
 import { DataBlock } from "./-components/Datablock";
@@ -38,7 +39,7 @@ const defaultCredentialValues = (csrfToken: string): CredentialCreateType => ({
 	title: "",
 	type: "",
 	types: [],
-	short_description: undefined,
+	short_description: "",
 	long_description: undefined,
 	thumbnail: null,
 	data: [{ type: "single_label", value: "" }],
@@ -228,25 +229,14 @@ function RouteComponent() {
 							return (
 								<Field data-invalid={isInvalid}>
 									<FieldLabel htmlFor="short_description">Short description</FieldLabel>
-									<Suspense
-										fallback={
-											<div
-												className={cn(
-													"overflow-hidden rounded-xl border border-input bg-background p-3",
-												)}
-												style={{ height: "358px" }}
-											>
-												<div className="animate-pulse text-muted-foreground">Loading editor…</div>
-											</div>
-										}
-									>
-										<RichTextEditor
-											value={field.state.value}
-											onChange={(val) => field.handleChange(val)}
-											placeholder="Write a short description..."
-											minHeight="200px"
-										/>
-									</Suspense>
+									<Textarea
+										id="short_description"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Write a short description..."
+										aria-invalid={isInvalid}
+									/>
 									{isInvalid && <FieldError errors={field.state.meta.errors} />}
 								</Field>
 							);

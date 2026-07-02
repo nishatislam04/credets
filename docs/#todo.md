@@ -1,8 +1,8 @@
 # our workflow
 
-- [] make sure, create and update title validation are increased to 100 char. currently 30. we need to inc it so check all the client and server and shared pkg to update it
-
 - [] single view page, long description and notes block does not show formatted texts as input. we need to fix that
+
+- [] in the listings page, we need to fix the rendering of short descripiton. right now, its rendering the block itself. not as formatted text in the card ui
 
 - [] apply credential version system
 	the version will start with 0 and whenever we update the credential, it will go from 0 to 1 and then another update then it will go from 1 to 2. as simple as that. update our credential model and create and update backend for this feature. and in single view page, show this version information in sidebar

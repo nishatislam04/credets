@@ -26,6 +26,7 @@ import { DataBlock } from "#/routes/credentials/create/-components/Datablock";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { TagInput } from "@/components/ui/tag-input";
 import { updateCredentialAction } from "./-actions/updateCredentialAction";
 import { updateCredentialValidation } from "./-actions/updateCredentialValidation";
@@ -304,30 +305,18 @@ function RouteComponent() {
 						name="short_description"
 						children={(field) => {
 							const isInvalid = !field.state.meta.isValid;
-							return (
-								<Field data-invalid={isInvalid}>
+							return (						<Field data-invalid={isInvalid}>
 									<FieldLabel htmlFor="short_description">Short description</FieldLabel>
-									<Suspense
-										fallback={
-											<div
-												className={cn(
-													"overflow-hidden rounded-xl border border-input bg-background p-3",
-												)}
-												style={{ height: "358px" }}
-											>
-												<div className="animate-pulse text-muted-foreground">Loading editor…</div>
-											</div>
-										}
-									>
-										<RichTextEditor
-											value={field.state.value}
-											onChange={(val) => field.handleChange(val)}
-											placeholder="Write a short description..."
-											minHeight="300px"
-										/>
-									</Suspense>
+									<Textarea
+										id="short_description"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Write a short description..."
+										aria-invalid={isInvalid}
+									/>
 									{isInvalid && <FieldError errors={field.state.meta.errors} />}
-								</Field>
+							</Field>
 							);
 						}}
 					/>
