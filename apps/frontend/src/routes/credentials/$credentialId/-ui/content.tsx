@@ -1,13 +1,13 @@
 import type { CredentialDetail, DataBlockEntry } from "@credets/shared-types/credentials/listings";
 import { Quote, TextQuote } from "lucide-react";
-import { RichTextRenderer } from "#/components/ui/rich-text-renderer";
+import { isContentEmpty, RichTextRenderer } from "#/components/ui/rich-text-renderer";
 import { CredentialDataRenderer } from "../-components/credential-data";
 
 export function Content({ credential }: { credential: CredentialDetail }) {
 	return (
 		<div className="space-y-8 lg:col-span-2 lg:border-r lg:border-border/30 lg:pr-8">
 			{/* ── Short description — hero / pull-quote ── */}
-			{credential.short_description && (
+			{!isContentEmpty(credential.short_description) && (
 				<section className="relative">
 					{/* Decorative left accent bar */}
 					<div className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-gradient-to-b from-primary/60 to-primary/10" />
@@ -31,7 +31,7 @@ export function Content({ credential }: { credential: CredentialDetail }) {
 			)}
 
 			{/* ── Long description — editorial / reading ── */}
-			{credential.long_description && (
+			{!isContentEmpty(credential.long_description) && (
 				<section className="relative">
 					{/* Subtle top separator with plenty of space */}
 					<div className="absolute left-8 right-0 top-0 h-px bg-gradient-to-r from-border/60 via-border/20 to-transparent" />
@@ -51,7 +51,7 @@ export function Content({ credential }: { credential: CredentialDetail }) {
 			)}
 
 			{/* Subtle divider before data section */}
-			{(credential.short_description || credential.long_description) && credential.data && (
+			{(!isContentEmpty(credential.short_description) || !isContentEmpty(credential.long_description)) && credential.data && (
 				<div className="relative py-2">
 					<div className="absolute left-0 right-0 top-1/2 h-px bg-gradient-to-r from-border/20 via-border/30 to-transparent" />
 				</div>

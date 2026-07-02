@@ -2,7 +2,7 @@ import type { CredentialDetail } from "@credets/shared-types/credentials/listing
 import { Check, Copy, FileText, Info, Tag, FolderTree, GitBranch } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "#/components/ui/badge";
-import { RichTextRenderer } from "#/components/ui/rich-text-renderer";
+import { isContentEmpty, RichTextRenderer } from "#/components/ui/rich-text-renderer";
 import { TAG_COLORS } from "../../-utils/colors";
 import { TypeTree } from "../-components/TypeTree";
 
@@ -78,7 +78,7 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 			)}
 
 			{/* Notes — third */}
-			{credential.notes && (
+			{!isContentEmpty(credential.notes) && (
 				<section className="mt-4">
 					<div className="mb-2.5 flex items-center gap-2">
 						<FileText className="size-4.5" />

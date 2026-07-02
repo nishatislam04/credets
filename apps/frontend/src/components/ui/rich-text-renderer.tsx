@@ -3,7 +3,7 @@ import { cn } from "#/lib/utils";
 
 /** Check whether a TipTap content string is effectively empty
  *  (null, undefined, empty doc, or a doc with only an empty paragraph). */
-function isContentEmpty(content: string | null | undefined): boolean {
+export function isContentEmpty(content: string | null | undefined): boolean {
 	if (!content) return true;
 	try {
 		const json = JSON.parse(content);
