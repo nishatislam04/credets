@@ -317,5 +317,61 @@ body {
 	border: 0;
 	outline: 0;
 	padding: 0.5rem !important;
-	height: 300px;
+	min-height: 200px;
+	max-height: 400px;
+	overflow-y: auto;
+}
+
+/* Selection color inside RTE — use primary blue from shadcn theme */
+.tiptap.ProseMirror ::selection {
+	background-color: color-mix(in oklch, var(--primary) 25%, transparent);
+}
+
+/* Let the ProseMirror handle its own overflow so the scrollbar is visible */
+.rich-text-editor-wrapper {
+	overflow: visible !important;
+}
+
+/* ── Inline code styling inside the editor ──
+   The TipTap Code extension renders <code> elements inline.
+   Style them to look like proper inline code: monospace font,
+   subtle background, rounded corners, theme-aware.          ── */
+
+.tiptap.ProseMirror code {
+	font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+	font-size: 0.875em;
+	font-weight: 500;
+	padding: 0.15em 0.4em;
+	border-radius: 0.25rem;
+	background-color: color-mix(in oklch, var(--muted) 70%, transparent);
+	color: var(--foreground);
+	box-decoration-break: clone;
+}
+
+/* ── Match RTE background to shadcn input/textarea bg ──
+   The library uses hsl(var(--background)) etc. for its internal
+   toolbar/button/bubble backgrounds, but our project uses oklch color
+   values.  themeActions.setTheme() overrides these CSS variables with
+   HSL-compatible values that differ from our shadcn --input variable.
+   
+   This creates a mismatch: the wrapper has bg-input/30 (our shadcn
+   theme) but the toolbar inside uses solid hsl(var(--background))
+   from the library's theme.
+   
+   Fix: make the library's main container transparent so the
+   wrapper's bg-input/30 shows through uniformly.  The toolbar
+   buttons and bubble menus keep their library-native styling via
+   themeActions.setTheme().                                     ── */
+
+.rich-text-editor-wrapper .reactjs-tiptap-editor {
+	background: transparent !important;
+}
+
+/* ── Toolbar button hover state (subtle tint, no active override) ──
+   Active states (data-active, aria-pressed) are handled natively
+   by the library via themeActions.setTheme('dark'|'light').
+   We only add a subtle hover tint.                             ── */
+
+.rich-text-editor-wrapper button:not(:disabled):hover {
+	background-color: color-mix(in oklch, currentColor 8%, transparent);
 }

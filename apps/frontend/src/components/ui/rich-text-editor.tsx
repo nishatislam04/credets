@@ -157,6 +157,12 @@ lowlight.register("ts", ts);
 			const json = ed.getJSON();
 			onChange?.(JSON.stringify(json));
 		},
+		// Fire on every selection change so toolbar buttons
+		// (active state indicators) stay in sync with the cursor.
+		onSelectionUpdate: () => {
+			// no-op — just triggers a re-render that propagates
+			// to the library's isActive subscriptions
+		},
 	});
 
 	// ── Confirm editor readiness after commit ─────────────────────
@@ -196,7 +202,7 @@ lowlight.register("ts", ts);
 		return (
 			<div
 				className={cn(
-					"overflow-hidden rounded-xl border border-input bg-background p-3",
+					"rounded-xl border border-input bg-input/30 p-3",
 					className,
 				)}
 				style={{ height: "358px" }}
@@ -209,7 +215,7 @@ lowlight.register("ts", ts);
 	return (
 		<div
 			className={cn(
-				"rich-text-editor-wrapper overflow-hidden rounded-xl border border-input bg-background transition-colors focus-within:border-ring focus-within:ring-1 focus-within:ring-ring",
+				"rich-text-editor-wrapper rounded-xl border border-input bg-input/30 transition-colors focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
 				disabled && "cursor-not-allowed opacity-50",
 				className,
 			)}

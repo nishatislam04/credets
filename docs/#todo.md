@@ -1,24 +1,10 @@
 # our workflow
 
-- [] in single view page, when we scroll through on images gallery. on the left side, we can see a active border which is correct and nice. but the left sidebar does not scroll through with active status. ok, let me explain, on the left sidebar, we have small images and right side we have big img showing. right now, left sidebar only show 5 img and thats ok. but when we navigate to 6th image from the right side arrow btn. the left img sidebar does not scroll down or up if need to based on active img state. i want this left side images container to be interactive based on active img. is that possible?
+## rte
 
-- [] when i scroll up and down on the left sidebar image container, it shows bounce animation. which is nice. but its not properly handled. so like the left sidebar shows first 5 images and when i want to scroll to 6th and which is the last item on the left sidebar, i can scroll to bottom but it then bounce back to showing first 5 images again. so, i cant really choose the 6th image from the left sidebar or click it from there.
+- [] in rte, when we select text the bg color (selected text) should be sky color which we choose on shadcn-create page. and this sky color is used on create, submit btn. so i want to make sure, our rte also sync with this color, if this theme color change near futture
 
-- [] clicking on the arrow up and down button on the left sidebar of img container actually does nothing. no navigation. can you fix it on the single view page?
-
-- [] our custom rte does not pick up our night mode theme. but its ok working on the light theme. fix it. found a [docs](https://reactjs-tiptap-editor.vercel.app/guide/custom-theme.html)
-
-- [] i have applied our rte system for short description too. but then i realized the short description should not have access to full rte system. the short description should have only access to bubble menu with basic text formatting and like before shadcn and tanstack form integrated textarea component. can we do that? or it might be too complex? i just want the simple shadcn textarea form component with our basic bubble menu with basic text formatting
-
-- [] in rte, when we select text the bg color should be our primary or accent color... (was it bluish or green color)
-
-- [] we have a fixed width of rte, right? when the text goes beyond the rte viewport. we should be seeing a scrollbar on the right side so that we can go to the last line of our content and the top toolbar section. but currently i dont see any scrollbar. i cant go to the top of toolsbar as it is clipped out. lol
-
-- [] when we click an toolbar item like bold or italic or underline we should auto focus on the editor. so that user can tap the effect and start typing right away. but i got a feeling, we need to granularly control it otherwise specific extension may show weird behavior or not. i am not sure, but for some specific text formatting, i need this behavior that clicking on those item would focus the editor for instant writting
-
-- [] i am not sure how i should handle it or how standard rte handle this specific situation. i click an item on the toolbar menu and its shown clicked and then i focus on editor and start typing and i can see the formatting applied. then i press enter to go to new line. the toolbar item still shown active but when i start type i see the text in normal formatting. so, first we need to handle that active state of item (in toolbar) in new line and second, should the formatting only apply for the first line or it was supposed to be applied for multi line? right now, the toolbar item formatting apply for single line only
-
-- [] rte, when we write inline code, beautify the whole code interface and update font and match it against our theme mode and spacious it. so that it looks like an inline code
+- [] rte, when we write inline code, beautify the whole code interface and update font and match it against our theme mode and spacious it. so that it looks like an inline code. in our rte content area i meant
 
 - [] rte, for codeblock, we need some major re-working for codeblock block
 	1. first fix this fundamental issue. i initialize codeblock by this ```js and wrote console.log(hello) and then move this line to 2nd line went to 1st line and tried to write some code in 1st line. but after a char was written or any operation was done in first line... my cursor auto jump to 2nd line at the end and my new characters are written there. this seems way confusing to me... why its happening. update: its happening for simple plain text also. not just inside of codeblock. what kind of issue is this? how can we solve it?
