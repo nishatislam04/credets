@@ -18,6 +18,7 @@ export interface CreateCredentialRepoInput {
 	short_description: string | null;
 	long_description: string | null;
 	notes: string | null;
+	version: number;
 	data: string;
 	tags: string | null;
 	thumbnail: {
@@ -103,6 +104,7 @@ export async function createCredentialRepo(
 				title: input.title,
 				short_description: input.short_description,
 				long_description: input.long_description,
+				version: input.version,
 				thumbnail_url: input.thumbnail?.url || null,
 				thumbnail_format: input.thumbnail?.format || null,
 				thumbnail_width: input.thumbnail?.width || null,

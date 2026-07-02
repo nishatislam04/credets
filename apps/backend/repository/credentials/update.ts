@@ -127,6 +127,8 @@ export async function updateCredentialRepo(
 			setParts.push(`notes = $${idx++}`);
 			params.push(input.notes);
 
+			setParts.push(`version = version + 1`);
+
 			setParts.push(`tags = $${idx++}`);
 			params.push(input.tags);
 

@@ -17,6 +17,7 @@ export interface CredentialRow {
 	updated_at: Date | null;
 	type_label: string | null;
 	type_value: string | null;
+	version: number;
 }
 
 export async function getCredentialsListingsRepo(
@@ -30,7 +31,7 @@ export async function getCredentialsListingsRepo(
 			return await sql<CredentialRow[]>`
 				SELECT
 					c.id, c.title, c.short_description,
-					c.thumbnail_url,
+					c.thumbnail_url, c.version,
 					c.tags, c.created_at, c.updated_at,
 					t.label AS type_label, t.value AS type_value
 				FROM credentials c
@@ -46,7 +47,7 @@ export async function getCredentialsListingsRepo(
 		return await sql<CredentialRow[]>`
 			SELECT
 				c.id, c.title, c.short_description,
-				c.thumbnail_url,
+				c.thumbnail_url, c.version,
 				c.tags, c.created_at, c.updated_at,
 				t.label AS type_label, t.value AS type_value
 			FROM credentials c

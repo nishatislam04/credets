@@ -43,6 +43,7 @@ export async function getCredentialsListingsService(
 			id: cred.id,
 			title: cred.title,
 			short_description: cred.short_description,
+			version: cred.version,
 			thumbnail_url: cred.thumbnail_url,
 			tags: cred.tags ? JSON.parse(cred.tags) : [],
 			created_at: cred.created_at.toISOString(),

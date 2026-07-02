@@ -9,6 +9,7 @@ export type CredentialListItem = {
 	updated_at: string | null;
 	type_label: string | null;
 	type_value: string | null;
+	version: number;
 };
 
 /** Cursor-based pagination wrapper returned by the backend */
@@ -36,6 +37,7 @@ export type CredentialDetail = {
 	title: string;
 	short_description: string | null;
 	long_description: string | null;
+	version: number;
 	type_label: string | null;
 	type_value: string | null;
 	type_path: Array<{ label: string; value: string }>;

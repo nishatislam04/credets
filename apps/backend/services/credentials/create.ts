@@ -82,6 +82,7 @@ export async function createCredentialService(
 			type: input.type,
 			types_path: input.types_path,
 			short_description: input.short_description || null,
+			version: 0,
 			long_description: input.long_description || null,
 			notes: input.notes || null,
 			data: await encrypt(JSON.stringify(input.data)),

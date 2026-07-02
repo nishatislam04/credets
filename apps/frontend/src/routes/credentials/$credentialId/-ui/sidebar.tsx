@@ -1,5 +1,5 @@
 import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
-import { Check, Copy, FileText, Info, Tag, FolderTree } from "lucide-react";
+import { Check, Copy, FileText, Info, Tag, FolderTree, GitBranch } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { RichTextRenderer } from "#/components/ui/rich-text-renderer";
@@ -12,7 +12,25 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 
 	return (
 		<div className="space-y-12 mt-12 xl:mt-0">
-			{/* ID reference — first */}
+			{/* Version — first */}
+			<section className="mt-4">
+				<div className="mb-2.5 flex items-center gap-2">
+					<GitBranch className="size-4.5" />
+					<h2 className="text-base font-semibold uppercase tracking-wider">Version</h2>
+				</div>
+				<div className="flex items-center gap-2 rounded-xl border bg-card px-4 py-3">
+					<span className="inline-flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary font-bold text-sm">
+						{credential.version}
+					</span>
+					<span className="text-sm text-muted-foreground/60">
+						{credential.version === 0
+							? "Initial version"
+							: `Updated ${credential.version} time${credential.version === 1 ? "" : "s"}`}
+					</span>
+				</div>
+			</section>
+
+			{/* ID reference — second */}
 			<section>
 				<div className="mb-2.5 flex items-center gap-2">
 					<Info className="size-4.5" />

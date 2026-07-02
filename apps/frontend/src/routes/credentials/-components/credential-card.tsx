@@ -4,6 +4,7 @@ import { CalendarDays, ChevronRight, ImageIcon } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent } from "#/components/ui/card";
 import { CredetsImage } from "#/components/ui/image";
+import { RichTextRenderer } from "#/components/ui/rich-text-renderer";
 import { TYPE_COLORS, TAG_COLORS, hashString } from "../-utils/colors";
 
 interface CredentialCardProps {
@@ -89,9 +90,16 @@ interface CredentialCardProps {
 					<div className="relative mt-4 pl-4">
 						{/* Subtle left bar echoing single page accent */}
 						<div className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-gradient-to-b from-primary/30 to-primary/5" />
-						<p className="text-sm leading-relaxed text-muted-foreground/75 line-clamp-2 overflow-hidden whitespace-pre-wrap">
-							{short_description || "no description provided"}
-						</p>
+						{short_description ? (
+							<RichTextRenderer
+								content={short_description}
+								className="text-sm leading-relaxed text-muted-foreground/75 line-clamp-2 overflow-hidden"
+							/>
+						) : (
+							<p className="text-sm leading-relaxed text-muted-foreground/75 line-clamp-2 overflow-hidden">
+								no description provided
+							</p>
+						)}
 					</div>
 
 					<div className="flex justify-between">

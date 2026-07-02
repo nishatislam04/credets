@@ -12,6 +12,7 @@ export interface CredentialDetailRow {
 	data: any;
 	notes: string | null;
 	tags: string | null;
+	version: number;
 	created_at: Date;
 	updated_at: Date | null;
 	type_label: string | null;
@@ -37,7 +38,7 @@ export async function getCredentialDetailRepo(credentialId: string) {
 		const [credential] = await sql<CredentialDetailRow[]>`
 			SELECT
 				c.id, c.title, c.short_description, c.long_description,
-				c.thumbnail_url,
+				c.thumbnail_url, c.version,
 				c.data, c.notes, c.tags, c.created_at, c.updated_at,
 				t.label AS type_label, t.value AS type_value, c.types_id
 			FROM credentials c
