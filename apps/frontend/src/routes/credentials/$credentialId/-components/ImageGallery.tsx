@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
 import { ChevronUp, ChevronDown, ImageIcon } from "lucide-react";
@@ -81,16 +81,8 @@ function CarouselGallery({
 		[WheelGesturesPlugin({ forceWheelAxis: "x" })],
 	);
 
-	// ── THUMBNAIL rail: vertical index strip ───────────────────────
-	const [thumbRef, thumbApi] = useEmblaCarousel(
-		{
-			axis: "y",
-			loop: false,
-			dragFree: true,
-			containScroll: "keepSnaps",
-		},
-		[WheelGesturesPlugin({ forceWheelAxis: "y" })],
-	);
+	// ── Thumbnail scroll container ref ────────────────────────────
+	const thumbScrollRef = useRef<HTMLDivElement>(null);
 
 	// Clicking a thumbnail moves the main carousel to that image.
 	const onThumbClick = useCallback(
@@ -101,16 +93,22 @@ function CarouselGallery({
 		[mainApi],
 	);
 
-	// Whenever the main carousel settles on a new slide, update the active
-	// index and scroll the thumbnail rail to keep the active thumb in view.
+	// Whenever selectedIndex changes, scroll the active thumbnail into view
+	useEffect(() => {
+		const container = thumbScrollRef.current;
+		if (!container) return;
+		const thumb = container.children[selectedIndex] as HTMLElement | undefined;
+		thumb?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+	}, [selectedIndex]);
+
+	// Whenever the main carousel settles on a new slide, update the active index.
 	const onSelect = useCallback(() => {
-		if (!mainApi || !thumbApi) return;
+		if (!mainApi) return;
 		const index = mainApi.selectedScrollSnap();
 		setSelectedIndex(index);
-		thumbApi.scrollTo(index);
-	}, [mainApi, thumbApi]);
+	}, [mainApi]);
 
-	// Attach Embla event listeners
+	// Attach Embla event listeners to main carousel only
 	useEffect(() => {
 		if (!mainApi) return;
 		onSelect();
@@ -137,57 +135,55 @@ function CarouselGallery({
 			<div className="flex h-[clamp(20rem,60vh,32rem)] w-full items-stretch gap-4 sm:gap-6">
 				{/* ── LEFT: narrow vertical thumbnail index ───────────── */}
 				<div className="flex w-20 flex-col items-center gap-2 sm:w-24">
-					{/* Chevron UP — pushed outside the rail */}
+					{/* Chevron UP — navigate to previous image */}
 					<button
 						type="button"
-						onClick={() => thumbApi?.scrollPrev()}
+						onClick={() => mainApi?.scrollPrev()}
 						disabled={selectedIndex === 0}
 						className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-20"
-						aria-label="Scroll thumbnails up"
+						aria-label="Previous image"
 					>
 						<ChevronUp className="size-5" />
-					</button>
-
-					{/* Embla viewport (fixed-height -> only a few thumbnails visible) */}
-					<div ref={thumbRef} className="w-full grow overflow-hidden">
-						<div className="flex flex-col">
-							{images.map((img, index) => {
-								const src = imageSrc(img);
-								if (!src) return null;
-								return (
-									<button
-										key={img.id}
-										type="button"
-										onClick={() => onThumbClick(index)}
-										aria-label={`Show image ${index + 1}`}
-										aria-current={index === selectedIndex}
-										className={cn(
-											"relative mb-3 aspect-[3/2] w-full shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 transition-all",
-											index === selectedIndex
-												? "border-primary opacity-100"
-												: "border-transparent opacity-60 hover:opacity-90",
-										)}
-									>
-										<CredetsImage
-											src={src}
-											alt=""
-											layout="fullWidth"
-											className="size-full object-cover"
-											draggable={false}
-										/>
-									</button>
-								);
-							})}
-						</div>
+					</button>					{/* Scrollable thumbnail container */}
+					<div
+						ref={thumbScrollRef}
+						className="w-full grow overflow-y-auto overscroll-contain scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+					>
+						{images.map((img, index) => {
+							const src = imageSrc(img);
+							if (!src) return null;
+							return (
+								<button
+									key={img.id}
+									type="button"
+									onClick={() => onThumbClick(index)}
+									aria-label={`Show image ${index + 1}`}
+									aria-current={index === selectedIndex}									className={cn(
+										"relative mb-3 aspect-[3/2] w-full shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 transition-all",
+										index === selectedIndex
+											? "border-primary opacity-100"
+											: "border-transparent opacity-60 hover:opacity-90",
+									)}
+								>
+									<CredetsImage
+										src={src}
+										alt=""
+										layout="fullWidth"
+										className="size-full object-cover"
+										draggable={false}
+									/>
+								</button>
+							);
+						})}
 					</div>
 
-					{/* Chevron DOWN — pushed outside the rail */}
+					{/* Chevron DOWN — navigate to next image */}
 					<button
 						type="button"
-						onClick={() => thumbApi?.scrollNext()}
+						onClick={() => mainApi?.scrollNext()}
 						disabled={selectedIndex === total - 1}
 						className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-20"
-						aria-label="Scroll thumbnails down"
+						aria-label="Next image"
 					>
 						<ChevronDown className="size-5" />
 					</button>
