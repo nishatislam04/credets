@@ -1,17 +1,10 @@
 # our workflow
 
-- [] single view page, long description and notes block does not show formatted texts as input. we need to fix that
+- [] in single view page, when we scroll through on images gallery. on the left side, we can see a active border which is correct and nice. but the left sidebar does not scroll through with active status. ok, let me explain, on the left sidebar, we have small images and right side we have big img showing. right now, left sidebar only show 5 img and thats ok. but when we navigate to 6th image from the right side arrow btn. the left img sidebar does not scroll down or up if need to based on active img state. i want this left side images container to be interactive based on active img. is that possible?
 
-- [] in the listings page, we need to fix the rendering of short descripiton. right now, its rendering the block itself. not as formatted text in the card ui
+- [] when i scroll up and down on the left sidebar image container, it shows bounce animation. which is nice. but its not properly handled. so like the left sidebar shows first 5 images and when i want to scroll to 6th and which is the last item on the left sidebar, i can scroll to bottom but it then bounce back to showing first 5 images again. so, i cant really choose the 6th image from the left sidebar or click it from there.
 
-- [] apply credential version system
-	the version will start with 0 and whenever we update the credential, it will go from 0 to 1 and then another update then it will go from 1 to 2. as simple as that. update our credential model and create and update backend for this feature. and in single view page, show this version information in sidebar
-
-- [] in single view page, when we scroll through on images gallery. on the left side, we can see a active border which is correct. but the left sidebar does not scroll through. ok, let me explain, on the left sidebar, we have small images and right side, we have big one img showing. right now, left sidebar only show 5 img and thats ok. but when we scroll to 6th image from the right side. the left sidebar does not scroll down. i want this left side images container to be interactive too based on active. is that possible?
-
-- [] when i scroll up and down on the left sidebar images, it shows bounce animation. which is nice. but its not properly handled. so like the left sidebar shows first 5 images and when i want to scroll to 6th and which is the last item on the left sidebar, i can scroll to bottom but it then bounce back to showing first 5 images again. so, i cant really choose the 6th image from the left sidebar to view it. i am talking about only the left sidebar
-
-- [] clicking on the arrow up and down button on the left sidebar actually does nothing. no navigation. can you fix it?
+- [] clicking on the arrow up and down button on the left sidebar of img container actually does nothing. no navigation. can you fix it on the single view page?
 
 - [] our custom rte does not pick up our night mode theme. but its ok working on the light theme. fix it. found a [docs](https://reactjs-tiptap-editor.vercel.app/guide/custom-theme.html)
 

@@ -10,6 +10,8 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { useEffect, useRef, useState } from "react";
 import { RichTextProvider } from "reactjs-tiptap-editor";
+import { themeActions } from "reactjs-tiptap-editor/theme";
+import { useTheme } from "#/hooks/theme-provider";
 import { Blockquote, RichTextBlockquote } from "reactjs-tiptap-editor/blockquote";
 import { Bold, RichTextBold } from "reactjs-tiptap-editor/bold";
 import { RichTextBubbleText } from "reactjs-tiptap-editor/bubble";
@@ -83,8 +85,7 @@ lowlight.register("ts", ts);
  * Integrates with TanStack Form via `value` (JSON-stringified) and `onChange`.
  * Renders a rich toolbar above the content area with a bubble menu for inline
  * formatting (bold, italic, underline, strike, link).
- */
-export default function RichTextEditor({
+ */	export default function RichTextEditor({
 	value,
 	onChange,
 	placeholder,
@@ -93,6 +94,21 @@ export default function RichTextEditor({
 	className,
 }: RichTextEditorProps) {
 	const prevValueRef = useRef(value);
+	const { theme: projectTheme } = useTheme();
+
+	// ── Sync RTE theme with project theme ──────────────────────────
+	const resolvedTheme = (() => {
+		if (projectTheme === "system") {
+			return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+		}
+		return projectTheme;
+	})();
+
+	useEffect(() => {
+		themeActions.setTheme(resolvedTheme);
+		themeActions.setColor("default");
+		themeActions.setBorderRadius("0.75rem");
+	}, [resolvedTheme]);
 	// ── Readiness gate ────────────────────────────────────────────
 	// `isEditorReady` is only set to true inside a useEffect — i.e. after
 	// React has committed the render to the DOM.  This guarantees that
