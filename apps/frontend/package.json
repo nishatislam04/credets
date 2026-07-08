@@ -31,6 +31,7 @@
 		"@tanstack/react-router-devtools": "latest",
 		"@tanstack/router-plugin": "^1.132.0",
 		"@tiptap/core": "^3.26.1",
+		"@tiptap/extension-code-block-lowlight": "^3.27.3",
 		"@tiptap/extension-document": "^3.26.1",
 		"@tiptap/extension-dropcursor": "^3.26.1",
 		"@tiptap/extension-gapcursor": "^3.26.1",
