@@ -437,6 +437,7 @@ function Toolbar({ editor }: { editor: NonNullable<ReturnType<typeof useEditor>>
 			<div className="mx-1 h-5 w-px shrink-0 bg-border/50" />
 			<FontFamilyDropdown editor={editor} />
 			<RichTextColor />
+			<RichTextHighlight />
 			<RichTextEmoji />
 			<div className="mx-1 h-5 w-px shrink-0 bg-border/50" />
 			<RichTextAlign />
