@@ -34,6 +34,7 @@
 		"@tiptap/extension-code-block-lowlight": "^3.27.3",
 		"@tiptap/extension-document": "^3.26.1",
 		"@tiptap/extension-dropcursor": "^3.26.1",
+		"@tiptap/extension-emoji": "^3.27.3",
 		"@tiptap/extension-gapcursor": "^3.26.1",
 		"@tiptap/extension-hard-break": "^3.26.1",
 		"@tiptap/extension-list-item": "^3.26.1",

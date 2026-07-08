@@ -27,6 +27,8 @@ import { Link, RichTextLink } from "reactjs-tiptap-editor/link";
 import { OrderedList, RichTextOrderedList } from "reactjs-tiptap-editor/orderedlist";
 import { RichTextStrike, Strike } from "reactjs-tiptap-editor/strike";
 import { RichTextUnderline, TextUnderline } from "reactjs-tiptap-editor/textunderline";
+import { Color, RichTextColor } from "reactjs-tiptap-editor/color";
+import { Emoji, RichTextEmoji } from "reactjs-tiptap-editor/emoji";
 import { Code2 } from "lucide-react";
 import { cn } from "#/lib/utils";
 import "reactjs-tiptap-editor/style.css";
@@ -51,6 +53,24 @@ export interface RichTextEditorProps {
 // ── Constants ──────────────────────────────────────────────────────
 
 const EMPTY_DOC = { type: "doc", content: [] };
+
+const COLOR_PRESETS = [
+	"#000000",
+	"#434343",
+	"#666666",
+	"#999999",
+	"#b7b7b7",
+	"#e74c3c",
+	"#e67e22",
+	"#f1c40f",
+	"#2ecc71",
+	"#1abc9c",
+	"#3498db",
+	"#9b59b6",
+	"#e91e63",
+	"#795548",
+	"#ffffff",
+];
 
 // ── Base Kit ───────────────────────────────────────────────────────
 
@@ -149,7 +169,16 @@ lowlight.register("ts", ts);
 			Code,
 			Blockquote,
 			HorizontalRule,
-			Link,
+			Link.configure({
+				openOnClick: true,
+				linkOnPaste: true,
+				autolink: true,
+				// The library's LinkEditBlock already has built-in URL validation
+			}),
+			Color.configure({
+				colors: COLOR_PRESETS,
+			}),
+			Emoji,
 			CodeBlock.extend({
 				addNodeView() {
 					return ReactNodeViewRenderer(CodeBlockView);
@@ -241,8 +270,7 @@ lowlight.register("ts", ts);
 				disabled && "cursor-not-allowed opacity-50",
 				className,
 			)}
-		>
-			<RichTextProvider editor={editor}>
+		>			<RichTextProvider editor={editor}>
 				<Toolbar editor={editor} />
 				{/* Bubble text menu — appears on text selection */}
 				<RichTextBubbleText />
@@ -332,6 +360,9 @@ function Toolbar({ editor }: { editor: NonNullable<ReturnType<typeof useEditor>>
 			<RichTextBlockquote />
 			<RichTextCode />
 			<CodeBlockButton editor={editor} />
+			<div className="mx-1 h-5 w-px shrink-0 bg-border/50" />
+			<RichTextColor />
+			<RichTextEmoji />
 			<div className="mx-1 h-5 w-px shrink-0 bg-border/50" />
 			<RichTextLink />
 			<RichTextHorizontalRule />

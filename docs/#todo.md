@@ -10,14 +10,12 @@
 
 
 
-- [] implement custom font system [docs](https://tiptap.dev/docs/editor/extensions/functionality/fontfamily) cover most common fonts and essential fonts. and show the dropdown in both toolbar and in bubble menu. so that we can implement a hell lots of different kinds of fonts
+- [] implement custom font system [docs](https://tiptap.dev/docs/editor/extensions/functionality/fontfamily) cover most common fonts and essential fonts. and show the dropdown to choose font-family in both toolbar and in bubble menu. so that we can implement a hell lots of different kinds of fonts in our rte content
 
 - [] implement highlight coloring system [docs](https://reactjs-tiptap-editor.vercel.app/extensions/Highlight/) read necessary docs to implement this system. cover most common and essential coloring presets in dropdown in both toolbar and bubble menu
 
-- [] i want this line height extensions too in dropdown on toolbar menu [docs](https://reactjs-tiptap-editor.vercel.app/extensions/LineHeight/)
+- [] i want this line height extensions too in dropdown menu on toolbar menu [docs](https://reactjs-tiptap-editor.vercel.app/extensions/LineHeight/)
 
 - [] text-align extention needed with dropdown menu on toolbar menu [docs](https://reactjs-tiptap-editor.vercel.app/extensions/TextAlign/)
 
 - [] add this indent extention too [docs](https://reactjs-tiptap-editor.vercel.app/extensions/Indent/)
-
-- [] image extension [docs](https://reactjs-tiptap-editor.vercel.app/extensions/Image/) i want this img extension implemented and working on my rte. based on our stacks and setup, how we should handle it? since this is ultimately a form submission and we will be storing images in s3 object. and we may want to show img in long description but we dont want to show img in notes block.. so, we need to handle it. and we also need to view this img whenever we try to read data
