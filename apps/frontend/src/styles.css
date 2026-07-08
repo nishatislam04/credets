@@ -282,10 +282,10 @@ body {
 	font-size: 0.875em;
 	padding: 0.15em 0.3em;
 	border-radius: 0.25rem;
-	background: oklch(0.9 0 0 / 0.4);
+	background: color-mix(in oklch, var(--primary) 15%, transparent);
 }
 .dark .rich-content code {
-	background: oklch(0.25 0 0 / 0.5);
+	background: color-mix(in oklch, var(--primary) 22%, transparent);
 }
 
 .rich-content pre code {
@@ -312,8 +312,8 @@ body {
 	margin-bottom: 0;
 }
 
-/* tiptap override */
-.tiptap.ProseMirror {
+/* tiptap override — .ProseMirror is the contenteditable div created by ProseMirror */
+.rich-text-editor-wrapper .ProseMirror {
 	border: 0;
 	outline: 0;
 	padding: 0.5rem !important;
@@ -322,9 +322,21 @@ body {
 	overflow-y: auto;
 }
 
-/* Selection color inside RTE — use primary blue from shadcn theme */
-.tiptap.ProseMirror ::selection {
-	background-color: color-mix(in oklch, var(--primary) 25%, transparent);
+/* ── RTE text selection & inline code ───────────────────────────────
+   Using !important to guarantee override of any library/other styles.
+   Mix with background for a solid painted highlight (vs transparent wash).
+   
+   Light mode:  --primary = oklch(0.5 0.134 242.749)  → sky blue
+   Dark mode:   --primary = oklch(0.443 0.11 240.79) → slightly lower chroma,
+                so bump opacity to compensate.                     ── */
+
+/* Text selection background */
+.rich-text-editor-wrapper .reactjs-tiptap-editor .ProseMirror.ProseMirror.ProseMirror ::selection {
+	background-color: color-mix(in oklch, var(--primary) 35%, var(--background)) !important;
+}
+
+.dark .rich-text-editor-wrapper .reactjs-tiptap-editor .ProseMirror.ProseMirror.ProseMirror ::selection {
+	background-color: color-mix(in oklch, var(--primary) 48%, var(--background)) !important;
 }
 
 /* Let the ProseMirror handle its own overflow so the scrollbar is visible */
@@ -335,17 +347,24 @@ body {
 /* ── Inline code styling inside the editor ──
    The TipTap Code extension renders <code> elements inline.
    Style them to look like proper inline code: monospace font,
-   subtle background, rounded corners, theme-aware.          ── */
+   subtle sky-tinted background, rounded corners, theme-aware.
+   
+   Selector uses the library's triple-ProseMirror specificity (0,4,1)
+   so it overrides the library's default gray background.         ── */
 
-.tiptap.ProseMirror code {
+.rich-text-editor-wrapper .reactjs-tiptap-editor .ProseMirror.ProseMirror.ProseMirror code {
 	font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 	font-size: 0.875em;
 	font-weight: 500;
 	padding: 0.15em 0.4em;
 	border-radius: 0.25rem;
-	background-color: color-mix(in oklch, var(--muted) 70%, transparent);
+	background-color: color-mix(in oklch, var(--primary) 20%, var(--background)) !important;
 	color: var(--foreground);
 	box-decoration-break: clone;
+}
+
+.dark .rich-text-editor-wrapper .reactjs-tiptap-editor .ProseMirror.ProseMirror.ProseMirror code {
+	background-color: color-mix(in oklch, var(--primary) 30%, var(--background)) !important;
 }
 
 /* ── Match RTE background to shadcn input/textarea bg ──
