@@ -19,3 +19,12 @@
 - [] text-align extention needed with dropdown menu on toolbar menu [docs](https://reactjs-tiptap-editor.vercel.app/extensions/TextAlign/)
 
 - [] add this indent extention too [docs](https://reactjs-tiptap-editor.vercel.app/extensions/Indent/)
+
+
+---
+
+we are currently using a wrapper not the base tiptap, right? and its causing several issues like when we tried to control many nitty gitty stuffs. as you saw above. so, i wanted to fix this issue by complete re-wrtite with base tiptap instead of this wrappper. so we can have more control over our node, style, design, behavior etc.
+so i want you to carefully investigate and navigate full rte system. see which extensions we are using. where they exist. create a detail docs about this in docs/
+cover both toolbar and bubble menu items and their structure and stuffs. so then it will look like we are porting the rte from wrapper to base tiptap
+so that later, i can feed it to ai. and it will read it and implement this full rte system with our old extensions list but on tiptap.
+also create a optional docs section for each extension which might be needed only when tiptap implementation fail and then we can look into our old existing working rte system and compare with tiptap docs and implement working extensions, only if initial implementation fail

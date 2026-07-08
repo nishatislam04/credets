@@ -16,10 +16,12 @@ import { Blockquote, RichTextBlockquote } from "reactjs-tiptap-editor/blockquote
 import { Bold, RichTextBold } from "reactjs-tiptap-editor/bold";
 import { RichTextBubbleText } from "reactjs-tiptap-editor/bubble";
 import { BulletList, RichTextBulletList } from "reactjs-tiptap-editor/bulletlist";
+import { TaskList, RichTextTaskList } from "reactjs-tiptap-editor/tasklist";
 import { Clear, RichTextClear } from "reactjs-tiptap-editor/clear";
 import { Code, RichTextCode } from "reactjs-tiptap-editor/code";
 import { CodeBlock } from "reactjs-tiptap-editor/codeblock";
-import { Heading, RichTextHeading } from "reactjs-tiptap-editor/heading";
+import { Heading } from "reactjs-tiptap-editor/heading";
+import HeadingDropdown from "#/components/ui/heading-dropdown";
 import { History, RichTextRedo, RichTextUndo } from "reactjs-tiptap-editor/history";
 import { HorizontalRule, RichTextHorizontalRule } from "reactjs-tiptap-editor/horizontalrule";
 import { Italic, RichTextItalic } from "reactjs-tiptap-editor/italic";
@@ -28,7 +30,13 @@ import { OrderedList, RichTextOrderedList } from "reactjs-tiptap-editor/orderedl
 import { RichTextStrike, Strike } from "reactjs-tiptap-editor/strike";
 import { RichTextUnderline, TextUnderline } from "reactjs-tiptap-editor/textunderline";
 import { Color, RichTextColor } from "reactjs-tiptap-editor/color";
+import { Highlight, RichTextHighlight } from "reactjs-tiptap-editor/highlight";
 import { Emoji, RichTextEmoji } from "reactjs-tiptap-editor/emoji";
+import { FontFamily } from "reactjs-tiptap-editor/fontfamily";
+import FontFamilyDropdown from "#/components/ui/font-family-dropdown";
+import { LineHeight, RichTextLineHeight } from "reactjs-tiptap-editor/lineheight";
+import { TextAlign, RichTextAlign } from "reactjs-tiptap-editor/textalign";
+import { Indent, RichTextIndent } from "reactjs-tiptap-editor/indent";
 import { Code2 } from "lucide-react";
 import { cn } from "#/lib/utils";
 import "reactjs-tiptap-editor/style.css";
@@ -71,6 +79,27 @@ const COLOR_PRESETS = [
 	"#795548",
 	"#ffffff",
 ];
+
+const FONT_LIST = [
+	{ name: "Default", value: "" },
+	{ name: "Arial", value: "Arial" },
+	{ name: "Helvetica", value: "Helvetica" },
+	{ name: "Times New Roman", value: '"Times New Roman", serif' },
+	{ name: "Georgia", value: "Georgia, serif" },
+	{ name: "Courier New", value: "'Courier New', monospace" },
+	{ name: "Verdana", value: "Verdana, sans-serif" },
+	{ name: "Trebuchet MS", value: "'Trebuchet MS', sans-serif" },
+	{ name: "Impact", value: "Impact, sans-serif" },
+	{ name: "Inter", value: "'Inter Variable', sans-serif" },
+	{ name: "Montserrat", value: "'Montserrat Variable', sans-serif" },
+	{ name: "Source Serif 4", value: "'Source Serif 4 Variable', serif" },
+	{ name: "Manrope", value: "'Manrope Variable', sans-serif" },
+	{ name: "Geist", value: "'Geist Variable', sans-serif" },
+	{ name: "System UI", value: "system-ui, sans-serif" },
+	{ name: "Monospace", value: "ui-monospace, SFMono-Regular, monospace" },
+];
+
+const LINE_HEIGHTS = ["1", "1.15", "1.25", "1.5", "1.75", "2", "2.5"];
 
 // ── Base Kit ───────────────────────────────────────────────────────
 
@@ -159,13 +188,16 @@ lowlight.register("ts", ts);
 			}),
 			History,
 			Clear,
-			Heading,
+			Heading.configure({
+				levels: [1, 2, 3, 4],
+			}),
 			Bold,
 			Italic,
 			TextUnderline,
 			Strike,
 			BulletList,
 			OrderedList,
+			TaskList,
 			Code,
 			Blockquote,
 			HorizontalRule,
@@ -175,9 +207,24 @@ lowlight.register("ts", ts);
 				autolink: true,
 				// The library's LinkEditBlock already has built-in URL validation
 			}),
+			FontFamily.configure({
+				fontFamilyList: FONT_LIST,
+			}),
+			LineHeight.configure({
+				lineHeights: LINE_HEIGHTS,
+			}),
+			TextAlign.configure({
+				alignments: ["left", "center", "right", "justify"],
+			}),
+			Indent.configure({
+				minIndent: 0,
+				maxIndent: 48,
+				types: ["paragraph", "heading", "blockquote", "orderedList", "bulletList"],
+			}),
 			Color.configure({
 				colors: COLOR_PRESETS,
 			}),
+			Highlight,
 			Emoji,
 			CodeBlock.extend({
 				addNodeView() {
@@ -273,11 +320,38 @@ lowlight.register("ts", ts);
 		>			<RichTextProvider editor={editor}>
 				<Toolbar editor={editor} />
 				{/* Bubble text menu — appears on text selection */}
-				<RichTextBubbleText />
+				<RichTextBubbleText buttonBubble={<BubbleContent editor={editor} />} />
 				<div className="px-3 pb-3" style={{ minHeight }}>
 					<EditorContent editor={editor} className="prose prose-sm dark:prose-invert max-w-none" />
 				</div>
 			</RichTextProvider>
+		</div>
+	);
+}
+
+// ── Bubble menu content ───────────────────────────────────────────
+
+function BubbleContent({ editor }: { editor: NonNullable<ReturnType<typeof useEditor>> }) {
+	return (
+		<div className="flex items-center gap-0.5 rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md outline-none">
+			<HeadingDropdown editor={editor} />
+			<div className="mx-1 h-4 w-px shrink-0 bg-border/50" />
+			<RichTextBold />
+			<RichTextItalic />
+			<RichTextUnderline />
+			<RichTextStrike />
+			<RichTextCode />
+			<RichTextLink />
+			<div className="mx-1 h-4 w-px shrink-0 bg-border/50" />
+			<RichTextColor />
+			<RichTextHighlight />
+			<RichTextAlign />
+			<div className="mx-1 h-4 w-px shrink-0 bg-border/50" />
+			<RichTextBulletList />
+			<RichTextTaskList />
+			<RichTextOrderedList />
+			<RichTextBlockquote />
+			<CodeBlockButton editor={editor} />
 		</div>
 	);
 }
@@ -349,7 +423,7 @@ function Toolbar({ editor }: { editor: NonNullable<ReturnType<typeof useEditor>>
 			<div className="mx-1 h-5 w-px shrink-0 bg-border/50" />
 			<RichTextClear />
 			<div className="mx-1 h-5 w-px shrink-0 bg-border/50" />
-			<RichTextHeading />
+			<HeadingDropdown editor={editor} />
 			<RichTextBold />
 			<RichTextItalic />
 			<RichTextUnderline />
@@ -361,8 +435,13 @@ function Toolbar({ editor }: { editor: NonNullable<ReturnType<typeof useEditor>>
 			<RichTextCode />
 			<CodeBlockButton editor={editor} />
 			<div className="mx-1 h-5 w-px shrink-0 bg-border/50" />
+			<FontFamilyDropdown editor={editor} />
 			<RichTextColor />
 			<RichTextEmoji />
+			<div className="mx-1 h-5 w-px shrink-0 bg-border/50" />
+			<RichTextAlign />
+			<RichTextLineHeight />
+			<RichTextIndent />
 			<div className="mx-1 h-5 w-px shrink-0 bg-border/50" />
 			<RichTextLink />
 			<RichTextHorizontalRule />
