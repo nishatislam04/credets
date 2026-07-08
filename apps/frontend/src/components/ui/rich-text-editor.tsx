@@ -173,13 +173,28 @@ lowlight.register("ts", ts);
 		return () => setIsEditorReady(false);
 	}, [editor]);
 
-	// Sync external value changes (e.g. form reset) to the editor
+	// Sync external value changes (e.g. form reset) to the editor.
+	// IMPORTANT: We must NOT call setContent when the change originated from the
+	// editor itself (the onUpdate callback), because that resets the cursor to
+	// the start of the document.  Instead we compare the *actual document content*
+	// against the incoming value — if they're semantically identical we skip the
+	// update, preserving cursor position.
 	useEffect(() => {
 		if (editor && value !== prevValueRef.current) {
 			prevValueRef.current = value;
+
 			try {
-				const newContent = value ? (JSON.parse(value) as Record<string, unknown>) : EMPTY_DOC;
-				editor.commands.setContent(newContent);
+				const parsed = value ? (JSON.parse(value) as Record<string, unknown>) : null;
+				if (!parsed) {
+					editor.commands.setContent(EMPTY_DOC);
+					return;
+				}
+				// Only set content if it actually differs from what's already in the editor.
+				// This prevents cursor jumping when the change originated from onUpdate.
+				const current = editor.getJSON();
+				if (JSON.stringify(parsed) !== JSON.stringify(current)) {
+					editor.commands.setContent(parsed);
+				}
 			} catch {
 				editor.commands.setContent(value || "");
 			}
