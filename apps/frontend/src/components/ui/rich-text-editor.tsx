@@ -18,7 +18,7 @@ import { RichTextBubbleText } from "reactjs-tiptap-editor/bubble";
 import { BulletList, RichTextBulletList } from "reactjs-tiptap-editor/bulletlist";
 import { Clear, RichTextClear } from "reactjs-tiptap-editor/clear";
 import { Code, RichTextCode } from "reactjs-tiptap-editor/code";
-import { CodeBlock, RichTextCodeBlock } from "reactjs-tiptap-editor/codeblock";
+import { CodeBlock } from "reactjs-tiptap-editor/codeblock";
 import { Heading, RichTextHeading } from "reactjs-tiptap-editor/heading";
 import { History, RichTextRedo, RichTextUndo } from "reactjs-tiptap-editor/history";
 import { HorizontalRule, RichTextHorizontalRule } from "reactjs-tiptap-editor/horizontalrule";
@@ -27,9 +27,12 @@ import { Link, RichTextLink } from "reactjs-tiptap-editor/link";
 import { OrderedList, RichTextOrderedList } from "reactjs-tiptap-editor/orderedlist";
 import { RichTextStrike, Strike } from "reactjs-tiptap-editor/strike";
 import { RichTextUnderline, TextUnderline } from "reactjs-tiptap-editor/textunderline";
+import { Code2 } from "lucide-react";
 import { cn } from "#/lib/utils";
 import "reactjs-tiptap-editor/style.css";
 import { createLowlight } from "lowlight";
+import { ReactNodeViewRenderer } from "@tiptap/react";
+import CodeBlockView from "#/components/ui/code-block-view";
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -147,7 +150,11 @@ lowlight.register("ts", ts);
 			Blockquote,
 			HorizontalRule,
 			Link,
-			CodeBlock.configure({
+			CodeBlock.extend({
+				addNodeView() {
+					return ReactNodeViewRenderer(CodeBlockView);
+				},
+			}).configure({
 				lowlight: lowlight,
 			}),
 		],
@@ -236,7 +243,7 @@ lowlight.register("ts", ts);
 			)}
 		>
 			<RichTextProvider editor={editor}>
-				<Toolbar />
+				<Toolbar editor={editor} />
 				{/* Bubble text menu — appears on text selection */}
 				<RichTextBubbleText />
 				<div className="px-3 pb-3" style={{ minHeight }}>
@@ -247,9 +254,66 @@ lowlight.register("ts", ts);
 	);
 }
 
+// ── Custom code block button ──────────────────────────────────────
+
+function CodeBlockButton({ editor }: { editor: NonNullable<ReturnType<typeof useEditor>> }) {
+	const isActive = editor.isActive("codeBlock");
+
+	const handleClick = () => {
+		// Try toggleCodeBlock first — works when cursor is inside a paragraph.
+		// If it fails (e.g. empty document with no block to wrap), fall back
+		// to inserting a codeBlock node directly.
+		const didToggle = editor.chain().focus().toggleCodeBlock().run();
+
+		if (!didToggle) {
+			// Check if we're in an empty document — only auto-insert a code block
+			// if the document is basically empty (single empty paragraph).
+			const { doc } = editor.state;
+			const isEmptyParagraph =
+				doc.childCount === 1 &&
+				doc.firstChild?.type.name === "paragraph" &&
+				doc.firstChild?.childCount === 0;
+
+			if (isEmptyParagraph) {
+				editor
+					.chain()
+					.focus()
+					.setContent({
+						type: "doc",
+						content: [
+							{
+								type: "codeBlock",
+								attrs: { language: "plaintext" },
+							},
+						],
+					})
+					.run();
+			}
+		}
+	};
+
+	return (
+		<button
+			type="button"
+			onClick={handleClick}
+			data-state={isActive ? "on" : undefined}
+			className={cn(
+				"flex items-center justify-center",
+				"rounded-md p-1",
+				"transition-colors duration-100",
+				"hover:bg-accent",
+				isActive && "bg-accent",
+			)}
+			title="Code block"
+		>
+			<Code2 size={18} />
+		</button>
+	);
+}
+
 // ── Toolbar ────────────────────────────────────────────────────────
 
-function Toolbar() {
+function Toolbar({ editor }: { editor: NonNullable<ReturnType<typeof useEditor>> }) {
 	return (
 		<div className="flex flex-wrap items-center gap-0.5 border-b border-border/50 px-2 py-1.5">
 			<RichTextUndo />
@@ -267,7 +331,7 @@ function Toolbar() {
 			<RichTextOrderedList />
 			<RichTextBlockquote />
 			<RichTextCode />
-			<RichTextCodeBlock />
+			<CodeBlockButton editor={editor} />
 			<div className="mx-1 h-5 w-px shrink-0 bg-border/50" />
 			<RichTextLink />
 			<RichTextHorizontalRule />
