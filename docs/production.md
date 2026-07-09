@@ -39,8 +39,10 @@ VITE_BACKEND_APP
 
 we add this rules since this is our spa application. otherwise, we see 404 upon navigation
 
+```bash
 source - destination - action
 /*     - /index.html - rewrite
+```
 
 ## database related
 

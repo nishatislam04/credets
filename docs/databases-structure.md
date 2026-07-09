@@ -5,8 +5,8 @@
 1. user (only one)
 2. session (for simple auth)
 3. types
-4. credentials (our main resource table)
-5. credential_images (store multiple images here)
+4. credentials (user credentials)
+5. credential_images (multiple images of each credential)
 
 ### user table
 
@@ -14,15 +14,14 @@
 2. usename
 3. email
 4. password -hash
-5. special_password -raw for now. soon enc it
+5. special_password -raw now. soon enc it
 
 
 ### session
 
-1. id -the actual sessionId attached to user each req
-2. userId -foreignKey
-3. token - no idea what this does
-4. expiresAt -24hour
+1. userId -foreignKey
+2. token - no idea what this does
+3. expiresAt
 
 
 ### types
@@ -36,17 +35,18 @@
 1. title - text
 2. short description - text
 3. long description - text
-4. thumbnail_image_data - BYTEA - we will store as binary data
-5. thumbnail_format - varchar - always webp format
+4. thumbnail_url
+5. thumbnail_format - varchar - always webp
 6. thumbnail_width
 7. thumbnail_height
-8. data -jsonB
-9. notes - text
-10. tags - jsonB
+8. version
+9. data -text
+10. notes -text
+11. tags -text
 
 ### credential_images
 
-1. image_data
+1. image_url
 2. format
 3. width
 4. height
@@ -56,7 +56,9 @@
 
 ## access database in docker from terminal
 
-we dont normally need to do this. we will use our `dblab --config` and inspect db there. but just in case, if its needed
+inspect via dblab `dblab --config`
+
+and if need to inspect db via docker:
 
 ```bash
 docker compose exec db bash
@@ -74,13 +76,13 @@ const users = sql`SELECT * FROM users`
 
 ## reset database data
 
-first turn off docker compose service that was already on by `ctrl+c` then
+**turn off running docker-compose** then
 
 ```bash
 docker compose down -v
 docker compose up 
 ```
 
-## seed
+## seed db
 
-to seed database, just run `bun run seed` at project root dir
+run `bun run seed` at project root

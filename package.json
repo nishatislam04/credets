@@ -16,8 +16,6 @@
 		"start:backend:staging": "bun run --cwd apps/backend staging",
 		"staging": "bun run build:frontend:staging && concurrently --names \"MINIO,FRONT,BACK,REPORT\" --prefix-colors \"blue,pink,green,yellow\" \"docker compose -f docker-compose.staging.yml up\" \"bun run preview:frontend:staging\" \"bun run start:backend:staging\" \"cd apps/frontend && bunx vite-bundle-explorer bundle-report\"",
 		"seed": "bun run apps/backend/db/seed.ts",
-		"sync-context": "bun run utils/sync-context.ts",
-		"sync-context:check": "bun run utils/sync-context.ts --check"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.5",

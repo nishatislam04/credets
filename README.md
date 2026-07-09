@@ -16,9 +16,9 @@ A monorepo for securely managing private credentials — a full-stack credential
 
 - Simple authentication and Full systematic Authorization
 - Credential listings with infinite scroll
-- Create, update and delete credentials
-- Create, update and delete types
-- Image upload support (thumbnail + gallery) to supabase storage
+- CRUD credential
+- CRUD types
+- Image upload support (thumbnail + images) to supabase storage
 - Flexible data input for credential (single value, key-pair, text blocks)
 - Search, sort, and filter in credentials listings
 - Security: CSRF protection, encryption-at-rest, password hashing
@@ -38,7 +38,8 @@ cd credets
 bun i
 ```
 
-Note: Some environment variables are duplicated in both the root `.env` and `apps/backend/.env`. Observe both carefully.
+Note: Some environment variables are duplicated in both the root `.env`and
+`apps/backend/.env`. Observe both carefully.
 
 ### 3. Environment variables
 

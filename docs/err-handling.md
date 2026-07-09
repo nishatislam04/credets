@@ -9,7 +9,8 @@
 Here's the exact step-by-step trace when someone tries to delete a credential that doesn't exist:
 
 **Step 1 — HTTP Controller calls Service:**
-```
+
+```bash
 credentailDelete (http/credentials/delete.ts)
   → deleteCredentialService(credentialId)
 ```

@@ -1,14 +1,18 @@
 # this is dblab usage guide
 
-dblab is terminal user interface(TUI) application for view and manage our postgres database.
+dblab is terminal user interface(TUI) application for viewing our database.
 
 ## install dblab
 
-use ai to install. it was quite complex to install. we had to download the `*.tar.gz` file from releases archive and then move it here and there to make it working. and i dont remember how i did it. nor i want to post the installation guide here.
+use ai to install. it was quite complex to install.
+we had to download the `*.tar.gz` file from releases archive and
+then move it here and there to make it working.
+and i dont remember how i did it.
+nor i want to post the installation guide here.
 
-1. navigate to project root dir, where dblab.yaml exist
+1. goto root dir
 
-2. launch dblab
+2. launch dblab:
 
 ```bash
 dblab --config
