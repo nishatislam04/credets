@@ -75,7 +75,7 @@ export function TypeSelector({ types, onTypesChange }: TypeSelectorProps) {
 				const shouldFocus = focusLevel === levelIndex;
 				return (
 					<TypeLevel
-						key={levelIndex}
+						key={crypto.randomUUID()}
 						levelIndex={levelIndex}
 						parentValue={levelIndex > 0 ? types[levelIndex - 1]?.value : undefined}
 						currentType={types[levelIndex] ?? null}

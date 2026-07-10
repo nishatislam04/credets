@@ -9,9 +9,7 @@ export async function getCredentialsListings(
 	const params = new URLSearchParams({
 		limit: String(limit),
 	});
-	if (cursor) {
-		params.set("cursor", cursor);
-	}
+	if (cursor) params.set("cursor", cursor);
 
 	const res = await fetch(`${import.meta.env.VITE_BACKEND_APP}/credentials?${params.toString()}`);
 

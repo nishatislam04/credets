@@ -1,14 +1,14 @@
 import type { BunRequest } from "bun";
 import { AppError } from "./err/base";
-import { logAlways } from "./utils/logger";
 import { credentialCreate } from "./http/credentials/create";
 import { credentialPage } from "./http/credentials/credential";
 import { credentailDelete } from "./http/credentials/delete";
 import { credentialListings } from "./http/credentials/listings";
 import { credentialUpdate } from "./http/credentials/update";
 import { generateCSRF } from "./http/csrf/generateCSRF";
-import { typesListings } from "./http/types/listings";
 import { typesChildren } from "./http/types/children";
+import { typesListings } from "./http/types/listings";
+import { logAlways } from "./utils/logger";
 import { ResponseFactory } from "./utils/response";
 // import indexHtml from "./index.html";
 import { createCredentialValidation } from "./validation/credential/create";
@@ -52,9 +52,10 @@ Bun.serve({
 
 		const status = error instanceof AppError ? error.status : 500;
 		const type = error instanceof AppError ? error.type : "internal-error";
-		const message = error instanceof AppError
-			? error.message
-			: "An unexpected error occurred";
+		const message =
+			error instanceof AppError
+				? error.message
+				: "An unexpected error occurred";
 
 		return Response.json(
 			{

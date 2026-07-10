@@ -2,14 +2,16 @@ import type { CredentialListItem } from "@credets/shared-types/credentials/listi
 import { Link } from "@tanstack/react-router";
 import { CalendarDays, ChevronRight, ImageIcon } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
+import { TYPE_COLORS, TAG_COLORS, hashString } from "../-utils/colors";
 import { Card, CardContent } from "#/components/ui/card";
 import { CredetsImage } from "#/components/ui/image";
 import { RichTextRenderer } from "#/components/ui/rich-text-renderer";
-import { TYPE_COLORS, TAG_COLORS, hashString } from "../-utils/colors";
 
 interface CredentialCardProps {
 	credential: CredentialListItem;
-}	export function CredentialCard({ credential }: CredentialCardProps) {
+}
+
+export function CredentialCard({ credential }: CredentialCardProps) {
 	const {
 		id,
 		title,
@@ -45,7 +47,7 @@ interface CredentialCardProps {
 
 	return (
 		<Link to="/credentials/$credentialId" params={{ credentialId: id }} className="group block">
-			<Card className="overflow-hidden rounded-xl border shadow-xs transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md hover:border-primary/20 hover:bg-primary/[0.02] active:translate-y-0 active:shadow-xs flex flex-row bg-card py-2">
+			<Card className="overflow-hidden rounded-xl border shadow-xs transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md hover:border-primary/20 hover:bg-primary/2 active:translate-y-0 active:shadow-xs flex flex-row bg-card py-2">
 				{/* ── Left: Thumbnail ── */}
 				<div className="shrink-0 flex items-center justify-center px-4 py-4 md:px-5 md:py-5">
 					{cacheBustedThumbnail ? (

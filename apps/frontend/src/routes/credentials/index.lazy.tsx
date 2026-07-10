@@ -27,64 +27,53 @@ function RouteComponent() {
 		isRefetching,
 	} = useInfiniteQuery({
 		queryKey: ["credentials-listings"],
-		queryFn: ({ pageParam }) => getCredentialsListings(pageParam as string | undefined | null),
+		queryFn: ({ pageParam }) =>
+			getCredentialsListings(pageParam as string | undefined | null),
 		initialPageParam: undefined as string | undefined,
 		getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
 	});
 
 	const { ref: sentinelRef, inView } = useInView({ rootMargin: "200px" });
 
-	// Auto-fetch the next page when the sentinel element enters the viewport
 	useEffect(() => {
-		if (inView && hasNextPage && !isFetchingNextPage && !isError) {
-			fetchNextPage();
-		}
+		const shouldFetchNextPage =
+			inView && // user at bottom view
+			hasNextPage && // has more data to load
+			!isFetchingNextPage && // not currently fetching
+			!isError; // no error
+
+		if (shouldFetchNextPage) fetchNextPage();
 	}, [inView, hasNextPage, isFetchingNextPage, isError, fetchNextPage]);
 
-	// Flatten all pages into a single array of credentials
 	const credentials = data?.pages.flatMap((page) => page.credentials) ?? [];
 
 	// Distinguish initial load error from load-more error
 	const isInitialError = isError && !data?.pages?.length;
 	const isLoadMoreError = isError && (data?.pages?.length ?? 0) > 0;
 
-	if (isLoading) {
-		return (
-			<div className="mx-auto w-full max-w-3xl px-4 py-8">
-				<div className="mb-8 flex items-start justify-between">
-					<div>
-						<Skeleton className="mb-2 h-8 w-40" />
-						<Skeleton className="h-4 w-64" />
-					</div>
-					<Skeleton className="h-10 w-24 rounded-lg" />
-				</div>
-				<div className="space-y-3">
-					{[...Array(12)].map((_, i) => (
-						<Skeleton key={crypto.randomUUID()} className="h-24 w-full rounded-xl" />
-					))}
-				</div>
-			</div>
-		);
-	}
-
 	return (
 		<div className="mx-auto w-full max-w-3xl px-4 py-8">
 			{/* Page header */}
 			<div className="mb-8 flex items-start justify-between">
 				<div>
-					<header className="flex items-center gap-2">
-						<h1 className="text-2xl font-bold tracking-tight">Credentials</h1>
-						<ThemeToggle />
+					<header className="">
+						<section className="flex">
+							<h1 className="text-2xl font-bold tracking-tight">Credentials</h1>
+							<ThemeToggle />
+						</section>
+						<p className="text-sm text-muted-foreground mt-1">
+							Browse your saved credentials, keys, and secrets
+						</p>
 					</header>
-					<p className="text-sm text-muted-foreground mt-1">
-						Browse your saved credentials, keys, and secrets
-					</p>
 
+					{/* skeleon load the credential length */}
+					{isLoading && <Skeleton className="h-4 w-18 mt-3" />}
 					{/* Show count + spinner when credentials exist and not initial loading */}
 					{credentials.length > 0 && !isLoading && (
 						<div className="flex items-center gap-2 mt-2">
 							<p className="text-xs text-muted-foreground/50">
-								{credentials.length} credential{credentials.length !== 1 ? "s" : ""}
+								{credentials.length} credential
+								{credentials.length !== 1 ? "s" : ""}
 							</p>
 							{/* Spinner shown during background refetch */}
 							{isRefetching && <LoaderIcon className="size-3 animate-spin" />}
@@ -100,10 +89,28 @@ function RouteComponent() {
 				</Link>
 			</div>
 
+			{/* show inital skeleton loading */}
+			{isLoading && (
+				<div className="mx-auto w-full px-2 py-0">
+					<div className="space-y-3">
+						{[...Array(12)].map((_, i) => (
+							<Skeleton
+								key={crypto.randomUUID()}
+								className="h-36 w-full rounded-xl"
+							/>
+						))}
+					</div>
+				</div>
+			)}
+
 			{/* Initial load error state */}
 			{isInitialError && (
 				<CredentialsErrorUI
-					error={error instanceof Error ? error : new Error("Failed to load credentials")}
+					error={
+						error instanceof Error
+							? error
+							: new Error("Failed to load credentials")
+					}
 				/>
 			)}
 
@@ -118,17 +125,8 @@ function RouteComponent() {
 			{!isInitialError && credentials.length > 0 && (
 				<>
 					<div className="space-y-3">
-						{credentials.map((cred, idx) => (
-							<div
-								key={cred.id}
-								className="animate-in fade-in slide-in-from-bottom-3 duration-200"
-								style={{
-									animationDelay: `${Math.min(idx * 30, 300)}ms`,
-									animationFillMode: "backwards",
-								}}
-							>
-								<CredentialCard credential={cred} />
-							</div>
+						{credentials.map((cred) => (
+							<CredentialCard key={cred.id} credential={cred} />
 						))}
 					</div>
 
@@ -143,7 +141,9 @@ function RouteComponent() {
 							<div className="size-4" />
 						) : (
 							<div className="text-center">
-								<p className="text-xs text-muted-foreground/40">You&rsquo;ve reached the end</p>
+								<p className="text-xs text-muted-foreground/40">
+									You&rsquo;ve reached the end
+								</p>
 							</div>
 						)}
 					</div>
@@ -152,7 +152,9 @@ function RouteComponent() {
 					{isLoadMoreError && error && (
 						<CredentialsLoadMoreError
 							loadMoreError={
-								error instanceof Error ? error.message : "Failed to load more credentials"
+								error instanceof Error
+									? error.message
+									: "Failed to load more credentials"
 							}
 							loadMore={() => fetchNextPage()}
 						/>

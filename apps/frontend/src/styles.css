@@ -22,7 +22,7 @@ body,
 }
 
 body {
-  margin: 0;
+	margin: 0;
 }
 
 @theme inline {
@@ -331,7 +331,7 @@ body {
    variable --richtext-text-foreground being set correctly.  Since our
    project uses oklch colors, the HSL-based variable may resolve to
    an invalid color, making the caret invisible.
-   
+
    Fix: override with our theme-aware --foreground using a selector
    with higher specificity than the library's.                    ── */
 
@@ -342,7 +342,7 @@ body {
 /* ── RTE text selection & inline code ───────────────────────────────
    Using !important to guarantee override of any library/other styles.
    Mix with background for a solid painted highlight (vs transparent wash).
-   
+
    Light mode:  --primary = oklch(0.5 0.134 242.749)  → sky blue
    Dark mode:   --primary = oklch(0.443 0.11 240.79) → slightly lower chroma,
                 so bump opacity to compensate.                     ── */
@@ -365,7 +365,7 @@ body {
    The TipTap Code extension renders <code> elements inline.
    Style them to look like proper inline code: monospace font,
    subtle sky-tinted background, rounded corners, theme-aware.
-   
+
    Selector uses the library's triple-ProseMirror specificity (0,4,1)
    so it overrides the library's default gray background.         ── */
 
@@ -471,11 +471,11 @@ body {
    toolbar/button/bubble backgrounds, but our project uses oklch color
    values.  themeActions.setTheme() overrides these CSS variables with
    HSL-compatible values that differ from our shadcn --input variable.
-   
+
    This creates a mismatch: the wrapper has bg-input/30 (our shadcn
    theme) but the toolbar inside uses solid hsl(var(--background))
    from the library's theme.
-   
+
    Fix: make the library's main container transparent so the
    wrapper's bg-input/30 shows through uniformly.  The toolbar
    buttons and bubble menus keep their library-native styling via

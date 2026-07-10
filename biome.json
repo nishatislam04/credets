@@ -6,13 +6,28 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"ignoreUnknown": false
+		"ignoreUnknown": false,
+		"includes": [
+			"*.json",
+			"packages/**/*.json",
+			"apps/backend/**/*.json",
+			"apps/frontend/**/*.json",
+			"packages/**/*.ts",
+			"packages/**/*.tsx",
+			"apps/backend/**/*.ts",
+			"apps/frontend/**/*.ts",
+			"apps/frontend/**/*.tsx",
+			"!!apps/frontend/bundle-report",
+			"apps/frontend/src/routeTree.gen.ts",
+			"apps/frontend/src/styles.css"
+		]
 	},
 	"formatter": {
 		"enabled": true,
+		"formatWithErrors": true,
 		"indentStyle": "tab",
-		"lineWidth": 80,
-		"indentWidth": 2
+		"indentWidth": 2,
+		"lineWidth": 80
 	},
 	"linter": {
 		"enabled": true,
@@ -27,11 +42,9 @@
 			"style": {
 				"noNonNullAssertion": "off"
 			}
-		}
-	},
-	"javascript": {
-		"formatter": {
-			"quoteStyle": "double"
+		},
+		"domains": {
+			"react": "recommended"
 		}
 	},
 	"assist": {
