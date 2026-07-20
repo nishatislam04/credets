@@ -41,7 +41,7 @@ bun i
 Note: Some environment variables are duplicated in both the root `.env`and
 `apps/backend/.env`. Observe both carefully.
 
-### 3. Environment variables
+### 3. Environment Variables
 
 ```bash
 cp .env.example .env

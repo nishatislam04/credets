@@ -2,10 +2,11 @@ import type { CredentialListItem } from "@credets/shared-types/credentials/listi
 import { Link } from "@tanstack/react-router";
 import { CalendarDays, ChevronRight, ImageIcon } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
-import { TYPE_COLORS, TAG_COLORS, hashString } from "../-utils/colors";
 import { Card, CardContent } from "#/components/ui/card";
 import { CredetsImage } from "#/components/ui/image";
 import { RichTextRenderer } from "#/components/ui/rich-text-renderer";
+import { TagListColorShared } from "../$credentialId/-shared/tagListColorShared";
+import { typeColorShared } from "../$credentialId/-shared/typeColorShared";
 
 interface CredentialCardProps {
 	credential: CredentialListItem;
@@ -19,40 +20,30 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 		thumbnail_url,
 		tags,
 		created_at,
-		updated_at,
 		type_label,
 		type_value,
 	} = credential;
 
-	// Cache-bust thumbnail URL so the browser re-fetches the image
-	// when the credential is updated (S3 key is deterministic).
-	const cacheBustedThumbnail =
-		thumbnail_url && updated_at
-			? `${thumbnail_url}?v=${Date.parse(updated_at)}`
-			: thumbnail_url;
+	const formattedDate = new Date(created_at).toLocaleDateString(undefined, {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+	});
 
-	const tagList = Array.isArray(tags) ? tags : [];
-
-	const formattedDate = created_at
-		? new Date(created_at).toLocaleDateString(undefined, {
-				year: "numeric",
-				month: "short",
-				day: "numeric",
-			})
-		: "";
-
-	const typeValue = type_value ?? "";
-	const colorIndex = hashString(typeValue) % TYPE_COLORS.length;
-	const typeColor = TYPE_COLORS[colorIndex];
+	const typeColor = typeColorShared(type_value);
 
 	return (
-		<Link to="/credentials/$credentialId" params={{ credentialId: id }} className="group block">
+		<Link
+			to="/credentials/$credentialId"
+			params={{ credentialId: id }}
+			className="group block"
+		>
 			<Card className="overflow-hidden rounded-xl border shadow-xs transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md hover:border-primary/20 hover:bg-primary/2 active:translate-y-0 active:shadow-xs flex flex-row bg-card py-2">
 				{/* ── Left: Thumbnail ── */}
 				<div className="shrink-0 flex items-center justify-center px-4 py-4 md:px-5 md:py-5">
-					{cacheBustedThumbnail ? (
+					{thumbnail_url ? (
 						<CredetsImage
-							src={cacheBustedThumbnail}
+							src={thumbnail_url}
 							alt={title}
 							width={92}
 							height={92}
@@ -82,7 +73,9 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 									${typeColor.bg} ${typeColor.text}
 								`}
 							>
-								<span className={`inline-block size-1.5 rounded-full ${typeColor.dot}`} />
+								<span
+									className={`inline-block size-1.5 rounded-full ${typeColor.dot}`}
+								/>
 								{type_label || "label not found"}
 							</Badge>
 						)}
@@ -98,34 +91,17 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 								className="text-sm leading-relaxed text-muted-foreground/75 line-clamp-2 overflow-hidden"
 							/>
 						) : (
-							<p className="text-sm leading-relaxed text-muted-foreground/75 line-clamp-2 overflow-hidden">
+							<p className="text-sm leading-relaxed italic text-muted-foreground/75 line-clamp-2 overflow-hidden">
 								no description provided
 							</p>
 						)}
 					</div>
 
 					<div className="flex justify-between">
-						{/* Row 3: Tags — using TAG_COLORS for consistent styling with detail page */}
-						{tagList.length > 0 && (
-							<div className="flex flex-wrap items-center gap-1 mt-2">
-								{tagList.slice(0, 5).map((tag: string) => {
-									const color = TAG_COLORS[tag.length % TAG_COLORS.length];
-									return (
-										<span
-											key={tag}
-											className={`inline-flex items-center rounded-full px-2 py-0 h-4 text-[10px] font-medium transition-colors duration-150 border-0 ${color.bg} ${color.text}`}
-										>
-											#{tag}
-										</span>
-									);
-								})}
-								{tagList.length > 5 && (
-									<span className="text-[10px] text-muted-foreground/50 ml-0.5">
-										+{tagList.length - 5}
-									</span>
-								)}
-							</div>
-						)}
+						{/* Row 3: Tags */}
+						<div className="flex flex-wrap items-center gap-1 mt-2">
+							<TagListColorShared tags={tags} limit={7} />
+						</div>
 
 						{/* Row 4: Date + Chevron */}
 						<div className="flex items-center justify-between ml-auto">

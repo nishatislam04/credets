@@ -1,14 +1,24 @@
 import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
-import { Check, Copy, FileText, Info, Tag, FolderTree, GitBranch } from "lucide-react";
+import {
+	Check,
+	Copy,
+	FileText,
+	FolderTree,
+	GitBranch,
+	Info,
+	Tag,
+} from "lucide-react";
 import { useState } from "react";
-import { Badge } from "#/components/ui/badge";
-import { isContentEmpty, RichTextRenderer } from "#/components/ui/rich-text-renderer";
-import { TAG_COLORS } from "../../-utils/colors";
+import {
+	isContentEmpty,
+	RichTextRenderer,
+} from "#/components/ui/rich-text-renderer";
 import { TypeTree } from "../-components/TypeTree";
+import { TagListColorShared } from "../-shared/tagListColorShared";
 
 export function Sidebar({ credential }: { credential: CredentialDetail }) {
 	const [copiedId, setCopiedId] = useState(false);
-	const tagList = Array.isArray(credential.tags) ? credential.tags : [];
+	// const tagList = Array.isArray(credential.tags) ? credential.tags : [];
 
 	return (
 		<div className="space-y-12 mt-12 xl:mt-0">
@@ -16,7 +26,9 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 			<section className="mt-4">
 				<div className="mb-2.5 flex items-center gap-2">
 					<GitBranch className="size-4.5" />
-					<h2 className="text-base font-semibold uppercase tracking-wider">Version</h2>
+					<h2 className="text-base font-semibold uppercase tracking-wider">
+						Version
+					</h2>
 				</div>
 				<div className="flex items-center gap-2 rounded-xl border bg-card px-4 py-3">
 					<span className="inline-flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary font-bold text-sm">
@@ -34,10 +46,12 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 			<section>
 				<div className="mb-2.5 flex items-center gap-2">
 					<Info className="size-4.5" />
-					<h2 className="text-base font-semibold uppercase tracking-wider">ID</h2>
+					<h2 className="text-base font-semibold uppercase tracking-wider">
+						ID
+					</h2>
 				</div>
 				<button
-					className="flex cursor-pointer items-center gap-2 rounded-xl border bg-card px-4 py-3 transition-colors hover:bg-blue-50/50"
+					className="flex cursor-pointer items-center gap-2 rounded-xl border bg-card px-3  w-full xl:w-90 py-5 transition-colors"
 					onClick={() => {
 						navigator.clipboard.writeText(credential.id).then(() => {
 							setCopiedId(true);
@@ -46,16 +60,8 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 					}}
 					type="button"
 					tabIndex={0}
-					onKeyDown={(e) => {
-						if (e.key === "Enter" || e.key === " ") {
-							navigator.clipboard.writeText(credential.id).then(() => {
-								setCopiedId(true);
-								setTimeout(() => setCopiedId(false), 1500);
-							});
-						}
-					}}
 				>
-					<code className="flex-1 text-[12px] font-mono text-muted-foreground/60 break-all select-all">
+					<code className="px-4 text-[12px] font-mono text-muted-foreground/60 break-all select-all">
 						{credential.id}
 					</code>
 					{copiedId ? (
@@ -71,7 +77,9 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 				<section className="mt-4">
 					<div className="mb-2.5 flex items-center gap-2">
 						<FolderTree className="size-4.5" />
-						<h2 className="text-base font-semibold uppercase tracking-wider">Type</h2>
+						<h2 className="text-base font-semibold uppercase tracking-wider">
+							Type
+						</h2>
 					</div>
 					<TypeTree path={credential.type_path} />
 				</section>
@@ -82,7 +90,9 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 				<section className="mt-4">
 					<div className="mb-2.5 flex items-center gap-2">
 						<FileText className="size-4.5" />
-						<h2 className="text-base font-semibold uppercase tracking-wider">Notes</h2>
+						<h2 className="text-base font-semibold uppercase tracking-wider">
+							Notes
+						</h2>
 					</div>
 					<div className="rounded-xl border bg-card px-4 py-3">
 						<RichTextRenderer
@@ -94,24 +104,16 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 			)}
 
 			{/* Tags — last, colorful badges */}
-			{tagList.length > 0 && (
+			{Array.isArray(credential.tags) && credential.tags.length > 0 && (
 				<section className="mt-4">
 					<div className="mb-2.5 flex items-center gap-2">
 						<Tag className="size-4.5" />
-						<h2 className="text-base font-semibold uppercase tracking-wider">Tags</h2>
+						<h2 className="text-base font-semibold uppercase tracking-wider">
+							Tags
+						</h2>
 					</div>
 					<div className="flex flex-wrap gap-1.5">
-						{tagList.map((tag: string) => {
-							const color = TAG_COLORS[tag.length % TAG_COLORS.length];
-							return (
-								<Badge
-									key={tag}
-									className={`rounded-full text-[10px] font-medium border-0 ${color.bg} ${color.text}`}
-								>
-									{tag}
-								</Badge>
-							);
-						})}
+						<TagListColorShared tags={credential.tags} />
 					</div>
 				</section>
 			)}

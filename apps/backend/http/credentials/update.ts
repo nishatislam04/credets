@@ -1,5 +1,5 @@
 import { AppError } from "@backend/err/base";
-import { logAlways } from "@backend/utils/logger";
+import { logAlways, logger } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import { credentialsUpdateSchema } from "@credets/shared-schema/credentials/update";
 import type { BunRequest } from "bun";
@@ -8,6 +8,8 @@ import { parseAndValidateCredential } from "../../validation/credential/validato
 
 export async function credentialUpdate(req: BunRequest) {
 	const result = await parseAndValidateCredential(req, credentialsUpdateSchema);
+
+	logger(result);
 
 	if (!result.success) {
 		return result.errorResponse;

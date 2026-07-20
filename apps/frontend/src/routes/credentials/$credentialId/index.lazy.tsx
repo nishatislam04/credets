@@ -3,10 +3,10 @@ import { createLazyFileRoute, useLoaderData } from "@tanstack/react-router";
 import { useState } from "react";
 import { Separator } from "#/components/ui/separator";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
+import { ImageGallery } from "./-components/ImageGallery";
 import { Content } from "./-ui/content";
 import { Footer } from "./-ui/footer";
 import { Header } from "./-ui/header";
-import { ImageGallery } from "./-components/ImageGallery";
 import { Sidebar } from "./-ui/sidebar";
 import { TopHeader } from "./-ui/topHeader";
 
@@ -22,7 +22,8 @@ function RouteComponent() {
 	const [galleryPreviewIndex, setGalleryPreviewIndex] = useState(0);
 	const [thumbnailPreviewOpen, setThumbnailPreviewOpen] = useState(false);
 
-	const hasImages = Array.isArray(credential.images) && credential.images.length > 0;
+	const hasImages =
+		Array.isArray(credential.images) && credential.images.length > 0;
 	const thumbnailUri = credential.thumbnail_url;
 
 	const openGalleryPreview = (index: number) => {
@@ -70,13 +71,15 @@ function RouteComponent() {
 			)}
 
 			{/* ── Gallery image preview overlay — single image fullscreen ── */}
-			{galleryPreviewOpen && hasImages && credential.images[galleryPreviewIndex]?.image_url && (
-				<ImagePreviewOverlay
-					src={credential.images[galleryPreviewIndex].image_url}
-					onClose={() => setGalleryPreviewOpen(false)}
-					alt={`Gallery image ${galleryPreviewIndex + 1}`}
-				/>
-			)}
+			{galleryPreviewOpen &&
+				hasImages &&
+				credential.images[galleryPreviewIndex]?.image_url && (
+					<ImagePreviewOverlay
+						src={credential.images[galleryPreviewIndex].image_url}
+						onClose={() => setGalleryPreviewOpen(false)}
+						alt={`Gallery image ${galleryPreviewIndex + 1}`}
+					/>
+				)}
 		</>
 	);
 }

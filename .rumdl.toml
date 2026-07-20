@@ -1,41 +1,54 @@
-# rumdl configuration file
+# =============================================================================
+# rumdl Configuration – Comprehensive Markdown Linting
+# =============================================================================
+# This configuration enables most rules with sensible defaults.
+# Rules are organized by category for easy maintenance.
+# =============================================================================
 
-# Inherit settings from another config file (relative to this file's directory)
+
+# =============================================================================
+# GLOBAL SETTINGS
+# =============================================================================
+# These control file selection, rule enablement, and general behavior.
+# See: https://rumdl.dev/global-settings/
+# =============================================================================
+
+# Extend from another config file (relative to this file's directory)
 # extends = "../base.rumdl.toml"
 
-# Global configuration options
-[global]
-# List of rules to disable (uncomment and modify as needed)
-# disable = ["MD013", "MD033"]
+# Markdown flavor – adjust based on your documentation platform
+# Options: standard (default), gfm, commonmark, mkdocs, mdx, pandoc,
+#          quarto, obsidian, kramdown, azure_devops, myst
+# See: https://rumdl.dev/flavors/
+flavor = "gfm"  # GitHub Flavored Markdown – recommended for most projects
 
-# List of rules to enable exclusively (replaces defaults; only these rules will run)
-# enable = ["MD001", "MD003", "MD004"]
+# Default line length for rules (MD013)
+# This can be overridden per-rule (see MD013 section below)
+line-length = 100
 
-# Additional rules to enable on top of defaults (additive, does not replace)
-# Use this to activate opt-in rules like MD060, MD063, MD072, MD073, MD074
-# extend-enable = ["MD060", "MD063"]
+# Files/directories to include (if empty, all files are included)
+include = [
+    "docs/**/*.md",
+    "README.md",
+    "apps/backend/README.md",
+    "apps/frontend/README.md",
+]
 
-# Additional rules to disable on top of the disable list (additive)
-# extend-disable = ["MD041"]
-
-# List of file/directory patterns to include for linting (if provided, only these will be linted)
-# include = [
-#    "docs/*.md",
-#    "src/**/*.md",
-#    "README.md"
-# ]
-
-# List of file/directory patterns to exclude from linting
+# Files/directories to exclude from linting
 exclude = [
-    # Common directories to exclude
     ".git",
     ".github",
     "node_modules",
     "vendor",
     "dist",
     "build",
-
-    # Specific files or patterns
+    "coverage",
+    ".turbo",
+    ".next",
+    ".output",
+    ".nitro",
+    ".vinxi",
+    ".tanstack",
     "CHANGELOG.md",
     "LICENSE.md",
 ]
@@ -43,27 +56,251 @@ exclude = [
 # Respect .gitignore files when scanning directories (default: true)
 respect-gitignore = true
 
-# Markdown flavor/dialect (uncomment to enable)
-# Options: standard (default), gfm, commonmark, mkdocs, mdx, pandoc, quarto, obsidian, kramdown, azure_devops, myst
-# flavor = "mkdocs"
+# Enable result caching for faster repeated runs (default: true)
+cache = true
 
-# Rule-specific configurations (uncomment and modify as needed)
+# Cache directory (default: .rumdl_cache)
+cache-dir = ".rumdl_cache"
 
-# [MD003]
-# style = "atx"  # Heading style (atx, atx_closed, setext)
 
-# [MD004]
-# style = "asterisk"  # Unordered list style (asterisk, plus, dash, consistent)
+# =============================================================================
+# RULE ENABLEMENT
+# =============================================================================
+# Rules can be enabled/disabled in three ways:
+#   enable: Enable ONLY these rules (replaces defaults)
+#   disable: Disable specific rules (defaults remain enabled)
+#   extend-enable: Enable additional rules on top of defaults (additive)
+#   extend-disable: Disable additional rules on top of default (additive)
+# See: https://rumdl.dev/rules/#using-rules
+# =============================================================================
 
-# [MD007]
-# indent = 4  # Unordered list indentation
+# Enable ALL rules (including opt-in ones) – comprehensive linting
+# To selectively disable rules, use 'disable' or 'extend-disable' below
+enable = ["ALL"]
 
+# Enable opt-in rules that are disabled by default
+# See: https://rumdl.dev/rules/#opt-in-rules
+extend-enable = [
+    "MD060",  # Table formatting – enforces consistent table formatting
+    "MD063",  # Heading capitalization – enforces consistent heading case
+    "MD070",  # Nested code fence – detects nested code fences
+    "MD072",  # Frontmatter key sort – sorts YAML/TOML/JSON frontmatter keys
+    "MD073",  # TOC validation – validates Table of Contents against headings
+    "MD074",  # MkDocs nav validation – validates MkDocs nav entries (requires flavor = "mkdocs")
+    "MD080",  # Heading anchor collision – ensures unique heading slugs
+    "MD082",  # No empty sections – warns about headings with no content
+]
+
+# Disable rules that may be too strict for your use case
+disable = [
+    # These are often too noisy or conflict with other tools
+    "MD033",  # No inline HTML – inline HTML is sometimes necessary
+    "MD034",  # No bare URLs – auto-linked URLs are acceptable
+    "MD041",  # First line h1 – not all files need a title heading
+    "MD043",  # Required headings – too project-specific
+    "MD053",  # Link/image definitions should be needed – too strict
+    "MD054",  # Link/image style – style varies by project
+    "MD061",  # Forbidden terms – requires project-specific configuration
+    "MD074",  # MkDocs nav validation – only relevant for MkDocs projects
+]
+
+# Per-file rule overrides (disable specific rules for specific files)
+per-file-ignores = {}
+
+
+# =============================================================================
+# HEADING RULES
+# =============================================================================
+# Rules related to heading structure and formatting.
+# See: https://rumdl.dev/rules/#heading-rules
+# =============================================================================
+
+# MD003 – Heading style
+# https://rumdl.dev/md003/
+[MD003]
+style = "atx"  # Options: atx (default), atx_closed, setext, consistent
+
+# MD004 – Unordered list style
+# https://rumdl.dev/md004/
+[MD004]
+style = "dash"  # Options: asterisk, plus, dash, consistent
+
+# MD007 – Unordered list indentation
+# https://rumdl.dev/md007/
+[MD007]
+indent = 4  # Number of spaces for list indentation
+
+# MD022 – Blanks around headings
+# https://rumdl.dev/md022/
+[MD022]
+lines_above = 1  # Number of blank lines before heading (0 or 1)
+lines_below = 1  # Number of blank lines after heading (0 or 1)
+
+# MD029 – Ordered list prefix
+# https://rumdl.dev/md029/
+[MD029]
+style = "one_or_ordered"  # Options: one, ordered, one_or_ordered, zero
+
+# MD030 – List marker space
+# https://rumdl.dev/md030/
+[MD030]
+ul_single = 1  # Spaces after unordered list marker
+ol_single = 1  # Spaces after ordered list marker
+ul_multi = 1   # Spaces after unordered list marker for multi-line items
+ol_multi = 1   # Spaces after ordered list marker for multi-line items
+
+# MD035 – Horizontal rule style
+# https://rumdl.dev/md035/
+[MD035]
+style = "---"  # Options: ---, ***, ___, consistent
+
+# MD036 – No emphasis as heading
+# https://rumdl.dev/md036/
+[MD036]
+punctuation = ".,;:!?"  # Punctuation characters that allow emphasis as heading
+
+# MD044 – Proper names
+# https://rumdl.dev/md044/
+[MD044]
+names = ["rumdl", "Markdown", "GitHub", "Biome", "TypeScript", "Zed"]
+code_blocks = false  # Skip code blocks (default: false)
+
+
+# =============================================================================
+# WHITESPACE RULES
+# =============================================================================
+# Rules for spacing, indentation, and line length.
+# See: https://rumdl.dev/rules/#whitespace-rules
+# =============================================================================
+
+# MD009 – No trailing spaces
+# https://rumdl.dev/md009/
+[MD009]
+br_spaces = 2  # Number of spaces for line break (0 disables check)
+
+# MD010 – No hard tabs
+# https://rumdl.dev/md010/
+[MD010]
+code_blocks = false  # Skip code blocks (default: true)
+
+# MD012 – No multiple blanks
+# https://rumdl.dev/md012/
+[MD012]
+maximum = 1  # Maximum consecutive blank lines (default: 1)
+
+# MD013 – Line length
+# https://rumdl.dev/md013/
 [MD013]
-line-length = 100  # Line length
-# code-blocks = false  # Exclude code blocks from line length check
-# tables = false  # Exclude tables from line length check
-# headings = true  # Include headings in line length check
+line_length = 100       # Maximum line length (overrides global line-length)
+code_blocks = false     # Skip code blocks (default: false)
+tables = false          # Skip tables (default: false)
+headings = false        # Skip headings (default: false)
+headers = false         # Skip headings (deprecated, use headings)
 
-# [MD044]
-# names = ["rumdl", "Markdown", "GitHub"]  # Proper names that should be capitalized correctly
-# code-blocks = false  # Check code blocks for proper names (default: false, skips code blocks)
+# MD027 – Multiple spaces blockquote
+# https://rumdl.dev/md027/
+[MD027]
+code_blocks = false  # Skip code blocks
+
+
+# =============================================================================
+# FORMATTING RULES
+# =============================================================================
+# Rules for general Markdown formatting.
+# See: https://rumdl.dev/rules/#formatting-rules
+# =============================================================================
+
+# MD026 – No trailing punctuation in heading
+# https://rumdl.dev/md026/
+[MD026]
+punctuation = ".,;:!?"  # Punctuation characters not allowed at end of heading
+
+# MD033 – No inline HTML
+# https://rumdl.dev/md033/
+[MD033]
+allowed_elements = ["details", "summary", "kbd", "br"]  # HTML elements allowed
+
+
+# =============================================================================
+# CODE BLOCK RULES
+# =============================================================================
+# Rules specific to code blocks and fences.
+# See: https://rumdl.dev/rules/#code-block-rules
+# =============================================================================
+
+# MD046 – Code block style
+# https://rumdl.dev/md046/
+[MD046]
+style = "fenced"  # Options: fenced, indented, consistent
+
+# MD048 – Code fence style
+# https://rumdl.dev/md048/
+[MD048]
+style = "backtick"  # Options: backtick, tilde, consistent
+
+
+# =============================================================================
+# LINK AND IMAGE RULES
+# =============================================================================
+# Rules for links, references, and images.
+# See: https://rumdl.dev/rules/#link-and-image-rules
+# =============================================================================
+
+# MD052 – Reference links and images should be defined
+# https://rumdl.dev/md052/
+[MD052]
+shortcut = true   # Allow shortcut links (e.g., [text])
+collapsed = true  # Allow collapsed links (e.g., [text][])
+
+
+# =============================================================================
+# TABLE RULES
+# =============================================================================
+# Rules for table formatting and structure.
+# See: https://rumdl.dev/rules/#table-rules
+# =============================================================================
+
+# MD055 – Table pipe style
+# https://rumdl.dev/md055/
+[MD055]
+style = "space"  # Options: leading, space, consistent
+
+# MD056 – Table column count
+# https://rumdl.dev/md056/
+[MD056]
+allow_missing = true  # Allow missing columns in table rows
+
+
+# =============================================================================
+# FOOTNOTE RULES
+# =============================================================================
+# Rules for footnote validation and formatting.
+# See: https://rumdl.dev/rules/#footnote-rules
+# =============================================================================
+
+# MD067 – Footnote definition order
+# https://rumdl.dev/md067/
+[MD067]
+order = "normal"  # Options: normal, reverse
+
+
+# =============================================================================
+# SEVERITY OVERRIDES
+# =============================================================================
+# Override default severities for specific rules.
+# Valid values: "error", "warning", "info"
+# See: https://rumdl.dev/rules/#configuring-severity
+# =============================================================================
+
+# Promote critical rules to "error" severity
+[severity]
+MD001 = "error"  # Heading increment
+MD011 = "error"  # Reversed link syntax
+MD024 = "error"  # Duplicate headings
+MD025 = "error"  # Multiple H1 elements
+MD042 = "error"  # Empty links
+MD045 = "error"  # Missing alt text
+MD051 = "error"  # Invalid link fragments
+MD057 = "error"  # Links to non-existent files
+MD066 = "error"  # Undefined footnote references
+MD068 = "error"  # Empty footnote definitions

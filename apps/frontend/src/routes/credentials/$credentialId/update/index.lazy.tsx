@@ -5,7 +5,12 @@ import type {
 } from "@credets/shared-types/credentials/listings";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
-import { createLazyFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
+import {
+	createLazyFileRoute,
+	Link,
+	useNavigate,
+	useRouter,
+} from "@tanstack/react-router";
 import { ArrowLeft, X } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import {
@@ -18,16 +23,24 @@ import {
 } from "#/components/ui/field";
 import { gooeyToast } from "#/components/ui/goey-toaster";
 import { CredetsImage } from "#/components/ui/image";
-import { Item, ItemContent, ItemDescription, ItemTitle } from "#/components/ui/item";
+import {
+	Item,
+	ItemContent,
+	ItemDescription,
+	ItemTitle,
+} from "#/components/ui/item";
 import { cn } from "#/lib/utils";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
-import { type TypePathEntry, TypeSelector } from "#/routes/credentials/-components/TypeSelector";
+import {
+	type TypePathEntry,
+	TypeSelector,
+} from "#/routes/credentials/-components/TypeSelector";
 import { DataBlock } from "#/routes/credentials/create/-components/Datablock";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { TagInput } from "@/components/ui/tag-input";
+import { Textarea } from "@/components/ui/textarea";
 import { updateCredentialAction } from "./-actions/updateCredentialAction";
 import { updateCredentialValidation } from "./-actions/updateCredentialValidation";
 import { DeleteCredentialDialog } from "./-delete/delete-credential-dialog";
@@ -39,7 +52,9 @@ function imageSrc(img: { image_url?: string | null }) {
 }
 
 /** Convert a flat object (from seed) into typed blocks for editing */
-function normalizeDataForEdit(data: Record<string, unknown> | DataBlockEntry[]): DataBlockEntry[] {
+function normalizeDataForEdit(
+	data: Record<string, unknown> | DataBlockEntry[],
+): DataBlockEntry[] {
 	if (!data) return [{ type: "single_label", value: "" }];
 	if (Array.isArray(data)) {
 		if (data.length === 0) return [{ type: "single_label", value: "" }];
@@ -70,7 +85,10 @@ export const Route = createLazyFileRoute("/credentials/$credentialId/update/")({
 });
 
 function RouteComponent() {
-	const data = Route.useLoaderData() as { credential: CredentialDetail; csrfToken: string };
+	const data = Route.useLoaderData() as {
+		credential: CredentialDetail;
+		csrfToken: string;
+	};
 	const credential = data.credential;
 	const csrfToken = data.csrfToken;
 	const navigate = useNavigate();
@@ -86,7 +104,9 @@ function RouteComponent() {
 	const [thumbnailRemoved, setThumbnailRemoved] = useState(false);
 	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 	const [focusBlockIndex, setFocusBlockIndex] = useState<number | null>(null);
-	const visibleExistingImages = existingImages.filter((img) => !removedImageIds.includes(img.id));
+	const visibleExistingImages = existingImages.filter(
+		(img) => !removedImageIds.includes(img.id),
+	);
 
 	// ── Initial data blocks ──
 	const initialDataBlocks = normalizeDataForEdit(credential.data);
@@ -99,7 +119,12 @@ function RouteComponent() {
 					label: entry.label,
 				}))
 			: credential.type_value
-				? [{ value: credential.type_value, label: credential.type_label || credential.type_value }]
+				? [
+						{
+							value: credential.type_value,
+							label: credential.type_label || credential.type_value,
+						},
+					]
 				: [];
 
 	// ── Form ──
@@ -137,10 +162,12 @@ function RouteComponent() {
 
 					if (!data.success) {
 						gooeyToast.error(
-							data.message || "something went wrong on server side while validating data",
+							data.message ||
+								"something went wrong on server side while validating data",
 						);
 						return {
-							message: "something went wrong on server side while validating credential data",
+							message:
+								"something went wrong on server side while validating credential data",
 						};
 					}
 				} catch (error) {
@@ -207,7 +234,9 @@ function RouteComponent() {
 					<ArrowLeft className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5" />
 					Back to credential
 				</Link>
-				<p className="capitalize text-4xl text-center">Update credential data</p>
+				<p className="capitalize text-4xl text-center">
+					Update credential data
+				</p>
 			</div>
 
 			<Form
@@ -270,7 +299,9 @@ function RouteComponent() {
 										<FieldLabel className="w-15 mt-2" htmlFor="type">
 											types <span className="text-destructive -ml-2">*</span>
 										</FieldLabel>
-										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
 									</FieldContent>
 									<div className="flex-1 w-full">
 										{/* Hidden type field synced with leaf value */}
@@ -289,7 +320,9 @@ function RouteComponent() {
 													onTypesChange={(newTypes) => {
 														typesField.handleChange(newTypes);
 														const leafValue =
-															newTypes.length > 0 ? newTypes[newTypes.length - 1].value : "";
+															newTypes.length > 0
+																? newTypes[newTypes.length - 1].value
+																: "";
 														field.handleChange(leafValue);
 													}}
 												/>
@@ -305,8 +338,11 @@ function RouteComponent() {
 						name="short_description"
 						children={(field) => {
 							const isInvalid = !field.state.meta.isValid;
-							return (						<Field data-invalid={isInvalid}>
-									<FieldLabel htmlFor="short_description">Short description</FieldLabel>
+							return (
+								<Field data-invalid={isInvalid}>
+									<FieldLabel htmlFor="short_description">
+										Short description
+									</FieldLabel>
 									<Textarea
 										id="short_description"
 										value={field.state.value}
@@ -316,7 +352,7 @@ function RouteComponent() {
 										aria-invalid={isInvalid}
 									/>
 									{isInvalid && <FieldError errors={field.state.meta.errors} />}
-							</Field>
+								</Field>
 							);
 						}}
 					/>
@@ -326,7 +362,9 @@ function RouteComponent() {
 							const isInvalid = !field.state.meta.isValid;
 							return (
 								<Field data-invalid={isInvalid}>
-									<FieldLabel htmlFor="long_description">Long description</FieldLabel>
+									<FieldLabel htmlFor="long_description">
+										Long description
+									</FieldLabel>
 									<Suspense
 										fallback={
 											<div
@@ -335,7 +373,9 @@ function RouteComponent() {
 												)}
 												style={{ height: "358px" }}
 											>
-												<div className="animate-pulse text-muted-foreground">Loading editor…</div>
+												<div className="animate-pulse text-muted-foreground">
+													Loading editor…
+												</div>
 											</div>
 										}
 									>
@@ -391,7 +431,10 @@ function RouteComponent() {
 											onClick={() => {
 												const newIdx = arrayField.state.value.length;
 												setFocusBlockIndex(newIdx);
-												arrayField.pushValue({ type: "single_label", value: "" });
+												arrayField.pushValue({
+													type: "single_label",
+													value: "",
+												});
 											}}
 										>
 											+ Single label
@@ -402,7 +445,11 @@ function RouteComponent() {
 											onClick={() => {
 												const newIdx = arrayField.state.value.length;
 												setFocusBlockIndex(newIdx);
-												arrayField.pushValue({ type: "key_value", key: "", value: "" });
+												arrayField.pushValue({
+													type: "key_value",
+													key: "",
+													value: "",
+												});
 											}}
 										>
 											+ Key / Value
@@ -413,7 +460,10 @@ function RouteComponent() {
 											onClick={() => {
 												const newIdx = arrayField.state.value.length;
 												setFocusBlockIndex(newIdx);
-												arrayField.pushValue({ type: "information", value: "" });
+												arrayField.pushValue({
+													type: "information",
+													value: "",
+												});
 											}}
 										>
 											+ Information
@@ -432,13 +482,19 @@ function RouteComponent() {
 								const isInvalid = !field.state.meta.isValid;
 								const existingThumbnailSrc = credential.thumbnail_url || null;
 								const showExisting =
-									!field.state.value && existingThumbnailSrc && !thumbnailRemoved;
+									!field.state.value &&
+									existingThumbnailSrc &&
+									!thumbnailRemoved;
 								const showPreview = field.state.value;
-								const previewUrl = showPreview ? URL.createObjectURL(field.state.value) : null;
+								const previewUrl = showPreview
+									? URL.createObjectURL(field.state.value)
+									: null;
 
 								return (
 									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="thumbnail">Thumbnail (image)</FieldLabel>
+										<FieldLabel htmlFor="thumbnail">
+											Thumbnail (image)
+										</FieldLabel>
 
 										{/* Show existing thumbnail with remove + preview */}
 										{showExisting && (
@@ -533,7 +589,9 @@ function RouteComponent() {
 											}}
 											aria-invalid={isInvalid}
 										/>
-										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
 									</Field>
 								);
 							}}
@@ -598,8 +656,9 @@ function RouteComponent() {
 							{/* Removed images summary */}
 							{removedImageIds.length > 0 && (
 								<p className="text-xs text-destructive mb-2">
-									{removedImageIds.length} image{removedImageIds.length > 1 ? "s" : ""} will be
-									removed on save
+									{removedImageIds.length} image
+									{removedImageIds.length > 1 ? "s" : ""} will be removed on
+									save
 								</p>
 							)}
 
@@ -610,8 +669,11 @@ function RouteComponent() {
 								multiple
 								accept="image/*"
 								onChange={(e) => {
-									const files = e.target.files ? Array.from(e.target.files) : [];
-									const available = 6 - visibleExistingImages.length - newImages.length;
+									const files = e.target.files
+										? Array.from(e.target.files)
+										: [];
+									const available =
+										6 - visibleExistingImages.length - newImages.length;
 
 									if (available <= 0) {
 										gooeyToast.error("max 6 images support", {
@@ -643,7 +705,10 @@ function RouteComponent() {
 										{newImages.map((file, index) => {
 											const fileUrl = URL.createObjectURL(file);
 											return (
-												<div key={`${file.name}-${index}`} className="group relative">
+												<div
+													key={`${file.name}-${index}`}
+													className="group relative"
+												>
 													<div className="aspect-square overflow-hidden rounded-lg border bg-muted/20">
 														<button
 															type="button"
@@ -661,14 +726,18 @@ function RouteComponent() {
 															type="button"
 															className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer border-0"
 															onClick={() => {
-																setNewImages((prev) => prev.filter((_, i) => i !== index));
+																setNewImages((prev) =>
+																	prev.filter((_, i) => i !== index),
+																);
 															}}
 															aria-label="Remove image"
 														>
 															<X className="size-3" />
 														</button>
 													</div>
-													<p className="mt-1 truncate text-xs text-muted-foreground">{file.name}</p>
+													<p className="mt-1 truncate text-xs text-muted-foreground">
+														{file.name}
+													</p>
 												</div>
 											);
 										})}
@@ -686,7 +755,9 @@ function RouteComponent() {
 								return (
 									<Field data-invalid={isInvalid}>
 										<FieldLabel htmlFor="notes">Notes</FieldLabel>
-										<FieldDescription>optional note about this credential</FieldDescription>
+										<FieldDescription>
+											optional note about this credential
+										</FieldDescription>
 										<Suspense
 											fallback={
 												<div
@@ -695,7 +766,9 @@ function RouteComponent() {
 													)}
 													style={{ height: "358px" }}
 												>
-													<div className="animate-pulse text-muted-foreground">Loading editor…</div>
+													<div className="animate-pulse text-muted-foreground">
+														Loading editor…
+													</div>
 												</div>
 											}
 										>
@@ -706,7 +779,9 @@ function RouteComponent() {
 												minHeight="200px"
 											/>
 										</Suspense>
-										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
 									</Field>
 								);
 							}}
@@ -719,7 +794,8 @@ function RouteComponent() {
 									<Field data-invalid={isInvalid}>
 										<FieldLabel htmlFor="tags">Tags</FieldLabel>
 										<FieldDescription>
-											Press Enter or comma (,) to add a tag. up to 15 tags allowed.
+											Press Enter or comma (,) to add a tag. up to 15 tags
+											allowed.
 										</FieldDescription>
 
 										<TagInput
@@ -731,7 +807,9 @@ function RouteComponent() {
 											aria-invalid={isInvalid}
 											maxTags={15}
 										/>
-										{isInvalid && <FieldError errors={field.state.meta.errors} />}
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
 									</Field>
 								);
 							}}
@@ -739,7 +817,11 @@ function RouteComponent() {
 					</div>
 					{/* Submit */}
 					<form.Subscribe
-						selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
+						selector={(state) => [
+							state.canSubmit,
+							state.isSubmitting,
+							state.isPristine,
+						]}
 						children={([canSubmit, isSubmitting, isPristine]) => (
 							<div className="flex flex-col items-center gap-3 my-3">
 								{/* Validation error hint — fixed min-height prevents layout shift */}
@@ -748,7 +830,8 @@ function RouteComponent() {
 										<div className="flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/[0.04] px-4 py-2.5 text-sm text-destructive/80">
 											<span className="size-1.5 rounded-full bg-destructive/60 shrink-0" />
 											<span>
-												There are validation errors that need to be fixed before submitting.
+												There are validation errors that need to be fixed before
+												submitting.
 											</span>
 										</div>
 									)}
@@ -776,7 +859,12 @@ function RouteComponent() {
 			</Form>
 
 			{/* ── Image preview overlay ── */}
-			{previewSrc && <ImagePreviewOverlay src={previewSrc} onClose={() => setPreviewSrc(null)} />}
+			{previewSrc && (
+				<ImagePreviewOverlay
+					src={previewSrc}
+					onClose={() => setPreviewSrc(null)}
+				/>
+			)}
 		</main>
 	);
 }

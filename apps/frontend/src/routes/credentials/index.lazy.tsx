@@ -93,7 +93,7 @@ function RouteComponent() {
 			{isLoading && (
 				<div className="mx-auto w-full px-2 py-0">
 					<div className="space-y-3">
-						{[...Array(12)].map((_, i) => (
+						{[...Array(12)].map(() => (
 							<Skeleton
 								key={crypto.randomUUID()}
 								className="h-36 w-full rounded-xl"

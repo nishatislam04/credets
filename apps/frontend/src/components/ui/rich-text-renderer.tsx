@@ -34,15 +34,11 @@ export function RichTextRenderer({
 	content,
 	className,
 }: {
-	/** JSON-stringified TipTap document, or a plain HTML string, or null */
 	content: string | null | undefined;
 	className?: string;
 }) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [html, setHtml] = useState<string>("");
-
-	// Render nothing if the content is empty
-	if (isContentEmpty(content)) return null;
 
 	useEffect(() => {
 		if (!content) {
@@ -50,7 +46,6 @@ export function RichTextRenderer({
 			return;
 		}
 
-		// Try parsing as TipTap JSON
 		try {
 			const json = JSON.parse(content);
 			if (json && typeof json === "object" && json.type === "doc") {
@@ -65,6 +60,9 @@ export function RichTextRenderer({
 		// Fallback: render as escaped text
 		setHtml(escapeHtml(content));
 	}, [content]);
+
+	// Render nothing if the content is empty
+	if (isContentEmpty(content)) return null;
 
 	return (
 		<div

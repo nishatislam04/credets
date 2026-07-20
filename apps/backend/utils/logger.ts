@@ -32,10 +32,6 @@ const bg = {
 	cyan: "\x1b[46m",
 };
 
-// ── Dev guard ───────────────────────────────────────────────────
-
-const isDev = process.env.NODE_ENV !== "production";
-
 // ── Caller info from stack ──────────────────────────────────────
 
 function getCallerInfo(): { file: string; line: number } | null {
