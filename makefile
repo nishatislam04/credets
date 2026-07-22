@@ -11,3 +11,9 @@ backend-up:
 
 frontend-up:
 	bun run dev:frontend
+
+seed:
+	bun run seed
+
+db-reset:
+	docker compose down -v

@@ -1,12 +1,12 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { createLazyFileRoute, Link } from "@tanstack/react-router";
-import { LoaderIcon, Plus } from "lucide-react";
+import { createLazyFileRoute } from "@tanstack/react-router";
+import { LoaderIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
-import { ThemeToggle } from "#/components/theme-toggle";
 import { Skeleton } from "#/components/ui/skeleton";
 import { getCredentialsListings } from "./-actions/getCredentialsListings";
 import { CredentialCard } from "./-components/credential-card";
+import { TopHeader } from "./-components/top-header";
 import { CredentialsErrorUI } from "./-ui/CredentialsErrorUI";
 import { CredentialsEmptyState } from "./-ui/credentialsEmptyState";
 import { CredentialsLoadMoreError } from "./-ui/credentialsLoadMoreError";
@@ -54,44 +54,15 @@ function RouteComponent() {
 	return (
 		<div className="mx-auto w-full max-w-3xl px-4 py-8">
 			{/* Page header */}
-			<div className="mb-8 flex items-start justify-between">
-				<div>
-					<header className="">
-						<section className="flex">
-							<h1 className="text-2xl font-bold tracking-tight">Credentials</h1>
-							<ThemeToggle />
-						</section>
-						<p className="text-sm text-muted-foreground mt-1">
-							Browse your saved credentials, keys, and secrets
-						</p>
-					</header>
-
-					{/* skeleon load the credential length */}
-					{isLoading && <Skeleton className="h-4 w-18 mt-3" />}
-					{/* Show count + spinner when credentials exist and not initial loading */}
-					{credentials.length > 0 && !isLoading && (
-						<div className="flex items-center gap-2 mt-2">
-							<p className="text-xs text-muted-foreground/50">
-								{credentials.length} credential
-								{credentials.length !== 1 ? "s" : ""}
-							</p>
-							{/* Spinner shown during background refetch */}
-							{isRefetching && <LoaderIcon className="size-3 animate-spin" />}
-						</div>
-					)}
-				</div>
-				<Link
-					to="/credentials/create"
-					className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.97]"
-				>
-					<Plus className="size-4" />
-					Create
-				</Link>
-			</div>
+			<TopHeader
+				isLoading={isLoading}
+				isRefetching={isRefetching}
+				credentialsLength={credentials.length}
+			/>
 
 			{/* show inital skeleton loading */}
 			{isLoading && (
-				<div className="mx-auto w-full px-2 py-0">
+				<div className="mx-auto w-full px-2 py-0 pt-28">
 					<div className="space-y-3">
 						{[...Array(12)].map(() => (
 							<Skeleton
@@ -116,7 +87,7 @@ function RouteComponent() {
 
 			{/* Empty state — only after first successful fetch, no error, and confirmed zero credentials */}
 			{!!data && !isError && credentials.length === 0 && (
-				<div className="text-center py-24">
+				<div className="text-center">
 					<CredentialsEmptyState />
 				</div>
 			)}

@@ -1,6 +1,6 @@
 import { AppError } from "@backend/err/base";
 import { DatabaseError } from "@backend/err/database";
-import { logAlways, logger } from "@backend/utils/logger";
+import { logAlways } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 
 export interface CursorPayload {
@@ -22,37 +22,35 @@ export interface CredentialRow {
 
 export async function getCredentialsListingsRepo(
 	limit: number,
-	cursor: CursorPayload | null,
+	cursorResult: CursorPayload | null,
 ): Promise<CredentialRow[]> {
-	logger(cursor, `repo: fetching credentials listings with limit: ${limit}`);
-
 	try {
-		if (cursor) {
+		if (cursorResult) {
 			return await sql<CredentialRow[]>`
 				SELECT
-					c.id, c.title, c.short_description,
-					c.thumbnail_url, c.version,
-					c.tags, c.created_at, c.updated_at,
+					credentials.id, credentials.title, credentials.short_description,
+					credentials.thumbnail_url, credentials.version,
+					credentials.tags, credentials.created_at, credentials.updated_at,
 					t.label AS type_label, t.value AS type_value
-				FROM credentials c
-				LEFT JOIN types t ON c.types_id = t.id
+				FROM credentials
+				LEFT JOIN types t ON credentials.types_id = t.id
 				WHERE
-					(c.created_at < ${cursor.createdAt}::timestamptz)
-					OR (c.created_at = ${cursor.createdAt}::timestamptz AND c.id < ${cursor.id}::uuid)
-				ORDER BY c.created_at DESC, c.id DESC
+					(credentials.created_at < ${cursorResult.createdAt}::timestamptz)
+					OR (credentials.created_at = ${cursorResult.createdAt}::timestamptz AND credentials.id < ${cursorResult.id}::uuid)
+					ORDER BY credentials.created_at DESC, credentials.id DESC
 				LIMIT ${limit + 1}
 			`;
 		}
 
 		return await sql<CredentialRow[]>`
 			SELECT
-				c.id, c.title, c.short_description,
-				c.thumbnail_url, c.version,
-				c.tags, c.created_at, c.updated_at,
+				credentials.id, credentials.title, credentials.short_description,
+				credentials.thumbnail_url, credentials.version,
+				credentials.tags, credentials.created_at, credentials.updated_at,
 				t.label AS type_label, t.value AS type_value
-			FROM credentials c
-			LEFT JOIN types t ON c.types_id = t.id
-			ORDER BY c.created_at DESC, c.id DESC
+			FROM credentials
+			LEFT JOIN types t ON credentials.types_id = t.id
+			ORDER BY credentials.created_at DESC, credentials.id DESC
 			LIMIT ${limit + 1}
 		`;
 	} catch (error) {
@@ -60,6 +58,8 @@ export async function getCredentialsListingsRepo(
 
 		if (error instanceof AppError) throw error;
 
-		throw new DatabaseError(error);
+		if (error instanceof DatabaseError) throw new DatabaseError(error);
+
+		throw error;
 	}
 }

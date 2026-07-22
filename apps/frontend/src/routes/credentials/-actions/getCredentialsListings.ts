@@ -11,12 +11,13 @@ export async function getCredentialsListings(
 	});
 	if (cursor) params.set("cursor", cursor);
 
-	const res = await fetch(`${import.meta.env.VITE_BACKEND_APP}/credentials?${params.toString()}`);
-
-	if (!res.ok) throw new Error("Failed to fetch credentials");
+	const res = await fetch(
+		`${import.meta.env.VITE_BACKEND_APP}/credentials?${params.toString()}`,
+	);
 
 	const json = await res.json();
-	if (!json.success) throw new Error(json.message || "Failed to fetch credentials");
+	if (!json.success)
+		throw new Error(json.message || "Failed to fetch credentials");
 
 	return json.data as CredentialListingsResponse;
 }

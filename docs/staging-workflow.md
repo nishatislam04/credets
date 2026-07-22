@@ -1,6 +1,8 @@
 # Staging Workflow — Local Testing + Neon Branching
 
-## Step 1 — Create a Neon Branch
+this is the staging guide. so that we can feel production here in local environment!
+
+## Step 1 — Create a Neon Branch[One Time]
 
 Neon lets you create an instant copy of your production database for free.
 
@@ -10,7 +12,8 @@ Neon lets you create an instant copy of your production database for free.
 4. Source: `main` (your production branch)
 5. Click **Create**
 
-You now have a full copy of your production data. Any changes you make here won't affect production.
+You now have a full copy of your production data.
+Any changes you make on this branch won't affect production database.
 
 ## Step 2 — Get the Branch Connection Details
 
@@ -18,9 +21,9 @@ You now have a full copy of your production data. Any changes you make here won'
 2. Go to **Connection Details**
 3. Copy the connection string
 4. update all env in
-	- `.env.staging`
-	- `apps/backend/.env.staging`
-	- `apps/frontend/.env.staging`
+    - `.env.staging`
+    - `apps/backend/.env.staging`
+    - `apps/frontend/.env.staging`
 
 ## Step 3 — Set Up the Staging Env File
 
@@ -52,12 +55,26 @@ bun --env-file=.env.staging apps/backend/db/run-prod-schema.ts
 bun --env-file=.env.staging apps/backend/db/seed.ts
 ```
 
-## step 6 - The actual Sauce
+## Step 6 - Stop All Development Servers and Stuffs
+
+1. docker compose
+2. backend local dev server
+3. frontend local dev server
+
+## Step 6 - the Actual Sauce
 
 ```bash
 bun run staging
 ```
 
-This `staging` command will build `frontend` and preview it locally and fire up backend server with staging environment and start docker compose for Minio
+## Step 7 - Access the App
 
-## Thats a wrap BABY
+```bash
+http://localhost:3000
+```
+
+This `staging` command will build `frontend` and preview it locally
+and fire up backend server with staging environment
+and start docker compose for Minio
+
+## Thats a Wrap BABY
