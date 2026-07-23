@@ -10,7 +10,7 @@ A monorepo for securely managing private credentials — a full-stack credential
 - **UI** — shadcn/ui with Base UI primitives
 - **Formatting & Linting** — Biome
 - **Hosting** — Backend on Render, Frontend on Render
-- **Image Upload** - minio (local-docker) | supabase storage (production)
+- **Image Upload** - minio (local-podman(docker)) | supabase storage (production)
 
 ## Features
 
@@ -25,6 +25,8 @@ A monorepo for securely managing private credentials — a full-stack credential
 
 ## Setup
 
+setup the project
+
 ### 1. Clone
 
 ```bash
@@ -32,7 +34,7 @@ git clone git@github.com:nishatislam04/credets.git
 cd credets
 ```
 
-### 2. Install dependencies
+### 2. Install Dependencies
 
 ```bash
 bun i
@@ -57,13 +59,13 @@ openssl rand -hex 32
 Set the output as `ENC_KEY` in both `.env` files — this encrypts/decrypts credential secrets.
 `CSRF_SECRET_KEY` is used for CSRF token generation and verification
 
-### 4. Start docker
+### 4. Start Podman
 
 ```bash
-docker compose up
+podman-compose up
 ```
 
-### 5. Run the app
+### 5. Run the App
 
 Start both frontend and backend in one terminal:
 
@@ -78,7 +80,7 @@ bun run dev:backend   # http://localhost:8000
 bun run dev:frontend  # http://localhost:3000
 ```
 
-### 6. Seed the database locally
+### 6. Seed the Database Locally
 
 ```bash
 bun run seed

@@ -16,13 +16,11 @@
 4. password -hash
 5. special_password -raw now. soon enc it
 
-
 ### session
 
 1. userId -foreignKey
 2. token - no idea what this does
 3. expiresAt
-
 
 ### types
 
@@ -53,7 +51,6 @@
 5. byte_size
 6. sort_order
 
-
 ## access database in docker from terminal
 
 inspect via dblab `dblab --config`
@@ -61,7 +58,7 @@ inspect via dblab `dblab --config`
 and if need to inspect db via docker:
 
 ```bash
-docker compose exec db bash
+podman-compose exec db bash
 psql -U nishat -d credets_db
 ```
 
@@ -73,14 +70,13 @@ import { sql } from "@db/connection";
 const users = sql`SELECT * FROM users`
 ```
 
-
 ## reset database data
 
 **turn off running docker-compose** then
 
 ```bash
-docker compose down -v
-docker compose up 
+podman-compose down -v
+podman-compose up
 ```
 
 ## seed db

@@ -1,22 +1,22 @@
-# this is our app story. stacks & requirements etc
+# This Is Our App Story. Stacks & Requirements Etc
 
 we will practise a monorepo application here plus create a website for
 myself for storing all my credentials. here we will also practise web
 security best practises since this website will hold our important credentials
 
-## stacks
+## Stacks
 
 1. backend - Bun
 2. frontend - tanstack router
 3. ui library - shadcn
 4. databases - postgresql
-5. devOps - docker, docker-compose(?)
+5. devOps - podman, podman-compose(?)
 6. email - resend
 7. validation - zod
 8. backend hosting platform - Render
 9. frontend hosting platform - (( not sure yet ))
 
-## requirements
+## Requirements
 
 [] create a web application where we can securely store our crednentials.
 [] create new credential, update existing credentials, delete unnecessary!
@@ -25,7 +25,7 @@ security best practises since this website will hold our important credentials
 [] bulk export credentials with email
 [] make the credentials input very flexible. as they dont follow a strict structure
 
-## feats
+## Feats
 
 1. credentials listings
 2. create new credential
