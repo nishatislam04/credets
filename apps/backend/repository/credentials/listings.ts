@@ -38,6 +38,7 @@ export async function getCredentialsListingsRepo(
 				LEFT JOIN types t ON credentials.types_id = t.id
 				WHERE
 					credentials.is_draft = false
+					AND credentials.is_deleted = false
 					AND (
 						(credentials.created_at < ${cursorResult.createdAt}::timestamptz)
 						OR (credentials.created_at = ${cursorResult.createdAt}::timestamptz AND credentials.id < ${cursorResult.id}::uuid)
@@ -57,6 +58,7 @@ export async function getCredentialsListingsRepo(
 			FROM credentials
 			LEFT JOIN types t ON credentials.types_id = t.id
 			WHERE credentials.is_draft = false
+			AND credentials.is_deleted = false
 			ORDER BY credentials.created_at DESC, credentials.id DESC
 			LIMIT ${limit + 1}
 		`;

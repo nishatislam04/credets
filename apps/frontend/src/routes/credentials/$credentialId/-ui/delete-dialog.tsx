@@ -77,20 +77,21 @@ export function DeleteButton({
 
 					<AlertDialogDescription className="text-center">
 						<p>
-							This will permanently delete{" "}
+							This will move{" "}
 							<span className="font-semibold text-foreground">
 								&ldquo;{credentialTitle}&rdquo;
 							</span>
-							.
+							 to trash.
 						</p>
 						<p className="mt-2">
-							All associated images and files will also be removed.
+							You can find it later in the trash page to either permanently
+							delete or restore it.
 						</p>
 					</AlertDialogDescription>
 
 					<div className="mt-6 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-xs text-destructive/70">
-						This action is irreversible. Once deleted, you will not be able to
-						recover the credential or any of its associated data.
+						The credential will not be permanently deleted right away. It will
+						be stored in the trash until you take further action.
 					</div>
 
 					<div className="flex justify-end gap-3 mt-6">

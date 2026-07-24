@@ -8,7 +8,6 @@
    but we decided to create the title only and draft it. so, normally we would get validation err from zod
    but since the draft btn was enabled, we wont see any validation err and the data will be stored in db
    and we will show an confirmation toast in ui, with draft operation success
-
 1. we will show an delete btn in single view page at sidebar but as a last item
    when we click, it will show a shadcn confirmation dialog.
    with confirming, we will delete the item
@@ -17,7 +16,7 @@
    and there will be no cron job to periodic check to delete
    for now only implement this soft delete feature. later we will create a dedicated trash page
    uh.. most importantly, update the delete dialog with saying, this item can be found in trash and then either persmanently delete it or retrive it
-3. [trash page] follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent. we will now implement the trash page. so, create a frontend route for trash page
+3. [trash page] follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent structure. we will now implement the trash page. so, create a frontend route for trash page
    the header with content and below an action buttons placeholder like listings page.
    a search input bar like listings page [only ui]
    refresh btn
@@ -30,7 +29,7 @@
    we will show all information about selected item in shadcn dialog.
    so that we can see what we are actually deleting
    just simply show all the info in nice separate ui block in appropiate order
-4. [draft page] follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent. in draft page, we will have a header with content
+4. [draft page] follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent structure. in draft page, we will have a header with content
    and then actions block ui to hold actions btn. like
    a search input bar like listings page [only ui]
    a refresh btn
@@ -39,7 +38,7 @@
    now for each item card, we will show only title and type(if exist!)
    and a "load it up" btn in the right side
    clicking this btn would fire up the edit page. so that we can modify and update the item
-5. [favorite page] follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent. here we will show all the favorite items in a dedicated page
+5. [favorite page] follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent structure. here we will show all the favorite items in a dedicated page
    create a content header and then an action ui block. which will hold
    a search input bar like listings page [only ui]
    refresh btn
