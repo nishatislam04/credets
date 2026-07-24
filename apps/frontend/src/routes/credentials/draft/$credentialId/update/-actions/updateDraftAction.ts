@@ -1,5 +1,5 @@
 import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
-import { createUpdateCredentialFormdata } from "./updateCredentialFormdata";
+import { createUpdateDraftFormdata } from "./updateDraftFormdata";
 
 interface ApiResponse {
 	success: boolean;
@@ -9,7 +9,7 @@ interface ApiResponse {
 	data?: CredentialDetail;
 }
 
-interface UpdatePayload {
+interface UpdateDraftPayload {
 	_csrf: string;
 	credentialId: string;
 	title: string;
@@ -24,14 +24,15 @@ interface UpdatePayload {
 	}>;
 	notes?: string | null;
 	tags?: string | null;
+	is_draft?: boolean;
 	removeThumbnail?: boolean;
 	newImages: File[];
 	existingImagesKeep: string[];
 }
 
-export async function updateCredentialAction(value: UpdatePayload) {
+export async function updateDraftAction(value: UpdateDraftPayload) {
 	try {
-		const formdata = createUpdateCredentialFormdata(value);
+		const formdata = createUpdateDraftFormdata(value);
 
 		const response = await fetch(
 			`${import.meta.env.VITE_BACKEND_APP}/credentials/${value.credentialId}/update`,
@@ -50,12 +51,12 @@ export async function updateCredentialAction(value: UpdatePayload) {
 			if (result.type === "form-validation" && result.errors) {
 				throw new Error("Validation failed. Please fix the form errors.");
 			}
-			throw new Error(result.message || "Failed to update credential");
+			throw new Error(result.message || "Failed to update draft credential");
 		}
 
 		return result;
 	} catch (error) {
 		if (error instanceof Error) throw error;
-		throw new Error("Something went wrong on the server while updating the credential");
+		throw new Error("Something went wrong on the server while updating the draft credential");
 	}
 }

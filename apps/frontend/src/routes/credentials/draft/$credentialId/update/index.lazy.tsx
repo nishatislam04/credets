@@ -7,12 +7,11 @@ import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import {
 	createLazyFileRoute,
-	Link,
 	useNavigate,
 	useRouter,
 } from "@tanstack/react-router";
-import { ArrowLeft, X } from "lucide-react";
-import { lazy, Suspense, useState } from "react";
+import { ArrowLeft, FileEdit, SaveAll, X } from "lucide-react";
+import { lazy, Suspense, useRef, useState } from "react";
 import {
 	Field,
 	FieldContent,
@@ -41,9 +40,9 @@ import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { TagInput } from "@/components/ui/tag-input";
 import { Textarea } from "@/components/ui/textarea";
-import { updateCredentialAction } from "./-actions/updateCredentialAction";
-import { updateCredentialValidation } from "./-actions/updateCredentialValidation";
-import { DeleteCredentialDialog } from "./-delete/delete-credential-dialog";
+import { updateCredentialValidation } from "#/routes/credentials/$credentialId/update/-actions/updateCredentialValidation";
+import { DeleteCredentialDialog } from "#/routes/credentials/$credentialId/update/-delete/delete-credential-dialog";
+import { updateDraftAction } from "./-actions/updateDraftAction";
 
 const RichTextEditor = lazy(() => import("#/components/ui/rich-text-editor"));
 
@@ -80,7 +79,7 @@ function normalizeDataForEdit(
 	}));
 }
 
-export const Route = createLazyFileRoute("/credentials/$credentialId/update/")({
+export const Route = createLazyFileRoute("/credentials/draft/$credentialId/update/")({
 	component: RouteComponent,
 });
 
@@ -94,6 +93,10 @@ function RouteComponent() {
 	const navigate = useNavigate();
 	const router = useRouter();
 	const queryClient = useQueryClient();
+
+	// ── Draft intent ref ──
+	// undefined = normal update, true = keep as draft, false = publish
+	const isDraftIntentRef = useRef<boolean | undefined>(undefined);
 
 	// ── Image state ──
 	const existingImages: CredentialImage[] = Array.isArray(credential.images)
@@ -180,17 +183,19 @@ function RouteComponent() {
 					return { message: "something went wrong" };
 				}
 			},
-		},		onSubmit: async ({ value }) => {
+		},
+		onSubmit: async ({ value }) => {
+			const draftIntent = isDraftIntentRef.current;
+
 			const existingImagesKeep = visibleExistingImages.map((img) => img.id);
-			const updatePromise = updateCredentialAction({
+			const updatePromise = updateDraftAction({
 				...value,
 				credentialId: credential.id,
 				newImages,
 				existingImagesKeep,
 				removeThumbnail: thumbnailRemoved,
+				is_draft: draftIntent,
 			}).then(async () => {
-				// Invalidate caches *before* the success toast appears so that
-				// navigating to the detail page always reads fresh loader data.
 				queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
 				queryClient.invalidateQueries({ queryKey: ["types_listings"] });
 				queryClient.invalidateQueries({ queryKey: ["type_children"] });
@@ -199,26 +204,31 @@ function RouteComponent() {
 
 			await gooeyToast.promise(updatePromise, {
 				loading: "updating...",
-				success: "credential updated",
-				error: "failed to update the credential",
+				success: "draft updated",
+				error: "failed to update the draft",
 				description: {
-					success: "the credential has been updated successfully",
+					success: "the draft has been updated successfully",
 					error: "Please try again later.",
 				},
 				action: {
 					success: {
-						label: "view credential",
+						label:
+							draftIntent === false
+								? "view in listings"
+								: "back to drafts",
 						onClick: async () => {
-							navigate({
-								to: "/credentials/$credentialId",
-								params: { credentialId: credential.id },
-							});
+							if (draftIntent === false) {
+								navigate({ to: "/credentials" });
+							} else {
+								navigate({ to: "/credentials/draft" });
+							}
 						},
 					},
 				},
 			});
 
 			form.reset(form.state.values);
+			isDraftIntentRef.current = undefined;
 		},
 	});
 
@@ -226,15 +236,15 @@ function RouteComponent() {
 		<CredentialsShell>
 			<main>
 				<div className="relative flex items-center justify-center my-8 mb-8">
-					<Link
-						to="/credentials/$credentialId"
-						params={{ credentialId: credential.id }}
-						className="absolute left-0 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors ml-3 md:ml-12"
+					<button
+						type="button"
+						onClick={() => navigate({ to: "/credentials/draft" })}
+						className="absolute left-0 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors ml-3 md:ml-12 cursor-pointer"
 					>
-						<ArrowLeft className="size-6 transition-transform duration-200 group-hover:-translate-x-0.5" />
-					</Link>
+						<ArrowLeft className="size-6" />
+					</button>
 					<p className="capitalize text-4xl text-center">
-						Update credential data
+						Edit draft
 					</p>
 				</div>
 
@@ -307,7 +317,6 @@ function RouteComponent() {
 											)}
 										</FieldContent>
 										<div className="flex-1 w-full">
-											{/* Hidden type field synced with leaf value */}
 											<Input
 												id="type"
 												value={field.state.value}
@@ -518,7 +527,6 @@ function RouteComponent() {
 												Thumbnail (image)
 											</FieldLabel>
 
-											{/* Show existing thumbnail with remove + preview */}
 											{showExisting && (
 												<div className="mb-3 max-w-48">
 													<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
@@ -552,7 +560,6 @@ function RouteComponent() {
 												</div>
 											)}
 
-											{/* Show newly selected thumbnail preview */}
 											{showPreview && previewUrl && (
 												<div className="mb-3 max-w-48">
 													<div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted/20">
@@ -587,7 +594,6 @@ function RouteComponent() {
 												</div>
 											)}
 
-											{/* Show removed state */}
 											{thumbnailRemoved && !showPreview && (
 												<p className="text-xs text-destructive mb-2">
 													Thumbnail will be removed on save ·{" "}
@@ -625,7 +631,6 @@ function RouteComponent() {
 							<Field>
 								<FieldLabel htmlFor="new-images">Images (multi)</FieldLabel>
 
-								{/* Existing images */}
 								{visibleExistingImages.length > 0 && (
 									<div className="mb-3">
 										<p className="text-xs text-muted-foreground mb-2">
@@ -644,7 +649,6 @@ function RouteComponent() {
 																	className="size-full cursor-pointer border-0 bg-transparent p-0"
 																>
 																	<CredetsImage
-																		// biome-ignore lint/a11y/noRedundantAlt: intentionally empty alt for decorative image
 																		src={src}
 																		alt=""
 																		layout="fullWidth"
@@ -680,7 +684,6 @@ function RouteComponent() {
 									</div>
 								)}
 
-								{/* Removed images summary */}
 								{removedImageIds.length > 0 && (
 									<p className="text-xs text-destructive mb-2">
 										{removedImageIds.length} image
@@ -689,7 +692,6 @@ function RouteComponent() {
 									</p>
 								)}
 
-								{/* New images input */}
 								<Input
 									id="new-images"
 									type="file"
@@ -722,7 +724,6 @@ function RouteComponent() {
 									}}
 								/>
 
-								{/* New images preview grid */}
 								{newImages.length > 0 && (
 									<div className="mt-3">
 										<p className="text-xs text-muted-foreground mb-2">
@@ -854,7 +855,6 @@ function RouteComponent() {
 							]}
 							children={([canSubmit, isSubmitting, isPristine]) => (
 								<div className="flex flex-col items-center gap-3 my-3">
-									{/* Validation error hint — fixed min-height prevents layout shift */}
 									<div className="min-h-[44px]">
 										{!canSubmit && !isSubmitting && (
 											<div className="flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/[0.04] px-4 py-2.5 text-sm text-destructive/80">
@@ -868,12 +868,32 @@ function RouteComponent() {
 									</div>
 									<div className="flex items-center justify-center gap-4">
 										<Button
-											type="submit"
+											type="button"
 											size="lg"
-											className="px-12 py-4"
+											className="gap-2 px-8 py-4"
 											disabled={!canSubmit || isPristine}
+											onClick={() => {
+												isDraftIntentRef.current = false;
+												form.handleSubmit();
+											}}
 										>
-											{isSubmitting ? "..." : "Update"}
+											<SaveAll className="size-4" />
+											{isSubmitting ? "..." : "Save"}
+										</Button>
+
+										<Button
+											type="button"
+											variant="secondary"
+											size="lg"
+											className="gap-2 px-8 py-4"
+											disabled={!canSubmit || isPristine}
+											onClick={() => {
+												isDraftIntentRef.current = true;
+												form.handleSubmit();
+											}}
+										>
+											<FileEdit className="size-4" />
+											{isSubmitting ? "..." : "Update & Draft"}
 										</Button>
 
 										<DeleteCredentialDialog

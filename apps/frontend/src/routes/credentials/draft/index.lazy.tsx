@@ -58,7 +58,7 @@ function DraftItemCard({ item }: { item: DraftCredentialItem }) {
 
 	return (
 		<Link
-			to="/credentials/$credentialId/update"
+			to="/credentials/draft/$credentialId/update"
 			params={{ credentialId: item.id }}
 			className="group block"
 		>

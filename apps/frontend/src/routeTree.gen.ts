@@ -16,6 +16,7 @@ import { Route as CredentialsDraftIndexRouteImport } from './routes/credentials/
 import { Route as CredentialsCreateIndexRouteImport } from './routes/credentials/create/index'
 import { Route as CredentialsCredentialIdIndexRouteImport } from './routes/credentials/$credentialId/index'
 import { Route as CredentialsCredentialIdUpdateIndexRouteImport } from './routes/credentials/$credentialId/update/index'
+import { Route as CredentialsDraftCredentialIdUpdateIndexRouteImport } from './routes/credentials/draft/$credentialId/update/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +71,16 @@ const CredentialsCredentialIdUpdateIndexRoute =
       (d) => d.Route,
     ),
   )
+const CredentialsDraftCredentialIdUpdateIndexRoute =
+  CredentialsDraftCredentialIdUpdateIndexRouteImport.update({
+    id: '/credentials/draft/$credentialId/update/',
+    path: '/credentials/draft/$credentialId/update/',
+    getParentRoute: () => rootRouteImport,
+  } as any).lazy(() =>
+    import('./routes/credentials/draft/$credentialId/update/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -79,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/credentials/draft/': typeof CredentialsDraftIndexRoute
   '/credentials/trash/': typeof CredentialsTrashIndexRoute
   '/credentials/$credentialId/update/': typeof CredentialsCredentialIdUpdateIndexRoute
+  '/credentials/draft/$credentialId/update/': typeof CredentialsDraftCredentialIdUpdateIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -88,6 +100,7 @@ export interface FileRoutesByTo {
   '/credentials/draft': typeof CredentialsDraftIndexRoute
   '/credentials/trash': typeof CredentialsTrashIndexRoute
   '/credentials/$credentialId/update': typeof CredentialsCredentialIdUpdateIndexRoute
+  '/credentials/draft/$credentialId/update': typeof CredentialsDraftCredentialIdUpdateIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +111,7 @@ export interface FileRoutesById {
   '/credentials/draft/': typeof CredentialsDraftIndexRoute
   '/credentials/trash/': typeof CredentialsTrashIndexRoute
   '/credentials/$credentialId/update/': typeof CredentialsCredentialIdUpdateIndexRoute
+  '/credentials/draft/$credentialId/update/': typeof CredentialsDraftCredentialIdUpdateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -109,6 +123,7 @@ export interface FileRouteTypes {
     | '/credentials/draft/'
     | '/credentials/trash/'
     | '/credentials/$credentialId/update/'
+    | '/credentials/draft/$credentialId/update/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -118,6 +133,7 @@ export interface FileRouteTypes {
     | '/credentials/draft'
     | '/credentials/trash'
     | '/credentials/$credentialId/update'
+    | '/credentials/draft/$credentialId/update'
   id:
     | '__root__'
     | '/'
@@ -127,6 +143,7 @@ export interface FileRouteTypes {
     | '/credentials/draft/'
     | '/credentials/trash/'
     | '/credentials/$credentialId/update/'
+    | '/credentials/draft/$credentialId/update/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -137,6 +154,7 @@ export interface RootRouteChildren {
   CredentialsDraftIndexRoute: typeof CredentialsDraftIndexRoute
   CredentialsTrashIndexRoute: typeof CredentialsTrashIndexRoute
   CredentialsCredentialIdUpdateIndexRoute: typeof CredentialsCredentialIdUpdateIndexRoute
+  CredentialsDraftCredentialIdUpdateIndexRoute: typeof CredentialsDraftCredentialIdUpdateIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -190,6 +208,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CredentialsCredentialIdUpdateIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/credentials/draft/$credentialId/update/': {
+      id: '/credentials/draft/$credentialId/update/'
+      path: '/credentials/draft/$credentialId/update'
+      fullPath: '/credentials/draft/$credentialId/update/'
+      preLoaderRoute: typeof CredentialsDraftCredentialIdUpdateIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -202,6 +227,8 @@ const rootRouteChildren: RootRouteChildren = {
   CredentialsTrashIndexRoute: CredentialsTrashIndexRoute,
   CredentialsCredentialIdUpdateIndexRoute:
     CredentialsCredentialIdUpdateIndexRoute,
+  CredentialsDraftCredentialIdUpdateIndexRoute:
+    CredentialsDraftCredentialIdUpdateIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
