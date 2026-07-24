@@ -9,9 +9,7 @@ import {
 	uploadToS3,
 } from "@backend/utils/storage";
 import { getCredentialImageUrlsRepo } from "../../repository/credentials/credential";
-import { updateCredentialRepo, type TypePathEntry } from "../../repository/credentials/update";
-
-export interface UpdateCredentialServiceInput {
+import { updateCredentialRepo, type TypePathEntry } from "../../repository/credentials/update";	export interface UpdateCredentialServiceInput {
 	credentialId: string;
 	title: string;
 	type: string;

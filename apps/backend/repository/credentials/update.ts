@@ -48,9 +48,7 @@ async function resolveOrCreateTypePath(
 	}
 
 	return leafId;
-}
-
-export interface UpdateCredentialRepoInput {
+}	export interface UpdateCredentialRepoInput {
 	credentialId: string;
 	title: string;
 	type: string;

@@ -27,11 +27,16 @@ export async function credentialCreate(req: BunRequest) {
 			})()
 		: [];
 
+	const is_draft = validatedData.data.is_draft ?? false;
+	const is_favourite = validatedData.data.is_favourite ?? false;
+
 	try {
 		const createdResult = await createCredentialService({
 			title: validatedData.data.title,
 			type: validatedData.data.type,
 			types_path,
+			is_draft,
+			is_favourite,
 			short_description: validatedData.data.short_description ?? undefined,
 			long_description: validatedData.data.long_description ?? undefined,
 			notes: validatedData.data.notes ?? undefined,

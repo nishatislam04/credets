@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS credentials(
 	data TEXT NOT NULL,
 	notes TEXT NULL,
 	tags TEXT NULL,
+	is_draft BOOLEAN DEFAULT FALSE,
+	is_favourite BOOLEAN DEFAULT FALSE,
 	created_at TIMESTAMPTZ DEFAULT NOW(),
 	updated_at TIMESTAMPTZ DEFAULT NOW(),
 	user_id UUID NULL,

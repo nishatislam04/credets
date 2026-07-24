@@ -1,6 +1,6 @@
 import type { CredentialListItem } from "@credets/shared-types/credentials/listings";
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, ChevronRight, ImageIcon } from "lucide-react";
+import { CalendarDays, ChevronRight, ImageIcon, Star } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent } from "#/components/ui/card";
 import { CredetsImage } from "#/components/ui/image";
@@ -22,6 +22,7 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 		created_at,
 		type_label,
 		type_value,
+		is_favourite,
 	} = credential;
 
 	const formattedDate = new Date(created_at).toLocaleDateString(undefined, {
@@ -36,8 +37,14 @@ export function CredentialCard({ credential }: CredentialCardProps) {
 		<Link
 			to="/credentials/$credentialId"
 			params={{ credentialId: id }}
-			className="group block"
+			className="group block relative"
 		>
+			{/* Favourite star icon — top right */}
+			{is_favourite && (
+				<div className="absolute top-3 right-3 z-10">
+					<Star className="size-4 fill-amber-400 text-amber-400 drop-shadow-sm" />
+				</div>
+			)}
 			<Card className="overflow-hidden rounded-xl border shadow-xs transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md hover:border-primary/20 hover:bg-primary/2 active:translate-y-0 active:shadow-xs flex flex-row bg-card py-2">
 				{/* ── Left: Thumbnail ── */}
 				<div className="shrink-0 flex items-center justify-center px-4 py-4 md:px-5 md:py-5">

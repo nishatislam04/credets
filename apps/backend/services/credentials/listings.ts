@@ -58,6 +58,8 @@ export async function getCredentialsListingsService(
 				updated_at: cred.updated_at ? cred.updated_at.toISOString() : null,
 				type_label: cred.type_label,
 				type_value: cred.type_value,
+				is_draft: cred.is_draft,
+				is_favourite: cred.is_favourite,
 			};
 		});
 

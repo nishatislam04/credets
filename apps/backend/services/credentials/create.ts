@@ -10,9 +10,7 @@ import {
 import {
 	createCredentialRepo,
 	type TypePathEntry,
-} from "../../repository/credentials/create";
-
-export interface CreateCredentialServiceInput {
+} from "../../repository/credentials/create";	export interface CreateCredentialServiceInput {
 	title: string;
 	type: string;
 	types_path: TypePathEntry[];
@@ -20,6 +18,8 @@ export interface CreateCredentialServiceInput {
 	long_description?: string;
 	notes?: string;
 	tags?: string;
+	is_draft?: boolean;
+	is_favourite?: boolean;
 	// biome-ignore lint/suspicious/noExplicitAny: data can contain arbitrary objects
 	data: any[];
 	thumbnail: File | null;
@@ -81,6 +81,8 @@ export async function createCredentialService(
 			title: input.title,
 			type: input.type,
 			types_path: input.types_path,
+			is_draft: input.is_draft ?? false,
+			is_favourite: input.is_favourite ?? false,
 			short_description: input.short_description || null,
 			version: 0,
 			long_description: input.long_description || null,

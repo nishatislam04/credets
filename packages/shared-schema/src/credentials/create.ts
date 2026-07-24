@@ -67,4 +67,6 @@ export const credentialsCreateSchema = z.object({
 		.optional(), // we are validating images size on the form element! not on the schema
 	notes: z.string().trim().nullable().optional(),
 	tags: z.string().trim().nullable().optional(),
+	is_draft: z.boolean().optional().default(false),
+	is_favourite: z.boolean().optional().default(false),
 });

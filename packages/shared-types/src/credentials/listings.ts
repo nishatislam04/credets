@@ -10,6 +10,8 @@ export type CredentialListItem = {
 	type_label: string | null;
 	type_value: string | null;
 	version: number;
+	is_draft: boolean;
+	is_favourite: boolean;
 };
 
 /** Cursor-based pagination wrapper returned by the backend */
@@ -46,6 +48,8 @@ export type CredentialDetail = {
 	data: Record<string, unknown> | DataBlockEntry[];
 	notes: string | null;
 	tags: string[] | null;
+	is_draft: boolean;
+	is_favourite: boolean;
 	created_at: string;
 	updated_at: string | null;
 	images: CredentialImage[];

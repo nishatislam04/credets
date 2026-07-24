@@ -4,6 +4,7 @@ import { credentialCreate } from "./http/credentials/create";
 import { credentialPage } from "./http/credentials/credential";
 import { credentailDelete } from "./http/credentials/delete";
 import { credentialListings } from "./http/credentials/listings";
+import { credentialToggle } from "./http/credentials/toggle";
 import { credentialUpdate } from "./http/credentials/update";
 import { generateCSRF } from "./http/csrf/generateCSRF";
 import { typesChildren } from "./http/types/children";
@@ -37,6 +38,7 @@ Bun.serve({
 		"/credentials/create": (req) => credentialCreate(req),
 		"/credentials/:credentialId/update": (req) => credentialUpdate(req),
 		"/credentials/:credentialId/delete": (req) => credentailDelete(req),
+		"/credentials/:credentialId/toggle": (req) => credentialToggle(req),
 
 		"/credentials/create/validation": (req) => createCredentialValidation(req),
 		"/credentials/:credentialId/update/validation": (req) =>

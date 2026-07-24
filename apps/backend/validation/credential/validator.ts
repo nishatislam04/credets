@@ -73,11 +73,20 @@ export async function parseAndValidateCredential<T>(
 			})()
 		: [];
 
+	// Extract is_draft and is_favourite from formdata
+	const isDraftRaw = formData.get("is_draft")?.toString() || null;
+	const is_draft = isDraftRaw === "true" || isDraftRaw === "1";
+
+	const isFavouriteRaw = formData.get("is_favourite")?.toString() || null;
+	const is_favourite = isFavouriteRaw === "true" || isFavouriteRaw === "1";
+
 	const validateDisData: Record<string, unknown> = {
 		_csrf,
 		title,
 		type,
 		types,
+		is_draft,
+		is_favourite,
 		short_description,
 		long_description,
 		thumbnail,

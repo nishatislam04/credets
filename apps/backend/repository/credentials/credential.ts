@@ -13,6 +13,8 @@ export interface CredentialDetailRow {
 	notes: string | null;
 	tags: string | null;
 	version: number;
+	is_draft: boolean;
+	is_favourite: boolean;
 	created_at: Date;
 	updated_at: Date | null;
 	type_label: string | null;
@@ -40,6 +42,7 @@ export async function getCredentialDetailRepo(credentialId: string) {
 				c.id, c.title, c.short_description, c.long_description,
 				c.thumbnail_url, c.version,
 				c.data, c.notes, c.tags, c.created_at, c.updated_at,
+				c.is_draft, c.is_favourite,
 				t.label AS type_label, t.value AS type_value, c.types_id
 			FROM credentials c
 			LEFT JOIN types t ON c.types_id = t.id

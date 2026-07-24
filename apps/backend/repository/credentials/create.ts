@@ -8,13 +8,13 @@ import { DatabaseError } from "@backend/err/database";
 export interface TypePathEntry {
 	value: string;
 	label: string;
-}
-
-export interface CreateCredentialRepoInput {
+}	export interface CreateCredentialRepoInput {
 	id: string;
 	title: string;
 	type: string;
 	types_path: TypePathEntry[];
+	is_draft: boolean;
+	is_favourite: boolean;
 	short_description: string | null;
 	long_description: string | null;
 	notes: string | null;
@@ -102,6 +102,8 @@ export async function createCredentialRepo(
 			const credentialPayload = {
 				id: input.id,
 				title: input.title,
+				is_draft: input.is_draft,
+				is_favourite: input.is_favourite,
 				short_description: input.short_description,
 				long_description: input.long_description,
 				version: input.version,

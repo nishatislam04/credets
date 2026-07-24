@@ -25,6 +25,8 @@ export async function getCredentialDetailService(credentialId: string) {
 			short_description: credential.short_description,
 			long_description: credential.long_description,
 			version: credential.version,
+			is_draft: credential.is_draft,
+			is_favourite: credential.is_favourite,
 			type_label: credential.type_label,
 			type_value: credential.type_value,
 			type_path: typePath,
