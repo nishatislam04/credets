@@ -7,7 +7,7 @@
    now for each item card, we will show only title and type(if exist!)
    and a "load it up" btn in the right side
    clicking this btn would fire up the edit page. so that we can modify and update the item
-5. [favorite page] follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent structure. here we will show all the favorite items in a dedicated page
+5. [favorite page] just like our existing (previously implemented) trash route, implement this route similarly as ui level and then respect the following requirements. follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent structure. here we will show all the favorite items in a dedicated page
    create a content header and then an action ui block. which will hold
    a search input bar like listings page [only ui]
    refresh btn
@@ -15,6 +15,8 @@
    delete all with confirmation dialog
    and then the card item would just show the title, short description and type only
    and clicking this item would fire up our single view page with selected item
+   and clicking back btn would navigate back us to favorite listings page
+
 6. No Request Body Size Limits: add size validation at the start of create/update handlers
    so that our free tier services does not exhaust or oom or something like that
    the max size should be for create and update is 10mb
@@ -66,4 +68,8 @@ it use proper logging-scope. by the way, the err meta object should follow commo
     this is like a dashbaord overview page for all of our resources. so that we can quickly glance and quick navigate if needed
     as i said earlier, make these mock stats close to realistic
 
-12. in trash single view page, at bottom side by side with close button. show "delete permannently" button. if we click it, a confirmation dialog should show. if we cofirm it, the item will be permannently deleted
+12. in trash dialog, at bottom side by side with close button. show "delete permannently" button. if we click it, a confirmation dialog should show. if we cofirm it, the item will be permannently deleted
+
+13. we will develop 2 new route page for update form
+    right now, we can update credential item from single page and from draft page
+    and the update page is complex alone by itself. but now, we also dump our update form for draft in a single component page. i dont want it. keep our first update form doing its update job (like before we added draft udpate logic in a single update form page)
