@@ -64,44 +64,102 @@ function RouteComponent() {
 			/>
 
 			{/* Actions toolbar */}
-			<div className="relative mb-6 flex flex-col gap-3 rounded-xl border bg-card p-3 pr-14 md:p-6 md:pr-36">
-				{/* Top row: search bar (full width) */}
-				<div className="relative">
-					<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/40" />
-					<Input
-						type="text"
-						placeholder="Search credentials by title, type, or tags..."
-						className="w-full pl-10"
-					/>
+			<div className="mb-6 rounded-xl border bg-card p-3 md:p-6">
+				{/* Mobile layout: stacked with absolute create button */}
+				<div className="flex flex-col gap-4 md:hidden">
+					{/* Search input */}
+					<div className="relative">
+						<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/40" />
+						<Input
+							type="text"
+							placeholder="Search credentials by title, type, or tags..."
+							className="w-full pl-10"
+						/>
+					</div>
+
+					{/* Horizontal separator */}
+					<hr className="border-t border-border/40" />
+
+					{/* Action buttons row */}
+					<div className="flex flex-wrap items-center gap-3">
+						<button
+							type="button"
+							onClick={() => refetch()}
+							disabled={isRefetching}
+							className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground/70 shadow-xs transition-all duration-200 hover:bg-accent hover:text-foreground hover:shadow-sm active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+						>
+							<RefreshCw className={`size-3.5 ${isRefetching ? "animate-spin" : ""}`} />
+							Refresh
+						</button>
+						<div className="flex items-center gap-2">
+							<Switch id="enable-local-cache" />
+							<label htmlFor="enable-local-cache" className="text-xs text-muted-foreground/70 cursor-pointer select-none">
+								Enable local cache
+							</label>
+						</div>
+					</div>
+
+					{/* Create button — full width on mobile */}
+					<Link
+						to="/credentials/create"
+						className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary p-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.97]"
+					>
+						<Plus className="size-5" />
+						<span>Create</span>
+					</Link>
 				</div>
 
-				{/* Bottom row: action toggles container */}
-				<div className="mt-3 flex flex-wrap items-center gap-3">
-					<button
-						type="button"
-						onClick={() => refetch()}
-						disabled={isRefetching}
-						className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground/70 shadow-xs transition-all duration-200 hover:bg-accent hover:text-foreground hover:shadow-sm active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
-					>
-						<RefreshCw className={`size-3.5 ${isRefetching ? "animate-spin" : ""}`} />
-						Refresh
-					</button>
-					<div className="flex items-center gap-2">
-						<Switch id="enable-local-cache" />
-						<label htmlFor="enable-local-cache" className="text-xs text-muted-foreground/70 cursor-pointer select-none">
-							Enable local cache
-						</label>
+				{/* Desktop layout: two columns with separators */}
+				<div className="hidden md:grid md:grid-cols-[1fr_auto_auto]">
+					{/* Left column: search + actions */}
+					<div className="flex flex-col gap-4 md:pr-6">
+						{/* Search input */}
+						<div className="relative">
+							<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/40" />
+							<Input
+								type="text"
+								placeholder="Search credentials by title, type, or tags..."
+								className="w-full pl-10"
+							/>
+						</div>
+
+						{/* Horizontal separator */}
+						<hr className="border-t border-border/40" />
+
+						{/* Action buttons row */}
+						<div className="flex flex-wrap items-center gap-3">
+							<button
+								type="button"
+								onClick={() => refetch()}
+								disabled={isRefetching}
+								className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground/70 shadow-xs transition-all duration-200 hover:bg-accent hover:text-foreground hover:shadow-sm active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+							>
+								<RefreshCw className={`size-3.5 ${isRefetching ? "animate-spin" : ""}`} />
+								Refresh
+							</button>
+							<div className="flex items-center gap-2">
+								<Switch id="enable-local-cache" />
+								<label htmlFor="enable-local-cache" className="text-xs text-muted-foreground/70 cursor-pointer select-none">
+									Enable local cache
+								</label>
+							</div>
+						</div>
+					</div>
+
+					{/* Vertical separator — full height, edge to edge */}
+					<div className="w-px self-stretch bg-border/60" />
+
+					{/* Right column: create button — vertically centered */}
+					<div className="flex items-center md:pl-6">
+						<Link
+							to="/credentials/create"
+							className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.97]"
+						>
+							<Plus className="size-4" />
+							<span>Create</span>
+						</Link>
 					</div>
 				</div>
-
-				{/* Create button — absolutely positioned, centered in Y-axis of container */}
-				<Link
-					to="/credentials/create"
-					className="absolute right-3 top-1/2 -translate-y-1/2 md:right-6 inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary p-2.5 md:px-5 md:py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.97]"
-				>
-					<Plus className="size-5 md:size-4" />
-					<span className="hidden md:inline">Create</span>
-				</Link>
 			</div>
 
 			{/* show inital skeleton loading */}

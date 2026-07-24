@@ -52,3 +52,9 @@
    and we will show an very thin separator in the middle of the column
    and then another separator in the between of search input and action buttons
    these separator should be full width or full height. like from the start to end
+
+in single view page, when we click the favorite, draft btn execute its functionality
+and if success, show success toast
+
+in backend delete endpoint, are we not verifying the csrf token?
+if we are not verifying, plz verify it.. we should verify it, right?
