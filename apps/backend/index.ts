@@ -7,6 +7,7 @@ import { credentailDelete } from "./http/credentials/delete";
 import { credentialPermanentDelete } from "./http/credentials/permanent-delete";
 import { credentialListings } from "./http/credentials/listings";
 import { draftListings } from "./http/credentials/draft-listings";
+import { favouriteListings } from "./http/credentials/favourite-listings";
 import { trashListings } from "./http/credentials/trash-listings";
 import { credentialToggle } from "./http/credentials/toggle";
 import { credentialUpdate } from "./http/credentials/update";
@@ -52,6 +53,7 @@ Bun.serve({
 		"/credentials/:credentialId/toggle": (req) => credentialToggle(req),
 		"/credentials/trash": (req) => trashListings(req),
 		"/credentials/draft": (req) => draftListings(req),
+		"/credentials/favourite": (req) => favouriteListings(req),
 
 		"/credentials/create/validation": (req) => createCredentialValidation(req),
 		"/credentials/:credentialId/update/validation": (req) =>

@@ -30,7 +30,7 @@ const navItems = [
 	{ label: "Credentials", icon: KeyRound, to: "/credentials" as const },
 	{ label: "Types", icon: Tags, to: "#" },
 	{ label: "Draft", icon: FileEdit, to: "/credentials/draft" as const },
-	{ label: "Favorite", icon: Heart, to: "#" },
+	{ label: "Favorite", icon: Heart, to: "/credentials/favourite" as const },
 	{ label: "Trash", icon: Trash2, to: "/credentials/trash" as const },
 	{ label: "Password", icon: Lock, to: "#" },
 	{ label: "Profile", icon: User, to: "#" },

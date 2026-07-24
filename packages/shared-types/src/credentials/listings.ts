@@ -104,6 +104,28 @@ export type CredentialDetail = {
 	images: CredentialImage[];
 };
 
+/** A single favourite credential item returned by the favourite endpoint */
+export type FavouriteCredentialItem = {
+	id: string;
+	title: string;
+	short_description: string | null;
+	thumbnail_url: string | null;
+	tags: string[] | null;
+	created_at: string;
+	updated_at: string | null;
+	type_label: string | null;
+	type_value: string | null;
+	version: number;
+	is_draft: boolean;
+};
+
+/** Cursor-based pagination wrapper returned by the favourite endpoint */
+export type FavouriteListingsResponse = {
+	items: FavouriteCredentialItem[];
+	nextCursor: string | null;
+	hasMore: boolean;
+};
+
 /** @deprecated Use CredentialListItem instead */
 export type CredentialType = {
 	id: string;

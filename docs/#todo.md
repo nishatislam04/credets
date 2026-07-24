@@ -11,6 +11,7 @@
 6. No Request Body Size Limits: add size validation at the start of create/update handlers
    so that our free tier services does not exhaust or oom or something like that
    the max size should be for create and update is 10mb
+
 7. No Request Timeout: on backend, we will wrap our expensive, time consuming functionality with a `withtimeout()` util function with abort controller. for now, i think only the create, update image processing need to be wrapped up with this util function. with a 30second timeout. and handle what should happen if any operation exceed this 30s window
 8. Production Logging is Not Structured:
    Your `logAlways` function works, but it outputs formatted text with ANSI colors and `Bun.inspect` — great for local development, but **unparseable by log aggregation services** (Render's built-in log viewer, Better Stack, etc.).
@@ -57,10 +58,5 @@ it use proper logging-scope. by the way, the err meta object should follow commo
     this is like a dashbaord overview page for all of our resources. so that we can quickly glance and quick navigate if needed
     as i said earlier, make these mock stats close to realistic
 
-11. we will develop 2 new route page for update form
-    right now, we can update credential item from single page and from draft page
-    and the update page is complex alone by itself. but now, we also dump our update form for draft in a single component page. i dont want it. keep our first update form doing its update job (like before we added draft udpate logic in a single update form page) and then introduce a new update route inside of draft route. and this update route will be dedicated draft related updating
-    i know there will be lots of duplicate. but its ok. we will keep apart update page from each other and do whatever its needed in frontend, backend, zod schema etc for that
-
-12. we will add this project in our cv. we will have only 4 bullete points to describe the most stunning and attractive feature we implemented and yet to implemented (we will act like 'yet to be implemented' features is already implemented) in this project. then below we will have a tech section defining the stacks used on this project with comma separated. you add as much as you want, i will delete unnecessary if needed
-    so you generate me content based on the requirements and research and make the bullete points content simple and straightforward and plain simple
+11. theres this weird behavior on sidebar i have noticed. like for example: in single view page, in big viewport,
+    i have collapsed the sidebar. then i press the back button to go to credentials listings page. and bam! the sidebar is open again. the sidebar state actually does not persist. we need to fix that. search shadcn docs to fix it. they might be have a guide on this issue
