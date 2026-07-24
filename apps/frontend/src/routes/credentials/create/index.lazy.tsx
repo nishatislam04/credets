@@ -330,20 +330,17 @@ function RouteComponent() {
 										</Item>
 									)}
 									{arrayField.state.value.length > 0 &&
-										arrayField.state.value.map((data) => {
-											const key = Math.random() * 10; // i hope it works. lol
-											return (
-												<DataBlock
-													key={key}
-													item={data}
-													idx={key}
-													form={form}
-													shouldFocus={focusBlockIndex === key}
-													onFocused={() => setFocusBlockIndex(null)}
-													onRemove={() => arrayField.removeValue(key)}
-												/>
-											);
-										})}
+										arrayField.state.value.map((data, index) => (
+											<DataBlock
+												key={index}
+												item={data}
+												idx={index}
+												form={form}
+												shouldFocus={focusBlockIndex === index}
+												onFocused={() => setFocusBlockIndex(null)}
+												onRemove={() => arrayField.removeValue(index)}
+											/>
+										))}
 
 									<div className="grid grid-cols-3 gap-2">
 										<Button

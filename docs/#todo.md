@@ -27,3 +27,5 @@
    i wrote something on any block and then click any block btn to create a new block. i see multiple block has been created. but i dont understand why
    and if i refresh the page, write something on first block, then click any block to create a new block then i see that, the content i wrote on the first block has disappeared and then a very empty block create which have no inputs like no singel or key-value or textarea (any amount of this empty block may be created, on this reproducing issue)and then a new block was created which was pressed first to create a new block
    so why this weird behavior happening on our data block component. figure it out. and solve it
+7. in backend index.ts file, we have hardcoded development: true. which may cause issue in production.
+   so fix that. i.e make it dynamic based on environment
