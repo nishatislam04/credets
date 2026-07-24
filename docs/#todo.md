@@ -56,9 +56,7 @@ it use proper logging-scope. by the way, the err meta object should follow commo
 9. No Security Headers: we need some Security header for our response based on our setup and stacks
    so update accordingly so that the Security header is attached with our custom response.
 
-10. first i was in credentials route, so in sidebar, the credentials nav item was highlighted as expected. then i clicked trash item from sidebar now, the sidebar shows 2 highlight item. but it should have only highlight trash item only. since we are in trash route
-
-11. we need to wrap our homepage (/) with contents based on the existing data we are already having, the newly implemented feature, and the upcoming feature. these all 3 concepts.. lets act like theyre already implemented. and now based on this data, we are going to update our homepage. i am hurrily completing this because, we are going to add this website in our cv. so, i want to create a fast version which is least presentable
+10. we need to wrap our homepage (/) with contents based on the existing data we are already having, the newly implemented feature, and the upcoming feature. these all 3 concepts.. lets act like theyre already implemented. and now based on this data, we are going to update our homepage. i am hurrily completing this because, we are going to add this website in our cv. so, i want to create a fast version which is least presentable
     tho later, we will calcaulate these stats data based on real db data and our usage based. but for now, lets mock these data as close to realistic as possible. so that our homepage looks finished and working state. and this homepage will act like a whole overview page for all of our resources for this app
     we wanted to show some chart. so, based on our resouces and how its manipulated, fire up some shadcn chart please. i will leave this chart idea to you.
     we will also show some cards based on our resources
@@ -68,8 +66,7 @@ it use proper logging-scope. by the way, the err meta object should follow commo
     this is like a dashbaord overview page for all of our resources. so that we can quickly glance and quick navigate if needed
     as i said earlier, make these mock stats close to realistic
 
-12. in trash dialog, at bottom side by side with close button. show "delete permannently" button. if we click it, a confirmation dialog should show. if we cofirm it, the item will be permannently deleted
-
-13. we will develop 2 new route page for update form
+11. we will develop 2 new route page for update form
     right now, we can update credential item from single page and from draft page
-    and the update page is complex alone by itself. but now, we also dump our update form for draft in a single component page. i dont want it. keep our first update form doing its update job (like before we added draft udpate logic in a single update form page)
+    and the update page is complex alone by itself. but now, we also dump our update form for draft in a single component page. i dont want it. keep our first update form doing its update job (like before we added draft udpate logic in a single update form page) and then introduce a new update route inside of draft route. and this update route will be dedicated draft related updating
+    i know there will be lots of duplicate. but its ok. we will keep apart update page from each other and do whatever its needed in frontend, backend, zod schema etc for that

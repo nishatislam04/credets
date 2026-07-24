@@ -23,7 +23,7 @@ import {
 	Timer,
 	Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	AlertDialog,
 	AlertDialogCancel,
@@ -119,6 +119,22 @@ function TrashDetailDialog({
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const queryClient = useQueryClient();
+
+	// Scroll to top when the dialog opens so the user sees the header,
+	// not scrolled-down to the Close / Delete buttons at the bottom.
+	useEffect(() => {
+		if (open) {
+			// Double rAF to ensure the portal content is fully mounted
+			// and scroll container is ready before scrolling to top.
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					document
+						.querySelector('[data-slot="dialog-content"]')
+						?.scrollTo(0, 0);
+				});
+			});
+		}
+	}, [open]);
 
 	const handlePermanentDelete = async () => {
 		setIsDeleting(true);
