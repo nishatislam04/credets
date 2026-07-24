@@ -282,13 +282,16 @@ function RouteComponent() {
 									<Suspense
 										fallback={
 											<div
-												className={cn(
-													"overflow-hidden rounded-xl border border-input bg-background p-3",
-												)}
+												className="overflow-hidden rounded-xl border border-input bg-background"
 												style={{ height: "358px" }}
 											>
-												<div className="animate-pulse text-muted-foreground">
-													Loading editor…
+												<div className="flex size-full items-center justify-center">
+													<div className="flex flex-col items-center gap-3">
+														<div className="size-8 animate-spin rounded-full border-2 border-border border-t-foreground/40" />
+														<p className="text-sm text-muted-foreground/50 font-medium tracking-wide">
+															Loading editor
+														</p>
+													</div>
 												</div>
 											</div>
 										}
@@ -615,13 +618,16 @@ function RouteComponent() {
 										<Suspense
 											fallback={
 												<div
-													className={cn(
-														"overflow-hidden rounded-xl border border-input bg-background p-3",
-													)}
+													className="overflow-hidden rounded-xl border border-input bg-background"
 													style={{ height: "358px" }}
 												>
-													<div className="animate-pulse text-muted-foreground">
-														Loading editor…
+													<div className="flex size-full items-center justify-center">
+														<div className="flex flex-col items-center gap-3">
+															<div className="size-8 animate-spin rounded-full border-2 border-border border-t-foreground/40" />
+															<p className="text-sm text-muted-foreground/50 font-medium tracking-wide">
+																Loading editor
+															</p>
+														</div>
 													</div>
 												</div>
 											}
