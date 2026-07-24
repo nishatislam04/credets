@@ -16,7 +16,7 @@ import { createCredentialValidation } from "./validation/credential/create";
 import { updateCredentialValidation } from "./validation/credential/update";
 
 Bun.serve({
-	development: true,
+	development: Bun.env.NODE_ENV !== "production",
 	port: process.env.PORT || "8000",
 	idleTimeout: 35,
 	routes: {
