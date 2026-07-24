@@ -3,6 +3,7 @@ import { createLazyFileRoute, useLoaderData } from "@tanstack/react-router";
 import { useState } from "react";
 import { Separator } from "#/components/ui/separator";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
+import { CredentialsShell } from "#/routes/credentials/-components/credentials-shell";
 import { ImageGallery } from "./-components/ImageGallery";
 import { Content } from "./-ui/content";
 import { Footer } from "./-ui/footer";
@@ -32,7 +33,7 @@ function RouteComponent() {
 	};
 
 	return (
-		<>
+		<CredentialsShell>
 			<div className="mx-auto w-full max-w-6xl px-4 py-10">
 				<TopHeader credentialId={credential.id} />
 
@@ -80,6 +81,6 @@ function RouteComponent() {
 						alt={`Gallery image ${galleryPreviewIndex + 1}`}
 					/>
 				)}
-		</>
+		</CredentialsShell>
 	);
 }

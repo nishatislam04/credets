@@ -5,6 +5,7 @@
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/source-serif-4";
 @import "@fontsource-variable/montserrat";
+@import "@fontsource/caveat";
 
 
 @custom-variant dark (&:is(.dark *));
@@ -27,6 +28,7 @@ body {
   --font-heading: 'Montserrat Variable', sans-serif;
   --font-sans: 'Inter Variable', sans-serif;
   --font-serif: 'Source Serif 4 Variable', serif;
+  --font-caveat: 'Caveat', cursive;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -536,6 +538,14 @@ body {
 .code-block-lang-dropdown::-webkit-scrollbar-thumb {
 	background: var(--border);
 	border-radius: 2px;
+}
+
+/* ── Full-width mobile sidebar ──
+   The shadcn sidebar uses a Sheet drawer on mobile with default width
+   of 18rem. We override it to full-viewport width.             ── */
+
+[data-sidebar="sidebar"][data-mobile="true"] {
+	width: 100vw !important;
 }
 
 /* ── Animation for dropdown appearing ── */

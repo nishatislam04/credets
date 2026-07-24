@@ -8,7 +8,7 @@ import { Skeleton } from "#/components/ui/skeleton";
 import { Switch } from "#/components/ui/switch";
 import { getCredentialsListings } from "./-actions/getCredentialsListings";
 import { CredentialCard } from "./-components/credential-card";
-import { TopHeader } from "./-components/top-header";
+import { CredentialsShell } from "./-components/credentials-shell";
 import { CredentialsErrorUI } from "./-ui/CredentialsErrorUI";
 import { CredentialsEmptyState } from "./-ui/credentialsEmptyState";
 import { CredentialsLoadMoreError } from "./-ui/credentialsLoadMoreError";
@@ -55,13 +55,8 @@ function RouteComponent() {
 	const isLoadMoreError = isError && (data?.pages?.length ?? 0) > 0;
 
 	return (
-		<div className="mx-auto w-full max-w-3xl px-4 py-8">
-			{/* Page header */}
-			<TopHeader
-				isLoading={isLoading}
-				isRefetching={isRefetching}
-				credentialsLength={credentials.length}
-			/>
+		<CredentialsShell>
+			<div className="mx-auto w-full max-w-3xl px-4 py-8">
 
 			{/* Actions toolbar */}
 			<div className="mb-6 rounded-xl border bg-card p-3 md:p-6">
@@ -235,5 +230,6 @@ function RouteComponent() {
 				</>
 			)}
 		</div>
+		</CredentialsShell>
 	);
 }

@@ -22,6 +22,7 @@ import {
 	ItemTitle,
 } from "#/components/ui/item";
 import { cn } from "#/lib/utils";
+import { CredentialsShell } from "#/routes/credentials/-components/credentials-shell";
 import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
 import {
 	type TypePathEntry,
@@ -163,7 +164,8 @@ function RouteComponent() {
 	});
 
 	return (
-		<main>
+		<CredentialsShell>
+			<main>
 			<div className="relative flex items-center justify-center my-8 mb-18">
 				<Link
 					to="/credentials"
@@ -775,5 +777,6 @@ function RouteComponent() {
 				/>
 			)}
 		</main>
+		</CredentialsShell>
 	);
 }

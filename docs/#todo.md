@@ -1,21 +1,26 @@
-0. add an "draft me" button in create page form
-   so, we are implementing this feature because we maybe in the middle of creating an item.
-   and we decided to stop this creation operation. but we dont want to loose all of our manual input data
-   so, when we click this item, the unfinished content will be send to backend and it will be marked as draft
-   later, when we want to.. we can load this draft item up, but that feature for next time
-   so right now, we will only implement this draft feat from form create page
-   so another thing here is, right now, our form is least title, and types are mendatory.
-   but we decided to create the title only and draft it. so, normally we would get validation err from zod
-   but since the draft btn was enabled, we wont see any validation err and the data will be stored in db
-   and we will show an confirmation toast in ui, with draft operation success
-1. we will show an delete btn in single view page at sidebar but as a last item
-   when we click, it will show a shadcn confirmation dialog.
-   with confirming, we will delete the item
-2. we will implement soft delete feature now
-   when delete, it will mark as deleted in db and it wont be listed in listings page anymore
-   and there will be no cron job to periodic check to delete
-   for now only implement this soft delete feature. later we will create a dedicated trash page
-   uh.. most importantly, update the delete dialog with saying, this item can be found in trash and then either persmanently delete it or retrive it
+1. implement simple shadcn header for credentials and all of its children like the create, update form page
+   but this header should not exist outside the /credentials route. only for this route and its children
+   this header should contains simple layout.
+   like in left side, a big C with nice font (handwritten font would be best i think) then a dot (.)
+   so, its like this, "C." on this left side
+   then on the right side, we will show a search bar. this search bar will act like a global searching
+   the search input bar will have a dropdown button, clicking on it show some dropdown items
+   item: all (default checked), credentials, types, favourite, trash (we will add more later)
+   these items are clickable. we will now implement only ui part now. later when we click on this item,
+   the query input will be searched with selected dropdown item. but we will implement this later
+   and nothing else on header
+2. implement shadcn sidebar. similarly for credentials and its child route only
+   on big ui, the sidebar should always show
+   but in small ui, it should render with the button collapsible functionality
+   just simply render all the nav item lists straightforward like one after another with icon on left side
+   make it looks simple but it should cover all the way to the end (right side) when sidebar collapse is open.
+   i think shadcn default sidebar is not full width is not full in small viewport. but we want ours to be full width
+   navitems are:
+   home, credentials, types, draft, favorite, trash, password, profile, settings (we will add more later)
+   and then on the very bottom, we will hard code login avatar with profile picture round on left (rn show a default)
+   then the name on right (Minhajul Islam)
+   then the email address in subtle font (nishatislam3108@gmail.com)
+   and a red icon defining signout button on this avatar container
 3. [trash page] follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent structure. we will now implement the trash page. so, create a frontend route for trash page
    the header with content and below an action buttons placeholder like listings page.
    a search input bar like listings page [only ui]
@@ -46,15 +51,39 @@
    delete all with confirmation dialog
    and then the card item would just show the title, short description and type only
    and clicking this item would fire up our single view page with selected item
-6. update our listing page action ui block with separator. so, i want it like this...
-   i actually just want to show the ui segment as an separator in our listings page action block ui
-   so, like, the search bar and its below items (fellow buttons) is one column and create btn is 2nd column
-   and we will show an very thin separator in the middle of the column
-   and then another separator in the between of search input and action buttons
-   these separator should be full width or full height. like from the start to end
+6. No Request Body Size Limits: add size validation at the start of create/update handlers
+   so that our free tier services does not exhaust or oom or something like that
+   the max size should be for create and update is 10mb
+7. No Request Timeout: on backend, we will wrap our expensive, time consuming functionality with a `withtimeout()` util function with abort controller. for now, i think only the create, update image processing need to be wrapped up with this util function. with a 30second timeout. and handle what should happen if any operation exceed this 30s window
+8. Production Logging is Not Structured:
+   Your `logAlways` function works, but it outputs formatted text with ANSI colors and `Bun.inspect` — great for local development, but **unparseable by log aggregation services** (Render's built-in log viewer, Better Stack, etc.).
 
-in single view page, when we click the favorite, draft btn execute its functionality
-and if success, show success toast
+**Fix — add a structured JSON logger for production:**
 
-in backend delete endpoint, are we not verifying the csrf token?
-if we are not verifying, plz verify it.. we should verify it, right?
+```ts
+export function logJSON(level: string, message: string, meta?: Record<string, unknown>) {
+	if (process.env.NODE_ENV === "production") {
+		console.log(
+			JSON.stringify({
+				timestamp: new Date().toISOString(),
+				level,
+				message,
+				...meta,
+			}),
+		);
+	}
+}
+```
+
+Then in your critical operations:
+
+```ts
+logJSON("info", "credential created", { title: validatedData.data.title });
+logJSON("error", "delete credential error", { error: error instanceof Error ? error.message : "unknown" });
+```
+
+Keep `logAlways` for startup banners and critical server events, but use structured JSON for data operation logging.
+update my backend with this requirements. because we will badly need this
+while you are at it, update the ai agent instructions so that when it write or update any endpoint,
+it use proper logging-scope. by the way, the err meta object should follow common convension for consistent 9. No Security Headers: we need some Security header for our response based on our setup and stacks
+so update accordingly so that the Security header is attached with our custom response
