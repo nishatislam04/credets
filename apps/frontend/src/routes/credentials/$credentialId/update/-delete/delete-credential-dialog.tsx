@@ -52,7 +52,8 @@ export function DeleteCredentialDialog({
 			navigate({ to: "/credentials" });
 		} catch (err) {
 			gooeyToast.error("Failed to delete", {
-				description: err instanceof Error ? err.message : "Something went wrong",
+				description:
+					err instanceof Error ? err.message : "Something went wrong",
 			});
 		} finally {
 			setIsDeleting(false);
@@ -90,19 +91,29 @@ export function DeleteCredentialDialog({
 					</AlertDialogTitle>
 
 					<AlertDialogDescription className="text-center">
-						This will permanently delete{" "}
-						<span className="font-semibold text-foreground">&ldquo;{credentialTitle}&rdquo;</span>{" "}
-						and all its associated data, including images and files. This action{" "}
-						<strong className="text-destructive">cannot be undone</strong>.
+						<p>
+							This will permanently delete{" "}
+							<span className="font-semibold text-foreground">
+								&ldquo;{credentialTitle}&rdquo;
+							</span>
+							.
+						</p>
+						<p className="mt-2">
+							All associated images and files will also be removed.
+						</p>
 					</AlertDialogDescription>
 
-					<div className="mt-2 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-xs text-destructive/70">
-						This action is irreversible. Once deleted, you will not be able to recover the
-						credential or any of its associated data.
+					<div className="mt-6 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-xs text-destructive/70">
+						This action is irreversible. Once deleted, you will not be able to
+						recover the credential or any of its associated data.
 					</div>
 
 					<div className="flex justify-end gap-3 mt-6">
-						<AlertDialogCancel variant="outline" size="lg" disabled={isDeleting}>
+						<AlertDialogCancel
+							variant="outline"
+							size="lg"
+							disabled={isDeleting}
+						>
 							Cancel
 						</AlertDialogCancel>
 						<Button
