@@ -1,3 +1,4 @@
+import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
 import { AppError } from "./err/base";
 import { credentialCreate } from "./http/credentials/create";
@@ -20,13 +21,19 @@ Bun.serve({
 	port: process.env.PORT || "8000",
 	idleTimeout: 35,
 	routes: {
-		"/healthz": () =>
-			ResponseFactory.success({
-				data: { status: "ok" },
-				message: "Server is healthy",
-				status: 200,
-				path: { url: "/healthz" } as BunRequest,
-			}),
+		"/healthz": async () => {
+			try {
+				await sql`SELECT 1`; // Verify DB is reachable
+				return ResponseFactory.success({
+					data: { status: "ok", db: "connected" },
+					message: "Server is healthy",
+					status: 200,
+					path: { url: "/healthz" } as BunRequest,
+				});
+			} catch (_) {
+				return new Response("Database unavailable", { status: 503 });
+			}
+		},
 		// "/": indexHtml,
 
 		// csrf
