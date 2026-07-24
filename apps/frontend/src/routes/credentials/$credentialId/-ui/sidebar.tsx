@@ -11,6 +11,7 @@ import {
 	Tag,
 } from "lucide-react";
 import { useState } from "react";
+import { gooeyToast } from "#/components/ui/goey-toaster";
 import {
 	isContentEmpty,
 	RichTextRenderer,
@@ -47,9 +48,18 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 				// Revert on failure
 				if (field === "is_draft") setIsDraft(!value);
 				if (field === "is_favourite") setIsFavourite(!value);
+				gooeyToast.error("Failed to update", {
+					description: `Could not update ${field === "is_draft" ? "draft" : "favourite"} status`,
+				});
 			} else {
 				// Invalidate listings cache so the listing page shows updated state
 				queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
+				const label = field === "is_draft" ? "Draft" : "Favourite";
+				gooeyToast.success(`${label} updated`, {
+					description: value
+						? `${label} mode turned on`
+						: `${label} mode turned off`,
+				});
 			}
 		} catch {
 			// Revert on error

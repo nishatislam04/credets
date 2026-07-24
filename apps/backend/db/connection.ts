@@ -9,7 +9,7 @@ export const sql: SQL = new SQL({
 	tls: process.env.DB_TLS === "true", // Enable TLS via env var (default: false for local dev)
 
 	// Pool configuration
-	max: 1, // Maximum 10 concurrent connections
+	max: 10, // Maximum 10 concurrent connections
 	idleTimeout: 30, // Close idle connections after 30s
 	maxLifetime: 3600, // Max connection lifetime 1 hour
 	connectionTimeout: 10, // Connection timeout 10s
