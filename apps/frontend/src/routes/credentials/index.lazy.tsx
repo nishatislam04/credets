@@ -64,7 +64,7 @@ function RouteComponent() {
 			/>
 
 			{/* Actions toolbar */}
-			<div className="relative mb-6 flex flex-col gap-3 rounded-xl border bg-card p-6 pr-36">
+			<div className="relative mb-6 flex flex-col gap-3 rounded-xl border bg-card p-3 pr-14 md:p-6 md:pr-36">
 				{/* Top row: search bar (full width) */}
 				<div className="relative">
 					<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/40" />
@@ -97,10 +97,10 @@ function RouteComponent() {
 				{/* Create button — absolutely positioned, centered in Y-axis of container */}
 				<Link
 					to="/credentials/create"
-					className="absolute right-6 top-1/2 -translate-y-1/2 inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.97]"
+					className="absolute right-3 top-1/2 -translate-y-1/2 md:right-6 inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary p-2.5 md:px-5 md:py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.97]"
 				>
-					<Plus className="size-4" />
-					Create
+					<Plus className="size-5 md:size-4" />
+					<span className="hidden md:inline">Create</span>
 				</Link>
 			</div>
 
