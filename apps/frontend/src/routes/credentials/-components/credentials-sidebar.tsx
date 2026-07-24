@@ -31,7 +31,7 @@ const navItems = [
 	{ label: "Types", icon: Tags, to: "#" },
 	{ label: "Draft", icon: FileEdit, to: "#" },
 	{ label: "Favorite", icon: Heart, to: "#" },
-	{ label: "Trash", icon: Trash2, to: "#" },
+	{ label: "Trash", icon: Trash2, to: "/credentials/trash" as const },
 	{ label: "Password", icon: Lock, to: "#" },
 	{ label: "Profile", icon: User, to: "#" },
 	{ label: "Settings", icon: Settings, to: "#" },

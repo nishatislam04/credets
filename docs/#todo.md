@@ -86,4 +86,11 @@ Keep `logAlways` for startup banners and critical server events, but use structu
 update my backend with this requirements. because we will badly need this
 while you are at it, update the ai agent instructions so that when it write or update any endpoint,
 it use proper logging-scope. by the way, the err meta object should follow common convension for consistent 9. No Security Headers: we need some Security header for our response based on our setup and stacks
-so update accordingly so that the Security header is attached with our custom response
+so update accordingly so that the Security header is attached with our custom response.
+
+9. update header: in small view, make sure our search input stays as big as it can but its related dropdown should shrink down to smaller
+   like, if we choose "credential" for an example, the whole dropdown occupy a lot of space. becuase the item is too big
+   but it should eclipse the word like this "cred..." this was just for an example. and it should happen also with all the other items too. but this should not happen in big viewport
+   and in big view, the search input bar should be more wide
+   we should always show the collapse item. so that in bigger viewport, if needed, we can collapse the sidebar if we want
+   clicking on the "c." on the header should navigate us to homepage
