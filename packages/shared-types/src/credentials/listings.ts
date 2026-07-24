@@ -41,6 +41,28 @@ export type TrashListingsResponse = {
 	hasMore: boolean;
 };
 
+/** A single draft credential item returned by the draft endpoint */
+export type DraftCredentialItem = {
+	id: string;
+	title: string;
+	short_description: string | null;
+	thumbnail_url: string | null;
+	tags: string[] | null;
+	created_at: string;
+	updated_at: string | null;
+	type_label: string | null;
+	type_value: string | null;
+	version: number;
+	is_favourite: boolean;
+};
+
+/** Cursor-based pagination wrapper returned by the draft endpoint */
+export type DraftListingsResponse = {
+	items: DraftCredentialItem[];
+	nextCursor: string | null;
+	hasMore: boolean;
+};
+
 /** Cursor-based pagination wrapper returned by the backend */
 export type CredentialListingsResponse = {
 	credentials: CredentialListItem[];

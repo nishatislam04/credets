@@ -11,8 +11,8 @@ import {
 	useNavigate,
 	useRouter,
 } from "@tanstack/react-router";
-import { ArrowLeft, X } from "lucide-react";
-import { lazy, Suspense, useState } from "react";
+import { ArrowLeft, FileEdit, SaveAll, X } from "lucide-react";
+import { lazy, Suspense, useRef, useState } from "react";
 import {
 	Field,
 	FieldContent,
@@ -95,6 +95,15 @@ function RouteComponent() {
 	const navigate = useNavigate();
 	const router = useRouter();
 	const queryClient = useQueryClient();
+
+	// ── Capture whether this credential was a draft when the page loaded.
+	// This ref is never updated, so the back button and submit buttons
+	// won't change after router.invalidate() re-fetches the data.
+	const wasInitialDraftRef = useRef(credential.is_draft);
+
+	// ── Draft intent ref ──
+	// undefined = normal update, true = keep as draft, false = publish
+	const isDraftIntentRef = useRef<boolean | undefined>(undefined);
 
 	// ── Image state ──
 	const existingImages: CredentialImage[] = Array.isArray(credential.images)
@@ -181,8 +190,10 @@ function RouteComponent() {
 					return { message: "something went wrong" };
 				}
 			},
-		},
-		onSubmit: async ({ value }) => {
+		},		onSubmit: async ({ value }) => {
+			// Capture intent early — used in the toast action closure below
+			const draftIntent = isDraftIntentRef.current;
+
 			const existingImagesKeep = visibleExistingImages.map((img) => img.id);
 			const updatePromise = updateCredentialAction({
 				...value,
@@ -190,6 +201,7 @@ function RouteComponent() {
 				newImages,
 				existingImagesKeep,
 				removeThumbnail: thumbnailRemoved,
+				is_draft: draftIntent,
 			}).then(async () => {
 				// Invalidate caches *before* the success toast appears so that
 				// navigating to the detail page always reads fresh loader data.
@@ -209,18 +221,30 @@ function RouteComponent() {
 				},
 				action: {
 					success: {
-						label: "view credential",
+						label:
+							draftIntent === false
+								? "view in listings"
+								: draftIntent === true
+									? "back to drafts"
+									: "view credential",
 						onClick: async () => {
-							navigate({
-								to: "/credentials/$credentialId",
-								params: { credentialId: credential.id },
-							});
+							if (draftIntent === false) {
+								navigate({ to: "/credentials" });
+							} else if (draftIntent === true) {
+								navigate({ to: "/credentials/draft" });
+							} else {
+								navigate({
+									to: "/credentials/$credentialId",
+									params: { credentialId: credential.id },
+								});
+							}
 						},
 					},
 				},
 			});
 
 			form.reset(form.state.values);
+			isDraftIntentRef.current = undefined;
 		},
 	});
 
@@ -228,15 +252,27 @@ function RouteComponent() {
 		<CredentialsShell>
 			<main>
 				<div className="relative flex items-center justify-center my-8 mb-8">
-					<Link
-						to="/credentials/$credentialId"
-						params={{ credentialId: credential.id }}
-						className="absolute left-0 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors ml-3 md:ml-12"
-					>
-						<ArrowLeft className="size-6 transition-transform duration-200 group-hover:-translate-x-0.5" />
-					</Link>
+					{wasInitialDraftRef.current ? (
+						<button
+							type="button"
+							onClick={() =>
+								navigate({ to: "/credentials/draft" })
+							}
+							className="absolute left-0 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors ml-3 md:ml-12 cursor-pointer"
+						>
+							<ArrowLeft className="size-6" />
+						</button>
+					) : (
+						<Link
+							to="/credentials/$credentialId"
+							params={{ credentialId: credential.id }}
+							className="absolute left-0 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors ml-3 md:ml-12"
+						>
+							<ArrowLeft className="size-6 transition-transform duration-200 group-hover:-translate-x-0.5" />
+						</Link>
+					)}
 					<p className="capitalize text-4xl text-center">
-						Update credential data
+						{wasInitialDraftRef.current ? "Edit draft" : "Update credential data"}
 					</p>
 				</div>
 
@@ -869,20 +905,61 @@ function RouteComponent() {
 										)}
 									</div>
 									<div className="flex items-center justify-center gap-4">
-										<Button
-											type="submit"
-											size="lg"
-											className="px-12 py-4"
-											disabled={!canSubmit || isPristine}
-										>
-											{isSubmitting ? "..." : "Update"}
-										</Button>
+						{wasInitialDraftRef.current ? (
+							<>
+								<Button
+													type="button"
+													size="lg"
+													className="gap-2 px-8 py-4"
+													disabled={!canSubmit || isPristine}
+													onClick={() => {
+														isDraftIntentRef.current = false;
+														form.handleSubmit();
+													}}
+												>
+													<SaveAll className="size-4" />
+													{isSubmitting ? "..." : "Save"}
+												</Button>
 
-										<DeleteCredentialDialog
-											credentialId={credential.id}
-											credentialTitle={credential.title}
-											csrfToken={csrfToken}
-										/>
+												<Button
+													type="button"
+													variant="secondary"
+													size="lg"
+													className="gap-2 px-8 py-4"
+													disabled={!canSubmit || isPristine}
+													onClick={() => {
+														isDraftIntentRef.current = true;
+														form.handleSubmit();
+													}}
+												>
+													<FileEdit className="size-4" />
+													{isSubmitting ? "..." : "Update & Draft"}
+												</Button>
+
+												<DeleteCredentialDialog
+													credentialId={credential.id}
+													credentialTitle={credential.title}
+													csrfToken={csrfToken}
+												/>
+											</>
+										) : (
+											<>
+												<Button
+													type="submit"
+													size="lg"
+													className="px-12 py-4"
+													disabled={!canSubmit || isPristine}
+												>
+													{isSubmitting ? "..." : "Update"}
+												</Button>
+
+												<DeleteCredentialDialog
+													credentialId={credential.id}
+													credentialTitle={credential.title}
+													csrfToken={csrfToken}
+												/>
+											</>
+										)}
 									</div>
 								</div>
 							)}

@@ -58,6 +58,7 @@ async function resolveOrCreateTypePath(
 	notes: string | null;
 	data: string;
 	tags: string | null;
+	is_draft?: boolean;
 	thumbnail: {
 		url: string;
 		format: string;
@@ -150,6 +151,11 @@ export async function updateCredentialRepo(
 			}
 
 			setParts.push(`updated_at = NOW()`);
+
+			if (input.is_draft !== undefined) {
+				setParts.push(`is_draft = $${idx++}`);
+				params.push(input.is_draft);
+			}
 
 			params.push(input.credentialId);
 			const updateQuery = `UPDATE credentials SET ${setParts.join(", ")} WHERE id = $${idx}`;

@@ -24,6 +24,7 @@ interface UpdatePayload {
 	}>;
 	notes?: string | null;
 	tags?: string | null;
+	is_draft?: boolean;
 	newImages: File[];
 	existingImagesKeep: string[];
 }

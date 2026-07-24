@@ -65,6 +65,7 @@ export const credentialsUpdateSchema = z.object({
 		.default([])
 		.nullable()
 		.optional(),
+	is_draft: z.boolean().optional(),
 	existing_images_keep: z.string().optional().nullable(),
 	notes: z.string().trim().nullable().optional(),
 	tags: z.string().trim().nullable().optional(),

@@ -29,7 +29,7 @@ const navItems = [
 	{ label: "Home", icon: Home, to: "/" as const },
 	{ label: "Credentials", icon: KeyRound, to: "/credentials" as const },
 	{ label: "Types", icon: Tags, to: "#" },
-	{ label: "Draft", icon: FileEdit, to: "#" },
+	{ label: "Draft", icon: FileEdit, to: "/credentials/draft" as const },
 	{ label: "Favorite", icon: Heart, to: "#" },
 	{ label: "Trash", icon: Trash2, to: "/credentials/trash" as const },
 	{ label: "Password", icon: Lock, to: "#" },

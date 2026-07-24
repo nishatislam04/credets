@@ -16,6 +16,7 @@ interface UpdateFormValues {
 	}>;
 	notes?: string | null;
 	tags?: string | null;
+	is_draft?: boolean;
 	/** New image files selected by the user */
 	newImages: File[];
 	/** IDs of existing images to keep */
@@ -57,6 +58,11 @@ export function createUpdateCredentialFormdata(value: UpdateFormValues) {
 	}
 	if (value.tags) {
 		formdata.append("tags", value.tags);
+	}
+
+	// is_draft — publish or keep as draft
+	if (value.is_draft !== undefined) {
+		formdata.append("is_draft", value.is_draft ? "true" : "false");
 	}
 
 	// Existing images to keep

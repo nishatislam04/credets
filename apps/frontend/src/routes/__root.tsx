@@ -27,7 +27,7 @@ function RootComponent() {
 				<Outlet />
 			</QueryClientProvider>
 			<GooeyToaster />
-			<TanStackRouterDevtools position="bottom-right" />
+			{/*<TanStackRouterDevtools position="bottom-right" />*/}
 			{/*<TanStackDevtools plugins={[formDevtoolsPlugin()]} />*/}
 		</ThemeProvider>
 	);

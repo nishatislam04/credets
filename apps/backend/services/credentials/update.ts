@@ -18,6 +18,7 @@ import { updateCredentialRepo, type TypePathEntry } from "../../repository/crede
 	long_description?: string;
 	notes?: string;
 	tags?: string;
+	is_draft?: boolean;
 	// biome-ignore lint/suspicious/noExplicitAny: data can contain arbitrary objects
 	data: any[];
 	thumbnail: File | null;
@@ -143,6 +144,7 @@ export async function updateCredentialService(
 				byteSize: img.byteSize,
 			})),
 			existingImagesKeep: input.existingImagesKeep,
+			is_draft: input.is_draft,
 		});
 
 		logAlways(input.credentialId, "service: credential update completed");

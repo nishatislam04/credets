@@ -57,9 +57,17 @@ export async function credentialUpdate(req: BunRequest) {
 			})()
 		: [];
 
+	// Extract is_draft from formdata (set by validator)
+	// Note: must differentiate between "false" (publish) and null (not set)
+	const isDraftRaw = formData.get("is_draft")?.toString() || null;
+	let is_draft: boolean | undefined;
+	if (isDraftRaw === "true" || isDraftRaw === "1") is_draft = true;
+	else if (isDraftRaw === "false" || isDraftRaw === "0") is_draft = false;
+
 	try {
 		await updateCredentialService({
 			credentialId,
+			is_draft,
 			title: validatedData.data.title ?? "",
 			type: validatedData.data.type ?? "",
 			types_path,
