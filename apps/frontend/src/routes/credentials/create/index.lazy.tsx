@@ -219,20 +219,28 @@ function RouteComponent() {
 										<form.Field
 											name="types"
 											mode="array"
-											children={(typesField) => (
-												<TypeSelector
-													types={typesField.state.value as TypePathEntry[]}
-													onTypesChange={(newTypes) => {
-														typesField.handleChange(newTypes);
-														// Sync the leaf type value to the parent "type" field
-														const leafValue =
-															newTypes.length > 0
-																? newTypes[newTypes.length - 1].value
-																: "";
-														field.handleChange(leafValue);
-													}}
-												/>
-											)}
+											children={(typesField) => {
+												const isTypesInvalid = !typesField.state.meta.isValid;
+												return (
+													<>
+														<TypeSelector
+															types={typesField.state.value as TypePathEntry[]}
+															onTypesChange={(newTypes) => {
+																typesField.handleChange(newTypes);
+																// Sync the leaf type value to the parent "type" field
+																const leafValue =
+																	newTypes.length > 0
+																		? newTypes[newTypes.length - 1].value
+																		: "";
+																field.handleChange(leafValue);
+															}}
+														/>
+														{isTypesInvalid && (
+															<FieldError errors={typesField.state.meta.errors} />
+														)}
+													</>
+												);
+											}}
 										/>
 									</div>
 								</Field>

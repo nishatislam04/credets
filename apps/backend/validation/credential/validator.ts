@@ -61,10 +61,23 @@ export async function parseAndValidateCredential<T>(
 		}
 	}
 
+	// Extract and parse types_path from formdata
+	const typesPathRaw = formData.get("types_path")?.toString() || null;
+	const types: Array<{ value: string; label: string }> = typesPathRaw
+		? (() => {
+				try {
+					return JSON.parse(typesPathRaw);
+				} catch {
+					return [];
+				}
+			})()
+		: [];
+
 	const validateDisData: Record<string, unknown> = {
 		_csrf,
 		title,
 		type,
+		types,
 		short_description,
 		long_description,
 		thumbnail,
