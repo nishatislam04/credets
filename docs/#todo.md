@@ -94,3 +94,4 @@ so update accordingly so that the Security header is attached with our custom re
    and in big view, the search input bar should be more wide
    we should always show the collapse item. so that in bigger viewport, if needed, we can collapse the sidebar if we want
    clicking on the "c." on the header should navigate us to homepage
+10. first i was in credentials route, so in sidebar, the credentials nav item was highlighted as expected. then i clicked trash item from sidebar now, the sidebar shows 2 highlight item. but it should have only highlight trash item only. since we are in trash route

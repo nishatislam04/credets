@@ -119,7 +119,7 @@ function TrashDetailDialog({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 						<DialogContent
-				className="!sm:max-w-6xl max-h-[90vh] overflow-y-auto p-8"
+				className="max-h-[90vh] overflow-y-auto p-8"
 				style={{ maxWidth: "calc(100vw - 4rem)" }}
 			>
 				<DialogHeader className="mb-8">

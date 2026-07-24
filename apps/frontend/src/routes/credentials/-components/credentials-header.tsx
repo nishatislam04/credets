@@ -1,8 +1,9 @@
-import { Search, ChevronDown, AlignJustify } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { Link } from "@tanstack/react-router";
+import { AlignJustify, ChevronDown, Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "#/components/ui/input";
-import { cn } from "#/lib/utils";
 import { useSidebar } from "#/components/ui/sidebar";
+import { cn } from "#/lib/utils";
 
 const searchOptions = [
 	{ value: "all", label: "All" },
@@ -51,42 +52,57 @@ export function CredentialsHeader() {
 
 	return (
 		<header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-			<div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-				{/* Left: C. logo + mobile sidebar trigger */}
+			<div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
+				{/* Left: C. logo + sidebar trigger (always visible) */}
 				<div className="flex shrink-0 items-center gap-2">
-					{isMobile && <MobileSidebarTrigger />}
-					<span className="text-4xl leading-none tracking-tighter font-caveat">
-						C.
-					</span>
+					<MobileSidebarTrigger />
+					<Link to="/">
+						<span className="text-4xl leading-none tracking-tighter font-caveat">
+							C.
+						</span>
+					</Link>
 				</div>
 
 				{/* Right: Search bar with dropdown */}
-				<div className="relative flex items-center" ref={dropdownRef}>
-					<div className="relative flex items-center">
-						{/* Search input */}
-						<div className="relative">
+				<div
+					className="relative flex min-w-0 flex-1 items-center justify-end"
+					ref={dropdownRef}
+				>
+					<div className="flex items-center w-full max-w-[400px] md:w-auto">
+						{/* Search input — fills available space */}
+						<div className="relative flex-1">
 							<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/40" />
 							<Input
 								type="text"
 								placeholder="global search"
-								className="w-56 rounded-r-none border-r-0 pl-10 md:w-72"
+								className="w-full rounded-r-none border-r-0 pl-10"
 							/>
 						</div>
 
-						{/* Dropdown button */}
+						{/* Dropdown button — truncate on mobile */}
 						<button
 							type="button"
 							onClick={() => setIsOpen(!isOpen)}
-							className="flex cursor-pointer items-center gap-1 rounded-r-lg border border-l-0 border-input bg-background px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent"
+							className={cn(
+								"flex cursor-pointer items-center gap-1 rounded-r-lg border border-l-0 border-input bg-background px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent shrink-0",
+								isMobile && "max-w-[5rem]",
+							)}
 						>
-							{selectedLabel}
-							<ChevronDown className="size-3.5" />
+							<span className={cn("truncate", !isMobile && "text-nowrap")}>
+								{selectedLabel}
+							</span>
+							<ChevronDown className="size-3.5 shrink-0" />
 						</button>
 					</div>
 
 					{/* Dropdown menu */}
 					{isOpen && (
-						<div className="absolute right-0 top-full mt-2 w-44 animate-in fade-in slide-in-from-top-1 rounded-lg border bg-popover p-1.5 shadow-lg duration-150">
+						<div
+							className={cn(
+								"absolute right-0 top-full mt-2 animate-in fade-in slide-in-from-top-1 rounded-lg border bg-popover p-1.5 shadow-lg duration-150",
+								isMobile ? "w-36" : "w-44",
+							)}
+						>
 							{searchOptions.map((option) => (
 								<button
 									key={option.value}
@@ -102,7 +118,9 @@ export function CredentialsHeader() {
 											: "text-muted-foreground hover:bg-accent/50",
 									)}
 								>
-									{option.label}
+									<span className={cn(isMobile && "truncate")}>
+										{option.label}
+									</span>
 								</button>
 							))}
 						</div>
