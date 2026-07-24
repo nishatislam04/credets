@@ -1,9 +1,11 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { createLazyFileRoute } from "@tanstack/react-router";
-import { LoaderIcon } from "lucide-react";
+import { createLazyFileRoute, Link } from "@tanstack/react-router";
+import { LoaderIcon, Plus, Search } from "lucide-react";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
+import { Input } from "#/components/ui/input";
 import { Skeleton } from "#/components/ui/skeleton";
+import { Switch } from "#/components/ui/switch";
 import { getCredentialsListings } from "./-actions/getCredentialsListings";
 import { CredentialCard } from "./-components/credential-card";
 import { TopHeader } from "./-components/top-header";
@@ -59,6 +61,38 @@ function RouteComponent() {
 				isRefetching={isRefetching}
 				credentialsLength={credentials.length}
 			/>
+
+			{/* Actions toolbar */}
+			<div className="relative mb-6 flex flex-col gap-3 rounded-xl border bg-card p-6 pr-36">
+				{/* Top row: search bar (full width) */}
+				<div className="relative">
+					<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/40" />
+					<Input
+						type="text"
+						placeholder="Search credentials by title, type, or tags..."
+						className="w-full pl-10"
+					/>
+				</div>
+
+				{/* Bottom row: action toggles container */}
+				<div className="mt-3 flex flex-wrap items-center gap-3">
+					<div className="flex items-center gap-2">
+						<Switch id="enable-local-cache" />
+						<label htmlFor="enable-local-cache" className="text-xs text-muted-foreground/70 cursor-pointer select-none">
+							Enable local cache
+						</label>
+					</div>
+				</div>
+
+				{/* Create button — absolutely positioned, centered in Y-axis of container */}
+				<Link
+					to="/credentials/create"
+					className="absolute right-6 top-1/2 -translate-y-1/2 inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.97]"
+				>
+					<Plus className="size-4" />
+					Create
+				</Link>
+			</div>
 
 			{/* show inital skeleton loading */}
 			{isLoading && (

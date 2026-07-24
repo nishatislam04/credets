@@ -1,5 +1,4 @@
-import { Link } from "@tanstack/react-router";
-import { LoaderIcon, Plus } from "lucide-react";
+import { LoaderIcon } from "lucide-react";
 import { ThemeToggle } from "#/components/theme-toggle";
 import { Skeleton } from "#/components/ui/skeleton";
 
@@ -41,13 +40,6 @@ export function TopHeader({
 					</div>
 				)}
 			</div>
-			<Link
-				to="/credentials/create"
-				className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.97]"
-			>
-				<Plus className="size-4" />
-				Create
-			</Link>
 		</div>
 	);
 }

@@ -14,7 +14,8 @@
    but for now add a switch button with "enable local cache" (only ui)
    a big search bar with placeholder text but no submit button (only ui)
    we have the +create btn at top-header. remove that from there and move it here in this actions section
-3. our rte loading spinner. make it looks beautiful loading spinner
+3. our rte loading spinner. make it looks beautiful loading spinner contrast to its parent container.
+   so it should be shown in middle of x and y axis and a big but subtle
 4. when an credential item is not found from server fetching. the ui should show not-found error ui.
    but its currently showing failed to fetch credential error.
    create a beautiful not found err ui, if it does not exist already
