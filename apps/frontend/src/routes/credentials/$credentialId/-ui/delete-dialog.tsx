@@ -76,17 +76,18 @@ export function DeleteButton({
 					</AlertDialogTitle>
 
 					<AlertDialogDescription className="text-center">
-						<p>
+						<span>
 							This will move{" "}
 							<span className="font-semibold text-foreground">
 								&ldquo;{credentialTitle}&rdquo;
 							</span>
 							 to trash.
-						</p>
-						<p className="mt-2">
+						</span>
+						<br />
+						<span>
 							You can find it later in the trash page to either permanently
 							delete or restore it.
-						</p>
+						</span>
 					</AlertDialogDescription>
 
 					<div className="mt-6 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-xs text-destructive/70">
