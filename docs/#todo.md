@@ -13,10 +13,10 @@
    when we click, it will show a shadcn confirmation dialog.
    with confirming, we will delete the item
 2. we will implement soft delete feature now
-   when delete, it will mark as delete in db and it wont be listed in listings page anymore
-   but there will be no cron job to periodic check to delete
+   when delete, it will mark as deleted in db and it wont be listed in listings page anymore
+   and there will be no cron job to periodic check to delete
    for now only implement this soft delete feature. later we will create a dedicated trash page
-   uh.. most importantly, update the delete dialog with saying, this item can be found in trash and retrivable
+   uh.. most importantly, update the delete dialog with saying, this item can be found in trash and then either persmanently delete it or retrive it
 3. [trash page] follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent. we will now implement the trash page. so, create a frontend route for trash page
    the header with content and below an action buttons placeholder like listings page.
    a search input bar like listings page [only ui]

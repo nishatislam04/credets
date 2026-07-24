@@ -18,6 +18,7 @@ import {
 import { Switch } from "#/components/ui/switch";
 import { TypeTree } from "../-components/TypeTree";
 import { TagListColorShared } from "../-shared/tagListColorShared";
+import { DeleteButton } from "./delete-dialog";
 
 export function Sidebar({ credential }: { credential: CredentialDetail }) {
 	const [copiedId, setCopiedId] = useState(false);
@@ -191,6 +192,14 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 					</div>
 				</section>
 			)}
+
+			{/* Delete — always at the bottom */}
+			<section className="pt-6 border-t border-border/40">
+				<DeleteButton
+					credentialId={credential.id}
+					credentialTitle={credential.title}
+				/>
+			</section>
 		</div>
 	);
 }
