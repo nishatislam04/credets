@@ -43,18 +43,32 @@ export function CredentialsSidebar() {
 
 	/**
 	 * Determine if a nav item should be marked as active.
-	 * For routes with `to: "#"`, they are never active.
-	 * For typed routes, we check if the current path starts
-	 * with the target path.
+	 * Uses exact match first, then prefix match (e.g. /credentials/123 → Credentials).
+	 * Prefix match is rejected when another nav item has a longer matching
+	 * prefix, preventing /credentials/trash from also highlighting Credentials.
 	 */
 	const isActive = (itemTo: string) => {
 		if (itemTo === "#") return false;
 		const currentPath = location.pathname;
-		// Match exactly or as a prefix (e.g. /credentials/123 matches /credentials)
-		return (
-			currentPath === itemTo ||
-			(currentPath.startsWith(itemTo) && itemTo !== "/")
-		);
+
+		// Exact match
+		if (currentPath === itemTo) return true;
+
+		// Prefix match (e.g. /credentials/123 starts with /credentials)
+		if (currentPath.startsWith(itemTo) && itemTo !== "/") {
+			// Make sure no *other* nav item has a longer matching prefix.
+			// This prevents /credentials/trash from also highlighting Credentials.
+			const hasLongerMatch = navItems.some(
+				(other) =>
+					other.to !== "#" &&
+					other.to !== itemTo &&
+					currentPath.startsWith(other.to) &&
+					other.to.length > itemTo.length,
+			);
+			return !hasLongerMatch;
+		}
+
+		return false;
 	};
 
 	return (
