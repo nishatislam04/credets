@@ -229,10 +229,10 @@ function RouteComponent() {
 				<Link
 					to="/credentials/$credentialId"
 					params={{ credentialId: credential.id }}
-					className="absolute left-0 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors ml-4 md:ml-12"
+					className="absolute left-0 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors ml-3 md:ml-12"
 				>
-					<ArrowLeft className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5" />
-					Back to credential
+					<ArrowLeft className="size-5 md:size-3 transition-transform duration-200 group-hover:-translate-x-0.5" />
+					<span className="hidden md:inline">Back to credential</span>
 				</Link>
 				<p className="capitalize text-4xl text-center">
 					Update credential data
