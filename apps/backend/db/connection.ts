@@ -9,8 +9,8 @@ export const sql: SQL = new SQL({
 	tls: process.env.DB_TLS === "true", // Enable TLS via env var (default: false for local dev)
 
 	// Pool configuration
-	max: 10, // Maximum 10 concurrent connections
-	idleTimeout: 30, // Close idle connections after 30s
-	maxLifetime: 3600, // Max connection lifetime 1 hour
-	connectionTimeout: 10, // Connection timeout 10s
+	max: 5, // Max concurrent connections (lower for free tier Neon DB limit)
+	idleTimeout: 10, // Close idle connections after 10s (quick cleanup on deploy)
+	maxLifetime: 1800, // Max connection lifetime 30 min (rotate connections faster)
+	connectionTimeout: 5, // Connection timeout 5s (fail fast, retry quickly)
 });
