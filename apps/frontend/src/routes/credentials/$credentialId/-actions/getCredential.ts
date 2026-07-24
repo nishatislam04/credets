@@ -1,11 +1,22 @@
 import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
 
+class NotFoundError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = "NotFoundError";
+	}
+}
+
 export async function getCredential(
 	credentialId: string,
 ): Promise<CredentialDetail> {
 	const res = await fetch(
 		`${import.meta.env.VITE_BACKEND_APP}/credentials/${credentialId}`,
 	);
+
+	if (res.status === 404) {
+		throw new NotFoundError("Credential not found");
+	}
 
 	if (!res.ok) throw new Error("Failed to fetch credential");
 
@@ -15,3 +26,5 @@ export async function getCredential(
 
 	return json.data as CredentialDetail;
 }
+
+export { NotFoundError };
