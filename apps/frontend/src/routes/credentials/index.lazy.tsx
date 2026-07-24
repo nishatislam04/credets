@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { createLazyFileRoute, Link } from "@tanstack/react-router";
-import { LoaderIcon, Plus, Search } from "lucide-react";
+import { LoaderIcon, Plus, RefreshCw, Search } from "lucide-react";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { Input } from "#/components/ui/input";
@@ -27,6 +27,7 @@ function RouteComponent() {
 		hasNextPage,
 		isFetchingNextPage,
 		isRefetching,
+		refetch,
 	} = useInfiniteQuery({
 		queryKey: ["credentials-listings"],
 		queryFn: ({ pageParam }) =>
@@ -76,6 +77,15 @@ function RouteComponent() {
 
 				{/* Bottom row: action toggles container */}
 				<div className="mt-3 flex flex-wrap items-center gap-3">
+					<button
+						type="button"
+						onClick={() => refetch()}
+						disabled={isRefetching}
+						className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground/70 shadow-xs transition-all duration-200 hover:bg-accent hover:text-foreground hover:shadow-sm active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						<RefreshCw className={`size-3.5 ${isRefetching ? "animate-spin" : ""}`} />
+						Refresh
+					</button>
 					<div className="flex items-center gap-2">
 						<Switch id="enable-local-cache" />
 						<label htmlFor="enable-local-cache" className="text-xs text-muted-foreground/70 cursor-pointer select-none">
