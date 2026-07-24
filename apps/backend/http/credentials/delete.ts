@@ -1,4 +1,5 @@
 import { AppError } from "@backend/err/base";
+import { verifyCSRF } from "@backend/http/csrf/verifyCSRF";
 import { logAlways } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import type { BunRequest } from "bun";
@@ -39,10 +40,10 @@ export async function credentailDelete(req: Request) {
 		}
 
 		// Verify CSRF token
-		if (!body._csrf) {
+		if (!body._csrf || !verifyCSRF(body._csrf)) {
 			return ResponseFactory.error({
-				error: "CSRF token is required",
-				message: "CSRF token is required",
+				error: "CSRF token is missing or invalid",
+				message: "CSRF token is missing or invalid",
 				status: 403,
 				path: { url: req.url } as BunRequest,
 			});
