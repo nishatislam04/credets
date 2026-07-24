@@ -70,3 +70,35 @@ export const credentialsCreateSchema = z.object({
 	is_draft: z.boolean().optional().default(false),
 	is_favourite: z.boolean().optional().default(false),
 });
+
+/**
+ * Permissive schema for creating credentials as drafts.
+ * Makes title, type, and types optional so incomplete forms can be saved.
+ */
+export const credentialsCreateDraftSchema = z.object({
+	_csrf: z
+		.string()
+		.min(1, "csrf token can not be misssing. please reload the page"),
+	title: z.string().trim().optional().default(""),
+	type: z.string().optional().default(""),
+	types: z.array(typePathEntrySchema).optional().default([]),
+	short_description: z.string().optional().or(z.literal("")),
+	long_description: z.string().optional().or(z.literal("")),
+	thumbnail: z
+		.file()
+		.max(3_000_000, "Max 3mb")
+		.mime(["image/jpg", "image/jpeg", "image/png", "image/webp"])
+		.nullable()
+		.optional(),
+	data: z.array(dataBlockSchema),
+	images: z
+		.array(z.any())
+		.max(6, "maximum 6 images allowed")
+		.default([])
+		.nullable()
+		.optional(),
+	notes: z.string().trim().nullable().optional(),
+	tags: z.string().trim().nullable().optional(),
+	is_draft: z.boolean().optional().default(true),
+	is_favourite: z.boolean().optional().default(false),
+});

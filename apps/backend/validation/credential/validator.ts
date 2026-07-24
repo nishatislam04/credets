@@ -22,11 +22,13 @@ export type ValidationResult<T> = ValidationSuccess<T> | ValidationFailure;
 /**
  * Reusable utility to parse and validate credential Form Data against a given Zod schema.
  * Handles CSRF verification, extracts file streams/fields, and structures errors.
+ * If `draftSchema` is provided and the request has `is_draft=true`, the draft schema is used instead.
  */
-export async function parseAndValidateCredential<T>(
+export async function parseAndValidateCredential<T, D = T>(
 	req: BunRequest,
 	schema: ZodSchema<T>,
-): Promise<ValidationResult<T>> {
+	draftSchema?: ZodSchema<D>,
+): Promise<ValidationResult<T | D>> {
 	const formData = await req.formData();
 	const _csrf = formData.get("_csrf")?.toString() || "";
 
@@ -103,7 +105,8 @@ export async function parseAndValidateCredential<T>(
 		validateDisData.existing_images_keep = existing_images_keep_raw;
 	}
 
-	const validatedData = schema.safeParse(validateDisData);
+	const activeSchema = is_draft && draftSchema ? draftSchema : schema;
+	const validatedData = activeSchema.safeParse(validateDisData);
 
 	if (!validatedData.success) {
 		const errors = formatZodError(validatedData);

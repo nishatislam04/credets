@@ -1,13 +1,20 @@
 import { AppError } from "@backend/err/base";
 import { logAlways } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
-import { credentialsCreateSchema } from "@credets/shared-schema/credentials/create";
+import {
+	credentialsCreateDraftSchema,
+	credentialsCreateSchema,
+} from "@credets/shared-schema/credentials/create";
 import type { BunRequest } from "bun";
 import { createCredentialService } from "../../services/credentials/create";
 import { parseAndValidateCredential } from "../../validation/credential/validator";
 
 export async function credentialCreate(req: BunRequest) {
-	const result = await parseAndValidateCredential(req, credentialsCreateSchema);
+	const result = await parseAndValidateCredential(
+		req,
+		credentialsCreateSchema,
+		credentialsCreateDraftSchema,
+	);
 
 	if (!result.success) {
 		return result.errorResponse;

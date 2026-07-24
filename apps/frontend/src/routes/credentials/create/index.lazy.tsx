@@ -33,6 +33,7 @@ import { Input } from "@/components/ui/input";
 import { TagInput } from "@/components/ui/tag-input";
 import { Textarea } from "@/components/ui/textarea";
 import { createCredentialAction } from "./-actions/createCredentialAction";
+import { createDraftAction } from "./-actions/createDraftAction";
 import { createCredentialValidation } from "./-actions/createCredentialValidation";
 import { DataBlock } from "./-components/Datablock";
 
@@ -64,6 +65,38 @@ function RouteComponent() {
 	const thumbnailInputRef = useRef<HTMLInputElement>(null);
 	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 	const [focusBlockIndex, setFocusBlockIndex] = useState<number | null>(null);
+	const [isDrafting, setIsDrafting] = useState(false);
+
+	const handleDraft = async () => {
+		const values = form.state.values;
+		setIsDrafting(true);
+
+		await gooeyToast.promise(createDraftAction(values as any), {
+			loading: "Saving draft...",
+			success: "Draft saved successfully!",
+			error: "Failed to save draft",
+			description: {
+				success: "Your work has been saved as a draft. You can continue later.",
+				error: "Please try again later.",
+			},
+			action: {
+				success: {
+					label: "Go back to listings",
+					onClick: async () => {
+						queryClient.invalidateQueries({
+							queryKey: ["credentials-listings"],
+						});
+						queryClient.invalidateQueries({ queryKey: ["types_listings"] });
+						queryClient.invalidateQueries({ queryKey: ["type_children"] });
+						navigate({ to: "/credentials" });
+					},
+				},
+			},
+		});
+
+		setIsDrafting(false);
+		form.reset(form.state.values);
+	};
 
 	const form = useForm({
 		defaultValues: defaultCredentialValues(csrfToken),
@@ -673,13 +706,28 @@ function RouteComponent() {
 						/>
 					</div>
 					<form.Subscribe
-						selector={(state) => [
-							state.canSubmit,
-							state.isSubmitting,
-							state.isPristine,
-						]}
-						children={([canSubmit, isSubmitting, isPristine]) => (
-							<div className="w-full flex flex-col items-center gap-3">
+						selector={(state) => ({
+							canSubmit: state.canSubmit,
+							isSubmitting: state.isSubmitting,
+							isDirty: state.isDirty,
+							values: state.values,
+						})}
+						children={({ canSubmit, isSubmitting, isDirty, values }) => {
+							const hasContent =
+								values.title?.trim() !== "" ||
+								values.type !== "" ||
+								(values.types?.length ?? 0) > 0 ||
+								values.short_description?.trim() !== "" ||
+								!!values.long_description?.trim() ||
+								values.notes?.trim() !== "" ||
+								values.tags?.trim() !== "" ||
+								values.data?.length > 1 ||
+								(values.data?.[0]?.value ?? "") !== "" ||
+								values.thumbnail != null ||
+								(values.images?.length ?? 0) > 0;
+
+							return (
+								<div className="w-full flex flex-col items-center gap-3">
 								{/* Validation error hint — fixed min-height prevents layout shift */}
 								<div className="min-h-[44px]">
 									{!canSubmit && !isSubmitting && (
@@ -692,16 +740,29 @@ function RouteComponent() {
 										</div>
 									)}
 								</div>
-								<Button
-									type="submit"
-									size="lg"
-									className="my-3 px-12 py-4"
-									disabled={!canSubmit || isPristine}
-								>
-									{isSubmitting ? "..." : "Submit"}
-								</Button>
+								<div className="flex items-center justify-center gap-4">
+									<Button
+										type="button"
+										variant="outline"
+										size="lg"
+										className="my-3 px-6 py-4"
+										onClick={handleDraft}
+										disabled={!isDirty || !hasContent || isDrafting}
+									>
+										{isDrafting ? "Saving..." : "Draft me"}
+									</Button>
+									<Button
+										type="submit"
+										size="lg"
+										className="my-3 px-12 py-4"
+										disabled={!canSubmit || !isDirty}
+									>
+										{isSubmitting ? "..." : "Submit"}
+									</Button>
+								</div>
 							</div>
-						)}
+						);
+						}}
 					/>
 				</FieldGroup>
 			</Form>

@@ -1,31 +1,55 @@
-0. form "types" input is not showing err from server. fix it for both create and update form
-   we are getting an error msg something like "Invalid input: expected array, received undefined"
-1. in singel view page, create a section ui visual block naming "actions"
-   inside that block, we will add multiple items later. but for now, only 2 items
-   first one is: draft switch button
-   second one is: favourite switch button
-   update our db schema based on that and
-   update forntend and backend and related places to make sure this feature works
-   when an item is favourite, in listings page,
-   we will show a filled star icon in the right side of credential card like top-right
-2. in the listings page, after the top header. we will create a ui visual block.
-   this block would contains several actions like button and stuffs which would control the listings.
-   right now, we are just creating the ui. so that later we will add feature and functionality
-   but for now add a switch button with "enable local cache" (only ui)
-   a big search bar with placeholder text but no submit button (only ui)
-   we have the +create btn at top-header. remove that from there and move it here in this actions section
-3. our rte loading spinner in forms. make it looks beautiful loading spinner contrast to its parent container.
-   so it should be shown in middle of x and y axis and a big but subtle
-4. when an credential item is not found from server fetching. the ui should show not-found error ui.
-   but its currently showing "failed to fetch credential error" with error ui page.
-   create a beautiful not found err ui, if it does not exist already
-5. in small view port, in create, update form page, only show back btn and remove the text.
-   and in also increase the icon size a bit. since the text will be removed in small view port
-6. create page, data block item fully messed up. it used to work perfectly. now broken fully.
-   its quite unpredictable ui bug. but i am sure, this err only appear after i delete a block and that block had content
-   so, when i refresh the page and delete an empty block and create multiple block. nothing happen as expected
-   i wrote something on any block and then click any block btn to create a new block. i see multiple block has been created. but i dont understand why
-   and if i refresh the page, write something on first block, then click any block to create a new block then i see that, the content i wrote on the first block has disappeared and then a very empty block create which have no inputs like no singel or key-value or textarea (any amount of this empty block may be created, on this reproducing issue)and then a new block was created which was pressed first to create a new block
-   so why this weird behavior happening on our data block component. figure it out. and solve it
-7. in backend index.ts file, we have hardcoded development: true. which may cause issue in production.
-   so fix that. i.e make it dynamic based on environment
+0. add an "draft me" button in create page form
+   so, we are implementing this feature because we maybe in the middle of creating an item.
+   and we decided to stop this creation operation. but we dont want to loose all of our manual input data
+   so, when we click this item, the unfinished content will be send to backend and it will be marked as draft
+   later, when we want to.. we can load this draft item up, but that feature for next time
+   so right now, we will only implement this draft feat from form create page
+   so another thing here is, right now, our form is least title, and types are mendatory.
+   but we decided to create the title only and draft it. so, normally we would get validation err from zod
+   but since the draft btn was enabled, we wont see any validation err and the data will be stored in db
+   and we will show an confirmation toast in ui, with draft operation success
+
+1. we will show an delete btn in single view page at sidebar but as a last item
+   when we click, it will show a shadcn confirmation dialog.
+   with confirming, we will delete the item
+2. we will implement soft delete feature now
+   when delete, it will mark as delete in db and it wont be listed in listings page anymore
+   but there will be no cron job to periodic check to delete
+   for now only implement this soft delete feature. later we will create a dedicated trash page
+   uh.. most importantly, update the delete dialog with saying, this item can be found in trash and retrivable
+3. [trash page] follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent. we will now implement the trash page. so, create a frontend route for trash page
+   the header with content and below an action buttons placeholder like listings page.
+   a search input bar like listings page [only ui]
+   refresh btn
+   a checkbox with "select all"
+   an button with permanent delete all. which will show an confirmation dialog
+   now each item card in this trash page, right? i am thinking about showing
+   title and type on the card item. and when this card item is clicked,
+   it will show a shadcn dialog component with all the item full details
+   with highlighting delete when date in human readable format
+   we will show all information about selected item in shadcn dialog.
+   so that we can see what we are actually deleting
+   just simply show all the info in nice separate ui block in appropiate order
+4. [draft page] follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent. in draft page, we will have a header with content
+   and then actions block ui to hold actions btn. like
+   a search input bar like listings page [only ui]
+   a refresh btn
+   a checkbox with "select all"
+   delete all btn. with confirmation dialog
+   now for each item card, we will show only title and type(if exist!)
+   and a "load it up" btn in the right side
+   clicking this btn would fire up the edit page. so that we can modify and update the item
+5. [favorite page] follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent. here we will show all the favorite items in a dedicated page
+   create a content header and then an action ui block. which will hold
+   a search input bar like listings page [only ui]
+   refresh btn
+   select all
+   delete all with confirmation dialog
+   and then the card item would just show the title, short description and type only
+   and clicking this item would fire up our single view page with selected item
+6. update our listing page action ui block with separator. so, i want it like this...
+   i actually just want to show the ui segment as an separator in our listings page action block ui
+   so, like, the search bar and its below items (fellow buttons) is one column and create btn is 2nd column
+   and we will show an very thin separator in the middle of the column
+   and then another separator in the between of search input and action buttons
+   these separator should be full width or full height. like from the start to end

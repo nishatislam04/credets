@@ -84,10 +84,10 @@ export async function createCredentialRepo(
 		return await sql.begin(async (sql) => {
 			const [{ id: user_id }] = await sql`SELECT id FROM users LIMIT 1`;
 
-			let typesId: string;
+			let typesId: string | null = null;
 			if (input.types_path && input.types_path.length > 0) {
 				typesId = await resolveOrCreateTypePath(sql, input.types_path);
-			} else {
+			} else if (input.type) {
 				// Fallback to old behavior for backward compat
 				const [typeRow] =
 					await sql`SELECT id FROM types WHERE value=${input.type}`;
@@ -98,6 +98,7 @@ export async function createCredentialRepo(
 				}
 				typesId = typeRow.id;
 			}
+			// If is_draft and no type is provided, typesId stays null (nullable column in DB)
 
 			const credentialPayload = {
 				id: input.id,
