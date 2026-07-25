@@ -22,7 +22,6 @@ FRONTEND_APP
 BACKEND_APP
 NODE_ENV
 
-
 ## frontend deploy
 
 name=credets
@@ -33,7 +32,6 @@ publish-dir=apps/frontend/dist
 ### frontend env keys
 
 VITE_BACKEND_APP
-
 
 ### frontend redirect rewrite rules
 
@@ -51,11 +49,10 @@ without it, none of below command will work
 
 ### migrate
 
-one time script run to migrate the schema (create missing tables)
-execute below command at root dir from terminal
+execute below command at `root dir` from terminal and from `main branch`
 
 ```bash
-bun --env-file=.env.production.local apps/backend/db/db-run-prod-schema.ts
+bun --env-file=.env.production apps/backend/db/run-prod-schema.ts
 ```
 
 ### seed
@@ -63,7 +60,7 @@ bun --env-file=.env.production.local apps/backend/db/db-run-prod-schema.ts
 execute below command at root dir from terminal
 
 ```bash
-bun --env-file=.env.production.local apps/backend/db/seed.ts
+bun --env-file=.env.production apps/backend/db/seed.ts
 ```
 
 ### reset data
@@ -71,5 +68,5 @@ bun --env-file=.env.production.local apps/backend/db/seed.ts
 to reset the above seed data, we will truncate our db by
 
 ```bash
-bun --env-file=.env.production.local apps/backend/db/reset-prod-data.ts
+bun --env-file=.env.production apps/backend/db/reset-prod-data.ts
 ```
