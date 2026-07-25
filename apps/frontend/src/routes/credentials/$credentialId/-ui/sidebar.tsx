@@ -1,24 +1,144 @@
 import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
-import { Check, Copy, FileText, Info, Tag, FolderTree } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+	Check,
+	Copy,
+	FileText,
+	FolderTree,
+	GitBranch,
+	Info,
+	Settings,
+	Tag,
+} from "lucide-react";
 import { useState } from "react";
-import { Badge } from "#/components/ui/badge";
-import { TAG_COLORS } from "../../-utils/colors";
+import { gooeyToast } from "#/components/ui/goey-toaster";
+import {
+	isContentEmpty,
+	RichTextRenderer,
+} from "#/components/ui/rich-text-renderer";
+import { Switch } from "#/components/ui/switch";
 import { TypeTree } from "../-components/TypeTree";
+import { TagListColorShared } from "../-shared/tagListColorShared";
+import { DeleteButton } from "./delete-dialog";
 
 export function Sidebar({ credential }: { credential: CredentialDetail }) {
 	const [copiedId, setCopiedId] = useState(false);
-	const tagList = Array.isArray(credential.tags) ? credential.tags : [];
+	const [isDraft, setIsDraft] = useState(credential.is_draft);
+	const [isFavourite, setIsFavourite] = useState(credential.is_favourite);
+	const [togglingField, setTogglingField] = useState<string | null>(null);
+	const queryClient = useQueryClient();
+
+	const handleToggle = async (field: "is_draft" | "is_favourite", value: boolean) => {
+		setTogglingField(field);
+		// Optimistic update
+		if (field === "is_draft") setIsDraft(value);
+		if (field === "is_favourite") setIsFavourite(value);
+
+		try {
+			const res = await fetch(
+				`${import.meta.env.VITE_BACKEND_APP}/credentials/${credential.id}/toggle`,
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ [field]: value }),
+				},
+			);
+
+			if (!res.ok) {
+				// Revert on failure
+				if (field === "is_draft") setIsDraft(!value);
+				if (field === "is_favourite") setIsFavourite(!value);
+				gooeyToast.error("Failed to update", {
+					description: `Could not update ${field === "is_draft" ? "draft" : "favourite"} status`,
+				});
+			} else {
+				// Invalidate caches so the updated state is reflected everywhere
+				queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
+				queryClient.invalidateQueries({ queryKey: ["draft-listings"] });
+				queryClient.invalidateQueries({ queryKey: ["favourite-listings"] });
+				const label = field === "is_draft" ? "Draft" : "Favourite";
+				gooeyToast.success(`${label} updated`, {
+					description: value
+						? `${label} mode turned on`
+						: `${label} mode turned off`,
+				});
+			}
+		} catch {
+			// Revert on error
+			if (field === "is_draft") setIsDraft(!value);
+			if (field === "is_favourite") setIsFavourite(!value);
+		} finally {
+			setTogglingField(null);
+		}
+	};
+
+	// const tagList = Array.isArray(credential.tags) ? credential.tags : [];
 
 	return (
 		<div className="space-y-12 mt-12 xl:mt-0">
-			{/* ID reference — first */}
+			{/* Actions — always visible */}
+			<section>
+				<div className="mb-2.5 flex items-center gap-2">
+					<Settings className="size-4.5" />
+					<h2 className="text-base font-semibold uppercase tracking-wider">
+						Actions
+					</h2>
+				</div>
+				<div className="space-y-3 rounded-xl border bg-card px-4 py-3">
+					{/* Draft toggle */}
+					<label className="flex items-center gap-3 cursor-pointer">
+						<Switch
+							checked={isDraft}
+							onCheckedChange={(checked) =>
+								handleToggle("is_draft", checked)
+							}
+							disabled={togglingField === "is_draft"}
+						/>
+						<span className="text-sm text-muted-foreground/80">Draft</span>
+					</label>
+					{/* Favourite toggle */}
+					<label className="flex items-center gap-3 cursor-pointer">
+						<Switch
+							checked={isFavourite}
+							onCheckedChange={(checked) =>
+								handleToggle("is_favourite", checked)
+							}
+							disabled={togglingField === "is_favourite"}
+						/>
+						<span className="text-sm text-muted-foreground/80">Favourite</span>
+					</label>
+				</div>
+			</section>
+			{/* Version — first */}
+			<section className="mt-4">
+				<div className="mb-2.5 flex items-center gap-2">
+					<GitBranch className="size-4.5" />
+					<h2 className="text-base font-semibold uppercase tracking-wider">
+						Version
+					</h2>
+				</div>
+				<div className="flex items-center gap-2 rounded-xl border bg-card px-4 py-3">
+					<span className="inline-flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary font-bold text-sm">
+						{credential.version}
+					</span>
+					<span className="text-sm text-muted-foreground/60">
+						{credential.version === 0
+							? "Initial version"
+							: `Updated ${credential.version} time${credential.version === 1 ? "" : "s"}`}
+					</span>
+				</div>
+			</section>
+
+			{/* ID reference — second */}
 			<section>
 				<div className="mb-2.5 flex items-center gap-2">
 					<Info className="size-4.5" />
-					<h2 className="text-base font-semibold uppercase tracking-wider">ID</h2>
+					<h2 className="text-base font-semibold uppercase tracking-wider">
+						ID
+					</h2>
 				</div>
 				<button
-					className="flex cursor-pointer items-center gap-2 rounded-xl border bg-card px-4 py-3 transition-colors hover:bg-blue-50/50"
+					className="flex cursor-pointer items-center gap-2 rounded-xl border bg-card px-3  w-full xl:w-90 py-5 transition-colors"
 					onClick={() => {
 						navigator.clipboard.writeText(credential.id).then(() => {
 							setCopiedId(true);
@@ -27,16 +147,8 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 					}}
 					type="button"
 					tabIndex={0}
-					onKeyDown={(e) => {
-						if (e.key === "Enter" || e.key === " ") {
-							navigator.clipboard.writeText(credential.id).then(() => {
-								setCopiedId(true);
-								setTimeout(() => setCopiedId(false), 1500);
-							});
-						}
-					}}
 				>
-					<code className="flex-1 text-[12px] font-mono text-muted-foreground/60 break-all select-all">
+					<code className="px-4 text-[12px] font-mono text-muted-foreground/60 break-all select-all">
 						{credential.id}
 					</code>
 					{copiedId ? (
@@ -52,49 +164,54 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 				<section className="mt-4">
 					<div className="mb-2.5 flex items-center gap-2">
 						<FolderTree className="size-4.5" />
-						<h2 className="text-base font-semibold uppercase tracking-wider">Type</h2>
+						<h2 className="text-base font-semibold uppercase tracking-wider">
+							Type
+						</h2>
 					</div>
 					<TypeTree path={credential.type_path} />
 				</section>
 			)}
 
 			{/* Notes — third */}
-			{credential.notes && (
+			{!isContentEmpty(credential.notes) && (
 				<section className="mt-4">
 					<div className="mb-2.5 flex items-center gap-2">
 						<FileText className="size-4.5" />
-						<h2 className="text-base font-semibold uppercase tracking-wider">Notes</h2>
+						<h2 className="text-base font-semibold uppercase tracking-wider">
+							Notes
+						</h2>
 					</div>
 					<div className="rounded-xl border bg-card px-4 py-3">
-						<p className="text-sm leading-relaxed text-card-foreground/80 whitespace-pre-wrap">
-							{credential.notes}
-						</p>
+						<RichTextRenderer
+							content={credential.notes}
+							className="text-sm leading-relaxed text-card-foreground/80"
+						/>
 					</div>
 				</section>
 			)}
 
 			{/* Tags — last, colorful badges */}
-			{tagList.length > 0 && (
+			{Array.isArray(credential.tags) && credential.tags.length > 0 && (
 				<section className="mt-4">
 					<div className="mb-2.5 flex items-center gap-2">
 						<Tag className="size-4.5" />
-						<h2 className="text-base font-semibold uppercase tracking-wider">Tags</h2>
+						<h2 className="text-base font-semibold uppercase tracking-wider">
+							Tags
+						</h2>
 					</div>
 					<div className="flex flex-wrap gap-1.5">
-						{tagList.map((tag: string) => {
-							const color = TAG_COLORS[tag.length % TAG_COLORS.length];
-							return (
-								<Badge
-									key={tag}
-									className={`rounded-full text-[10px] font-medium border-0 ${color.bg} ${color.text}`}
-								>
-									{tag}
-								</Badge>
-							);
-						})}
+						<TagListColorShared tags={credential.tags} />
 					</div>
 				</section>
 			)}
+
+			{/* Delete — always at the bottom */}
+			<section className="pt-6 border-t border-border/40">
+				<DeleteButton
+					credentialId={credential.id}
+					credentialTitle={credential.title}
+				/>
+			</section>
 		</div>
 	);
 }

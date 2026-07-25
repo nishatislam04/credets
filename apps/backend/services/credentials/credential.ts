@@ -1,12 +1,12 @@
 import { decrypt } from "@backend/cipher/decrypt";
-import { logAlways } from "@backend/utils/logger";
+import { log, logger } from "@backend/utils/logger";
 import {
 	getCredentialDetailRepo,
 	getTypeHierarchyRepo,
 } from "../../repository/credentials/credential";
 
 export async function getCredentialDetailService(credentialId: string) {
-	logAlways(credentialId, "service: starting getCredentialDetailService");
+	logger(credentialId, "service: starting getCredentialDetailService");
 
 	try {
 		const { credential, images } = await getCredentialDetailRepo(credentialId);
@@ -24,6 +24,9 @@ export async function getCredentialDetailService(credentialId: string) {
 			title: credential.title,
 			short_description: credential.short_description,
 			long_description: credential.long_description,
+			version: credential.version,
+			is_draft: credential.is_draft,
+			is_favourite: credential.is_favourite,
 			type_label: credential.type_label,
 			type_value: credential.type_value,
 			type_path: typePath,
@@ -50,7 +53,12 @@ export async function getCredentialDetailService(credentialId: string) {
 
 		return parsed;
 	} catch (error) {
-		logAlways(error, "service: getCredentialDetailService failed");
+		log.error("service: getCredentialDetailService failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw error;
 	}
 }

@@ -1,26 +1,33 @@
-import { logAlways } from "@backend/utils/logger";
-import { credentialPrefix, deletePrefixFromS3 } from "@backend/utils/storage";
+import { log } from "@backend/utils/logger";
 import { deleteCredentialRepo } from "../../repository/credentials/delete";
 
+/**
+ * Soft-delete a credential: marks it as deleted in the database without
+ * removing data from S3, so it can be restored later from the trash.
+ */
 export async function deleteCredentialService(
 	credentialId: string,
 ): Promise<{ title: string }> {
-	logAlways(credentialId, "service: starting credential deletion");
+	log.info("service: starting credential soft-deletion", {
+		credentialId,
+	});
 
 	try {
-		// 1. Delete all S3 objects (thumbnail + images) for this credential
-		await deletePrefixFromS3(credentialPrefix(credentialId));
-
-		// 2. Delete from DB
+		// Soft delete: mark as deleted in DB (does NOT delete from S3)
 		const result = await deleteCredentialRepo(credentialId);
 
-		logAlways(
-			credentialId,
-			"service: credential deletion completed successfully",
+		log.info(
+			"service: credential soft-deleted successfully",
+			{ credentialId },
 		);
 		return result;
 	} catch (error) {
-		logAlways(error, "service: error in deleteCredentialService");
+		log.error("service: error in deleteCredentialService", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw error;
 	}
 }

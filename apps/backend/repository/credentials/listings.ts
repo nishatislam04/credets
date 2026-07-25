@@ -1,6 +1,6 @@
 import { AppError } from "@backend/err/base";
 import { DatabaseError } from "@backend/err/database";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 
 export interface CursorPayload {
@@ -17,48 +17,63 @@ export interface CredentialRow {
 	updated_at: Date | null;
 	type_label: string | null;
 	type_value: string | null;
+	version: number;
+	is_draft: boolean;
+	is_favourite: boolean;
 }
 
 export async function getCredentialsListingsRepo(
 	limit: number,
-	cursor: CursorPayload | null,
+	cursorResult: CursorPayload | null,
 ): Promise<CredentialRow[]> {
-	logAlways(cursor, `repo: fetching credentials listings with limit: ${limit}`);
-
 	try {
-		if (cursor) {
+		if (cursorResult) {
 			return await sql<CredentialRow[]>`
 				SELECT
-					c.id, c.title, c.short_description,
-					c.thumbnail_url,
-					c.tags, c.created_at, c.updated_at,
+					credentials.id, credentials.title, credentials.short_description,
+					credentials.thumbnail_url, credentials.version,
+					credentials.tags, credentials.created_at, credentials.updated_at,
 					t.label AS type_label, t.value AS type_value
-				FROM credentials c
-				LEFT JOIN types t ON c.types_id = t.id
+				FROM credentials
+				LEFT JOIN types t ON credentials.types_id = t.id
 				WHERE
-					(c.created_at < ${cursor.createdAt}::timestamptz)
-					OR (c.created_at = ${cursor.createdAt}::timestamptz AND c.id < ${cursor.id}::uuid)
-				ORDER BY c.created_at DESC, c.id DESC
+					credentials.is_draft = false
+					AND credentials.is_deleted = false
+					AND (
+						(credentials.created_at < ${cursorResult.createdAt}::timestamptz)
+						OR (credentials.created_at = ${cursorResult.createdAt}::timestamptz AND credentials.id < ${cursorResult.id}::uuid)
+					)
+					ORDER BY credentials.created_at DESC, credentials.id DESC
 				LIMIT ${limit + 1}
 			`;
 		}
 
 		return await sql<CredentialRow[]>`
 			SELECT
-				c.id, c.title, c.short_description,
-				c.thumbnail_url,
-				c.tags, c.created_at, c.updated_at,
+				credentials.id, credentials.title, credentials.short_description,
+				credentials.thumbnail_url, credentials.version,
+				credentials.tags, credentials.created_at, credentials.updated_at,
+				credentials.is_draft, credentials.is_favourite,
 				t.label AS type_label, t.value AS type_value
-			FROM credentials c
-			LEFT JOIN types t ON c.types_id = t.id
-			ORDER BY c.created_at DESC, c.id DESC
+			FROM credentials
+			LEFT JOIN types t ON credentials.types_id = t.id
+			WHERE credentials.is_draft = false
+			AND credentials.is_deleted = false
+			ORDER BY credentials.created_at DESC, credentials.id DESC
 			LIMIT ${limit + 1}
 		`;
 	} catch (error) {
-		logAlways(error, "repo: credentials listings query failed");
+		log.error("repo: credentials listings query failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) throw error;
 
-		throw new DatabaseError(error);
+		if (error instanceof DatabaseError) throw new DatabaseError(error);
+
+		throw error;
 	}
 }

@@ -1,4 +1,4 @@
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 import { AppError } from "@backend/err/base";
 import { BadRequestError } from "@backend/err/bad-request";
@@ -8,16 +8,17 @@ import { DatabaseError } from "@backend/err/database";
 export interface TypePathEntry {
 	value: string;
 	label: string;
-}
-
-export interface CreateCredentialRepoInput {
+}	export interface CreateCredentialRepoInput {
 	id: string;
 	title: string;
 	type: string;
 	types_path: TypePathEntry[];
+	is_draft: boolean;
+	is_favourite: boolean;
 	short_description: string | null;
 	long_description: string | null;
 	notes: string | null;
+	version: number;
 	data: string;
 	tags: string | null;
 	thumbnail: {
@@ -77,16 +78,18 @@ async function resolveOrCreateTypePath(
 export async function createCredentialRepo(
 	input: CreateCredentialRepoInput,
 ): Promise<{ id: string }> {
-	logAlways(input.title, "repo: starting db transaction for create");
+	log.info("repo: starting db transaction for create", {
+		title: input.title,
+	});
 
 	try {
 		return await sql.begin(async (sql) => {
 			const [{ id: user_id }] = await sql`SELECT id FROM users LIMIT 1`;
 
-			let typesId: string;
+			let typesId: string | null = null;
 			if (input.types_path && input.types_path.length > 0) {
 				typesId = await resolveOrCreateTypePath(sql, input.types_path);
-			} else {
+			} else if (input.type) {
 				// Fallback to old behavior for backward compat
 				const [typeRow] =
 					await sql`SELECT id FROM types WHERE value=${input.type}`;
@@ -97,12 +100,16 @@ export async function createCredentialRepo(
 				}
 				typesId = typeRow.id;
 			}
+			// If is_draft and no type is provided, typesId stays null (nullable column in DB)
 
 			const credentialPayload = {
 				id: input.id,
 				title: input.title,
+				is_draft: input.is_draft,
+				is_favourite: input.is_favourite,
 				short_description: input.short_description,
 				long_description: input.long_description,
+				version: input.version,
 				thumbnail_url: input.thumbnail?.url || null,
 				thumbnail_format: input.thumbnail?.format || null,
 				thumbnail_width: input.thumbnail?.width || null,
@@ -133,7 +140,12 @@ export async function createCredentialRepo(
 			return { id: credential_id };
 		});
 	} catch (error) {
-		logAlways(error, "repo: db insert query failed");
+		log.error("repo: db insert query failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			throw error;

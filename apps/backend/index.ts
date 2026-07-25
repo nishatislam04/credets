@@ -1,31 +1,45 @@
+import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
 import { AppError } from "./err/base";
-import { logAlways } from "./utils/logger";
 import { credentialCreate } from "./http/credentials/create";
 import { credentialPage } from "./http/credentials/credential";
 import { credentailDelete } from "./http/credentials/delete";
+import { credentialPermanentDelete } from "./http/credentials/permanent-delete";
 import { credentialListings } from "./http/credentials/listings";
+import { draftListings } from "./http/credentials/draft-listings";
+import { favouriteListings } from "./http/credentials/favourite-listings";
+import { trashListings } from "./http/credentials/trash-listings";
+import { credentialToggle } from "./http/credentials/toggle";
 import { credentialUpdate } from "./http/credentials/update";
 import { generateCSRF } from "./http/csrf/generateCSRF";
-import { typesListings } from "./http/types/listings";
 import { typesChildren } from "./http/types/children";
+import { typesListings } from "./http/types/listings";
+import { typesListingsWithCredentials } from "./http/credentials/types-listings";
+import { typeUpdate } from "./http/types/update";
+import { logAlways } from "./utils/logger";
 import { ResponseFactory } from "./utils/response";
 // import indexHtml from "./index.html";
 import { createCredentialValidation } from "./validation/credential/create";
 import { updateCredentialValidation } from "./validation/credential/update";
 
 Bun.serve({
-	development: true,
+	development: Bun.env.NODE_ENV !== "production",
 	port: process.env.PORT || "8000",
 	idleTimeout: 35,
 	routes: {
-		"/healthz": () =>
-			ResponseFactory.success({
-				data: { status: "ok" },
-				message: "Server is healthy",
-				status: 200,
-				path: { url: "/healthz" } as BunRequest,
-			}),
+		"/healthz": async () => {
+			try {
+				await sql`SELECT 1`; // Verify DB is reachable
+				return ResponseFactory.success({
+					data: { status: "ok", db: "connected" },
+					message: "Server is healthy",
+					status: 200,
+					path: { url: "/healthz" } as BunRequest,
+				});
+			} catch (_) {
+				return new Response("Database unavailable", { status: 503 });
+			}
+		},
 		// "/": indexHtml,
 
 		// csrf
@@ -37,6 +51,11 @@ Bun.serve({
 		"/credentials/create": (req) => credentialCreate(req),
 		"/credentials/:credentialId/update": (req) => credentialUpdate(req),
 		"/credentials/:credentialId/delete": (req) => credentailDelete(req),
+		"/credentials/:credentialId/permanent-delete": (req) => credentialPermanentDelete(req),
+		"/credentials/:credentialId/toggle": (req) => credentialToggle(req),
+		"/credentials/trash": (req) => trashListings(req),
+		"/credentials/draft": (req) => draftListings(req),
+		"/credentials/favourite": (req) => favouriteListings(req),
 
 		"/credentials/create/validation": (req) => createCredentialValidation(req),
 		"/credentials/:credentialId/update/validation": (req) =>
@@ -45,6 +64,8 @@ Bun.serve({
 		// types
 		"/types/listings": () => typesListings(),
 		"/types/children": (req) => typesChildren(req),
+		"/credentials/types-listings": (req) => typesListingsWithCredentials(req),
+		"/types/:typeId/update": (req) => typeUpdate(req),
 	},
 
 	error(error) {
@@ -52,9 +73,10 @@ Bun.serve({
 
 		const status = error instanceof AppError ? error.status : 500;
 		const type = error instanceof AppError ? error.type : "internal-error";
-		const message = error instanceof AppError
-			? error.message
-			: "An unexpected error occurred";
+		const message =
+			error instanceof AppError
+				? error.message
+				: "An unexpected error occurred";
 
 		return Response.json(
 			{

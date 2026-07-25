@@ -1,5 +1,5 @@
 import { AppError } from "@backend/err/base";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import type { BunRequest } from "bun";
 import { getCredentialDetailService } from "../../services/credentials/credential";
@@ -37,7 +37,12 @@ export async function credentialPage(req: BunRequest) {
 			status: 200,
 		});
 	} catch (error) {
-		logAlways(error, "http: error in credentialPage controller");
+		log.error("http: error in credentialPage controller", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			return ResponseFactory.error({

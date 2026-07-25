@@ -1,4 +1,5 @@
-import { logAlways } from "@backend/utils/logger";
+import { JsonParseError } from "@backend/err/json-parse";
+import { log } from "@backend/utils/logger";
 import {
 	type CredentialRow,
 	type CursorPayload,
@@ -7,18 +8,16 @@ import {
 
 export interface GetCredentialsListingsServiceInput {
 	limit: number;
-	cursor: CursorPayload | null;
+	cursorResult: CursorPayload | null;
 }
 
 export async function getCredentialsListingsService(
 	input: GetCredentialsListingsServiceInput,
 ) {
-	logAlways(input, "service: starting getCredentialsListingsService");
-
 	try {
 		const credentials = await getCredentialsListingsRepo(
 			input.limit,
-			input.cursor,
+			input.cursorResult,
 		);
 
 		// If we fetched limit+1 rows, there are more results
@@ -39,17 +38,30 @@ export async function getCredentialsListingsService(
 		}
 
 		// Serialise rows into plain JSON-safe objects
-		const parsedCredentials = items.map((cred: CredentialRow) => ({
-			id: cred.id,
-			title: cred.title,
-			short_description: cred.short_description,
-			thumbnail_url: cred.thumbnail_url,
-			tags: cred.tags ? JSON.parse(cred.tags) : [],
-			created_at: cred.created_at.toISOString(),
-			updated_at: cred.updated_at ? cred.updated_at.toISOString() : null,
-			type_label: cred.type_label,
-			type_value: cred.type_value,
-		}));
+		const parsedCredentials = items.map((cred: CredentialRow) => {
+			let parsedTags: string[] = [];
+			if (cred.tags) {
+				try {
+					parsedTags = JSON.parse(cred.tags);
+				} catch {
+					throw new JsonParseError(`Invalid JSON parse for ${cred.id} tags`);
+				}
+			}
+			return {
+				id: cred.id,
+				title: cred.title,
+				short_description: cred.short_description,
+				version: cred.version,
+				thumbnail_url: cred.thumbnail_url,
+				tags: parsedTags,
+				created_at: cred.created_at.toISOString(),
+				updated_at: cred.updated_at ? cred.updated_at.toISOString() : null,
+				type_label: cred.type_label,
+				type_value: cred.type_value,
+				is_draft: cred.is_draft,
+				is_favourite: cred.is_favourite,
+			};
+		});
 
 		return {
 			credentials: parsedCredentials,
@@ -57,7 +69,12 @@ export async function getCredentialsListingsService(
 			hasMore,
 		};
 	} catch (error) {
-		logAlways(error, "service: getCredentialsListingsService failed");
+		log.error("service: getCredentialsListingsService failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw error;
 	}
 }

@@ -24,6 +24,7 @@ interface UpdatePayload {
 	}>;
 	notes?: string | null;
 	tags?: string | null;
+	removeThumbnail?: boolean;
 	newImages: File[];
 	existingImagesKeep: string[];
 }

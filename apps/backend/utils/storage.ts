@@ -5,7 +5,7 @@ import {
 	PutObjectCommand,
 	S3Client,
 } from "@aws-sdk/client-s3";
-import { logAlways } from "./logger";
+import { log } from "./logger";
 
 /** Lazily-initialized S3 client singleton. */
 let _s3: S3Client | null = null;
@@ -67,7 +67,7 @@ export async function uploadToS3(
 	const bucket = process.env.STORAGE_BUCKET || "credentials";
 	const s3 = getS3Client();
 
-	logAlways(bucketPath, "storage: uploading file to S3");
+	log.info("storage: uploading file to S3", { key: bucketPath });
 
 	await s3.send(
 		new PutObjectCommand({
@@ -79,7 +79,7 @@ export async function uploadToS3(
 	);
 
 	const url = getPublicUrl(bucketPath);
-	logAlways(url, "storage: upload completed — public URL");
+	log.info("storage: upload completed", { url });
 
 	return { url, key: bucketPath };
 }
@@ -148,7 +148,7 @@ export async function deleteFromS3(key: string): Promise<void> {
 	const bucket = process.env.STORAGE_BUCKET;
 	const s3 = getS3Client();
 
-	logAlways(key, "storage: deleting file from S3");
+	log.info("storage: deleting file from S3", { key });
 
 	await s3.send(
 		new DeleteObjectCommand({
@@ -171,7 +171,7 @@ export async function deletePrefixFromS3(prefix: string): Promise<void> {
 	const bucket = process.env.STORAGE_BUCKET;
 	const s3 = getS3Client();
 
-	logAlways(prefix, "storage: deleting prefix from S3");
+	log.info("storage: deleting prefix from S3", { prefix });
 
 	let isTruncated = true;
 	let continuationToken: string | undefined;
@@ -199,9 +199,9 @@ export async function deletePrefixFromS3(prefix: string): Promise<void> {
 					Delete: { Objects: keys },
 				}),
 			);
-			logAlways(
-				`${keys.length} objects deleted`,
+			log.info(
 				"storage: batch delete completed",
+				{ count: keys.length },
 			);
 		}
 

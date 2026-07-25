@@ -1,21 +1,13 @@
 import type { CredentialDetail, DataBlockEntry } from "@credets/shared-types/credentials/listings";
 import { Quote, TextQuote } from "lucide-react";
+import { isContentEmpty, RichTextRenderer } from "#/components/ui/rich-text-renderer";
 import { CredentialDataRenderer } from "../-components/credential-data";
-import { Gallery } from "./gallery";
 
-export function Content({
-	credential,
-	hasImages,
-	openLightbox,
-}: {
-	credential: CredentialDetail;
-	hasImages: boolean;
-	openLightbox: (index: number) => void;
-}) {
+export function Content({ credential }: { credential: CredentialDetail }) {
 	return (
-		<div className="space-y-8 lg:col-span-2">
+		<div className="space-y-8 lg:col-span-2 lg:border-r lg:border-border/30 lg:pr-8">
 			{/* ── Short description — hero / pull-quote ── */}
-			{credential.short_description && (
+			{!isContentEmpty(credential.short_description) && (
 				<section className="relative">
 					{/* Decorative left accent bar */}
 					<div className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-gradient-to-b from-primary/60 to-primary/10" />
@@ -27,15 +19,19 @@ export function Content({
 							Summary
 						</span>
 
-						<h4 className="text-4xl font-semibold leading-[1.3] tracking-tight text-card-foreground/80 selection:bg-primary/15 whitespace-pre-wrap">
+						{/*<h4 className="text-4xl font-semibold leading-[1.3] tracking-tight text-card-foreground/80 selection:bg-primary/15 whitespace-pre-wrap">
 							{credential.short_description}
-						</h4>
+						</h4>*/}
+						<RichTextRenderer
+							content={credential.short_description}
+							className="font-serif text-[1.35rem] leading-[1.75] tracking-[0.01em] text-muted-foreground/70 dark:text-muted-foreground/80 selection:bg-primary/10"
+						/>
 					</div>
 				</section>
 			)}
 
 			{/* ── Long description — editorial / reading ── */}
-			{credential.long_description && (
+			{!isContentEmpty(credential.long_description) && (
 				<section className="relative">
 					{/* Subtle top separator with plenty of space */}
 					<div className="absolute left-8 right-0 top-0 h-px bg-gradient-to-r from-border/60 via-border/20 to-transparent" />
@@ -46,22 +42,20 @@ export function Content({
 							<Quote className="size-8 text-primary/10 -ml-1" />
 						</div>
 
-						<p className="font-serif text-[1.35rem] leading-[1.75] tracking-[0.01em] text-muted-foreground/70 dark:text-muted-foreground/80 selection:bg-primary/10 whitespace-pre-wrap">
-							{credential.long_description}
-						</p>
+						<RichTextRenderer
+							content={credential.long_description}
+							className="font-serif text-[1.35rem] leading-[1.75] tracking-[0.01em] text-muted-foreground/70 dark:text-muted-foreground/80 selection:bg-primary/10"
+						/>
 					</div>
 				</section>
 			)}
 
-			{/* ── Decorative section divider before gallery ── */}
-			{(credential.short_description || credential.long_description) && (
-				<div className="relative py-4">
-					<div className="absolute left-0 right-0 top-1/2 h-px bg-gradient-to-r from-transparent via-border/20 to-transparent" />
+			{/* Subtle divider before data section */}
+			{(!isContentEmpty(credential.short_description) || !isContentEmpty(credential.long_description)) && credential.data && (
+				<div className="relative py-2">
+					<div className="absolute left-0 right-0 top-1/2 h-px bg-gradient-to-r from-border/20 via-border/30 to-transparent" />
 				</div>
 			)}
-
-			{/* Image gallery — only credential.images (not thumbnail) */}
-			<Gallery hasImages={hasImages} credential={credential} openLightbox={openLightbox} />
 
 			{/* Data section */}
 			{credential.data && (

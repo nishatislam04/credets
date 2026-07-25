@@ -1,13 +1,33 @@
 import { AppError } from "@backend/err/base";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
-import { credentialsCreateSchema } from "@credets/shared-schema/credentials/create";
+import {
+	credentialsCreateDraftSchema,
+	credentialsCreateSchema,
+} from "@credets/shared-schema/credentials/create";
 import type { BunRequest } from "bun";
 import { createCredentialService } from "../../services/credentials/create";
 import { parseAndValidateCredential } from "../../validation/credential/validator";
 
+const MAX_BODY_SIZE = 10 * 1024 * 1024; // 10MB
+
 export async function credentialCreate(req: BunRequest) {
-	const result = await parseAndValidateCredential(req, credentialsCreateSchema);
+	const contentLength = req.headers.get("content-length");
+	if (contentLength && Number.parseInt(contentLength, 10) > MAX_BODY_SIZE) {
+		return ResponseFactory.error({
+			error: "Request body too large",
+			type: "bad-request",
+			message: "Request body must not exceed 10MB",
+			status: 413,
+			path: req,
+		});
+	}
+
+	const result = await parseAndValidateCredential(
+		req,
+		credentialsCreateSchema,
+		credentialsCreateDraftSchema,
+	);
 
 	if (!result.success) {
 		return result.errorResponse;
@@ -27,11 +47,16 @@ export async function credentialCreate(req: BunRequest) {
 			})()
 		: [];
 
+	const is_draft = validatedData.data.is_draft ?? false;
+	const is_favourite = validatedData.data.is_favourite ?? false;
+
 	try {
 		const createdResult = await createCredentialService({
 			title: validatedData.data.title,
 			type: validatedData.data.type,
 			types_path,
+			is_draft,
+			is_favourite,
 			short_description: validatedData.data.short_description ?? undefined,
 			long_description: validatedData.data.long_description ?? undefined,
 			notes: validatedData.data.notes ?? undefined,
@@ -41,10 +66,9 @@ export async function credentialCreate(req: BunRequest) {
 			images,
 		});
 
-		logAlways(
-			validatedData.data.title,
-			"http: credential created successfully",
-		);
+		log.info("http: credential created successfully", {
+			title: validatedData.data.title,
+		});
 
 		return ResponseFactory.success({
 			data: { id: createdResult.id },
@@ -54,7 +78,12 @@ export async function credentialCreate(req: BunRequest) {
 			path: req,
 		});
 	} catch (error) {
-		logAlways(error, "http: error in credentialCreate controller");
+		log.error("http: error in credentialCreate controller", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			return ResponseFactory.error({

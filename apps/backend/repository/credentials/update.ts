@@ -1,4 +1,4 @@
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 import { AppError } from "@backend/err/base";
 import { BadRequestError } from "@backend/err/bad-request";
@@ -48,9 +48,7 @@ async function resolveOrCreateTypePath(
 	}
 
 	return leafId;
-}
-
-export interface UpdateCredentialRepoInput {
+}	export interface UpdateCredentialRepoInput {
 	credentialId: string;
 	title: string;
 	type: string;
@@ -60,6 +58,7 @@ export interface UpdateCredentialRepoInput {
 	notes: string | null;
 	data: string;
 	tags: string | null;
+	is_draft?: boolean;
 	thumbnail: {
 		url: string;
 		format: string;
@@ -80,7 +79,9 @@ export interface UpdateCredentialRepoInput {
 export async function updateCredentialRepo(
 	input: UpdateCredentialRepoInput,
 ): Promise<void> {
-	logAlways(input.credentialId, "repo: starting db transaction for update");
+	log.info("repo: starting db transaction for update", {
+		credentialId: input.credentialId,
+	});
 
 	try {
 		await sql.begin(async (sql) => {
@@ -127,6 +128,8 @@ export async function updateCredentialRepo(
 			setParts.push(`notes = $${idx++}`);
 			params.push(input.notes);
 
+			setParts.push(`version = version + 1`);
+
 			setParts.push(`tags = $${idx++}`);
 			params.push(input.tags);
 
@@ -150,6 +153,11 @@ export async function updateCredentialRepo(
 			}
 
 			setParts.push(`updated_at = NOW()`);
+
+			if (input.is_draft !== undefined) {
+				setParts.push(`is_draft = $${idx++}`);
+				params.push(input.is_draft);
+			}
 
 			params.push(input.credentialId);
 			const updateQuery = `UPDATE credentials SET ${setParts.join(", ")} WHERE id = $${idx}`;
@@ -196,7 +204,12 @@ export async function updateCredentialRepo(
 			}
 		});
 	} catch (error) {
-		logAlways(error, "repo: db update transaction failed");
+		log.error("repo: db update transaction failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			throw error;

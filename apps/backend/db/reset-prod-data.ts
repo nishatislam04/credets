@@ -1,17 +1,20 @@
 import { sql } from "./connection";
 
-// List all tables that need to be cleared (order matters if foreign keys exist)
-const tables = [
-	"users",
-	"session",
-	"types",
-	"credentials",
-	"credential_images",
-];
+async function resetDatabase() {
+	console.log("💥 Dropping entire public schema...");
 
-for (const table of tables) {
-	await sql.unsafe(`TRUNCATE TABLE "${table}" CASCADE`);
+	await sql.unsafe(`DROP SCHEMA public CASCADE`);
+
+	await sql.unsafe(`CREATE SCHEMA public`);
+
+	// 3. (Optional) Grant default permissions if needed
+	// await sql.unsafe(`GRANT ALL ON SCHEMA public TO public`);
+
+	console.log("✅ Schema and all data dropped. Schema is now empty.");
+	process.exit(0);
 }
 
-console.log("All data wiped, schema preserved.");
-process.exit(0);
+resetDatabase().catch((err) => {
+	console.error("❌ Reset failed:", err);
+	process.exit(1);
+});

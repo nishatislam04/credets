@@ -10,36 +10,22 @@ A monorepo for securely managing private credentials — a full-stack credential
 - **UI** — shadcn/ui with Base UI primitives
 - **Formatting & Linting** — Biome
 - **Hosting** — Backend on Render, Frontend on Render
-- **Image Upload** - minio (local-docker) | supabase storage (production)
+- **Image Upload** - minio (local-podman(docker)) | supabase storage (production)
 
 ## Features
 
 - Simple authentication and Full systematic Authorization
 - Credential listings with infinite scroll
-- Create, update and delete credentials
-- Create, update and delete types
-- Image upload support (thumbnail + gallery) to supabase storage
+- CRUD credential
+- CRUD types
+- Image upload support (thumbnail + images) to supabase storage
 - Flexible data input for credential (single value, key-pair, text blocks)
 - Search, sort, and filter in credentials listings
 - Security: CSRF protection, encryption-at-rest, password hashing
 
-## Project Structure
-
-```bash
-credets/
-├── apps/
-│   ├── backend/        # Bun HTTP API server
-│   └── frontend/       # TanStack Router SPA
-├── packages/
-│   ├── shared-schema/  # Zod schemas (backend validation source of truth)
-│   ├── shared-types/   # TypeScript types shared across packages
-│   └── shared-utils/   # Shared utility functions
-├── docs/               # Project documentation
-├── .agents/skills/     # AI agent skills (shadcn rules, etc.)
-└── docker-compose.yml  # Local PostgreSQL
-```
-
 ## Setup
+
+setup the project
 
 ### 1. Clone
 
@@ -48,15 +34,16 @@ git clone git@github.com:nishatislam04/credets.git
 cd credets
 ```
 
-### 2. Install dependencies
+### 2. Install Dependencies
 
 ```bash
 bun i
 ```
 
-Note: Some environment variables are duplicated in both the root `.env` and `apps/backend/.env`. Observe both carefully.
+Note: Some environment variables are duplicated in both the root `.env`and
+`apps/backend/.env`. Observe both carefully.
 
-### 3. Environment variables
+### 3. Environment Variables
 
 ```bash
 cp .env.example .env
@@ -72,13 +59,13 @@ openssl rand -hex 32
 Set the output as `ENC_KEY` in both `.env` files — this encrypts/decrypts credential secrets.
 `CSRF_SECRET_KEY` is used for CSRF token generation and verification
 
-### 4. Start docker
+### 4. Start Podman
 
 ```bash
-docker compose up
+podman-compose up
 ```
 
-### 5. Run the app
+### 5. Run the App
 
 Start both frontend and backend in one terminal:
 
@@ -93,7 +80,7 @@ bun run dev:backend   # http://localhost:8000
 bun run dev:frontend  # http://localhost:3000
 ```
 
-### 6. Seed the database locally
+### 6. Seed the Database Locally
 
 ```bash
 bun run seed
@@ -101,12 +88,4 @@ bun run seed
 
 ## Documentation
 
-All project documentation lives in [`docs/`](./docs). Key documents:
-
-| Document | Description |
-|----------|-------------|
-
-| [`docs/app.md`](./docs/app.md) | App story, requirements, and feature list |
-| [`docs/form.md`](./docs/form.md) | Frontend & backend form processing guide |
-| [`docs/dblab.md`](./docs/dblab.md) | Database inspector setup |
-| [`docs/production.md`](./docs/production.md) | Production deployment notes |
+All project documentation lives in [`docs/`](./docs)

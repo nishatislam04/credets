@@ -15,49 +15,10 @@ export async function credentialListings(req: BunRequest) {
 			? 12
 			: Math.min(12, Math.max(1, rawLimit));
 
-		// Decode & validate cursor
-		let cursor: CursorPayload | null = null;
-		if (cursorParam) {
-			let decoded: string;
-			try {
-				decoded = Buffer.from(cursorParam, "base64").toString("utf-8");
-			} catch {
-				return ResponseFactory.error({
-					error: "bad request",
-					message: "Invalid cursor format: must be a valid base64-encoded string",
-					status: 400,
-					path: req,
-				});
-			}
+		const cursorResult = parseCursorParam(cursorParam, req);
+		if (cursorResult instanceof Response) return cursorResult;
 
-			try {
-				const parsed = JSON.parse(decoded);
-				if (!parsed.createdAt || !parsed.id) {
-					return ResponseFactory.error({
-						error: "bad request",
-						message: "Invalid cursor payload: must contain 'createdAt' and 'id' fields",
-						status: 400,
-						path: req,
-					});
-				}
-				cursor = parsed as CursorPayload;
-			} catch {
-				return ResponseFactory.error({
-					error: "bad request",
-					message: "Invalid cursor payload: must be valid JSON",
-					status: 400,
-					path: req,
-				});
-			}
-		}
-
-		// Call Service Layer
-		const result = await getCredentialsListingsService({ limit, cursor });
-
-		logger(
-			result.credentials,
-			"http: credentials listings fetched successfully",
-		);
+		const result = await getCredentialsListingsService({ limit, cursorResult });
 
 		return ResponseFactory.success({
 			data: {
@@ -76,7 +37,7 @@ export async function credentialListings(req: BunRequest) {
 			return ResponseFactory.error({
 				error: error.message,
 				type: error.type,
-				message: "Failed to fetch credentials listings",
+				message: error.message || "Failed to fetch credentials listings",
 				status: error.status,
 				path: req,
 				data: {},
@@ -86,7 +47,10 @@ export async function credentialListings(req: BunRequest) {
 		return ResponseFactory.error({
 			error: "An unexpected error occurred",
 			type: "internal-error",
-			message: "Failed to fetch credentials listings",
+			message:
+				error instanceof Error
+					? error.message
+					: "Failed to fetch credentials listings",
 			status: 500,
 			path: req,
 			data: {},
@@ -95,4 +59,52 @@ export async function credentialListings(req: BunRequest) {
 			},
 		});
 	}
+}
+
+function parseCursorParam(
+	cursorParam: string | null,
+	req: BunRequest,
+): CursorPayload | null | Response {
+	if (!cursorParam) return null;
+
+	let decoded: string;
+	try {
+		decoded = Buffer.from(cursorParam, "base64").toString("utf-8");
+	} catch {
+		return ResponseFactory.error({
+			error: "bad request",
+			message: "Invalid cursor format: must be a valid base64-encoded string",
+			status: 400,
+			path: req,
+		});
+	}
+
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(decoded);
+	} catch {
+		return ResponseFactory.error({
+			error: "bad request",
+			message: "Invalid cursor payload: must be valid JSON",
+			status: 400,
+			path: req,
+		});
+	}
+
+	if (
+		!parsed ||
+		typeof parsed !== "object" ||
+		!("createdAt" in parsed) ||
+		!("id" in parsed)
+	) {
+		return ResponseFactory.error({
+			error: "bad request",
+			message:
+				"Invalid cursor payload: must contain 'createdAt' and 'id' fields",
+			status: 400,
+			path: req,
+		});
+	}
+
+	return parsed as CursorPayload;
 }

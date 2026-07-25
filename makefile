@@ -1,7 +1,19 @@
 .PHONY: db-up db-down
 
-db-up:
-	docker compose up
+podman-up:
+	podman-compose up
 
-db-down:
-	docker compose down
+podman-down:
+	podman-compose down
+
+backend-up:
+	bun run dev:backend
+
+frontend-up:
+	bun run dev:frontend
+
+seed:
+	bun run seed
+
+db-reset:
+	podman-compose down -v

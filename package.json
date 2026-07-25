@@ -8,22 +8,23 @@
 	],
 	"scripts": {
 		"dev": "concurrently --names \"BACK,FRONT\" --prefix-colors \"green,pink\" \"bun run dev:backend\" \"bun run dev:frontend\"",
-		"dev:backend": "bun run --cwd apps/backend dev",
-		"dev:backend:staging": "bun run --cwd apps/backend dev:staging",
-		"dev:frontend": "bun run --cwd apps/frontend dev",
-		"seed": "bun run apps/backend/db/seed.ts",
-		"sync-context": "bun run utils/sync-context.ts",
-		"sync-context:check": "bun run utils/sync-context.ts --check",
-		"build:frontend": "bun run --cwd apps/frontend build"
+		"dev:backend": "bun --filter @credets/backend dev",
+		"dev:frontend": "bun --filter @credets/frontend dev",
+		"build:frontend": "bun --filter @credets/frontend build",
+		"build:frontend:staging": "bun --filter @credets/frontend build --mode staging",
+		"preview:frontend:staging": "bun --filter @credets/frontend staging",
+		"start:backend:staging": "bun --filter @credets/backend staging",
+		"staging": "bun run build:frontend:staging && concurrently --names \"MINIO,FRONT,BACK,REPORT\" --prefix-colors \"blue,pink,green,yellow\" \"podman-compose -f podman-compose.staging.yml up\" \"bun run preview:frontend:staging\" \"bun run start:backend:staging\" \"cd apps/frontend && bunx vite-bundle-explorer bundle-report\"",
+		"seed": "bun run apps/backend/db/seed.ts"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.5",
+		"@biomejs/biome": "2.5.4",
 		"@types/bun": "latest",
-		"@types/node": "^25.9.1",
-		"concurrently": "^9.2.1"
+		"concurrently": "^10.0.3",
+		"@types/node": "^26.1.1"
 	},
 	"catalog": {
 		"zod": "^4.4.3",
-		"typescript": "^6.0.2"
+		"typescript": "^7.0.2"
 	}
 }

@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- USER TABLE
 CREATE TABLE IF NOT EXISTS users(
@@ -44,9 +45,14 @@ CREATE TABLE IF NOT EXISTS credentials(
 	thumbnail_format VARCHAR(10) NULL,
 	thumbnail_width INT NULL,
 	thumbnail_height INT NULL,
+	version INT DEFAULT 0,
 	data TEXT NOT NULL,
 	notes TEXT NULL,
 	tags TEXT NULL,
+	is_draft BOOLEAN DEFAULT FALSE,
+	is_favourite BOOLEAN DEFAULT FALSE,
+	is_deleted BOOLEAN DEFAULT FALSE,
+	deleted_at TIMESTAMPTZ,
 	created_at TIMESTAMPTZ DEFAULT NOW(),
 	updated_at TIMESTAMPTZ DEFAULT NOW(),
 	user_id UUID NULL,
@@ -77,7 +83,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email);
 CREATE INDEX IF NOT EXISTS credentials_title_idx ON credentials (title);
 CREATE INDEX IF NOT EXISTS credentials_short_description_idx ON credentials (short_description);
 CREATE INDEX IF NOT EXISTS credentials_long_description_idx ON credentials (long_description);
-CREATE INDEX IF NOT EXISTS credentials_data_idx ON credentials USING GIN (data);
+CREATE INDEX IF NOT EXISTS credentials_data_idx ON credentials USING GIN (data gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS credentials_notes_idx ON credentials (notes);
 CREATE INDEX IF NOT EXISTS credentials_created_at_idx ON credentials(created_at);
 CREATE INDEX IF NOT EXISTS credentials_user_id_idx ON credentials(user_id);

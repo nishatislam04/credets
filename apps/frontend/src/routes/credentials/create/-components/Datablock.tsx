@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertTriangle, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-	AlertDialogClose,
+	AlertDialog,
+	AlertDialogCancel,
+	AlertDialogContent,
 	AlertDialogDescription,
-	AlertDialogPopup,
-	AlertDialogRoot,
 	AlertDialogTitle,
 } from "#/components/ui/alert-dialog";
 import { Card } from "#/components/ui/card";
@@ -52,9 +52,7 @@ export function DataBlock({
 	// Auto-focus the first input in this block when it's newly created
 	useEffect(() => {
 		if (shouldFocus && blockRef.current) {
-			const firstInput = blockRef.current.querySelector(
-				"input, textarea",
-			) as HTMLElement | null;
+			const firstInput = blockRef.current.querySelector("input, textarea") as HTMLElement | null;
 			if (firstInput) {
 				firstInput.focus();
 				onFocused?.();
@@ -67,8 +65,7 @@ export function DataBlock({
 	// is still focused (arrayField.state.value may not have synced yet).
 	const currentValue: string = form.getFieldValue(`data.${idx}.value`) ?? "";
 	const currentKey: string = form.getFieldValue(`data.${idx}.key`) ?? "";
-	const hasValues =
-		currentValue.trim().length > 0 || currentKey.trim().length > 0;
+	const hasValues = currentValue.trim().length > 0 || currentKey.trim().length > 0;
 
 	const handleRemove = useCallback(() => {
 		// Re-check values in the callback for the freshest read
@@ -189,20 +186,17 @@ export function DataBlock({
 
 			{/* Confirmation dialog — shown only when block has values */}
 			{hasValues && (
-				<AlertDialogRoot open={confirmOpen} onOpenChange={setConfirmOpen}>
-					<AlertDialogPopup className="max-w-md">
+				<AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+					<AlertDialogContent className="max-w-md">
 						{/* Warning icon */}
 						<div className="mx-auto flex size-14 items-center justify-center rounded-full bg-destructive/10 ring-1 ring-destructive/20">
 							<AlertTriangle className="size-7 text-destructive" />
 						</div>
 
-						<AlertDialogTitle className="text-center text-lg">
-							Remove data block?
-						</AlertDialogTitle>
+						<AlertDialogTitle className="text-center text-lg">Remove data block?</AlertDialogTitle>
 
 						<AlertDialogDescription className="text-center">
-							This data block has{" "}
-							<span className="font-semibold text-foreground">content</span>{" "}
+							This data block has <span className="font-semibold text-foreground">content</span>{" "}
 							that will be lost.{" "}
 							<strong className="text-destructive">This action cannot be undone</strong>.
 						</AlertDialogDescription>
@@ -214,13 +208,9 @@ export function DataBlock({
 						</div>
 
 						<div className="flex justify-end gap-3 mt-2">
-							<AlertDialogClose
-								render={
-									<Button type="button" variant="outline" size="sm">
-										Cancel
-									</Button>
-								}
-							/>
+							<AlertDialogCancel variant="outline" size="sm">
+								Cancel
+							</AlertDialogCancel>
 							<Button
 								type="button"
 								variant="destructive"
@@ -232,8 +222,8 @@ export function DataBlock({
 								Remove
 							</Button>
 						</div>
-					</AlertDialogPopup>
-				</AlertDialogRoot>
+					</AlertDialogContent>
+				</AlertDialog>
 			)}
 		</Card>
 	);

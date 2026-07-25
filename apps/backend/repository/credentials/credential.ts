@@ -1,7 +1,8 @@
 import { AppError } from "@backend/err/base";
 import { DatabaseError } from "@backend/err/database";
-import { logAlways } from "@backend/utils/logger";
-import { sql } from "@db/connection";	export interface CredentialDetailRow {
+import { log, logger } from "@backend/utils/logger";
+import { sql } from "@db/connection";
+export interface CredentialDetailRow {
 	id: string;
 	title: string;
 	short_description: string | null;
@@ -11,6 +12,9 @@ import { sql } from "@db/connection";	export interface CredentialDetailRow {
 	data: any;
 	notes: string | null;
 	tags: string | null;
+	version: number;
+	is_draft: boolean;
+	is_favourite: boolean;
 	created_at: Date;
 	updated_at: Date | null;
 	type_label: string | null;
@@ -30,14 +34,15 @@ export interface CredentialImageRow {
 }
 
 export async function getCredentialDetailRepo(credentialId: string) {
-	logAlways(credentialId, "repo: fetching credential detail");
+	logger(credentialId, "repo: fetching credential detail");
 
 	try {
 		const [credential] = await sql<CredentialDetailRow[]>`
 			SELECT
 				c.id, c.title, c.short_description, c.long_description,
-				c.thumbnail_url,
+				c.thumbnail_url, c.version,
 				c.data, c.notes, c.tags, c.created_at, c.updated_at,
+				c.is_draft, c.is_favourite,
 				t.label AS type_label, t.value AS type_value, c.types_id
 			FROM credentials c
 			LEFT JOIN types t ON c.types_id = t.id
@@ -56,7 +61,12 @@ export async function getCredentialDetailRepo(credentialId: string) {
 
 		return { credential, images };
 	} catch (error) {
-		logAlways(error, "repo: fetch credential detail queries failed");
+		log.error("repo: fetch credential detail queries failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			throw error;
@@ -90,7 +100,12 @@ export async function getTypeHierarchyRepo(
 		`;
 		return rows;
 	} catch (error) {
-		logAlways(error, "repo: failed to fetch type hierarchy");
+		log.error("repo: failed to fetch type hierarchy", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw new DatabaseError(error);
 	}
 }
@@ -102,7 +117,7 @@ export async function getTypeHierarchyRepo(
 export async function getCredentialImageUrlsRepo(
 	credentialId: string,
 ): Promise<CredentialImageUrlRow[]> {
-	logAlways(credentialId, "repo: fetching credential image URLs");
+	log.info("repo: fetching credential image URLs", { credentialId });
 
 	try {
 		return await sql<CredentialImageUrlRow[]>`
@@ -110,7 +125,12 @@ export async function getCredentialImageUrlsRepo(
 			WHERE credential_id = ${credentialId}
 		`;
 	} catch (error) {
-		logAlways(error, "repo: fetch credential image URLs failed");
+		log.error("repo: fetch credential image URLs failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			throw error;

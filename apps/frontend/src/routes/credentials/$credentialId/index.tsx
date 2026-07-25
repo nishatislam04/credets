@@ -1,19 +1,9 @@
-import type { CredentialDetail } from "@credets/shared-types/credentials/listings";
-import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
-import { Separator } from "#/components/ui/separator";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowLeft, FileQuestion, TriangleAlert } from "lucide-react";
 import { Skeleton } from "#/components/ui/skeleton";
-import { ImagePreviewOverlay } from "#/routes/credentials/-components/image-preview-overlay";
-import { TAG_COLORS } from "../-utils/colors";
-import { getCredential } from "./-actions/getCredential";
-import { ImageLightbox } from "./-components/image-lightbox";
-import { Content } from "./-ui/content";
-import { Footer } from "./-ui/footer";
-import { Header } from "./-ui/header";
-import { Sidebar } from "./-ui/sidebar";
-import { TopHeader } from "./-ui/topHeader";	export const Route = createFileRoute("/credentials/$credentialId/")({
-	component: RouteComponent,
+import { getCredential, NotFoundError } from "./-actions/getCredential";
+
+export const Route = createFileRoute("/credentials/$credentialId/")({
 	loader: async ({ params }) => {
 		const credential = await getCredential(params.credentialId);
 		// Add cache-busting version to thumbnail URL so the browser
@@ -27,7 +17,6 @@ import { TopHeader } from "./-ui/topHeader";	export const Route = createFileRout
 	pendingComponent: () => (
 		<div className="mx-auto w-full max-w-5xl px-4 py-10">
 			<Skeleton className="mb-8 h-6 w-24 rounded-lg" />
-			{/* Title row */}
 			<div className="mb-3 flex items-start gap-4">
 				<Skeleton className="size-20 shrink-0 rounded-xl" />
 				<div className="min-w-0 flex-1 space-y-2">
@@ -48,89 +37,50 @@ import { TopHeader } from "./-ui/topHeader";	export const Route = createFileRout
 			</div>
 		</div>
 	),
-	errorComponent: ({ error }) => (
-		<div className="mx-auto w-full max-w-3xl px-4 py-24 text-center">
-			<div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-full bg-destructive/10">
-				<span className="text-2xl text-destructive">!</span>
-			</div>
-			<h2 className="mb-2 text-lg font-semibold">Failed to load credential</h2>
-			<p className="mb-6 text-sm text-muted-foreground">
-				{error?.message || "Something went wrong. Please try again later."}
-			</p>
-			<Link
-				to="/credentials"
-				className="inline-flex items-center gap-1.5 text-sm font-medium text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
-			>
-				<ArrowLeft className="size-3.5" />
-				Back to credentials
-			</Link>
-		</div>
-	),
-});
+	errorComponent: ({ error }) => {
+		const isNotFound = error instanceof NotFoundError;
 
-function RouteComponent() {
-	const credential = useLoaderData({
-		from: "/credentials/$credentialId/",
-	}) as CredentialDetail;
-	const [lightboxOpen, setLightboxOpen] = useState(false);
-	const [lightboxIndex, setLightboxIndex] = useState(0);
-	const [thumbnailPreviewOpen, setThumbnailPreviewOpen] = useState(false);
-
-	const hasImages = Array.isArray(credential.images) && credential.images.length > 0;
-	const thumbnailUri = credential.thumbnail_url;
-
-	const openLightbox = (index: number) => {
-		setLightboxIndex(index);
-		setLightboxOpen(true);
-	};
-
-	return (
-		<>
-			<div className="mx-auto w-full max-w-6xl px-4 py-10">
-				{/* ── Back link + Edit button ── */}
-
-				<TopHeader credentialId={credential.id} />
-
-				{/* ── Header row — thumbnail | title + badge + dates ── */}
-				<Header
-					thumbnailUri={thumbnailUri}
-					onThumbnailClick={() => setThumbnailPreviewOpen(true)}
-					credential={credential}
-				/>
-
-				<Separator className="my-12" />
-
-				{/* ── Two-column layout ── */}
-				<div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-					{/* ── Left column (2/3) — description, gallery, data ── */}
-					<Content credential={credential} hasImages={hasImages} openLightbox={openLightbox} />
-
-					{/* ── Right column (1/3) — sidebar ── */}
-					<Sidebar credential={credential} />
+		if (isNotFound) {
+			return (
+				<div className="mx-auto w-full max-w-md px-4 py-32 text-center">
+					<div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-full bg-muted/50 ring-1 ring-border/30">
+						<FileQuestion className="size-10 text-muted-foreground/40" />
+					</div>
+					<h2 className="mb-2 text-2xl font-bold tracking-tight">
+						Credential not found
+					</h2>
+					<p className="mb-8 text-sm text-muted-foreground/70 leading-relaxed max-w-sm mx-auto">
+						The credential you&rsquo;re looking for doesn&rsquo;t exist or may have been deleted.
+						Check the URL or browse your credentials list.
+					</p>
+					<Link
+						to="/credentials"
+						className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.97]"
+					>
+						<ArrowLeft className="size-4" />
+						Back to credentials
+					</Link>
 				</div>
+			);
+		}
 
-				{/* ── Footer separator ── */}
-
-				<Footer credential={credential} />
+		return (
+			<div className="mx-auto w-full max-w-3xl px-4 py-24 text-center">
+				<div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-full bg-destructive/10">
+					<TriangleAlert className="size-8 text-destructive" />
+				</div>
+				<h2 className="mb-2 text-lg font-semibold">Failed to load credential</h2>
+				<p className="mb-6 text-sm text-muted-foreground">
+					{error?.message || "Something went wrong. Please try again later."}
+				</p>
+				<Link
+					to="/credentials"
+					className="inline-flex items-center gap-1.5 text-sm font-medium text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
+				>
+					<ArrowLeft className="size-3.5" />
+					Back to credentials
+				</Link>
 			</div>
-
-			{/* ── Thumbnail preview overlay — single image, no slideshow ── */}
-			{thumbnailPreviewOpen && thumbnailUri && (
-				<ImagePreviewOverlay
-					src={thumbnailUri}
-					onClose={() => setThumbnailPreviewOpen(false)}
-					alt={credential.title}
-				/>
-			)}
-
-			{/* ── Image gallery slideshow overlay — for gallery images only ── */}
-			{lightboxOpen && hasImages && (
-				<ImageLightbox
-					images={credential.images}
-					initialIndex={lightboxIndex}
-					onClose={() => setLightboxOpen(false)}
-				/>
-			)}
-		</>
-	);
-}
+		);
+	},
+});

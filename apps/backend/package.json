@@ -6,8 +6,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "bun run --watch --no-clear-screen --console-depth 10 index.ts",
-		"dev:staging": "bun --env-file=../.env.staging run --watch --no-clear-screen --console-depth 10 index.ts",
-		"debug": "PORT=8001 bun run --watch --no-clear-screen --console-depth 10 index.ts",
+		"staging": "bun --env-file=.env.staging run index.ts",
 		"start": "bun index.ts",
 		"type-check": "tsc --noEmit"
 	},

@@ -1,17 +1,18 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Pencil } from "lucide-react";
 
 export function TopHeader({ credentialId }: { credentialId: string }) {
+	const router = useRouter();
+
 	return (
 		<div className="mb-8 flex items-center justify-between">
-			<Link
-				to="/credentials"
-				preload="intent"
-				className="group inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors"
+			<button
+				type="button"
+				onClick={() => router.history.back()}
+				className="group inline-flex cursor-pointer items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground/50 hover:text-foreground transition-colors"
 			>
-				<ArrowLeft className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5" />
-				Back to listings
-			</Link>
+				<ArrowLeft className="size-6 transition-transform duration-200 group-hover:-translate-x-0.5" />
+			</button>
 			<Link
 				to="/credentials/$credentialId/update"
 				params={{ credentialId }}

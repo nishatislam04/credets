@@ -2,11 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Plus, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-	AlertDialogBackdrop,
-	AlertDialogClose,
+	AlertDialog,
+	AlertDialogCancel,
+	AlertDialogContent,
 	AlertDialogDescription,
-	AlertDialogPopup,
-	AlertDialogRoot,
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "#/components/ui/alert-dialog";
@@ -70,13 +69,13 @@ export function TypeSelector({ types, onTypesChange }: TypeSelectorProps) {
 	}, []);
 
 	return (
-		<div className="flex flex-col gap-3">
+		<div className="flex flex-col items-start gap-3 w-full">
 			{Array.from({ length: levelsToShow }).map((_, levelIndex) => {
 				const childCount = Math.max(0, types.length - levelIndex - 1);
 				const shouldFocus = focusLevel === levelIndex;
 				return (
 					<TypeLevel
-						key={levelIndex}
+						key={crypto.randomUUID()}
 						levelIndex={levelIndex}
 						parentValue={levelIndex > 0 ? types[levelIndex - 1]?.value : undefined}
 						currentType={types[levelIndex] ?? null}
@@ -155,10 +154,7 @@ function TypeLevel({
 		// Filter options based on input value (search-as-you-type)
 		const filtered = options.filter((opt) => {
 			if (!trimmed) return true; // Show all when no input
-			return (
-				opt.label.toLowerCase().includes(trimmed) ||
-				opt.value.toLowerCase().includes(trimmed)
-			);
+			return opt.label.toLowerCase().includes(trimmed) || opt.value.toLowerCase().includes(trimmed);
 		});
 
 		const existing: ComboboxItemOption[] = filtered.map((opt) => ({
@@ -171,14 +167,10 @@ function TypeLevel({
 		// Add "Create" option if typed text has no exact match among ALL options
 		if (rawInput.length > 0) {
 			const exactMatch = options.some(
-				(opt) =>
-					opt.label.toLowerCase() === trimmed ||
-					opt.value.toLowerCase() === trimmed,
+				(opt) => opt.label.toLowerCase() === trimmed || opt.value.toLowerCase() === trimmed,
 			);
 			if (!exactMatch) {
-				const slug = trimmed
-					.replace(/[^a-z0-9]+/g, "_")
-					.replace(/^_|_$/g, "");
+				const slug = trimmed.replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 				existing.push({
 					id: `__create__${slug}`,
 					value: `__create__${slug}`,
@@ -292,14 +284,10 @@ function TypeLevel({
 							<ComboboxContent>
 								<ComboboxList>
 									{isOptionsLoading && items.length === 0 && (
-										<div className="px-3 py-2 text-sm text-muted-foreground">
-											Loading...
-										</div>
+										<div className="px-3 py-2 text-sm text-muted-foreground">Loading...</div>
 									)}
 									{!isOptionsLoading && items.length === 0 && (
-										<ComboboxEmpty>
-											No options found. Type to create a new one.
-										</ComboboxEmpty>
+										<ComboboxEmpty>No options found. Type to create a new one.</ComboboxEmpty>
 									)}
 									{items.map((item) => (
 										<ComboboxItem key={item.id} value={item.value}>
@@ -320,25 +308,19 @@ function TypeLevel({
 
 					{/* X clear button — side by side with combobox */}
 					{!!currentType && childCount > 0 && (
-						<AlertDialogRoot open={dialogOpen} onOpenChange={setDialogOpen}>
-							<AlertDialogTrigger
-								className="inline-flex items-center justify-center rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer border-0 bg-transparent"
-								aria-label="Remove type and children"
-							>
+						<AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+							<AlertDialogTrigger className="...">
 								<X className="size-3.5" />
 							</AlertDialogTrigger>
-							<AlertDialogBackdrop />
-							<AlertDialogPopup>
+							<AlertDialogContent>
 								<AlertDialogTitle>Remove this type?</AlertDialogTitle>
 								<AlertDialogDescription>
 									Removing "{currentType.label}" will also remove{" "}
-									{childCount === 1 ? "the sub-type" : `${childCount} sub-types`}{" "}
-									under it. This action cannot be undone.
+									{childCount === 1 ? "the sub-type" : `${childCount} sub-types`} under it. This
+									action cannot be undone.
 								</AlertDialogDescription>
 								<div className="flex justify-end gap-3 mt-2">
-									<AlertDialogClose className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors cursor-pointer border-0 bg-transparent">
-										Cancel
-									</AlertDialogClose>
+									<AlertDialogCancel className="...">Cancel</AlertDialogCancel>
 									<Button
 										type="button"
 										variant="destructive"
@@ -348,8 +330,8 @@ function TypeLevel({
 										Remove
 									</Button>
 								</div>
-							</AlertDialogPopup>
-						</AlertDialogRoot>
+							</AlertDialogContent>
+						</AlertDialog>
 					)}
 
 					{/* Simple X clear button when no children */}

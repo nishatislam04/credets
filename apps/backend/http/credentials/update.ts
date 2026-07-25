@@ -1,13 +1,28 @@
 import { AppError } from "@backend/err/base";
-import { logAlways } from "@backend/utils/logger";
+import { log, logger } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import { credentialsUpdateSchema } from "@credets/shared-schema/credentials/update";
 import type { BunRequest } from "bun";
 import { updateCredentialService } from "../../services/credentials/update";
 import { parseAndValidateCredential } from "../../validation/credential/validator";
 
+const MAX_BODY_SIZE = 10 * 1024 * 1024; // 10MB
+
 export async function credentialUpdate(req: BunRequest) {
+	const contentLength = req.headers.get("content-length");
+	if (contentLength && Number.parseInt(contentLength, 10) > MAX_BODY_SIZE) {
+		return ResponseFactory.error({
+			error: "Request body too large",
+			type: "bad-request",
+			message: "Request body must not exceed 10MB",
+			status: 413,
+			path: req,
+		});
+	}
+
 	const result = await parseAndValidateCredential(req, credentialsUpdateSchema);
+
+	logger(result);
 
 	if (!result.success) {
 		return result.errorResponse;
@@ -55,9 +70,17 @@ export async function credentialUpdate(req: BunRequest) {
 			})()
 		: [];
 
+	// Extract is_draft from formdata (set by validator)
+	// Note: must differentiate between "false" (publish) and null (not set)
+	const isDraftRaw = formData.get("is_draft")?.toString() || null;
+	let is_draft: boolean | undefined;
+	if (isDraftRaw === "true" || isDraftRaw === "1") is_draft = true;
+	else if (isDraftRaw === "false" || isDraftRaw === "0") is_draft = false;
+
 	try {
 		await updateCredentialService({
 			credentialId,
+			is_draft,
 			title: validatedData.data.title ?? "",
 			type: validatedData.data.type ?? "",
 			types_path,
@@ -72,7 +95,7 @@ export async function credentialUpdate(req: BunRequest) {
 			existingImagesKeep,
 		});
 
-		logAlways(credentialId, "http: credential updated successfully");
+		log.info("http: credential updated successfully", { credentialId });
 
 		return ResponseFactory.success({
 			data: {},
@@ -82,7 +105,12 @@ export async function credentialUpdate(req: BunRequest) {
 			path: req,
 		});
 	} catch (error) {
-		logAlways(error, "http: error in credentialUpdate controller");
+		log.error("http: error in credentialUpdate controller", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			return ResponseFactory.error({

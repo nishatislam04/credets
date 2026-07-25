@@ -1,7 +1,8 @@
 import { randomUUID } from "crypto";
 import { encrypt } from "@backend/cipher/encrypt";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { processImage } from "@backend/utils/processImage";
+import { withTimeout } from "@backend/utils/withTimeout";
 import {
 	credentialImageKey,
 	credentialThumbnailKey,
@@ -10,9 +11,7 @@ import {
 import {
 	createCredentialRepo,
 	type TypePathEntry,
-} from "../../repository/credentials/create";
-
-export interface CreateCredentialServiceInput {
+} from "../../repository/credentials/create";export interface CreateCredentialServiceInput {
 	title: string;
 	type: string;
 	types_path: TypePathEntry[];
@@ -20,6 +19,8 @@ export interface CreateCredentialServiceInput {
 	long_description?: string;
 	notes?: string;
 	tags?: string;
+	is_draft?: boolean;
+	is_favourite?: boolean;
 	// biome-ignore lint/suspicious/noExplicitAny: data can contain arbitrary objects
 	data: any[];
 	thumbnail: File | null;
@@ -29,95 +30,117 @@ export interface CreateCredentialServiceInput {
 export async function createCredentialService(
 	input: CreateCredentialServiceInput,
 ) {
-	logAlways(input.title, "service: starting credential creation");
+	log.info("service: starting credential creation", {
+		title: input.title,
+	});
 
 	// Generate credential ID upfront so we can construct S3 paths before DB insert
 	const credentialId = randomUUID();
 
 	try {
-		// 1. Process thumbnail
-		const thumbnailResult = await processImage({
-			file: input.thumbnail,
-			outputQuality: 50,
-			resizeInWidth: 800,
-		});
-
-		// 2. Process other images
-		const processedImages = await Promise.all(
-			input.images.map((file) =>
-				processImage({
-					file,
+		// Wrap expensive operations (image processing, S3 uploads, DB write)
+		// in a 30-second timeout to prevent long-running requests
+		// from exhausting server resources on the free tier.
+		return await withTimeout(
+			(async () => {
+				// 1. Process thumbnail
+				const thumbnailResult = await processImage({
+					file: input.thumbnail,
 					outputQuality: 75,
-					resizeInWidth: 1400,
-				}),
-			),
+					resizeInWidth: 800,
+				});
+
+				// 2. Process other images
+				const processedImages = await Promise.all(
+					input.images.map((file) =>
+						processImage({
+							file,
+							outputQuality: 85,
+							resizeInWidth: 1400,
+						}),
+					),
+				);
+
+				const validImages = processedImages.filter(
+					(img): img is NonNullable<typeof img> => img !== null,
+				);
+
+				// 3. Upload to S3
+				let thumbnailUrl: string | null = null;
+				if (thumbnailResult) {
+					const result = await uploadToS3(
+						credentialThumbnailKey(credentialId),
+						thumbnailResult.buffer,
+						"image/webp",
+					);
+					thumbnailUrl = result.url;
+				}
+
+				const imageUploads = await Promise.all(
+					validImages.map(async (img, index) => {
+						const key = credentialImageKey(credentialId, `${index}.webp`);
+						const result = await uploadToS3(key, img.buffer, "image/webp");
+						return { url: result.url, ...img };
+					}),
+				);
+
+				// 4. Construct DB Repository Payload
+				const dbPayload = {
+					title: input.title,
+					type: input.type,
+					types_path: input.types_path,
+					is_draft: input.is_draft ?? false,
+					is_favourite: input.is_favourite ?? false,
+					short_description: input.short_description || null,
+					version: 0,
+					long_description: input.long_description || null,
+					notes: input.notes || null,
+					data: await encrypt(JSON.stringify(input.data)),
+					tags: input.tags
+						? JSON.stringify(
+								input.tags
+									.split(",")
+									.map((tag) => tag.trim())
+									.filter((tag) => tag.length > 0),
+							)
+						: null,
+					thumbnail: thumbnailResult
+						? {
+								url: thumbnailUrl!,
+								format: thumbnailResult.format,
+								width: thumbnailResult.width,
+								height: thumbnailResult.height,
+							}
+						: null,
+					images: imageUploads.map((img) => ({
+						url: img.url,
+						format: img.format,
+						width: img.width,
+						height: img.height,
+						byteSize: img.byteSize,
+					})),
+					id: credentialId,
+				};
+
+				// 5. Call Repository Layer
+				const result = await createCredentialRepo(dbPayload);
+
+				log.info(
+					"service: credential creation completed successfully",
+					{ id: result.id },
+				);
+				return result;
+			})(),
+			30_000,
+			"Credential creation timed out after 30s",
 		);
-
-		const validImages = processedImages.filter(
-			(img): img is NonNullable<typeof img> => img !== null,
-		);
-
-		// 3. Upload to S3
-		let thumbnailUrl: string | null = null;
-		if (thumbnailResult) {
-			const result = await uploadToS3(
-				credentialThumbnailKey(credentialId),
-				thumbnailResult.buffer,
-				"image/webp",
-			);
-			thumbnailUrl = result.url;
-		}
-
-		const imageUploads = await Promise.all(
-			validImages.map(async (img, index) => {
-				const key = credentialImageKey(credentialId, `${index}.webp`);
-				const result = await uploadToS3(key, img.buffer, "image/webp");
-				return { url: result.url, ...img };
-			}),
-		);
-
-		// 4. Construct DB Repository Payload
-		const dbPayload = {
-			title: input.title,
-			type: input.type,
-			types_path: input.types_path,
-			short_description: input.short_description || null,
-			long_description: input.long_description || null,
-			notes: input.notes || null,
-			data: await encrypt(JSON.stringify(input.data)),
-			tags: input.tags
-				? JSON.stringify(
-						input.tags
-							.split(",")
-							.map((tag) => tag.trim())
-							.filter((tag) => tag.length > 0),
-					)
-				: null,
-			thumbnail: thumbnailResult
-				? {
-						url: thumbnailUrl!,
-						format: thumbnailResult.format,
-						width: thumbnailResult.width,
-						height: thumbnailResult.height,
-					}
-				: null,
-			images: imageUploads.map((img) => ({
-				url: img.url,
-				format: img.format,
-				width: img.width,
-				height: img.height,
-				byteSize: img.byteSize,
-			})),
-			id: credentialId,
-		};
-
-		// 5. Call Repository Layer
-		const result = await createCredentialRepo(dbPayload);
-
-		logAlways(result.id, "service: credential creation completed successfully");
-		return result;
 	} catch (error) {
-		logAlways(error, "service: error in createCredentialService");
+		log.error("service: error in createCredentialService", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw error;
 	}
 }

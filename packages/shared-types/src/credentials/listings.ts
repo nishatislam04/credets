@@ -9,6 +9,58 @@ export type CredentialListItem = {
 	updated_at: string | null;
 	type_label: string | null;
 	type_value: string | null;
+	version: number;
+	is_draft: boolean;
+	is_favourite: boolean;
+};
+
+/** A single trashed credential item returned by the trash endpoint */
+export type TrashCredentialItem = {
+	id: string;
+	title: string;
+	short_description: string | null;
+	long_description: string | null;
+	notes: string | null;
+	thumbnail_url: string | null;
+	tags: string[] | null;
+	created_at: string;
+	updated_at: string | null;
+	deleted_at: string;
+	type_label: string | null;
+	type_value: string | null;
+	version: number;
+	is_draft: boolean;
+	is_favourite: boolean;
+	images: Array<{ id: string; image_url: string | null }>;
+};
+
+/** Cursor-based pagination wrapper returned by the trash endpoint */
+export type TrashListingsResponse = {
+	items: TrashCredentialItem[];
+	nextCursor: string | null;
+	hasMore: boolean;
+};
+
+/** A single draft credential item returned by the draft endpoint */
+export type DraftCredentialItem = {
+	id: string;
+	title: string;
+	short_description: string | null;
+	thumbnail_url: string | null;
+	tags: string[] | null;
+	created_at: string;
+	updated_at: string | null;
+	type_label: string | null;
+	type_value: string | null;
+	version: number;
+	is_favourite: boolean;
+};
+
+/** Cursor-based pagination wrapper returned by the draft endpoint */
+export type DraftListingsResponse = {
+	items: DraftCredentialItem[];
+	nextCursor: string | null;
+	hasMore: boolean;
 };
 
 /** Cursor-based pagination wrapper returned by the backend */
@@ -36,6 +88,7 @@ export type CredentialDetail = {
 	title: string;
 	short_description: string | null;
 	long_description: string | null;
+	version: number;
 	type_label: string | null;
 	type_value: string | null;
 	type_path: Array<{ label: string; value: string }>;
@@ -44,9 +97,33 @@ export type CredentialDetail = {
 	data: Record<string, unknown> | DataBlockEntry[];
 	notes: string | null;
 	tags: string[] | null;
+	is_draft: boolean;
+	is_favourite: boolean;
 	created_at: string;
 	updated_at: string | null;
 	images: CredentialImage[];
+};
+
+/** A single favourite credential item returned by the favourite endpoint */
+export type FavouriteCredentialItem = {
+	id: string;
+	title: string;
+	short_description: string | null;
+	thumbnail_url: string | null;
+	tags: string[] | null;
+	created_at: string;
+	updated_at: string | null;
+	type_label: string | null;
+	type_value: string | null;
+	version: number;
+	is_draft: boolean;
+};
+
+/** Cursor-based pagination wrapper returned by the favourite endpoint */
+export type FavouriteListingsResponse = {
+	items: FavouriteCredentialItem[];
+	nextCursor: string | null;
+	hasMore: boolean;
 };
 
 /** @deprecated Use CredentialListItem instead */

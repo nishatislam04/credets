@@ -26,5 +26,9 @@ export function createCredentialFormdata(value: CredentialCreateType) {
 			formdata.append(`images[${idx}]`, image);
 		});
 
+	if (value.is_draft) {
+		formdata.append("is_draft", "true");
+	}
+
 	return formdata;
 }
