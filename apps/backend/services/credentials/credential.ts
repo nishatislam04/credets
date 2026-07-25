@@ -1,5 +1,5 @@
 import { decrypt } from "@backend/cipher/decrypt";
-import { logAlways, logger } from "@backend/utils/logger";
+import { log, logger } from "@backend/utils/logger";
 import {
 	getCredentialDetailRepo,
 	getTypeHierarchyRepo,
@@ -53,7 +53,12 @@ export async function getCredentialDetailService(credentialId: string) {
 
 		return parsed;
 	} catch (error) {
-		logAlways(error, "service: getCredentialDetailService failed");
+		log.error("service: getCredentialDetailService failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw error;
 	}
 }

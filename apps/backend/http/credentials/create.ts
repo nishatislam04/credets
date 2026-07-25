@@ -1,5 +1,5 @@
 import { AppError } from "@backend/err/base";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import {
 	credentialsCreateDraftSchema,
@@ -66,10 +66,9 @@ export async function credentialCreate(req: BunRequest) {
 			images,
 		});
 
-		logAlways(
-			validatedData.data.title,
-			"http: credential created successfully",
-		);
+		log.info("http: credential created successfully", {
+			title: validatedData.data.title,
+		});
 
 		return ResponseFactory.success({
 			data: { id: createdResult.id },
@@ -79,7 +78,12 @@ export async function credentialCreate(req: BunRequest) {
 			path: req,
 		});
 	} catch (error) {
-		logAlways(error, "http: error in credentialCreate controller");
+		log.error("http: error in credentialCreate controller", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			return ResponseFactory.error({

@@ -1,6 +1,6 @@
 import { AppError } from "@backend/err/base";
 import { verifyCSRF } from "@backend/http/csrf/verifyCSRF";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import type { BunRequest } from "bun";
 import { permanentDeleteCredentialService } from "../../services/credentials/permanent-delete";
@@ -52,7 +52,7 @@ export async function credentialPermanentDelete(req: Request) {
 		// Delegate to Service Layer
 		const result = await permanentDeleteCredentialService(credentialId);
 
-		logAlways(result.title, "http: credential permanently deleted");
+		log.info("http: credential permanently deleted", { title: result.title });
 
 		return ResponseFactory.success({
 			data: {},
@@ -62,7 +62,12 @@ export async function credentialPermanentDelete(req: Request) {
 			path: { url: req.url } as BunRequest,
 		});
 	} catch (error) {
-		logAlways(error, "http: error in credentialPermanentDelete controller");
+		log.error("http: error in credentialPermanentDelete controller", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			return ResponseFactory.error({

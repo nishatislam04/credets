@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { encrypt } from "@backend/cipher/encrypt";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { processImage } from "@backend/utils/processImage";
 import { withTimeout } from "@backend/utils/withTimeout";
 import {
@@ -30,7 +30,9 @@ import {
 export async function createCredentialService(
 	input: CreateCredentialServiceInput,
 ) {
-	logAlways(input.title, "service: starting credential creation");
+	log.info("service: starting credential creation", {
+		title: input.title,
+	});
 
 	// Generate credential ID upfront so we can construct S3 paths before DB insert
 	const credentialId = randomUUID();
@@ -123,9 +125,9 @@ export async function createCredentialService(
 				// 5. Call Repository Layer
 				const result = await createCredentialRepo(dbPayload);
 
-				logAlways(
-					result.id,
+				log.info(
 					"service: credential creation completed successfully",
+					{ id: result.id },
 				);
 				return result;
 			})(),
@@ -133,7 +135,12 @@ export async function createCredentialService(
 			"Credential creation timed out after 30s",
 		);
 	} catch (error) {
-		logAlways(error, "service: error in createCredentialService");
+		log.error("service: error in createCredentialService", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw error;
 	}
 }

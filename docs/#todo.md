@@ -65,4 +65,7 @@ it use proper logging-scope. by the way, the err meta object should follow commo
 17. [types listings page] since our types is actually parent child relationship. i think, in our dedicated type listing page, we should not allow create type, delete type. because create-type can be done from credential create form. and delete will cause relationship issues in trees. so, in our type listings page, we will only do the listings and update operation.
     now i am actually wondering, how we should do the listings feature on this dedicated listings page...
     should we just simply and single handedly list each item independently even if it has child or if it is the child
-    or should we render the whole tree based on all the existing types for each credential. so like, for each credential, we will show the title and the types trees in the listings page in the single card
+    or should we render the whole tree based on all the existing types for each credential. so like, for each credential, we will show the title and the types trees in the listings page in the single card.
+    or do we do something else. since, our goal here is to only listings all the types and update any existing types label only if needed. and this is for the type listing ui part. update backend and frontend based on this logic
+    now the whole type listings page, similarly like favourite, trash page. we will have a heading and then a action block with refresh, select all checkbox only
+    then the listings card. the card should show credential title it belongs to and then nicely show hierachical order way the parent child types in a nice big way. with icons and stuffs

@@ -1,5 +1,5 @@
 import { encrypt } from "@backend/cipher/encrypt";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { processImage } from "@backend/utils/processImage";
 import { withTimeout } from "@backend/utils/withTimeout";
 import {
@@ -31,7 +31,9 @@ import { updateCredentialRepo, type TypePathEntry } from "../../repository/crede
 export async function updateCredentialService(
 	input: UpdateCredentialServiceInput,
 ): Promise<void> {
-	logAlways(input.credentialId, "service: starting credential update");
+	log.info("service: starting credential update", {
+		credentialId: input.credentialId,
+	});
 
 	try {
 		// Wrap expensive operations (S3 deletion, image processing, S3 uploads)
@@ -155,16 +157,21 @@ export async function updateCredentialService(
 					is_draft: input.is_draft,
 				});
 
-				logAlways(
-					input.credentialId,
+				log.info(
 					"service: credential update completed",
+					{ credentialId: input.credentialId },
 				);
 			})(),
 			30_000,
 			"Credential update timed out after 30s",
 		);
 	} catch (error) {
-		logAlways(error, "service: error in updateCredentialService");
+		log.error("service: error in updateCredentialService", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw error;
 	}
 }

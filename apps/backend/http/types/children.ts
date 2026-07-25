@@ -2,7 +2,7 @@ import type { BunRequest } from "bun";
 import { ResponseFactory } from "@backend/utils/response";
 import { getChildTypesRepo } from "../../repository/types/children";
 import { AppError } from "@backend/err/base";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 
 export async function typesChildren(req: BunRequest) {
 	try {
@@ -27,7 +27,12 @@ export async function typesChildren(req: BunRequest) {
 			path: req,
 		});
 	} catch (error) {
-		logAlways(error, "http: error in typesChildren controller");
+		log.error("http: error in typesChildren controller", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			return ResponseFactory.error({

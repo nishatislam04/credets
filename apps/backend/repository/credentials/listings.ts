@@ -1,6 +1,6 @@
 import { AppError } from "@backend/err/base";
 import { DatabaseError } from "@backend/err/database";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 
 export interface CursorPayload {
@@ -63,7 +63,12 @@ export async function getCredentialsListingsRepo(
 			LIMIT ${limit + 1}
 		`;
 	} catch (error) {
-		logAlways(error, "repo: credentials listings query failed");
+		log.error("repo: credentials listings query failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) throw error;
 

@@ -1,6 +1,6 @@
 import { AppError } from "@backend/err/base";
 import { verifyCSRF } from "@backend/http/csrf/verifyCSRF";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import type { BunRequest } from "bun";
 import { deleteCredentialService } from "../../services/credentials/delete";
@@ -52,7 +52,7 @@ export async function credentailDelete(req: Request) {
 		// Delegate to Service Layer
 		const result = await deleteCredentialService(credentialId);
 
-		logAlways(result.title, "http: credential deleted");
+		log.info("http: credential deleted", { title: result.title });
 
 		return ResponseFactory.success({
 			data: {},
@@ -62,7 +62,12 @@ export async function credentailDelete(req: Request) {
 			path: { url: req.url } as BunRequest,
 		});
 	} catch (error) {
-		logAlways(error, "http: error in credentailDelete controller");
+		log.error("http: error in credentailDelete controller", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			return ResponseFactory.error({

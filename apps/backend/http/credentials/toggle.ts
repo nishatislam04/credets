@@ -1,5 +1,5 @@
 import { AppError } from "@backend/err/base";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import { sql } from "@db/connection";
 import type { BunRequest } from "bun";
@@ -60,7 +60,7 @@ export async function credentialToggle(req: BunRequest) {
 			});
 		}
 
-		logAlways(credentialId, "http: credential toggled successfully");
+		log.info("http: credential toggled successfully", { credentialId });
 
 		return ResponseFactory.success({
 			data: {},
@@ -70,7 +70,12 @@ export async function credentialToggle(req: BunRequest) {
 			path: req,
 		});
 	} catch (error) {
-		logAlways(error, "http: error in credentialToggle controller");
+		log.error("http: error in credentialToggle controller", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			return ResponseFactory.error({

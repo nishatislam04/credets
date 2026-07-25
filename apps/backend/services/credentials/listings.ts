@@ -1,5 +1,5 @@
 import { JsonParseError } from "@backend/err/json-parse";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import {
 	type CredentialRow,
 	type CursorPayload,
@@ -69,7 +69,12 @@ export async function getCredentialsListingsService(
 			hasMore,
 		};
 	} catch (error) {
-		logAlways(error, "service: getCredentialsListingsService failed");
+		log.error("service: getCredentialsListingsService failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw error;
 	}
 }

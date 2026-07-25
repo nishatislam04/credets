@@ -1,4 +1,4 @@
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 import { AppError } from "@backend/err/base";
 import { DatabaseError } from "@backend/err/database";
@@ -7,7 +7,7 @@ import { NotFoundError } from "@backend/err/not-found";
 export async function deleteCredentialRepo(
 	credentialId: string,
 ): Promise<{ title: string }> {
-	logAlways(credentialId, "repo: starting soft-delete transaction");
+	log.info("repo: starting soft-delete transaction", { credentialId });
 
 	try {
 		return await sql.begin(async (sql) => {
@@ -29,7 +29,12 @@ export async function deleteCredentialRepo(
 			return { title: existing.title as string };
 		});
 	} catch (error) {
-		logAlways(error, "repo: soft-delete query failed");
+		log.error("repo: soft-delete query failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			throw error;

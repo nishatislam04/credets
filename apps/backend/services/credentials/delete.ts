@@ -1,4 +1,4 @@
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { deleteCredentialRepo } from "../../repository/credentials/delete";
 
 /**
@@ -8,19 +8,26 @@ import { deleteCredentialRepo } from "../../repository/credentials/delete";
 export async function deleteCredentialService(
 	credentialId: string,
 ): Promise<{ title: string }> {
-	logAlways(credentialId, "service: starting credential soft-deletion");
+	log.info("service: starting credential soft-deletion", {
+		credentialId,
+	});
 
 	try {
 		// Soft delete: mark as deleted in DB (does NOT delete from S3)
 		const result = await deleteCredentialRepo(credentialId);
 
-		logAlways(
-			credentialId,
+		log.info(
 			"service: credential soft-deleted successfully",
+			{ credentialId },
 		);
 		return result;
 	} catch (error) {
-		logAlways(error, "service: error in deleteCredentialService");
+		log.error("service: error in deleteCredentialService", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw error;
 	}
 }

@@ -1,5 +1,5 @@
 import { AppError } from "@backend/err/base";
-import { logAlways, logger } from "@backend/utils/logger";
+import { log, logger } from "@backend/utils/logger";
 import { ResponseFactory } from "@backend/utils/response";
 import { credentialsUpdateSchema } from "@credets/shared-schema/credentials/update";
 import type { BunRequest } from "bun";
@@ -95,7 +95,7 @@ export async function credentialUpdate(req: BunRequest) {
 			existingImagesKeep,
 		});
 
-		logAlways(credentialId, "http: credential updated successfully");
+		log.info("http: credential updated successfully", { credentialId });
 
 		return ResponseFactory.success({
 			data: {},
@@ -105,7 +105,12 @@ export async function credentialUpdate(req: BunRequest) {
 			path: req,
 		});
 	} catch (error) {
-		logAlways(error, "http: error in credentialUpdate controller");
+		log.error("http: error in credentialUpdate controller", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			return ResponseFactory.error({

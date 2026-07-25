@@ -1,5 +1,5 @@
 import { JsonParseError } from "@backend/err/json-parse";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import {
 	type TrashRow,
 	type CursorPayload,
@@ -89,7 +89,12 @@ export async function getTrashListingsService(
 
 		return { items: parsed, nextCursor, hasMore };
 	} catch (error) {
-		logAlways(error, "service: getTrashListingsService failed");
+		log.error("service: getTrashListingsService failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw error;
 	}
 }

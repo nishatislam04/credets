@@ -1,5 +1,5 @@
 import { JsonParseError } from "@backend/err/json-parse";
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import {
 	type DraftRow,
 	type CursorPayload,
@@ -62,7 +62,12 @@ export async function getDraftListingsService(
 
 		return { items: parsed, nextCursor, hasMore };
 	} catch (error) {
-		logAlways(error, "service: getDraftListingsService failed");
+		log.error("service: getDraftListingsService failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw error;
 	}
 }

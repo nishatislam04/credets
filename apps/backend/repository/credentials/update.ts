@@ -1,4 +1,4 @@
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 import { AppError } from "@backend/err/base";
 import { BadRequestError } from "@backend/err/bad-request";
@@ -79,7 +79,9 @@ async function resolveOrCreateTypePath(
 export async function updateCredentialRepo(
 	input: UpdateCredentialRepoInput,
 ): Promise<void> {
-	logAlways(input.credentialId, "repo: starting db transaction for update");
+	log.info("repo: starting db transaction for update", {
+		credentialId: input.credentialId,
+	});
 
 	try {
 		await sql.begin(async (sql) => {
@@ -202,7 +204,12 @@ export async function updateCredentialRepo(
 			}
 		});
 	} catch (error) {
-		logAlways(error, "repo: db update transaction failed");
+		log.error("repo: db update transaction failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			throw error;

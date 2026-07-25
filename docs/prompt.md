@@ -8,6 +8,50 @@
 
 ---
 
+## Logging Conventions
+
+Use the structured `log` object for all data operation logging. It outputs
+colorful formatted text in development and parseable JSON in production.
+
+```ts
+import { log } from "@backend/utils/logger";
+
+// Info / success — context keys at top level
+log.info("service: credential created", { credentialId, title });
+
+// Errors — use `err` key with standard shape
+log.error("http: credential creation failed", {
+  err: { message: error.message, name: error.name },
+  credentialId,
+});
+
+// Warnings
+log.warn("rate limit nearing", { current, limit });
+
+// Debug (dev-only, never in committed code)
+// log.debug("parsing payload", { raw });
+```
+
+### Scope prefixes
+Every log message should start with a scope prefix:
+- `http:` — HTTP handler layer
+- `service:` — business logic / service layer
+- `repo:` — database repository layer
+- `storage:` — S3 / file storage operations
+- `server:` — startup / server events
+
+### Error meta convention
+When logging errors, use the standard `err` shape:
+
+```
+err: { message: string; name?: string; stack?: string; code?: string }
+```
+
+Do NOT use `logAlways` for data operations — it is reserved for startup
+banners and critical boot events in `index.ts`.
+
+---
+
 **key feat**
 
 - Encrypted Credential Vault — Store sensitive credentials with AES encryption at rest. Flexible data input supports single labels, key-value pairs, and rich text sections via a Tiptap editor. Each credential can have a hierarchical type, multiple images, and a thumbnail.

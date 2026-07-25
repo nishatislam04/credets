@@ -1,6 +1,6 @@
 import { AppError } from "@backend/err/base";
 import { DatabaseError } from "@backend/err/database";
-import { logAlways, logger } from "@backend/utils/logger";
+import { log, logger } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 export interface CredentialDetailRow {
 	id: string;
@@ -61,7 +61,12 @@ export async function getCredentialDetailRepo(credentialId: string) {
 
 		return { credential, images };
 	} catch (error) {
-		logAlways(error, "repo: fetch credential detail queries failed");
+		log.error("repo: fetch credential detail queries failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			throw error;
@@ -95,7 +100,12 @@ export async function getTypeHierarchyRepo(
 		`;
 		return rows;
 	} catch (error) {
-		logAlways(error, "repo: failed to fetch type hierarchy");
+		log.error("repo: failed to fetch type hierarchy", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw new DatabaseError(error);
 	}
 }
@@ -107,7 +117,7 @@ export async function getTypeHierarchyRepo(
 export async function getCredentialImageUrlsRepo(
 	credentialId: string,
 ): Promise<CredentialImageUrlRow[]> {
-	logAlways(credentialId, "repo: fetching credential image URLs");
+	log.info("repo: fetching credential image URLs", { credentialId });
 
 	try {
 		return await sql<CredentialImageUrlRow[]>`
@@ -115,7 +125,12 @@ export async function getCredentialImageUrlsRepo(
 			WHERE credential_id = ${credentialId}
 		`;
 	} catch (error) {
-		logAlways(error, "repo: fetch credential image URLs failed");
+		log.error("repo: fetch credential image URLs failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			throw error;

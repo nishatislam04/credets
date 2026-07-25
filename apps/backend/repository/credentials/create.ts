@@ -1,4 +1,4 @@
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { sql } from "@db/connection";
 import { AppError } from "@backend/err/base";
 import { BadRequestError } from "@backend/err/bad-request";
@@ -78,7 +78,9 @@ async function resolveOrCreateTypePath(
 export async function createCredentialRepo(
 	input: CreateCredentialRepoInput,
 ): Promise<{ id: string }> {
-	logAlways(input.title, "repo: starting db transaction for create");
+	log.info("repo: starting db transaction for create", {
+		title: input.title,
+	});
 
 	try {
 		return await sql.begin(async (sql) => {
@@ -138,7 +140,12 @@ export async function createCredentialRepo(
 			return { id: credential_id };
 		});
 	} catch (error) {
-		logAlways(error, "repo: db insert query failed");
+		log.error("repo: db insert query failed", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 
 		if (error instanceof AppError) {
 			throw error;

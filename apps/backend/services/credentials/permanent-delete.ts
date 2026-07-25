@@ -1,4 +1,4 @@
-import { logAlways } from "@backend/utils/logger";
+import { log } from "@backend/utils/logger";
 import { permanentDeleteCredentialRepo } from "../../repository/credentials/permanent-delete";
 
 /**
@@ -8,18 +8,23 @@ import { permanentDeleteCredentialRepo } from "../../repository/credentials/perm
 export async function permanentDeleteCredentialService(
 	credentialId: string,
 ): Promise<{ title: string }> {
-	logAlways(credentialId, "service: starting permanent-delete");
+	log.info("service: starting permanent-delete", { credentialId });
 
 	try {
 		const result = await permanentDeleteCredentialRepo(credentialId);
 
-		logAlways(
-			credentialId,
+		log.info(
 			"service: credential permanently deleted successfully",
+			{ credentialId },
 		);
 		return result;
 	} catch (error) {
-		logAlways(error, "service: error in permanentDeleteCredentialService");
+		log.error("service: error in permanentDeleteCredentialService", {
+			err: {
+				message:
+					error instanceof Error ? error.message : "unknown error",
+			},
+		});
 		throw error;
 	}
 }
