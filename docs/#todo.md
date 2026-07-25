@@ -3,6 +3,7 @@
    the max size should be for create and update is 10mb
 
 7. No Request Timeout: on backend, we will wrap our expensive, time consuming functionality with a `withtimeout()` util function with abort controller. for now, i think only the create, update image processing need to be wrapped up with this util function. with a 30second timeout. and handle what should happen if any operation exceed this 30s window
+
 8. Production Logging is Not Structured:
    Your `logAlways` function works, but it outputs formatted text with ANSI colors and `Bun.inspect` — great for local development, but **unparseable by log aggregation services** (Render's built-in log viewer, Better Stack, etc.).
 
@@ -62,3 +63,6 @@ it use proper logging-scope. by the way, the err meta object should follow commo
 16. there is some cache issues. from credential listings - single page view, if i trash any item and then i press back button i see that as expectedly the item disappear from the credential listings. but then i select the trash item from navbar and trash listings is open. but i dont see the new trash item. when i press the refresh button. then i see the new item. which is not how it should be working. when we trash it and go to trash page afterwards, we should be able to see the item in trash listings there automatically without refreshing
 
 17. [types listings page] since our types is actually parent child relationship. i think, in our dedicated type listing page, we should not allow create type, delete type. because create-type can be done from credential create form. and delete will cause relationship issues in trees. so, in our type listings page, we will only do the listings and update operation.
+    now i am actually wondering, how we should do the listings feature on this dedicated listings page...
+    should we just simply and single handedly list each item independently even if it has child or if it is the child
+    or should we render the whole tree based on all the existing types for each credential. so like, for each credential, we will show the title and the types trees in the listings page in the single card
