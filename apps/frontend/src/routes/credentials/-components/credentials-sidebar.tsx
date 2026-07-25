@@ -21,8 +21,11 @@ import {
 	Settings,
 	LogOut,
 	X,
+	Sun,
+	Moon,
 } from "lucide-react";
 import { Link, useLocation } from "@tanstack/react-router";
+import { useTheme } from "#/hooks/theme-provider";
 import { useSidebar } from "#/components/ui/sidebar";
 
 const navItems = [
@@ -40,6 +43,7 @@ const navItems = [
 export function CredentialsSidebar() {
 	const location = useLocation();
 	const { isMobile, setOpenMobile } = useSidebar();
+	const { theme, setTheme } = useTheme();
 
 	/**
 	 * Determine if a nav item should be marked as active.
@@ -82,6 +86,16 @@ export function CredentialsSidebar() {
 						<span className="text-sm font-medium text-muted-foreground">
 							Credets
 						</span>
+						{/* Theme toggle — right beside the logo text */}
+						<button
+							type="button"
+							onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+							className="flex size-6 items-center justify-center rounded-lg text-sidebar-foreground/40 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+							aria-label="Toggle theme"
+						>
+							<Sun className="size-3 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+							<Moon className="absolute size-3 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+						</button>
 					</div>
 					{/* Close button — mobile only */}
 					{isMobile && (
