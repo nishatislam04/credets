@@ -1,13 +1,3 @@
-5. [favorite page] just like our existing (previously implemented) trash route, implement this route similarly as ui level and then respect the following requirements. follow my existing route creation, component structuring etc strategy. so that, the codebase try to be consistent structure. here we will show all the favorite items in a dedicated page
-   create a content header and then an action ui block. which will hold
-   a search input bar like listings page [only ui]
-   refresh btn
-   select all
-   delete all with confirmation dialog
-   and then the card item would just show the title, short description and type only
-   and clicking this item would fire up our single view page with selected item
-   and clicking back btn would navigate back us to favorite listings page
-
 6. No Request Body Size Limits: add size validation at the start of create/update handlers
    so that our free tier services does not exhaust or oom or something like that
    the max size should be for create and update is 10mb
@@ -41,7 +31,7 @@ logJSON("error", "delete credential error", { error: error instanceof Error ? er
 ```
 
 Keep `logAlways` for startup banners and critical server events, but use structured JSON for data operation logging.
-update my backend with this requirements. because we will badly need this
+update my backend with this requirements. because we will be badly need this soon. as i will introduce logging services etc. but! if this logjson approach replace my logalways approach... when i am in development, i will probably see simple colorless js object, right? but its nice to see the old colorful log output in dev server. but in other log service, this logging approach is not acceptable. looks like we need to do something quite intelligents here in this scenario
 while you are at it, update the ai agent instructions so that when it write or update any endpoint,
 it use proper logging-scope. by the way, the err meta object should follow common convension for consistent
 
@@ -60,3 +50,15 @@ it use proper logging-scope. by the way, the err meta object should follow commo
 
 11. theres this weird behavior on sidebar i have noticed. like for example: in single view page, in big viewport,
     i have collapsed the sidebar. then i press the back button to go to credentials listings page. and bam! the sidebar is open again. the sidebar state actually does not persist. we need to fix that. search shadcn docs to fix it. they might be have a guide on this issue
+
+12. from favorite route, if we press back btn we should be navigate back to favorite listings page. but we are back to credentials listings page
+
+13. add night mode toggle btn in sidebar top header with right beside the title text
+
+14. there is some cache issues. from credential listings - single page view, if i draft any item and then i press back button i see that as expectedly the item disappear from the credential listings. but then i select the draft item from navbar and draft listings is open. but i dont see the new draft item. when i press the refresh button. then i see the new item. which is not how it should be working. when we draft it and go to draft page afterwards, we should be able to see the item in draft listings there automatically without refreshing
+
+15. there is some cache issues. from credential listings - single page view, if i fav any item and then i press back button i see that as expectedly the item is favorite from the credential listings. but then i select the fav item from navbar and fav listings is open. but i dont see the new fav item. when i press the refresh button. then i see the new item. which is not how it should be working. when we fav it and go to fav page afterwards, we should be able to see the item in fav listings there automatically without refreshing
+
+16. there is some cache issues. from credential listings - single page view, if i trash any item and then i press back button i see that as expectedly the item disappear from the credential listings. but then i select the trash item from navbar and trash listings is open. but i dont see the new trash item. when i press the refresh button. then i see the new item. which is not how it should be working. when we trash it and go to trash page afterwards, we should be able to see the item in trash listings there automatically without refreshing
+
+17. [types listings page] since our types is actually parent child relationship. i think, in our dedicated type listing page, we should not allow create type, delete type. because create-type can be done from credential create form. and delete will cause relationship issues in trees. so, in our type listings page, we will only do the listings and update operation.

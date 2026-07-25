@@ -6,7 +6,20 @@ import type { BunRequest } from "bun";
 import { updateCredentialService } from "../../services/credentials/update";
 import { parseAndValidateCredential } from "../../validation/credential/validator";
 
+const MAX_BODY_SIZE = 10 * 1024 * 1024; // 10MB
+
 export async function credentialUpdate(req: BunRequest) {
+	const contentLength = req.headers.get("content-length");
+	if (contentLength && Number.parseInt(contentLength, 10) > MAX_BODY_SIZE) {
+		return ResponseFactory.error({
+			error: "Request body too large",
+			type: "bad-request",
+			message: "Request body must not exceed 10MB",
+			status: 413,
+			path: req,
+		});
+	}
+
 	const result = await parseAndValidateCredential(req, credentialsUpdateSchema);
 
 	logger(result);
