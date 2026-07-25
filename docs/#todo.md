@@ -69,3 +69,6 @@ it use proper logging-scope. by the way, the err meta object should follow commo
     or do we do something else. since, our goal here is to only listings all the types and update any existing types label only if needed. and this is for the type listing ui part. update backend and frontend based on this logic
     now the whole type listings page, similarly like favourite, trash page. we will have a heading and then a action block with refresh, select all checkbox only
     then the listings card. the card should show credential title it belongs to and then nicely show hierachical order way the parent child types in a nice big way. with icons and stuffs
+    and clicking on any of this card, would simply render a shadcn big wide dialog. where each type label can be editable and updateble.
+    here is another case, in independently, some singular type may exist twice or multiple times in types table.
+    so, from a specific credential, if we update that specific type. it should only update that type only. not the other. we need to make sure that

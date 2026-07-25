@@ -18,14 +18,28 @@ export class ResponseFactory {
 	 * Get CORS headers based on environment
 	 * Allows your frontend origin to access the backend
 	 */
+	/**
+	 * Get CORS + security headers.
+	 * These are applied to every response the server sends.
+	 */
 	static getCorsHeaders(): Record<string, string> {
 		const allowedOrigin =
 			process.env.FRONTEND_APP || "https://credets.onrender.com";
 		return {
+			// ── CORS ────────────────────────────────────────────────
 			"Access-Control-Allow-Origin": allowedOrigin,
 			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
 			"Access-Control-Allow-Headers": "Content-Type, Authorization",
 			"Access-Control-Allow-Credentials": "true",
+
+			// ── Security ────────────────────────────────────────────
+			"Strict-Transport-Security":
+				"max-age=63072000; includeSubDomains; preload",
+			"X-Content-Type-Options": "nosniff",
+			"X-Frame-Options": "DENY",
+			"Referrer-Policy": "strict-origin-when-cross-origin",
+			"Permissions-Policy":
+				"camera=(), microphone=(), geolocation=(), interest-cohort=()",
 		};
 	}
 	/**
