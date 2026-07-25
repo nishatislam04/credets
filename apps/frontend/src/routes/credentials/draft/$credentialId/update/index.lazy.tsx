@@ -197,6 +197,7 @@ function RouteComponent() {
 				is_draft: draftIntent,
 			}).then(async () => {
 				queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
+				queryClient.invalidateQueries({ queryKey: ["draft-listings"] });
 				queryClient.invalidateQueries({ queryKey: ["types_listings"] });
 				queryClient.invalidateQueries({ queryKey: ["type_children"] });
 				await router.invalidate();

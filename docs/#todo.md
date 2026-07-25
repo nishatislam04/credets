@@ -24,5 +24,3 @@
     and clicking on any of this card, would simply render a shadcn big wide dialog. where each type label can be editable and updateble.
     here is another case, in independently, some singular type may exist twice or multiple times in types table.
     so, from a specific credential, if we update that specific type. it should only update that type only. not the other. we need to make sure that
-
-15. the global search bar width issue in bigger viewport: i have updated the global search bar width in mobile view and its width in mobile view is how i expecting it to be. but in bigger viewport, the global serachbar in header, looks quite small. i want you to increase its width in big viewport

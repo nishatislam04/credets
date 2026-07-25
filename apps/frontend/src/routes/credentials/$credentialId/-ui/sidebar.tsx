@@ -52,8 +52,10 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 					description: `Could not update ${field === "is_draft" ? "draft" : "favourite"} status`,
 				});
 			} else {
-				// Invalidate listings cache so the listing page shows updated state
+				// Invalidate caches so the updated state is reflected everywhere
 				queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
+				queryClient.invalidateQueries({ queryKey: ["draft-listings"] });
+				queryClient.invalidateQueries({ queryKey: ["favourite-listings"] });
 				const label = field === "is_draft" ? "Draft" : "Favourite";
 				gooeyToast.success(`${label} updated`, {
 					description: value
