@@ -42,6 +42,7 @@ export function DeleteButton({
 			});
 
 			queryClient.invalidateQueries({ queryKey: ["credentials-listings"] });
+			queryClient.invalidateQueries({ queryKey: ["trash-listings"] });
 			navigate({ to: "/credentials" });
 		} catch (err) {
 			gooeyToast.error("Failed to delete", {
