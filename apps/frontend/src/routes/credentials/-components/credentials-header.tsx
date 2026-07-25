@@ -68,7 +68,7 @@ export function CredentialsHeader() {
 					className="relative flex min-w-0 flex-1 items-center justify-end"
 					ref={dropdownRef}
 				>
-					<div className="flex items-center w-full max-w-[400px] md:w-auto">
+					<div className="flex items-center w-full max-w-[400px] md:max-w-xl">
 						{/* Search input — fills available space */}
 						<div className="relative flex-1">
 							<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/40" />
