@@ -14,6 +14,8 @@ import { credentialUpdate } from "./http/credentials/update";
 import { generateCSRF } from "./http/csrf/generateCSRF";
 import { typesChildren } from "./http/types/children";
 import { typesListings } from "./http/types/listings";
+import { typesListingsWithCredentials } from "./http/credentials/types-listings";
+import { typeUpdate } from "./http/types/update";
 import { logAlways } from "./utils/logger";
 import { ResponseFactory } from "./utils/response";
 // import indexHtml from "./index.html";
@@ -62,6 +64,8 @@ Bun.serve({
 		// types
 		"/types/listings": () => typesListings(),
 		"/types/children": (req) => typesChildren(req),
+		"/credentials/types-listings": (req) => typesListingsWithCredentials(req),
+		"/types/:typeId/update": (req) => typeUpdate(req),
 	},
 
 	error(error) {

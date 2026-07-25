@@ -31,7 +31,7 @@ import { useSidebar } from "#/components/ui/sidebar";
 const navItems = [
 	{ label: "Home", icon: Home, to: "/" as const },
 	{ label: "Credentials", icon: KeyRound, to: "/credentials" as const },
-	{ label: "Types", icon: Tags, to: "#" },
+	{ label: "Types", icon: Tags, to: "/credentials/types" as const },
 	{ label: "Draft", icon: FileEdit, to: "/credentials/draft" as const },
 	{ label: "Favorite", icon: Heart, to: "/credentials/favourite" as const },
 	{ label: "Trash", icon: Trash2, to: "/credentials/trash" as const },
