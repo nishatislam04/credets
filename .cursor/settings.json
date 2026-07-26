@@ -1,6 +1,36 @@
 {
   "plugins": {
+    "agent-compatibility": {
+      "enabled": true
+    },
+    "continual-learning": {
+      "enabled": true
+    },
+    "cursor-team-kit": {
+      "enabled": true
+    },
+    "render": {
+      "enabled": true
+    },
+    "neon-postgres": {
+      "enabled": true
+    },
     "supabase": {
+      "enabled": true
+    },
+    "claude-plugins-official/frontend-design": {
+      "enabled": true
+    },
+    "resend": {
+      "enabled": true
+    },
+    "context7-plugin": {
+      "enabled": true
+    },
+    "shadcn": {
+      "enabled": true
+    },
+    "react-doctor": {
       "enabled": true
     }
   }
