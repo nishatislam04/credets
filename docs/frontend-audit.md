@@ -43,7 +43,7 @@ File-based routing setup and router configuration analysis.
 - Root route has `head` meta (title, OG tags, robots)
 - `pendingComponent` on loading routes (credentials/index.tsx)
 
-#### ⚠️ Issue: Double Router Creation**
+#### ⚠️ Issue: Double Router Creation
 
 ```ts
 // main.tsx
@@ -115,7 +115,7 @@ const queryClient = new QueryClient({
 - Proper query key conventions (`["credentials-listings"]`, `["draft-listings"]`)
 - `invalidateQueries` after mutations to refresh listings
 
-#### ⚠️ Issue: Stale Data Risk**
+#### ⚠️ Issue: Stale Data Risk
 
 20-hour stale time means users may see stale data for up to 20 hours after another session modifies
 credentials. For a single-user app this is less critical, but if the backend or S3 data changes
@@ -263,6 +263,19 @@ Now using shadcn's base-ui toast wrapper from `#/components/ui/toast` with:
 - Promise/loading/error/success states
 - Convenience API: `toast.success()`, `.error()`, `.warning()`, `.info()`, `.promise()`
 
+#### ⚠️ @Base-Ui/react Version Risk
+
+The project uses `@base-ui/react@^1.5.0`. Base UI is a relatively new library (replacing the older
+Radix UI v2 beta), and its API is still evolving. Key risks:
+
+- **Breaking changes between minor versions** — Pin to a specific version (e.g., `"1.5.0"` without
+`^`) to prevent unexpected breakage from `bun update`.
+- **Missing component variants** — Some shadcn/ui presets assume Radix UI patterns; Base UI
+variants may differ. Verify each component works after updates.
+- **Swipe-to-dismiss bug** — Base UI toast animations for swipe dismissals can interfere with
+top-positioned toasts. The current `translateY(-150%)` fix addresses this, but future versions may
+change the animation API.
+
 ---
 
 ## 6. Performance Analysis
@@ -306,10 +319,6 @@ mode. Run it regularly to track bundle growth.
 ---
 
 ## 7. Styling & CSS
-
-Tailwind CSS v4 setup, theming, and CSS organization.
-
-### CSS
 
 Tailwind CSS v4 setup, theming, and CSS organization.
 
@@ -383,7 +392,7 @@ The project has **two** import aliases:
 - `#/` — via `package.json` `imports` field (preferred)
 - `@/` — via `tsconfig.json` `paths`
 
-#### ⚠️ Issue: Inconsistent Usage**
+#### ⚠️ Issue: Inconsistent Usage
 
 ```tsx
 // Some files use #/:
@@ -415,6 +424,67 @@ explicit preference and works with both Bun and bundler resolution.
 overflow on very small screens
 2. **Consider bottom navigation** — The sidebar is hidden on mobile; ensure all navigation paths are
 accessible via the top header
+
+---
+
+## 11. Render.com SPA Deployment Guide
+
+Credets is deployed on Render as a static site. Here are specific considerations for SPA hosting:
+
+### 11.1 SPA Routing (Redirects/Rewrites)
+
+Render's static sites do NOT use a `_redirects` file (like Netlify). Instead, you configure
+redirects in the **Dashboard** or in `render.yaml`:
+
+```yaml
+# In render.yaml under the frontend service:
+routes:
+  - source: /*
+    destination: /index.html
+    action: rewrite
+```
+
+> **Why this is required:** Without this rule, navigating directly to `/credentials/create` or
+> refreshing the page on any route other than `/` will return a 404 from Render's CDN. The rewrite
+> instructs Render to serve `index.html` for all paths, letting your React Router handle the
+> actual routing.
+
+### 11.2 Caching Strategy
+
+Set different cache headers for hashed assets vs the entry HTML:
+
+```yaml
+headers:
+  - path: /assets/*
+    name: Cache-Control
+    value: "public, max-age=31536000, immutable"  # 1 year — hashed files never change
+  - path: /*
+    name: Cache-Control
+    value: "public, max-age=300, must-revalidate"  # 5 min — HTML must check for new deploys
+```
+
+> **Why two rules:** Vite generates hashed filenames (`main.abc123.js`). These are immutable — once
+> deployed, they never change. But `index.html` must fetch fresh on each deploy, so short cache +
+> `must-revalidate` ensures users get the latest JS bundle.
+
+### 11.3 Preview Deploys (PR Branches)
+
+Enable automatic preview environments in `render.yaml`:
+
+```yaml
+previews:
+  generation: automatic
+```
+
+Each PR gets a unique URL. Include `[skip preview]` in PR titles to skip builds for documentation
+or minor changes.
+
+### 11.4 Current `public/` Directory
+
+The project already has:
+
+- `public/_redirects` — This is a Netlify convention, **NOT used by Render**. Remove or ignore it.
+- `public/manifest.json`, `public/robots.txt` — These are correctly in the static publish root.
 
 ---
 

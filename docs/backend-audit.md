@@ -125,16 +125,26 @@ debug call left in committed code.
 
 **📋 Recommendations:**
 
-1. **Add retry logic for S3 uploads** — S3 operations can fail transiently:
+1. **Add retry logic for S3 uploads** — S3 operations can fail transiently (especially on Supabase
+free tier with cold storage). Add exponential backoff:
 
    ```ts
    async function uploadWithRetry(key: string, buffer: Uint8Array, retries = 3) {
      for (let i = 0; i < retries; i++) {
-       try { return await uploadToS3(key, buffer, "image/webp"); }
-       catch (e) { if (i === retries - 1) throw e; await sleep(1000 * (i + 1)); }
+       try {
+         return await uploadToS3(key, buffer, "image/webp");
+       } catch (e) {
+         if (i === retries - 1) throw e;
+         const delay = Math.min(1000 * 2 ** i, 5000); // exponential backoff: 1s, 2s, 4s
+         await sleep(delay);
+       }
      }
    }
    ```
+
+   > **Note:** The 30s `withTimeout` wrapper means retries must fit within that budget. With 3
+   retries at 1+2+4=7s of sleep, budget is tight — consider reducing image size or increasing
+   timeout if retries become necessary.
 
 2. **Consider background image processing** — For large uploads, process images in a background job
 instead of blocking the HTTP response.
@@ -227,6 +237,26 @@ export const sql: SQL = new SQL({
 
 2. **Consider connection retry** — For Neon's cold-start (serverless DB), a retry with backoff would
 make the first request after idle more reliable.
+
+#### ⚠️ idleTimeout Collision Warning
+
+`Bun.serve({ idleTimeout: 35 })` in `index.ts` closes HTTP connections idle for 35 seconds. The
+service layer wraps long operations in `withTimeout(30_000)` which fires at 30 seconds. These are
+**dangerously close** — if the app's 30s timeout guard and Bun's 35s idleTimeout race, Bun may
+close the connection before the error response is sent, causing a connection reset from the user's
+perspective.
+
+**Fix:** Increase `Bun.serve` `idleTimeout` to **60**:
+
+```ts
+Bun.serve({
+  idleTimeout: 60, // Was 35 — needs room above the 30s service timeout
+  // ...
+});
+```
+
+**Why this matters:** If the connection drops before the timeout guard returns, the user gets a
+network error instead of a well-formed 408/503 JSON response with a helpful message.
 
 ---
 
@@ -332,14 +362,70 @@ debug call that will produce noisy output in production.
 
 - `encrypt.ts` — Encrypts credential data before storage
 - `decrypt.ts` — Decrypts data on read
-with the correct CORS headers so the actual request is allowed through.
 
-**Proper use of** AES encryption for sensitive credential data. This is a key differentiator for the
-credential manager app.
+**✅ Already doing right:**
+
+- Proper use of AES encryption for sensitive credential data
+- Encryption happens before DB write (defense in depth)
+- Decryption on read — plaintext never stored
+- Separate key management (`key.ts`) isolates crypto material
+
+**📋 Recommendations:**
+
+1. **Add key rotation support** — Store a key version alongside the data so you can rotate keys
+without re-encrypting all existing records at once:
+
+   ```ts
+   interface EncryptedData {
+     version: number;
+     iv: string;
+     data: string;
+   }
+   ```
+
+2. **Add a `decrypt` method to the repository layer** — Currently decryption happens at the service
+layer. For audit logging or search indexing, a repository-level decrypt wrapper could centralize
+access patterns.
 
 ---
 
-## 7. What You're Already Doing Well
+## 7. Zod V4 Usage Notes
+
+The project uses **Zod v4** (`^4.4.3`) which has significant improvements over v3:
+
+### Key V4 Features to Leverage
+
+1. **`z.output<>` type inference** — Instead of duplicating types in `shared-types`, derive them
+directly from schemas:
+
+   ```ts
+   // shared-schema/src/credentials/create.ts
+   export const createCredentialSchema = z.object({ title: z.string(), ... });
+   export type CreateCredential = z.output<typeof createCredentialSchema>;
+
+   // shared-types/src/credentials/create.ts — may be redundant if you export from schema!
+   ```
+
+2. **`z.input<>` for form defaults** — Zod v4's input/output distinction:
+
+   ```ts
+   // Input type (what the user submits) — may allow partial/transformed values
+   type FormInput = z.input<typeof schema>;
+   // Output type (what passes validation) — fully resolved
+   type ValidatedData = z.output<typeof schema>;
+   ```
+
+3. **Zod v4 error format** — Zod v4 changed error shaping slightly. The project uses a custom
+`formatZodError` utility — ensure it's tested against v4's error structure.
+
+### ⚠️ Migration Note
+
+Zod v4 is not backward-compatible with v3 in some edge cases (e.g., `z.unknown()` returns
+`unknown` instead of `any`). Verify all schemas still validate correctly after any version bump.
+
+---
+
+## 8. What You're Already Doing Well
 
 | Practice | Why It Matters |
 | ---------- | --------------- |
@@ -356,11 +442,12 @@ credential manager app.
 
 ---
 
-## 8. Quick Wins (By Priority)
+## 9. Quick Wins (By Priority)
 
 1. **Remove `logger()` from `update.ts`** — Stray dev-only debug call
 2. **Deduplicate `resolveOrCreateTypePath`** — Identical code in create.ts and update.ts
-3. **Add UUID validation** for credentialId params
-4. **Add rate limiting middleware** — The error class exists, just wire it up
-5. **Document `sql.unsafe()` reasoning** with a prominent warning comment
-6. **Add request correlation IDs** — Makes log debugging much easier
+3. **Fix idleTimeout collision** — Change `idleTimeout: 35` to `idleTimeout: 60` in `index.ts`
+4. **Add UUID validation** for credentialId params
+5. **Add rate limiting middleware** — The error class exists, just wire it up
+6. **Document `sql.unsafe()` reasoning** with a prominent warning comment
+7. **Add request correlation IDs** — Makes log debugging much easier

@@ -95,6 +95,21 @@ Linting and formatting rules configured for the project.
 
 ### 3.1 Current Setup
 
+Current formatter and linter configuration with recommendations for improvement.
+
+#### ⚠️ Schema Version Mismatch
+
+The `biome.json` `$schema` references `https://biomejs.dev/schemas/2.4.5/schema.json` but the
+installed version is `2.5.4`. This can cause the IDE to miss new options or show stale docs.
+
+**Fix:** Update the schema URL:
+
+```json
+"$schema": "https://biomejs.dev/schemas/2.5.4/schema.json"
+```
+
+Or better, remove the `$schema` line entirely — Biome auto-detects it.
+
 ```json
 {
   "formatter": { "indentStyle": "tab", "lineWidth": 80 },
@@ -154,7 +169,7 @@ Dependencies, version management, and catalog configuration.
 | --------- | --------- | ------- |
 | `@biomejs/biome` | 2.5.4 | Latest — great |
 | `zod` (catalog) | ^4.4.3 | Latest v4 — excellent DX |
-| `typescript` (catalog) | ^7.0.2 | Very new — ensure Bun compatibility |
+| `typescript` (catalog) | ^7.0.2 | Go-based native compiler — 8-12x faster, no programmatic API |
 | `@types/bun` | latest | Bundled type definitions |
 
 **✅ Already doing right:**
@@ -171,6 +186,23 @@ scripts
 `dotenv` needed
 3. **Review Bun.lock regularly** — `bun.lock` can grow stale; run `bun install --frozen-lockfile` in
 CI
+
+#### ⚠️ TypeScript 7 Compatibility Note
+
+TypeScript 7.0 is stable (released July 2026) with a **complete rewrite in Go** for 8-12x faster
+type-checking. Key implications:
+
+- **No programmatic API** — Tools like `typescript-eslint`, `ts-morph`, or `ts-patch` that use
+TypeScript's JS API won't work with TS7. Install TS6 alongside via npm alias:
+
+  ```json
+  "typescript6": "npm:typescript@~6.0"
+  ```
+
+- **Bun is unaffected** — Bun uses its own Zig-based TypeScript parser for execution. Bun doesn't
+use `tsc` at runtime.
+- **`@types/bun` must match** — Ensure `@types/bun` version aligns with whatever TypeScript version
+you use for CLI type-checking (`npx tsc --noEmit`).
 
 ---
 
@@ -261,7 +293,7 @@ Render platform configuration and deployment strategy.
 ### 7.1 Current Setup (`render.yaml`)
 
 - Backend: Docker runtime on free plan, Singapore region
-- Frontend: Static site (separate service)
+- Frontend: Static site (separate service, **not defined in render.yaml**)
 - PostgreSQL: Neon DB (external)
 
 **✅ Already doing right:**
@@ -274,10 +306,54 @@ Render platform configuration and deployment strategy.
 **📋 Recommendations:**
 
 1. **Add a frontend service to `render.yaml`** — Currently only backend is defined in the Render
-config
-2. **Configure `PRISMA` / `DB_TLS` explicitly** — Already done via `DB_TLS: "true"`
-3. **Set `NODE_ENV` to production** — Already done
-4. **Consider Render's auto-deploy** — Branch matching already configured (`branch: main`)
+config. A complete `render.yaml` for the frontend static site:
+
+   ```yaml
+   services:
+     - type: web
+       name: credets-frontend
+       runtime: static
+       buildCommand: cd apps/frontend && bun install && bun run build
+       staticPublishPath: /apps/frontend/dist
+       routes:
+         - source: /*
+           destination: /index.html
+           action: rewrite
+       headers:
+         - path: /assets/*
+           name: Cache-Control
+           value: "public, max-age=31536000, immutable"
+         - path: /*
+           name: Cache-Control
+           value: "public, max-age=300, must-revalidate"
+       previews:
+         generation: automatic
+   ```
+
+   > **Why this matters:** Without the `routes.rewrite` rule, direct URL access (e.g.,
+   `/credentials/create`) returns a 404 from Render's static site because there's no actual file at
+   that path. The rewrite sends all requests to `index.html` so your SPA router handles them.
+2. **Preview deploys for PR branches** — With `previews.generation: automatic`, every PR gets a
+unique preview URL. Include `[skip preview]` in PR titles for minor changes.
+3. **Configure `PRISMA` / `DB_TLS` explicitly** — Already done via `DB_TLS: "true"`
+4. **Set `NODE_ENV` to production** — Already done
+5. **Consider Render's auto-deploy** — Branch matching already configured (`branch: main`)
+
+#### Server idleTimeout Consideration
+
+`Bun.serve({ idleTimeout: 35 })` closes idle connections after 35 seconds. The service layer has a
+30-second timeout guard (`withTimeout`). This is **dangerously close** — if the timeout guard and
+idleTimeout race, Bun may close the connection before the error response is sent:
+
+```text
+Time:  0s       10s       20s       30s       35s
+      ├──────────┼──────────┼──────────┼──────────┤
+      Request    Processing...        30s guard   35s idleTimeout
+                                      fires       closes connection
+```
+
+**Recommendation:** Increase `idleTimeout` to **60s** to ensure the application's timeout guard
+(30s) always fires first and returns a proper error response.
 
 ---
 
@@ -301,6 +377,21 @@ rumdl configuration and linting rules for documentation.
 ---
 
 ## 9. Security Practices
+
+Current security protections and additional hardening recommendations.
+
+### Bun.serve idleTimeout & Security
+
+The `idleTimeout: 35` setting in `Bun.serve()` controls how long a connection stays open without
+data flow. This is a security-relevant setting:
+
+- **Too low (< 30s):** Bun may kill a legitimate request before the 30s service timeout fires,
+causing a connection reset instead of a graceful error.
+- **Too high (> 120s):** Risk of resource exhaustion from slowloris-style attacks.
+- **Sweet spot:** 60s — gives the app timeout guard (30s) room to fire first, while still
+protecting against idle connections.
+
+**Fix:** Change `idleTimeout: 35` to `idleTimeout: 60` in `apps/backend/index.ts`.
 
 **✅ Already doing right:**
 
