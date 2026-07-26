@@ -195,12 +195,6 @@ line_length = 100       # Maximum line length (overrides global line-length)
 code_blocks = false     # Skip code blocks (default: false)
 tables = false          # Skip tables (default: false)
 headings = false        # Skip headings (default: false)
-headers = false         # Skip headings (deprecated, use headings)
-
-# MD027 – Multiple spaces blockquote
-# https://rumdl.dev/md027/
-[MD027]
-code_blocks = false  # Skip code blocks
 
 
 # =============================================================================
@@ -249,8 +243,7 @@ style = "backtick"  # Options: backtick, tilde, consistent
 # MD052 – Reference links and images should be defined
 # https://rumdl.dev/md052/
 [MD052]
-shortcut = true   # Allow shortcut links (e.g., [text])
-collapsed = true  # Allow collapsed links (e.g., [text][])
+shortcut-syntax = true  # Allow shortcut links (e.g., [text])
 
 
 # =============================================================================
@@ -263,12 +256,7 @@ collapsed = true  # Allow collapsed links (e.g., [text][])
 # MD055 – Table pipe style
 # https://rumdl.dev/md055/
 [MD055]
-style = "space"  # Options: leading, space, consistent
-
-# MD056 – Table column count
-# https://rumdl.dev/md056/
-[MD056]
-allow_missing = true  # Allow missing columns in table rows
+style = "leading-and-trailing"  # Require pipes at start and end of table rows
 
 
 # =============================================================================
@@ -278,29 +266,3 @@ allow_missing = true  # Allow missing columns in table rows
 # See: https://rumdl.dev/rules/#footnote-rules
 # =============================================================================
 
-# MD067 – Footnote definition order
-# https://rumdl.dev/md067/
-[MD067]
-order = "normal"  # Options: normal, reverse
-
-
-# =============================================================================
-# SEVERITY OVERRIDES
-# =============================================================================
-# Override default severities for specific rules.
-# Valid values: "error", "warning", "info"
-# See: https://rumdl.dev/rules/#configuring-severity
-# =============================================================================
-
-# Promote critical rules to "error" severity
-[severity]
-MD001 = "error"  # Heading increment
-MD011 = "error"  # Reversed link syntax
-MD024 = "error"  # Duplicate headings
-MD025 = "error"  # Multiple H1 elements
-MD042 = "error"  # Empty links
-MD045 = "error"  # Missing alt text
-MD051 = "error"  # Invalid link fragments
-MD057 = "error"  # Links to non-existent files
-MD066 = "error"  # Undefined footnote references
-MD068 = "error"  # Empty footnote definitions

@@ -36,8 +36,7 @@ with something like
 7. if cache data exist and max-age is not expired, check if the cache data need to be decrypted
 8. if no need decryption, simply load it
 9. if need decrypt, look up in the store for password
-10. if password exist in store, use it to auto decrypt cache. [below failed attempt](multiple
-password failed attempt)
+10. if password exist in store, use it to auto decrypt cache. [below failed attempt](#multiple-password-failed-attempt)
 11. if password does not exist in store, prompt user
 12. after success fetching operation, we will check if the user is opt into local-cache system or
 not

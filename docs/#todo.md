@@ -8,8 +8,8 @@
    we will support showing multiple toast
    also add offset props. so, if needed, i will update it later
    this toast should be sync with our theme state
-   (shadcn guide):[https://ui.shadcn.com/docs/components/base/toast]
-   (baseui toast docs):[https://base-ui.com/react/components/toast]
+   - [shadcn guide](https://ui.shadcn.com/docs/components/base/toast)
+   - [baseui toast docs](https://base-ui.com/react/components/toast)
 
 3. i want you to scan my whole repo. the root, the backend, the frontend
    and based on best practises, security practises, good coding practises, single responsibilty, tanstack

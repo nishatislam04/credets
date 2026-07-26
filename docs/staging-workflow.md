@@ -2,7 +2,7 @@
 
 this is the staging guide. so that we can feel production here in local environment!
 
-## Step 1 — Create a Neon Branch[One Time]
+## Step 1 — Create a Neon Branch (One Time)
 
 Neon lets you create an instant copy of your production database for free.
 
@@ -35,7 +35,7 @@ cd apps/frontend/.env.staging.example apps/frontend/.env.staging
 
 update `neon-connection-string` in /root & /backend `.env.staging`
 
-## Step 4 - Run Data Destruction If Needed [Optional]
+## Step 4 - Run Data Destruction If Needed (Optional)
 
 in case you want to delete all the data in staging branch db
 
