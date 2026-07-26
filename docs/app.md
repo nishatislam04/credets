@@ -7,7 +7,7 @@ security best practises since this website will hold our important credentials
 ## Stacks
 
 1. Backend - Bun
-   2.Frontend - Tanstack Router
+   2. Frontend - Tanstack Router
 2. UI Library - ShadcnUI
 3. Databases - Postgresql
 4. DevOps - Podman (Docker alternative)

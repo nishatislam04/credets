@@ -1,8 +1,8 @@
-# this is dblab usage guide
+# This Is Dblab Usage Guide
 
 dblab is terminal user interface(TUI) application for viewing our database.
 
-## install dblab
+## Install Dblab
 
 use ai to install. it was quite complex to install.
 we had to download the `*.tar.gz` file from releases archive and
@@ -20,7 +20,7 @@ dblab --config
 
 this `--config` will load the database configuration from our root dir
 
-## shortcuts for panels (focus between panels)
+## Shortcuts for Panels (Focus Between Panels)
 
 navigating between panels is quite cumbersome. so read the guide below carefully.
 
@@ -28,7 +28,7 @@ navigating between panels is quite cumbersome. so read the guide below carefully
 2. focus on the query editor (top-panel) -> `ctrl+l`
 3. focus on the data-table (bottom-panel) -> `ctrl+j`
 
-### notes about focus between panels
+### Notes About Focus Between Panels
 
 its not that simple. sometimes you will notice that,
 you can navigate from (bottom-panel) to (left-side) by `ctrl+h`.
@@ -40,15 +40,14 @@ but it does not works. we have to `ctrl+l` to focus on top panel
 
 > note: this is just a simple scenario. and these shortcut are not quite accurate.
 but if we keep pressing these following buttons, we can go wherever we want in these 3 panels.
-`ctrl+h`  `ctrl+j`  `ctrl+k`  `ctrl+l`
+`ctrl+h` `ctrl+j` `ctrl+k` `ctrl+l`
 
-### simple navigation
+### Simple Navigation
 
 after selecting a panel like (left-panel) or (bottom-panel)
 we can press `j` to go `BOTTOM-SIDE` or `k` to go `UP-SIDE`
 
-
-### navigate on result panel (bottom-panel)
+### Navigate on Result Panel (Bottom-Panel)
 
 in the bottom panel, we can see that, there are 4 tabs.
 `Data`, `Columns`,`Indexes`, `Constraints`
@@ -58,7 +57,7 @@ first focus on the bottom panel by `ctrl+j` (or check above guide)
 after bottom-panel is foucsed, press `tab` to go to next tab
 and then `shift+tab` to go reverse in tab
 
-### write query in the editor
+### Write Query in the Editor
 
 after selecting the top panel, where query editor exist.
 to write query, press `i` and start typing query command

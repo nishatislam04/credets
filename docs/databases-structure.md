@@ -1,6 +1,8 @@
-# this is where we will lay out information about our databases tables
+# This Is Where We Will Lay Out Information About Our Databases Tables
 
-## database table columns
+This document describes the database tables, their columns, and how to access them.
+
+## Database Table Columns
 
 1. user (only one)
 2. session (for simple auth)
@@ -8,7 +10,7 @@
 4. credentials (user credentials)
 5. credential_images (multiple images of each credential)
 
-### user table
+### User Table
 
 1. name
 2. usename
@@ -16,19 +18,19 @@
 4. password -hash
 5. special_password -raw now. soon enc it
 
-### session
+### Session
 
 1. userId -foreignKey
 2. token - no idea what this does
 3. expiresAt
 
-### types
+### Types
 
 1. label - varchar
 2. value - varchar
 3. description - text
 
-### credentials
+### Credentials
 
 1. title - text
 2. short description - text
@@ -42,7 +44,7 @@
 10. notes -text
 11. tags -text
 
-### credential_images
+### Credential_images
 
 1. image_url
 2. format
@@ -51,7 +53,7 @@
 5. byte_size
 6. sort_order
 
-## access database in docker from terminal
+## Access Database in Docker from Terminal
 
 inspect via dblab `dblab --config`
 
@@ -62,7 +64,7 @@ podman-compose exec db bash
 psql -U nishat -d credets_db
 ```
 
-## use db instance to write query
+## Use Db Instance to Write Query
 
 ```bash
 import { sql } from "@db/connection";
@@ -70,7 +72,7 @@ import { sql } from "@db/connection";
 const users = sql`SELECT * FROM users`
 ```
 
-## reset database data
+## Reset Database Data
 
 **turn off running docker-compose** then
 
@@ -79,6 +81,6 @@ podman-compose down -v
 podman-compose up
 ```
 
-## seed db
+## Seed Db
 
 run `bun run seed` at project root

@@ -1,6 +1,7 @@
 # RTE → Bare TipTap Migration
 
-This doc describes the full **reactjs-tiptap-editor** (wrapper) system so an AI can port it to **bare @tiptap/react**.
+This doc describes the full **reactjs-tiptap-editor** (wrapper) system so an AI can port it to
+**bare @tiptap/react**.
 
 ---
 
@@ -8,15 +9,19 @@ This doc describes the full **reactjs-tiptap-editor** (wrapper) system so an AI 
 
 The RTE lives in `apps/frontend/src/components/ui/rich-text-editor.tsx`. It uses:
 
-- **`reactjs-tiptap-editor`** — a wrapper around TipTap that provides pre-built toolbar/bubble UI components + some custom extensions.
+- **`reactjs-tiptap-editor`** — a wrapper around TipTap that provides pre-built toolbar/bubble UI
+components + some custom extensions.
 - **`@tiptap/react`** — the base React bindings that the wrapper sits on top of.
-- **`RichTextProvider`** — context provider that makes the editor instance available to all `RichText*` toolbar/bubble components.
-- **`RichTextBubbleText`** — the bubble menu component that renders a floating popup on text selection. We pass a custom `buttonBubble` prop to replace its default content.
-- **Custom components**: `HeadingDropdown`, `FontFamilyDropdown`, `CodeBlockView`, `CodeBlockButton` — hand-built because the wrapper's built-in components didn't meet requirements.
+- **`RichTextProvider`** — context provider that makes the editor instance available to all
+`RichText*` toolbar/bubble components.
+- **`RichTextBubbleText`** — the bubble menu component that renders a floating popup on text
+selection. We pass a custom `buttonBubble` prop to replace its default content.
+- **Custom components**: `HeadingDropdown`, `FontFamilyDropdown`, `CodeBlockView`, `CodeBlockButton`
+— hand-built because the wrapper's built-in components didn't meet requirements.
 
-### Data flow
+### Data Flow
 
-```
+```text
 Parent Component
   │
   ├── value (JSON-stringified TipTap JSON)
@@ -30,23 +35,27 @@ Parent Component
         └── useEditor(config)
 ```
 
-The editor is initialized via `useEditor` from `@tiptap/react` (already bare TipTap). The wrapper's main value is:
+The editor is initialized via `useEditor` from `@tiptap/react` (already bare TipTap). The wrapper's
+main value is:
+
 1. Pre-built toolbar/bubble React components (`RichTextBold`, `RichTextItalic`, etc.)
 2. Some custom extensions (`Clear`, `Indent`, `FontFamily`, `Color`, `LineHeight`)
 3. Theme sync (`themeActions.setTheme`, `setColor`, `setBorderRadius`)
 
-The goal is to replace items 1 & 2 with raw TipTap + custom UI, and replace item 3 with CSS variables.
+The goal is to replace items 1 & 2 with raw TipTap + custom UI, and replace item 3 with CSS
+variables.
 
 ---
 
 ## 2. Extension Map
 
-Each extension currently used, its library import path, what tiptap extension it wraps, and configuration.
+Each extension currently used, its library import path, what tiptap extension it wraps, and
+configuration.
 
-### 2.1 Base Kit (already from @tiptap directly)
+### 2.1 Base Kit (Already from @Tiptap Directly)
 
 | Current Import | Package | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `Document` | `@tiptap/extension-document` | Standard, keep |
 | `Text` | `@tiptap/extension-text` | Standard, keep |
 | `Dropcursor` | `@tiptap/extension-dropcursor` | Already using `.configure({ class, color, width })` |
@@ -59,7 +68,7 @@ Each extension currently used, its library import path, what tiptap extension it
 ### 2.2 Core Formatting Extensions
 
 | Current Import | Wraps | Install Package | Config Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `Bold` from `reactjs-tiptap-editor/bold` | `@tiptap/extension-bold` | `@tiptap/extension-bold` | No config needed |
 | `Italic` from `reactjs-tiptap-editor/italic` | `@tiptap/extension-italic` | `@tiptap/extension-italic` | No config needed |
 | `Strike` from `reactjs-tiptap-editor/strike` | `@tiptap/extension-strike` | `@tiptap/extension-strike` | No config needed |
@@ -71,7 +80,7 @@ Each extension currently used, its library import path, what tiptap extension it
 ### 2.3 List Extensions
 
 | Current Import | Wraps | Install Package | Config Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `BulletList` from `reactjs-tiptap-editor/bulletlist` | `@tiptap/extension-bullet-list` | `@tiptap/extension-bullet-list` | No config needed |
 | `OrderedList` from `reactjs-tiptap-editor/orderedlist` | `@tiptap/extension-ordered-list` | `@tiptap/extension-ordered-list` | No config needed |
 | `TaskList` from `reactjs-tiptap-editor/tasklist` | `@tiptap/extension-task-list` | `@tiptap/extension-task-list` | Also needs `@tiptap/extension-task-item` |
@@ -79,39 +88,41 @@ Each extension currently used, its library import path, what tiptap extension it
 ### 2.4 Link Extension
 
 | Current Import | Wraps | Install Package | Config Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `Link` from `reactjs-tiptap-editor/link` | `@tiptap/extension-link` | `@tiptap/extension-link` | Current config: `{ openOnClick: true, linkOnPaste: true, autolink: true }` |
 
 ### 2.5 Heading Extension
 
 | Current Import | Wraps | Install Package | Config Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `Heading` from `reactjs-tiptap-editor/heading` | `@tiptap/extension-heading` | `@tiptap/extension-heading` | Configured with `levels: [1, 2, 3, 4]` |
 
-**Custom UI**: We replaced `RichTextHeading` with our own `HeadingDropdown` component because the library's heading dropdown showed H5/H6. See `apps/frontend/src/components/ui/heading-dropdown.tsx`.
+**Custom UI**: We replaced `RichTextHeading` with our own `HeadingDropdown` component because the
+library's heading dropdown showed H5/H6. See `apps/frontend/src/components/ui/heading-dropdown.tsx`.
 
 ### 2.6 History Extension
 
 | Current Import | Wraps | Install Package | Config Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `History` from `reactjs-tiptap-editor/history` | `@tiptap/extension-history` | `@tiptap/extension-history` | No config needed |
 
-### 2.7 Styling Extensions (TextStyle-based)
+### 2.7 Styling Extensions (TextStyle-Based)
 
 These extensions require `TextStyle` to be registered.
 
 | Current Import | Wraps | Install Package | Config Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `FontFamily` from `reactjs-tiptap-editor/fontfamily` | `@tiptap/extension-font-family` | `@tiptap/extension-font-family` | Configured with `fontFamilyList: FONT_LIST` |
 | `Color` from `reactjs-tiptap-editor/color` | `@tiptap/extension-color` | `@tiptap/extension-color` | Configured with `colors: COLOR_PRESETS` |
 | `Highlight` from `reactjs-tiptap-editor/highlight` | `@tiptap/extension-highlight` | `@tiptap/extension-highlight` | No config currently |
 
-**Custom UI**: FontFamily uses our custom `FontFamilyDropdown` component. See `apps/frontend/src/components/ui/font-family-dropdown.tsx`.
+**Custom UI**: FontFamily uses our custom `FontFamilyDropdown` component. See
+`apps/frontend/src/components/ui/font-family-dropdown.tsx`.
 
 ### 2.8 Text Alignment
 
 | Current Import | Wraps | Install Package | Config Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `TextAlign` from `reactjs-tiptap-editor/textalign` | `@tiptap/extension-text-align` | `@tiptap/extension-text-align` | Configured with `alignments: ["left", "center", "right", "justify"]` |
 
 ### 2.9 Custom Extensions (No Tiptap Equivalent)
@@ -119,7 +130,7 @@ These extensions require `TextStyle` to be registered.
 These are **custom implementations** that don't wrap a standard `@tiptap/extension-*`.
 
 | Extension | Type | Source | Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `Clear` from `reactjs-tiptap-editor/clear` | Custom `Node` | In library's source | Clears all formatting at cursor. Maps to `editor.chain().focus().clearNodes().unsetAllMarks().run()` |
 | `Indent` from `reactjs-tiptap-editor/indent` | Custom `Extension` | In library's source | Indent/outdent with config: `{ minIndent: 0, maxIndent: 48, types: ["paragraph","heading","blockquote","orderedList","bulletList"] }` |
 | `LineHeight` from `reactjs-tiptap-editor/lineheight` | Custom `Extension` | In library's source | Sets line-height via CSS. Configured with `lineHeights: ["1","1.15","1.25","1.5","1.75","2","2.5"]` |
@@ -127,18 +138,20 @@ These are **custom implementations** that don't wrap a standard `@tiptap/extensi
 ### 2.10 Emoji
 
 | Current Import | Wraps | Install Package | Config Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `Emoji` from `reactjs-tiptap-editor/emoji` | `@tiptap/extension-emoji` | `@tiptap/extension-emoji` (free community) or `@tiptap-pro/extension-emoji` (commercial) | No config currently. The free version is more limited. |
 
-### 2.11 CodeBlock (with Lowlight / Syntax Highlighting)
+### 2.11 CodeBlock (With Lowlight / Syntax Highlighting)
 
 | Current Import | Wraps | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `CodeBlock` from `reactjs-tiptap-editor/codeblock` | `@tiptap/extension-code-block` extended with Lowlight | Current code: `.extend({ addNodeView() { ... } }).configure({ lowlight })` |
 
-This extension has a **custom NodeView**: `CodeBlockView` at `apps/frontend/src/components/ui/code-block-view.tsx`.
+This extension has a **custom NodeView**: `CodeBlockView` at
+`apps/frontend/src/components/ui/code-block-view.tsx`.
 
 Lowlight setup:
+
 ```ts
 import css from "highlight.js/lib/languages/css";
 import js from "highlight.js/lib/languages/javascript";
@@ -153,23 +166,27 @@ lowlight.register("ts", ts);
 ```
 
 For the migration:
+
 - Use `@tiptap/extension-code-block-lowlight` (already in package.json)
-- Or use `@tiptap/extension-code-block` + `@tiptap/extension-code-block-lowlight` for syntax highlighting
+- Or use `@tiptap/extension-code-block` + `@tiptap/extension-code-block-lowlight` for syntax
+highlighting
 - The custom `CodeBlockView` NodeView handles: language selector dropdown, copy, delete
 
 ---
 
 ## 3. Toolbar Layout (Current)
 
-The toolbar is a horizontal flex row with groups separated by vertical dividers. Here's the exact order:
+The toolbar is a horizontal flex row with groups separated by vertical dividers. Here's the exact
+order:
 
-```
+```text
 [Undo] [Redo]  |  [Clear]  |  [Heading▼] [Bold] [Italic] [Underline] [Strike]  |  [BulletList] [OrderedList] [Blockquote] [Code] [CodeBlock]  |  [Font▼] [Color] [Highlight] [Emoji]  |  [Align▼] [LineHeight▼] [Indent][Indent]  |  [Link] [HR]
 ```
 
 Each item maps to:
+
 | Toolbar Item | Component | Type |
-|---|---|---|
+| --- | --- | --- |
 | Undo | `RichTextUndo` from `reactjs-tiptap-editor/history` | Wrapper component → `editor.chain().focus().undo().run()` |
 | Redo | `RichTextRedo` from `reactjs-tiptap-editor/history` | Wrapper → `editor.chain().focus().redo().run()` |
 | Clear | `RichTextClear` from `reactjs-tiptap-editor/clear` | Wrapper → clears formatting |
@@ -197,15 +214,17 @@ Each item maps to:
 
 ## 4. Bubble Menu Layout (Current)
 
-The bubble menu shows on text selection via `<RichTextBubbleText buttonBubble={<BubbleContent editor={editor} />} />`.
+The bubble menu shows on text selection via `<RichTextBubbleText buttonBubble={<BubbleContent
+editor={editor} />} />`.
 
 Layout (grouped by dividers):
 
-```
+```text
 [Heading▼]  |  [Bold] [Italic] [Underline] [Strike] [Code] [Link]  |  [Color] [Highlight] [Align▼]  |  [BulletList] [TaskList] [OrderedList] [Blockquote] [CodeBlock]
 ```
 
 The custom `BubbleContent` wrapper:
+
 ```tsx
 <div className="flex items-center gap-0.5 rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md outline-none">
 ```
@@ -214,12 +233,16 @@ The custom `BubbleContent` wrapper:
 
 ## 5. Custom Components to Port
 
+Custom UI components that replace the library's built-in toolbar items.
+
 ### 5.1 HeadingDropdown (`apps/frontend/src/components/ui/heading-dropdown.tsx`)
 
 A dropdown button showing current heading level with options: Paragraph, H1, H2, H3, H4.
 
-- Uses `editor.isActive("paragraph")` and `editor.isActive("heading", { level })` for active detection
-- Uses `editor.chain().focus().setParagraph().run()` and `editor.chain().focus().toggleHeading({ level }).run()` for commands
+- Uses `editor.isActive("paragraph")` and `editor.isActive("heading", { level })` for active
+detection
+- Uses `editor.chain().focus().setParagraph().run()` and `editor.chain().focus().toggleHeading({
+level }).run()` for commands
 - Outside-click and Escape to close
 - Checkmark on active item
 
@@ -243,7 +266,7 @@ NodeView for code blocks with language selector dropdown overlay.
 - Uses `updateAttributes({ language })` for language changes
 - Active language shown with checkmark
 
-### 5.4 CodeBlockButton (in `rich-text-editor.tsx`)
+### 5.4 CodeBlockButton (In `rich-text-editor.tsx`)
 
 Toolbar/bubble button for toggling code blocks.
 
@@ -273,9 +296,12 @@ useEffect(() => {
 }, [resolvedTheme]);
 ```
 
-**For migration**: The wrapper's `themeActions` sets CSS variables. With bare TipTap, the editor will automatically use the project's existing CSS (shadcn theme variables) since we render HTML directly. The `reactjs-tiptap-editor/style.css` import should be removed.
+**For migration**: The wrapper's `themeActions` sets CSS variables. With bare TipTap, the editor
+will automatically use the project's existing CSS (shadcn theme variables) since we render HTML
+directly. The `reactjs-tiptap-editor/style.css` import should be removed.
 
 The editor wrapper already has the styling classes:
+
 ```tsx
 <div className="rounded-xl border border-input bg-input/30 transition-colors focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
 ```
@@ -304,7 +330,8 @@ onUpdate: ({ editor: ed }) => {
 },
 ```
 
-There's also logic to sync external value changes (e.g., form reset) while preventing cursor jumping:
+There's also logic to sync external value changes (e.g., form reset) while preventing cursor
+jumping:
 
 ```tsx
 useEffect(() => {
@@ -319,7 +346,8 @@ useEffect(() => {
 
 ## 8. Readiness Gate
 
-The editor uses a readiness gate to prevent rendering `RichTextProvider` before the editor is fully initialized:
+The editor uses a readiness gate to prevent rendering `RichTextProvider` before the editor is fully
+initialized:
 
 ```tsx
 const [isEditorReady, setIsEditorReady] = useState(false);
@@ -332,50 +360,66 @@ useEffect(() => {
 }, [editor]);
 ```
 
-With bare TipTap, this gate can be simplified since there's no `RichTextProvider`. The `EditorContent` component from `@tiptap/react` handles this gracefully.
+With bare TipTap, this gate can be simplified since there's no `RichTextProvider`. The
+`EditorContent` component from `@tiptap/react` handles this gracefully.
 
 ---
 
 ## 9. Fallback Section for Each Extension
 
-> Use this section if the initial bare TipTap implementation fails for a particular extension. Check the current working RTE system's behavior and compare with TipTap docs to implement a working version.
+> Use this section if the initial bare TipTap implementation fails for a particular extension. Check
+the current working RTE system's behavior and compare with TipTap docs to implement a working
+version.
 
 ### 9.1 Clear (Clear All Formatting)
 
 **If `editor.chain().focus().clearNodes().unsetAllMarks().run()` fails**:
-- Check the current wrapper's source at `apps/frontend/node_modules/reactjs-tiptap-editor/lib/extensions/Clear/Clear.js` or `.d.ts`
+
+- Check the current wrapper's source at
+`apps/frontend/node_modules/reactjs-tiptap-editor/lib/extensions/Clear/Clear.js` or `.d.ts`
 - It's a custom `Node` extension that iterates through all marks and nodes and clears them
 - Fallback: Create a custom extension that clears nodes and unset marks
 
 ### 9.2 Indent
 
 **If a custom indent extension fails**:
-- Check the current wrapper's source at `apps/frontend/node_modules/reactjs-tiptap-editor/lib/extensions/Indent/`
+
+- Check the current wrapper's source at
+`apps/frontend/node_modules/reactjs-tiptap-editor/lib/extensions/Indent/`
 - It's a custom `Extension` that:
-  - Stores indent level as an attribute on paragraph/heading/blockquote/list nodes
-  - Provides `setNodeIndentMarkup()` for modifying the indent attribute
-  - Uses CSS `padding-left` for visual indentation
-- Fallback: Use `@tiptap/extension-indent` from the community, or implement a simple `Extension` that toggles `margin-left` or `padding-left` via a mark
+    - Stores indent level as an attribute on paragraph/heading/blockquote/list nodes
+    - Provides `setNodeIndentMarkup()` for modifying the indent attribute
+    - Uses CSS `padding-left` for visual indentation
+- Fallback: Use `@tiptap/extension-indent` from the community, or implement a simple `Extension`
+that toggles `margin-left` or `padding-left` via a mark
 
 ### 9.3 LineHeight
 
 **If a custom line-height extension fails**:
-- Check the current wrapper's source at `apps/frontend/node_modules/reactjs-tiptap-editor/lib/extensions/LineHeight/`
+
+- Check the current wrapper's source at
+`apps/frontend/node_modules/reactjs-tiptap-editor/lib/extensions/LineHeight/`
 - It's a custom `Extension` that sets `line-height` CSS via inline styles on paragraph/heading nodes
-- Fallback: Implement as a simple `Extension` that uses `@tiptap/extension-text-style` to store line-height as a style attribute
+- Fallback: Implement as a simple `Extension` that uses `@tiptap/extension-text-style` to store
+line-height as a style attribute
 
 ### 9.4 FontFamily
 
 **If `@tiptap/extension-font-family` fails**:
-- Check the current wrapper's source at `apps/frontend/node_modules/reactjs-tiptap-editor/lib/extensions/FontFamily/`
+
+- Check the current wrapper's source at
+`apps/frontend/node_modules/reactjs-tiptap-editor/lib/extensions/FontFamily/`
 - It wraps `@tiptap/extension-font-family` and provides `fontFamilyList` option
 - The `FONT_LIST` constant in `rich-text-editor.tsx` contains all font names and values
-- Fallback: Use a custom `Extension` that stores `fontFamily` via `textStyle` and sets `font-family` CSS
+- Fallback: Use a custom `Extension` that stores `fontFamily` via `textStyle` and sets `font-family`
+CSS
 
 ### 9.5 Color
 
 **If `@tiptap/extension-color` fails**:
-- Check the current wrapper's source at `apps/frontend/node_modules/reactjs-tiptap-editor/lib/extensions/Color/`
+
+- Check the current wrapper's source at
+`apps/frontend/node_modules/reactjs-tiptap-editor/lib/extensions/Color/`
 - It wraps `@tiptap/extension-color` with a `colors` option for preset color list
 - The `COLOR_PRESETS` constant has 15 colors
 - Fallback: Custom extension that stores color via TextStyle mark
@@ -383,7 +427,9 @@ With bare TipTap, this gate can be simplified since there's no `RichTextProvider
 ### 9.6 CodeBlock with Lowlight
 
 **If `@tiptap/extension-code-block-lowlight` fails**:
-- Check the current wrapper's source at `apps/frontend/node_modules/reactjs-tiptap-editor/lib/extensions/CodeBlock/`
+
+- Check the current wrapper's source at
+`apps/frontend/node_modules/reactjs-tiptap-editor/lib/extensions/CodeBlock/`
 - It wraps `@tiptap/extension-code-block` and adds Lowlight integration
 - Current code extends it with a custom NodeView for the language selector
 - Fallback: Use `@tiptap/extension-code-block` + `@tiptap/extension-code-block-lowlight` separately
@@ -395,7 +441,7 @@ With bare TipTap, this gate can be simplified since there's no `RichTextProvider
 These packages are **not yet installed** and will need to be added:
 
 | Package | For |
-|---|---|
+| --- | --- |
 | `@tiptap/extension-bold` | Bold mark |
 | `@tiptap/extension-italic` | Italic mark |
 | `@tiptap/extension-strike` | Strike mark |
@@ -418,6 +464,7 @@ These packages are **not yet installed** and will need to be added:
 | `@tiptap/extension-code-block-lowlight` | Code block with syntax highlighting |
 
 **Already installed** (from current package.json):
+
 - `@tiptap/extension-document`
 - `@tiptap/extension-text`
 - `@tiptap/extension-paragraph`
@@ -439,8 +486,10 @@ These packages are **not yet installed** and will need to be added:
 
 Instead of importing `RichText*` from `reactjs-tiptap-editor/*`, build these:
 
-### Toolbar buttons (simple toggles)
+### Toolbar Buttons (Simple Toggles)
+
 Create a reusable `ToolbarButton` component:
+
 ```tsx
 function ToolbarButton({ onClick, isActive, children, title }) {
   return (
@@ -453,6 +502,7 @@ function ToolbarButton({ onClick, isActive, children, title }) {
 ```
 
 Then for each format:
+
 - **Bold**: `editor.chain().focus().toggleBold().run()` / `editor.isActive("bold")`
 - **Italic**: `toggleItalic()` / `isActive("italic")`
 - **Underline**: `toggleUnderline()` / `isActive("underline")`
@@ -469,22 +519,32 @@ Then for each format:
 - **Redo**: `redo()`
 
 ### Bubble Menu
-Use `@tiptap/extension-bubble-menu` directly and render custom content inside it, instead of relying on `RichTextBubbleText`.
+
+Use `@tiptap/extension-bubble-menu` directly and render custom content inside it, instead of relying
+on `RichTextBubbleText`.
 
 ### TaskList
+
 Button: `toggleTaskList()` / `isActive("taskList")` (also needs `@tiptap/extension-task-item`)
 
 ### TextAlign
+
 Dropdown with left/center/right/justify: `setTextAlign("left")` / `isActive({ textAlign: "left" })`
 
 ### LineHeight
-Dropdown with values ["1","1.15","1.25","1.5","1.75","2","2.5"] - custom extension that applies `line-height` style via TextStyle mark or inline style.
+
+Dropdown with values ["1","1.15","1.25","1.5","1.75","2","2.5"] - custom extension that applies
+`line-height` style via TextStyle mark or inline style.
 
 ### Color
+
 Color picker: `setColor("#ff0000")` / `isActive("textStyle", { color: "#ff0000" })` / `unsetColor()`
 
 ### Highlight
+
 `toggleHighlight()` / `isActive("highlight")` / `unsetHighlight()`
 
 ### Emoji
-Emoji picker component. The free `@tiptap/extension-emoji` provides basic emoji insertion, or use a custom emoji picker.
+
+Emoji picker component. The free `@tiptap/extension-emoji` provides basic emoji insertion, or use a
+custom emoji picker.

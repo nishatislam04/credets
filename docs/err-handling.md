@@ -1,10 +1,14 @@
 # Error Handling System — Full Design
 
+This document describes the current and planned error handling systems.
+
 ---
 
 ## Part 1: How Errors Work RIGHT NOW (Current Setup)
 
-### 1A. Domain Error Flow (e.g. "Credential not found")
+The current error handling relies on string matching and manual status mapping.
+
+### 1A. Domain Error Flow (E.g. "Credential Not Found")
 
 Here's the exact step-by-step trace when someone tries to delete a credential that doesn't exist:
 
@@ -16,12 +20,14 @@ credentailDelete (http/credentials/delete.ts)
 ```
 
 **Step 2 — Service calls Repository:**
-```
+
+```text
 deleteCredentialService (services/credentials/delete.ts)
   → deleteCredentialRepo(credentialId)
 ```
 
 **Step 3 — Repository throws a plain `Error`:**
+
 ```ts
 // repository/credentials/delete.ts — line 16
 if (!existing) {
@@ -30,6 +36,7 @@ if (!existing) {
 ```
 
 **Step 4 — Repository catch re-throws:**
+
 ```ts
 // repository/credentials/delete.ts — line 23-26
 catch (error) {
@@ -39,6 +46,7 @@ catch (error) {
 ```
 
 **Step 5 — Service catch re-throws:**
+
 ```ts
 // services/credentials/delete.ts — line 16-18
 catch (error) {
@@ -48,6 +56,7 @@ catch (error) {
 ```
 
 **Step 6 — HTTP Controller catches + maps manually:**
+
 ```ts
 // http/credentials/delete.ts — line 62-80
 catch (error) {
@@ -69,6 +78,7 @@ catch (error) {
 ```
 
 **Client receives:**
+
 ```json
 {
   "success": false,
@@ -80,10 +90,10 @@ catch (error) {
 }
 ```
 
-### What's Wrong With This Flow?
+### What's Wrong with This Flow
 
 | Problem | Where | Why it's bad |
-|---------|-------|--------------|
+| --------- | ------- | -------------- |
 | `error.message === "Credential not found"` — fragile string match | [delete.ts:L74](file:///home/nishat/credets/apps/backend/http/credentials/delete.ts#L74), [update.ts:L74](file:///home/nishat/credets/apps/backend/http/credentials/update.ts#L74) | If someone changes the message text, the 404 breaks silently → becomes 500 |
 | Status code decided at controller level only | Every controller | Status is a **domain concept** — the repo/service *knows* it's a 404, but throws a generic `Error` |
 | Every controller repeats the same `instanceof Error` + string match pattern | All 5 controllers | DRY violation — same boilerplate everywhere |
@@ -93,13 +103,19 @@ catch (error) {
 
 ### 1B. Unhandled Error Flow (Current Behavior)
 
-What happens if something truly unexpected crashes — like a bug in image processing, a null pointer, or a type mismatch?
+What happens if something truly unexpected crashes — like a bug in image processing, a null pointer,
+or a type mismatch?
 
-**Scenario:** `processImage` throws `TypeError: Cannot read properties of null`
+#### Scenario: `processImage` Throws `TypeError: Cannot Read Properties of Null`
 
-**Step 1 — Error thrown in service layer (no catch for this specific type)**
+A raw `TypeError` bubbles up from the service layer with no type-specific handler.
 
-**Step 2 — Service catch block catches it generically:**
+#### Step 1: Error Thrown in Service Layer (No Catch for This Specific Type)
+
+The error propagates up the call stack from the service layer.
+
+#### Step 2: Service Catch Block Catches It Generically
+
 ```ts
 catch (error) {
   logAlways(error, "service: error in createCredentialService");
@@ -108,6 +124,7 @@ catch (error) {
 ```
 
 **Step 3 — Controller catch block treats it exactly like a domain error:**
+
 ```ts
 catch (error) {
   logAlways(error, "http: error in credentialCreate controller");
@@ -122,6 +139,7 @@ catch (error) {
 ```
 
 **Client receives:**
+
 ```json
 {
   "success": false,
@@ -135,11 +153,13 @@ catch (error) {
 ```
 
 > [!WARNING]
-> **Security issue:** The raw internal error message (`"Cannot read properties of null"`) is leaked to the client. In production, this exposes implementation details.
+> **Security issue:** The raw internal error message (`"Cannot read properties of null"`) is leaked
+to the client. In production, this exposes implementation details.
 
 **What about errors that escape even the controller?**
 
-If a controller itself crashes (e.g. a typo in the handler), the error hits Bun's server-level `error()` handler:
+If a controller itself crashes (e.g. a typo in the handler), the error hits Bun's server-level
+`error()` handler:
 
 ```ts
 // index.ts — line 47-57
@@ -154,20 +174,24 @@ error(error) {
 ```
 
 **Client receives plain text (NOT JSON):**
-```
+
+```text
 Cannot read properties of null
 ```
 
 > [!CAUTION]
-> This response is **not JSON** — it's `text/plain`. Your frontend `response.json()` call will throw a parse error on top of the original error. Double failure.
+> This response is **not JSON** — it's `text/plain`. Your frontend `response.json()` call will throw
+a parse error on top of the original error. Double failure.
 
 ---
 
-## Part 2: The New Error Handling System
+## Part 2: the New Error Handling System
+
+This section describes the new typed error class hierarchy.
 
 ### Directory Structure
 
-```
+```text
 apps/backend/err/
 ├── base.ts              ← AppError base class
 ├── not-found.ts         ← NotFoundError (404)
@@ -183,6 +207,7 @@ apps/backend/err/
 ### 2A. Error Classes
 
 **Base class — `err/base.ts`:**
+
 ```ts
 export class AppError extends Error {
   public readonly status: number;
@@ -292,6 +317,7 @@ export class InternalError extends AppError {
 ### 2B. How the Controller Catch Block Changes
 
 **Before (current — fragile):**
+
 ```ts
 catch (error) {
   logAlways(error, "http: error in credentailDelete controller");
@@ -311,6 +337,7 @@ catch (error) {
 ```
 
 **After (new — clean, consistent):**
+
 ```ts
 catch (error) {
   logAlways(error, "http: error in credentailDelete controller");
@@ -341,15 +368,17 @@ catch (error) {
 ```
 
 **What changed:**
+
 - One `instanceof AppError` check replaces all string comparisons
 - Domain errors carry their own status + type — no manual mapping
-- Unknown errors get a **generic safe message** to the client, with `originError` in `details` for dev debugging only
+- Unknown errors get a **generic safe message** to the client, with `originError` in `details` for
+dev debugging only
 - This pattern is identical across all controllers — copy-paste consistent
 
 ### 2C. Where Errors Are Thrown (Which Layer)
 
 | Layer | Throws What | Example |
-|-------|-------------|---------|
+| ------- | ------------- | --------- |
 | **Repository** | `NotFoundError`, `DatabaseError` | `throw new NotFoundError("Credential")` |
 | **Service** | `BadRequestError`, `ConflictError`, `ForbiddenError` | `throw new ConflictError("Credential with this title already exists")` |
 | **Controller** | `BadRequestError` (for missing params like credentialId) | `throw new BadRequestError("Credential ID is required")` |
@@ -358,6 +387,7 @@ catch (error) {
 ### 2D. Repository Layer Change Example
 
 **Before:**
+
 ```ts
 // repository/credentials/delete.ts
 if (!existing) {
@@ -366,6 +396,7 @@ if (!existing) {
 ```
 
 **After:**
+
 ```ts
 // repository/credentials/delete.ts
 import { NotFoundError } from "../../err/not-found";
@@ -376,6 +407,7 @@ if (!existing) {
 ```
 
 **Before (create repo — invalid type):**
+
 ```ts
 if (!typeRow) {
   throw new Error(`DB Error: Credential type '${input.type}' does not exist`);
@@ -383,6 +415,7 @@ if (!typeRow) {
 ```
 
 **After:**
+
 ```ts
 import { BadRequestError } from "../../err/bad-request";
 
@@ -395,13 +428,18 @@ if (!typeRow) {
 
 ## Part 3: Unhandled Errors in the New System
 
-### What happens with the new system when a truly unexpected error occurs?
+How the new system handles unexpected non-domain errors.
 
-**Scenario:** `processImage` throws `TypeError: Cannot read properties of null`
+### What Happens with the New System When a Truly Unexpected Error Occurs
+
+This section shows the same `TypeError` scenario handled by the new system.
+
+#### Scenario: Same `TypeError` in the New Controller Catch
 
 This is NOT an `AppError` — it's a raw JavaScript `TypeError`.
 
 **New controller catch handles it:**
+
 ```ts
 catch (error) {
   logAlways(error, "http: error in credentialCreate controller");
@@ -425,6 +463,7 @@ catch (error) {
 ```
 
 **Client receives:**
+
 ```json
 {
   "success": false,
@@ -441,13 +480,17 @@ catch (error) {
 ```
 
 > [!TIP]
-> In production, you'd strip `details.originError` from the response entirely. For now in dev mode, it's useful for debugging.
+> In production, you'd strip `details.originError` from the response entirely. For now in dev mode,
+it's useful for debugging.
 
 ### Global Error Handler Update
 
-We should also update the Bun server-level `error()` handler in [index.ts](file:///home/nishat/credets/apps/backend/index.ts#L47-L57) to return **JSON** instead of plain text:
+We should also update the Bun server-level `error()` handler in
+[index.ts](file:///home/nishat/credets/apps/backend/index.ts#L47-L57) to return **JSON** instead of
+plain text:
 
 **Before:**
+
 ```ts
 error(error) {
   const message = error instanceof Error ? error.message : "Internal server error";
@@ -460,6 +503,7 @@ error(error) {
 ```
 
 **After:**
+
 ```ts
 error(error) {
   logAlways(error, "server error");
@@ -488,20 +532,25 @@ error(error) {
 ```
 
 > [!IMPORTANT]
-> This requires making `ResponseFactory.getCorsHeaders()` public (remove `private`). This ensures even catastrophic errors return proper JSON with CORS headers.
+> This requires making `ResponseFactory.getCorsHeaders()` public (remove `private`). This ensures
+even catastrophic errors return proper JSON with CORS headers.
 
 ---
 
 ## Part 4: Database Errors (PostgreSQL)
 
+Handling PostgreSQL-specific errors from Bun's SQL driver.
+
 ### 4A. How DB Errors Work RIGHT NOW
 
-Bun's built-in `SQL` driver (used in [connection.ts](file:///home/nishat/credets/apps/backend/db/connection.ts)) throws errors with PostgreSQL-specific properties when a query fails.
+Bun's built-in `SQL` driver (used in
+[connection.ts](file:///home/nishat/credets/apps/backend/db/connection.ts)) throws errors with
+PostgreSQL-specific properties when a query fails.
 
 **Common PG error scenarios in your schema:**
 
 | Scenario | PG Error Code | Current Behavior |
-|----------|--------------|-----------------|
+| ---------- | -------------- | ----------------- |
 | Duplicate unique key (e.g. same `username`) | `23505` | Raw error thrown → caught as generic 500 |
 | Foreign key violation (e.g. invalid `types_id`) | `23503` | Raw error thrown → caught as generic 500 |
 | Not-null violation (e.g. missing `title`) | `23502` | Raw error thrown → caught as generic 500 |
@@ -510,9 +559,10 @@ Bun's built-in `SQL` driver (used in [connection.ts](file:///home/nishat/credets
 
 **Current: what a PG error looks like when it hits the controller:**
 
-When a unique constraint violation occurs (e.g. inserting a duplicate), Bun's SQL throws something like:
+When a unique constraint violation occurs (e.g. inserting a duplicate), Bun's SQL throws something
+like:
 
-```
+```text
 PostgresError: duplicate key value violates unique constraint "users_username_idx"
   DETAIL: Key (username)=(admin) already exists.
   code: "23505"
@@ -522,6 +572,7 @@ PostgresError: duplicate key value violates unique constraint "users_username_id
 ```
 
 **But your controller sees it as:**
+
 ```ts
 catch (error) {
   // error instanceof Error → true
@@ -538,6 +589,7 @@ catch (error) {
 ```
 
 **Client currently receives:**
+
 ```json
 {
   "success": false,
@@ -548,7 +600,8 @@ catch (error) {
 ```
 
 > [!CAUTION]
-> **Security issue #2:** The raw PostgreSQL error exposes internal table names, constraint names, and schema details to the client.
+> **Security issue #2:** The raw PostgreSQL error exposes internal table names, constraint names,
+and schema details to the client.
 
 ### 4B. The DatabaseError Class
 
@@ -619,7 +672,8 @@ export class DatabaseError extends AppError {
 
 ### 4C. How to Use DatabaseError in the Repository Layer
 
-**The key idea:** The repository layer wraps raw PG errors into `DatabaseError` before re-throwing. The controller never sees raw PG errors.
+**The key idea:** The repository layer wraps raw PG errors into `DatabaseError` before re-throwing.
+The controller never sees raw PG errors.
 
 ```ts
 // repository/credentials/create.ts — updated catch block
@@ -666,6 +720,7 @@ catch (error) {
 ```
 
 **Client now receives (for a duplicate key):**
+
 ```json
 {
   "success": false,
@@ -679,6 +734,7 @@ catch (error) {
 ```
 
 **vs what they received before:**
+
 ```json
 {
   "success": false,
@@ -724,10 +780,12 @@ flowchart TD
 
 ## Part 5: Summary — Every Error Type and Its Output
 
-### Domain Errors (thrown explicitly by our code)
+Quick reference for all error types and their HTTP responses.
+
+### Domain Errors (Thrown Explicitly by Our Code)
 
 | Error Class | Status | Type | Example Message | Thrown From |
-|-------------|--------|------|-----------------|-------------|
+| ------------- | -------- | ------ | ----------------- | ------------- |
 | `NotFoundError` | 404 | `not-found` | `"Credential not found"` | Repository |
 | `BadRequestError` | 400 | `bad-request` | `"Credential ID is required"` | Controller / Repository |
 | `ConflictError` | 409 | `conflict` | `"Credential with this title already exists"` | Service |
@@ -735,10 +793,10 @@ flowchart TD
 | `UnauthorizedError` | 401 | `unauthorized` | `"Authentication required"` | Service / Middleware |
 | `ValidationError` | 422 | `validation-error` | `"Validation failed"` | Validation layer |
 
-### Database Errors (caught from PG, wrapped automatically)
+### Database Errors (Caught from PG, Wrapped Automatically)
 
 | PG Code | Status | Client Message | Real PG Message (hidden) |
-|---------|--------|----------------|--------------------------|
+| --------- | -------- | ---------------- | -------------------------- |
 | `23505` | 409 | `"Resource already exists"` | `duplicate key value violates unique constraint...` |
 | `23503` | 400 | `"Referenced resource does not exist"` | `insert or update on table... violates foreign key...` |
 | `23502` | 400 | `"Required field is missing"` | `null value in column "title" violates not-null constraint` |
@@ -746,10 +804,10 @@ flowchart TD
 | `08006` | 503 | `"Database connection lost"` | `connection terminated unexpectedly` |
 | `57014` | 504 | `"Query timed out"` | `canceling statement due to statement timeout` |
 
-### Unhandled Errors (bugs, crashes)
+### Unhandled Errors (Bugs, Crashes)
 
 | Scenario | Status | Client Message | Details (dev only) |
-|----------|--------|----------------|--------------------|
+| ---------- | -------- | ---------------- | -------------------- |
 | TypeError, ReferenceError, etc. | 500 | `"An unexpected error occurred"` | `originError: "Cannot read properties of null"` |
 
 ---
@@ -757,12 +815,13 @@ flowchart TD
 ## Part 6: Implementation Checklist
 
 > [!IMPORTANT]
-> All files to create/modify are listed below. No existing functionality will break — `AppError extends Error`, so `instanceof Error` still works everywhere.
+> All files to create/modify are listed below. No existing functionality will break — `AppError
+extends Error`, so `instanceof Error` still works everywhere.
 
-### Files to CREATE:
+### Files to CREATE
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `apps/backend/err/base.ts` | `AppError` base class |
 | `apps/backend/err/not-found.ts` | `NotFoundError` (404) |
 | `apps/backend/err/bad-request.ts` | `BadRequestError` (400) |
@@ -774,10 +833,10 @@ flowchart TD
 | `apps/backend/err/internal.ts` | `InternalError` (500 catch-all) |
 | `docs/error-handling.md` | Documentation for the entire system |
 
-### Files to MODIFY:
+### Files to MODIFY
 
 | File | What Changes |
-|------|-------------|
+| ------ | ------------- |
 | `apps/backend/index.ts` | Global `error()` handler → return JSON + AppError-aware |
 | `apps/backend/utils/response.ts` | Make `getCorsHeaders()` public |
 | `apps/backend/repository/credentials/create.ts` | `throw new NotFoundError` / `DatabaseError` wrapper |

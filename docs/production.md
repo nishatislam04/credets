@@ -1,6 +1,8 @@
-# this is about production guide
+# This Is About Production Guide
 
-## backend deploy
+This guide covers deploying the Credets backend and frontend to production.
+
+## Backend Deploy
 
 name=credets-backend
 root-dir=null
@@ -8,7 +10,7 @@ build-command=bun install
 start-command=bun run --cwd apps/backend start
 health-check=/healthz
 
-### backend env keys
+### Backend Env Keys
 
 POSTGRES_URL=neon db connection string
 DB_USER
@@ -22,18 +24,18 @@ FRONTEND_APP
 BACKEND_APP
 NODE_ENV
 
-## frontend deploy
+## Frontend Deploy
 
 name=credets
 root-dir=null
 build-command=bun install && bun run build:frontend
 publish-dir=apps/frontend/dist
 
-### frontend env keys
+### Frontend Env Keys
 
 VITE_BACKEND_APP
 
-### frontend redirect rewrite rules
+### Frontend Redirect Rewrite Rules
 
 we add this rules since this is our spa application. otherwise, we see 404 upon navigation
 
@@ -42,12 +44,12 @@ source - destination - action
 /*     - /index.html - rewrite
 ```
 
-## database related
+## Database Related
 
 neondb database. `.env.production.local` contains our production env var.
 without it, none of below command will work
 
-### migrate
+### Migrate
 
 execute below command at `root dir` from terminal and from `main branch`
 
@@ -55,7 +57,7 @@ execute below command at `root dir` from terminal and from `main branch`
 bun --env-file=.env.production apps/backend/db/run-prod-schema.ts
 ```
 
-### seed
+### Seed
 
 execute below command at root dir from terminal
 
@@ -63,7 +65,7 @@ execute below command at root dir from terminal
 bun --env-file=.env.production apps/backend/db/seed.ts
 ```
 
-### reset data
+### Reset Data
 
 to reset the above seed data, we will truncate our db by
 

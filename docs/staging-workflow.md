@@ -25,7 +25,7 @@ Any changes you make on this branch won't affect production database.
     - `apps/backend/.env.staging`
     - `apps/frontend/.env.staging`
 
-## Step 3 — Set Up the Staging Env File
+## Step 3 — Set up the Staging Env File
 
 ```bash
 cp .env.staging.example .env.staging
@@ -35,7 +35,7 @@ cd apps/frontend/.env.staging.example apps/frontend/.env.staging
 
 update `neon-connection-string` in /root & /backend `.env.staging`
 
-## step 4 - Run data destruction if needed [optional]
+## Step 4 - Run Data Destruction If Needed [Optional]
 
 in case you want to delete all the data in staging branch db
 
