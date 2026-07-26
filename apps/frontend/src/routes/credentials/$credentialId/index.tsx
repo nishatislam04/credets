@@ -50,8 +50,8 @@ export const Route = createFileRoute("/credentials/$credentialId/")({
 						Credential not found
 					</h2>
 					<p className="mb-8 text-sm text-muted-foreground/70 leading-relaxed max-w-sm mx-auto">
-						The credential you&rsquo;re looking for doesn&rsquo;t exist or may have been deleted.
-						Check the URL or browse your credentials list.
+						The credential you&rsquo;re looking for doesn&rsquo;t exist or may
+						have been deleted. Check the URL or browse your credentials list.
 					</p>
 					<Link
 						to="/credentials"
@@ -69,7 +69,9 @@ export const Route = createFileRoute("/credentials/$credentialId/")({
 				<div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-full bg-destructive/10">
 					<TriangleAlert className="size-8 text-destructive" />
 				</div>
-				<h2 className="mb-2 text-lg font-semibold">Failed to load credential</h2>
+				<h2 className="mb-2 text-lg font-semibold">
+					Failed to load credential
+				</h2>
 				<p className="mb-6 text-sm text-muted-foreground">
 					{error?.message || "Something went wrong. Please try again later."}
 				</p>

@@ -41,7 +41,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "#/components/ui/dialog";
-import { gooeyToast } from "#/components/ui/goey-toaster";
+import { toast } from "#/components/ui/toast";
 import { CredetsImage } from "#/components/ui/image";
 import { Input } from "#/components/ui/input";
 import { RichTextRenderer } from "#/components/ui/rich-text-renderer";
@@ -144,7 +144,7 @@ function TrashDetailDialog({
 			const csrfToken = csrfRes.data?.token;
 
 			if (!csrfToken) {
-				gooeyToast.error("Session expired", {
+				toast.error("Session expired", {
 					description: "Please refresh the page and try again.",
 				});
 				setIsDeleting(false);
@@ -157,7 +157,7 @@ function TrashDetailDialog({
 				csrfToken,
 			});
 
-			gooeyToast.success("Credential permanently deleted", {
+			toast.success("Credential permanently deleted", {
 				description: `"${item.title}" has been permanently removed.`,
 			});
 
@@ -168,7 +168,7 @@ function TrashDetailDialog({
 			// Refetch trash listings
 			queryClient.invalidateQueries({ queryKey: ["trash-listings"] });
 		} catch (err) {
-			gooeyToast.error("Failed to delete", {
+			toast.error("Failed to delete", {
 				description:
 					err instanceof Error ? err.message : "Something went wrong",
 			});
@@ -183,7 +183,7 @@ function TrashDetailDialog({
 	return (
 		<>
 			<Dialog open={open} onOpenChange={onOpenChange}>
-							<DialogContent
+				<DialogContent
 					className="max-h-[90vh] overflow-y-auto p-8"
 					style={{ maxWidth: "calc(100vw - 4rem)" }}
 				>
@@ -526,9 +526,7 @@ function TrashDetailDialog({
 
 					{/* ── Bottom action buttons ── */}
 					<div className="flex items-center justify-center gap-3 pt-6">
-						<DialogClose
-							className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border/40 bg-background px-6 py-2 text-xs font-medium text-muted-foreground/60 shadow-xs transition-all duration-200 hover:bg-accent hover:text-foreground hover:shadow-sm active:scale-[0.97]"
-						>
+						<DialogClose className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border/40 bg-background px-6 py-2 text-xs font-medium text-muted-foreground/60 shadow-xs transition-all duration-200 hover:bg-accent hover:text-foreground hover:shadow-sm active:scale-[0.97]">
 							Close
 						</DialogClose>
 
@@ -564,8 +562,8 @@ function TrashDetailDialog({
 					</AlertDialogDescription>
 
 					<div className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-xs text-destructive/70 mt-4">
-						The credential and all associated data (images, version history) will
-						be permanently removed and cannot be recovered.
+						The credential and all associated data (images, version history)
+						will be permanently removed and cannot be recovered.
 					</div>
 
 					<div className="flex justify-end gap-3 mt-6">

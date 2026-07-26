@@ -1,6 +1,12 @@
-import type { CredentialDetail, DataBlockEntry } from "@credets/shared-types/credentials/listings";
+import type {
+	CredentialDetail,
+	DataBlockEntry,
+} from "@credets/shared-types/credentials/listings";
 import { Quote, TextQuote } from "lucide-react";
-import { isContentEmpty, RichTextRenderer } from "#/components/ui/rich-text-renderer";
+import {
+	isContentEmpty,
+	RichTextRenderer,
+} from "#/components/ui/rich-text-renderer";
 import { CredentialDataRenderer } from "../-components/credential-data";
 
 export function Content({ credential }: { credential: CredentialDetail }) {
@@ -51,11 +57,13 @@ export function Content({ credential }: { credential: CredentialDetail }) {
 			)}
 
 			{/* Subtle divider before data section */}
-			{(!isContentEmpty(credential.short_description) || !isContentEmpty(credential.long_description)) && credential.data && (
-				<div className="relative py-2">
-					<div className="absolute left-0 right-0 top-1/2 h-px bg-gradient-to-r from-border/20 via-border/30 to-transparent" />
-				</div>
-			)}
+			{(!isContentEmpty(credential.short_description) ||
+				!isContentEmpty(credential.long_description)) &&
+				credential.data && (
+					<div className="relative py-2">
+						<div className="absolute left-0 right-0 top-1/2 h-px bg-gradient-to-r from-border/20 via-border/30 to-transparent" />
+					</div>
+				)}
 
 			{/* Data section */}
 			{credential.data && (

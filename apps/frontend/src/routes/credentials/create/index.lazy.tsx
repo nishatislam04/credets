@@ -13,7 +13,7 @@ import {
 	FieldGroup,
 	FieldLabel,
 } from "#/components/ui/field";
-import { gooeyToast } from "#/components/ui/goey-toaster";
+import { toast } from "#/components/ui/toast";
 import { CredetsImage } from "#/components/ui/image";
 import {
 	Item,
@@ -72,7 +72,7 @@ function RouteComponent() {
 		const values = form.state.values;
 		setIsDrafting(true);
 
-		await gooeyToast.promise(createDraftAction(values as any), {
+		await toast.promise(createDraftAction(values as any), {
 			loading: "Saving draft...",
 			success: "Draft saved successfully!",
 			error: "Failed to save draft",
@@ -107,13 +107,13 @@ function RouteComponent() {
 				try {
 					const data = await createCredentialValidation(value);
 					if (!data.success && data.type === "form-validation") {
-						gooeyToast.error(data.message || "Validation failed", {
+						toast.error(data.message || "Validation failed", {
 							description: "Please fix all the form errors and try again.",
 						});
 						return { fields: data.errors };
 					}
 					if (!data.success) {
-						gooeyToast.error(
+						toast.error(
 							data.message ||
 								"something went wrong on server side while validating data",
 						);
@@ -123,7 +123,7 @@ function RouteComponent() {
 						};
 					}
 				} catch (error) {
-					gooeyToast.error("something went on wrong", {
+					toast.error("something went on wrong", {
 						description:
 							error instanceof Error
 								? error.message
@@ -135,7 +135,7 @@ function RouteComponent() {
 		},
 
 		onSubmit: async ({ value }) => {
-			await gooeyToast.promise(createCredentialAction(value), {
+			await toast.promise(createCredentialAction(value), {
 				loading: "creating...",
 				success: "created a new credential",
 				error: "failed to create the credential",
@@ -625,7 +625,7 @@ function RouteComponent() {
 													// Prevent exceeding 6 images
 													const available = 6 - current.length;
 													if (available <= 0) {
-														gooeyToast.error("max 6 images support", {
+														toast.error("max 6 images support", {
 															description: "you can choose only 6 images",
 														});
 														e.target.value = "";

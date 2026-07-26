@@ -19,7 +19,10 @@ import {
 	ComboboxList,
 } from "#/components/ui/combobox";
 import { Skeleton } from "#/components/ui/skeleton";
-import { getTypeChildren, type TypeChild } from "#/routes/credentials/-actions/getTypeChildren";
+import {
+	getTypeChildren,
+	type TypeChild,
+} from "#/routes/credentials/-actions/getTypeChildren";
 import { getTypesListings } from "#/routes/credentials/create/-actions/getTypesListings";
 
 export interface TypePathEntry {
@@ -78,7 +81,9 @@ export function TypeSelector({ types, onTypesChange }: TypeSelectorProps) {
 					<TypeLevel
 						key={crypto.randomUUID()}
 						levelIndex={levelIndex}
-						parentValue={levelIndex > 0 ? types[levelIndex - 1]?.value : undefined}
+						parentValue={
+							levelIndex > 0 ? types[levelIndex - 1]?.value : undefined
+						}
 						currentType={types[levelIndex] ?? null}
 						onChange={(entry) => handleLevelChange(levelIndex, entry)}
 						onFocused={() => setFocusLevel(null)}
@@ -135,7 +140,8 @@ function TypeLevel({
 
 	// ── Fetch options for this level ──
 	const { data: options = [], isLoading: isOptionsLoading } = useQuery({
-		queryKey: levelIndex === 0 ? ["types_listings"] : ["type_children", parentValue],
+		queryKey:
+			levelIndex === 0 ? ["types_listings"] : ["type_children", parentValue],
 		queryFn: async () => {
 			if (levelIndex === 0) {
 				const res = await getTypesListings();
@@ -155,7 +161,10 @@ function TypeLevel({
 		// Filter options based on input value (search-as-you-type)
 		const filtered = options.filter((opt) => {
 			if (!trimmed) return true; // Show all when no input
-			return opt.label.toLowerCase().includes(trimmed) || opt.value.toLowerCase().includes(trimmed);
+			return (
+				opt.label.toLowerCase().includes(trimmed) ||
+				opt.value.toLowerCase().includes(trimmed)
+			);
 		});
 
 		const existing: ComboboxItemOption[] = filtered.map((opt) => ({
@@ -168,7 +177,9 @@ function TypeLevel({
 		// Add "Create" option if typed text has no exact match among ALL options
 		if (rawInput.length > 0) {
 			const exactMatch = options.some(
-				(opt) => opt.label.toLowerCase() === trimmed || opt.value.toLowerCase() === trimmed,
+				(opt) =>
+					opt.label.toLowerCase() === trimmed ||
+					opt.value.toLowerCase() === trimmed,
 			);
 			if (!exactMatch) {
 				const slug = trimmed.replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
@@ -249,7 +260,11 @@ function TypeLevel({
 					{/* Combobox at 30% width */}
 					<div className="w-[30%] min-w-[200px]">
 						{isOptionsLoading && !currentType ? (
-							<Skeleton className="h-9 w-full rounded-lg" aria-busy="true" aria-label="Loading types" />
+							<Skeleton
+								className="h-9 w-full rounded-lg"
+								aria-busy="true"
+								aria-label="Loading types"
+							/>
 						) : (
 							<Combobox
 								value={currentType?.value ?? null}
@@ -277,7 +292,10 @@ function TypeLevel({
 														item.value.toLowerCase() === trimmed.toLowerCase()),
 											);
 											if (exactMatch) {
-												onChange({ value: exactMatch.value, label: exactMatch.label });
+												onChange({
+													value: exactMatch.value,
+													label: exactMatch.label,
+												});
 												setInputValue(exactMatch.label);
 											} else {
 												commitInputAsType();
@@ -295,7 +313,9 @@ function TypeLevel({
 											</div>
 										)}
 										{!isOptionsLoading && items.length === 0 && (
-											<ComboboxEmpty>No options found. Type to create a new one.</ComboboxEmpty>
+											<ComboboxEmpty>
+												No options found. Type to create a new one.
+											</ComboboxEmpty>
 										)}
 										{items.map((item) => (
 											<ComboboxItem key={item.id} value={item.value}>
@@ -325,8 +345,10 @@ function TypeLevel({
 								<AlertDialogTitle>Remove this type?</AlertDialogTitle>
 								<AlertDialogDescription>
 									Removing "{currentType.label}" will also remove{" "}
-									{childCount === 1 ? "the sub-type" : `${childCount} sub-types`} under it. This
-									action cannot be undone.
+									{childCount === 1
+										? "the sub-type"
+										: `${childCount} sub-types`}{" "}
+									under it. This action cannot be undone.
 								</AlertDialogDescription>
 								<div className="flex justify-end gap-3 mt-2">
 									<AlertDialogCancel className="...">Cancel</AlertDialogCancel>

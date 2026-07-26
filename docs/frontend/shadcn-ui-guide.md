@@ -27,11 +27,11 @@ Some shadcn defaults reference `@/` — always use `#/` for this project.
 | Concern | This project uses | Standard shadcn uses |
 |---------|------------------|---------------------|
 | Forms | `@tanstack/react-form` (useForm) | React Hook Form |
-| Toasts | `gooey-toast` (`gooeyToast` from `#/components/ui/goey-toaster`) | `sonner` |
+| Toasts | `@base-ui/react/toast` (`toast` from `#/components/ui/toast`) | `sonner` |
 | Primitives | `@base-ui/react` (Base UI) | Radix UI |
 | Icons | `lucide-react` | `lucide-react` |
 
-**Important:** When adding toast notifications, import `gooeyToast` from `#/components/ui/goey-toaster`, not from `sonner`.
+**Important:** When adding toast notifications, import `toast` from `#/components/ui/toast`, not from `sonner`.
 
 ---
 
@@ -130,10 +130,10 @@ const form = useForm({
 </Button>
 
 // Toast notification
-import { gooeyToast } from "#/components/ui/goey-toaster";
-gooeyToast.success("Saved!");
-gooeyToast.error("Failed");
-gooeyToast.promise(fetchData(), { loading: "...", success: "Done", error: "Failed" });
+import { toast } from "#/components/ui/toast";
+toast.success("Saved!");
+toast.error("Failed");
+toast.promise(fetchData(), { loading: "...", success: "Done", error: "Failed" });
 
 // Card layout
 <Card>

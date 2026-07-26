@@ -20,7 +20,7 @@ import {
 	FieldGroup,
 	FieldLabel,
 } from "#/components/ui/field";
-import { gooeyToast } from "#/components/ui/goey-toaster";
+import { toast } from "#/components/ui/toast";
 import { CredetsImage } from "#/components/ui/image";
 import {
 	Item,
@@ -79,7 +79,9 @@ function normalizeDataForEdit(
 	}));
 }
 
-export const Route = createLazyFileRoute("/credentials/draft/$credentialId/update/")({
+export const Route = createLazyFileRoute(
+	"/credentials/draft/$credentialId/update/",
+)({
 	component: RouteComponent,
 });
 
@@ -157,14 +159,14 @@ function RouteComponent() {
 					});
 
 					if (!data.success && data.type === "form-validation") {
-						gooeyToast.error(data.message || "Validation failed", {
+						toast.error(data.message || "Validation failed", {
 							description: "Please fix all the form errors and try again.",
 						});
 						return { fields: data.errors };
 					}
 
 					if (!data.success) {
-						gooeyToast.error(
+						toast.error(
 							data.message ||
 								"something went wrong on server side while validating data",
 						);
@@ -174,7 +176,7 @@ function RouteComponent() {
 						};
 					}
 				} catch (error) {
-					gooeyToast.error("something went wrong", {
+					toast.error("something went wrong", {
 						description:
 							error instanceof Error
 								? error.message
@@ -203,7 +205,7 @@ function RouteComponent() {
 				await router.invalidate();
 			});
 
-			await gooeyToast.promise(updatePromise, {
+			await toast.promise(updatePromise, {
 				loading: "updating...",
 				success: "draft updated",
 				error: "failed to update the draft",
@@ -214,9 +216,7 @@ function RouteComponent() {
 				action: {
 					success: {
 						label:
-							draftIntent === false
-								? "view in listings"
-								: "back to drafts",
+							draftIntent === false ? "view in listings" : "back to drafts",
 						onClick: async () => {
 							if (draftIntent === false) {
 								navigate({ to: "/credentials" });
@@ -244,9 +244,7 @@ function RouteComponent() {
 					>
 						<ArrowLeft className="size-6" />
 					</button>
-					<p className="capitalize text-4xl text-center">
-						Edit draft
-					</p>
+					<p className="capitalize text-4xl text-center">Edit draft</p>
 				</div>
 
 				<Form
@@ -706,7 +704,7 @@ function RouteComponent() {
 											6 - visibleExistingImages.length - newImages.length;
 
 										if (available <= 0) {
-											gooeyToast.error("max 6 images support", {
+											toast.error("max 6 images support", {
 												description: "you can have up to 6 images total",
 											});
 											e.target.value = "";
@@ -715,7 +713,7 @@ function RouteComponent() {
 
 										const toAdd = files.slice(0, available);
 										if (toAdd.length < files.length) {
-											gooeyToast.error("max 6 images support", {
+											toast.error("max 6 images support", {
 												description: `Only ${available} more image(s) allowed`,
 											});
 										}

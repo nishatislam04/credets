@@ -10,7 +10,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "#/components/ui/alert-dialog";
-import { gooeyToast } from "#/components/ui/goey-toaster";
+import { toast } from "#/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { deleteCredentialAction } from "./delete-credential-action";
 
@@ -32,7 +32,7 @@ export function DeleteCredentialDialog({
 
 	const handleDelete = async () => {
 		if (!csrfToken) {
-			gooeyToast.error("Session expired", {
+			toast.error("Session expired", {
 				description: "Please refresh the page and try again.",
 			});
 			return;
@@ -42,7 +42,7 @@ export function DeleteCredentialDialog({
 		try {
 			await deleteCredentialAction({ credentialId, csrfToken });
 
-			gooeyToast.success("Credential deleted", {
+			toast.success("Credential deleted", {
 				description: `"${credentialTitle}" has been deleted`,
 			});
 
@@ -51,7 +51,7 @@ export function DeleteCredentialDialog({
 
 			navigate({ to: "/credentials" });
 		} catch (err) {
-			gooeyToast.error("Failed to delete", {
+			toast.error("Failed to delete", {
 				description:
 					err instanceof Error ? err.message : "Something went wrong",
 			});
@@ -96,7 +96,7 @@ export function DeleteCredentialDialog({
 							<span className="font-semibold text-foreground">
 								&ldquo;{credentialTitle}&rdquo;
 							</span>
-							 to trash.
+							to trash.
 						</span>
 						<br />
 						<span>

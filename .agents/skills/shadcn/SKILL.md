@@ -12,7 +12,7 @@ A framework for building ui, components and design systems. Components are added
 > **WORKING DIRECTORY:** This project's `components.json` is at `apps/frontend/components.json`. All `npx shadcn@latest` commands must be run with `--cwd apps/frontend` or from inside the `apps/frontend` directory. Example: `npx shadcn@latest info --json -c apps/frontend`.
 
 > **PROJECT-SPECIFIC DEVIATIONS:** This project differs from standard shadcn defaults in several ways:
-> - **Toast:** uses `gooey-toast` (`gooeyToast` from `#/components/ui/goey-toaster`), NOT `sonner`
+> - **Toast:** uses `@base-ui/react/toast` (`toast` from `#/components/ui/toast`), NOT `sonner`
 > - **Forms:** uses `@tanstack/react-form`, NOT React Hook Form
 > - **Import aliases:** uses `#/` prefix (via `package.json` imports), NOT `@/`
 > - See `docs/frontend/shadcn-ui-guide.md` for a complete project-specific reference.

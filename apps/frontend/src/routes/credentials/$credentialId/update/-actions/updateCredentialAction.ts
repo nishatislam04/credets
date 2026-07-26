@@ -45,7 +45,9 @@ export async function updateCredentialAction(value: UpdatePayload) {
 
 		if (!result.success) {
 			if (result.type === "csrf-expired") {
-				throw new Error("Session expired. Please refresh the page and try again.");
+				throw new Error(
+					"Session expired. Please refresh the page and try again.",
+				);
 			}
 			if (result.type === "form-validation" && result.errors) {
 				throw new Error("Validation failed. Please fix the form errors.");
@@ -56,6 +58,8 @@ export async function updateCredentialAction(value: UpdatePayload) {
 		return result;
 	} catch (error) {
 		if (error instanceof Error) throw error;
-		throw new Error("Something went wrong on the server while updating the credential");
+		throw new Error(
+			"Something went wrong on the server while updating the credential",
+		);
 	}
 }

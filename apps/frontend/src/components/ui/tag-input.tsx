@@ -1,7 +1,13 @@
 "use client";
 
 import { X } from "lucide-react";
-import { type KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
+import {
+	type KeyboardEvent,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { Badge } from "#/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { cn } from "#/lib/utils.ts";
@@ -168,7 +174,10 @@ export function TagInput({
 		<div className={cn("space-y-3", className)}>
 			{/* ── Tags container — rendered above the input ──────────── */}
 			{tags.length > 0 && (
-				<div className="flex flex-wrap items-center gap-1.5" aria-label="Added tags">
+				<div
+					className="flex flex-wrap items-center gap-1.5"
+					aria-label="Added tags"
+				>
 					{tags.map((tag, index) => (
 						<Badge
 							// biome-ignore lint/suspicious/noArrayIndexKey: tags have no stable unique id

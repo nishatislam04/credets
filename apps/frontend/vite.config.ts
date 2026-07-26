@@ -10,8 +10,7 @@ import { statsPlugin } from "vite-bundle-explorer/plugin";
 export default defineConfig(({ mode, command }) => {
 	const isStaging = mode === "staging";
 	const isProductionBuild = command === "build" && mode === "production";
-	const analyze =
-		isStaging || process.env.ANALYZE === "true";
+	const analyze = isStaging || process.env.ANALYZE === "true";
 
 	return {
 		resolve: {

@@ -120,8 +120,8 @@ function DraftEmptyState() {
 				No drafts yet
 			</h2>
 			<p className="text-sm text-muted-foreground/60 max-w-sm text-center leading-relaxed">
-				Draft credentials will appear here. You can save a credential as a
-				draft from the create form and come back to finish it later.
+				Draft credentials will appear here. You can save a credential as a draft
+				from the create form and come back to finish it later.
 			</p>
 		</div>
 	);

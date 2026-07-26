@@ -37,17 +37,13 @@ export function TypeTree({ path }: TypeTreeProps) {
 
 						<span
 							className={
-								isLeaf
-									? "font-medium text-foreground"
-									: "text-muted-foreground"
+								isLeaf ? "font-medium text-foreground" : "text-muted-foreground"
 							}
 						>
 							{entry.label}
 						</span>
 
-						{!isLeaf && (
-							<span className="text-muted-foreground/30">▸</span>
-						)}
+						{!isLeaf && <span className="text-muted-foreground/30">▸</span>}
 					</div>
 				);
 			})}

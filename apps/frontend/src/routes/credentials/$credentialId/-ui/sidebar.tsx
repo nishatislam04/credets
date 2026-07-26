@@ -11,7 +11,7 @@ import {
 	Tag,
 } from "lucide-react";
 import { useState } from "react";
-import { gooeyToast } from "#/components/ui/goey-toaster";
+import { toast } from "#/components/ui/toast";
 import {
 	isContentEmpty,
 	RichTextRenderer,
@@ -28,7 +28,10 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 	const [togglingField, setTogglingField] = useState<string | null>(null);
 	const queryClient = useQueryClient();
 
-	const handleToggle = async (field: "is_draft" | "is_favourite", value: boolean) => {
+	const handleToggle = async (
+		field: "is_draft" | "is_favourite",
+		value: boolean,
+	) => {
 		setTogglingField(field);
 		// Optimistic update
 		if (field === "is_draft") setIsDraft(value);
@@ -48,7 +51,7 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 				// Revert on failure
 				if (field === "is_draft") setIsDraft(!value);
 				if (field === "is_favourite") setIsFavourite(!value);
-				gooeyToast.error("Failed to update", {
+				toast.error("Failed to update", {
 					description: `Could not update ${field === "is_draft" ? "draft" : "favourite"} status`,
 				});
 			} else {
@@ -57,7 +60,7 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 				queryClient.invalidateQueries({ queryKey: ["draft-listings"] });
 				queryClient.invalidateQueries({ queryKey: ["favourite-listings"] });
 				const label = field === "is_draft" ? "Draft" : "Favourite";
-				gooeyToast.success(`${label} updated`, {
+				toast.success(`${label} updated`, {
 					description: value
 						? `${label} mode turned on`
 						: `${label} mode turned off`,
@@ -89,9 +92,7 @@ export function Sidebar({ credential }: { credential: CredentialDetail }) {
 					<label className="flex items-center gap-3 cursor-pointer">
 						<Switch
 							checked={isDraft}
-							onCheckedChange={(checked) =>
-								handleToggle("is_draft", checked)
-							}
+							onCheckedChange={(checked) => handleToggle("is_draft", checked)}
 							disabled={togglingField === "is_draft"}
 						/>
 						<span className="text-sm text-muted-foreground/80">Draft</span>

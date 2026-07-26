@@ -3,12 +3,11 @@ import { createRootRoute, HeadContent, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ErrorBoundary } from "#/components/error-boundary";
 import { ThemeProvider } from "#/hooks/theme-provider";
-import { GooeyToaster } from "@/components/ui/goey-toaster";
+import { Toaster } from "@/components/ui/toast";
 
 import "../styles.css";
 
-const showDevtools =
-	import.meta.env.DEV || import.meta.env.MODE === "staging";
+const showDevtools = import.meta.env.DEV || import.meta.env.MODE === "staging";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -57,7 +56,7 @@ function RootComponent() {
 					<Outlet />
 				</QueryClientProvider>
 			</ErrorBoundary>
-			<GooeyToaster />
+			<Toaster offset="5rem" />
 			{showDevtools && <TanStackRouterDevtools position="bottom-right" />}
 		</ThemeProvider>
 	);

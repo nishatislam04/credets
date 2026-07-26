@@ -3,19 +3,21 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 // ---------- Form (just a styled container, completely optional) ----------
-const Form = React.forwardRef<HTMLFormElement, React.FormHTMLAttributes<HTMLFormElement>>(
-	({ className, ...props }, ref) => (
-		<form ref={ref} className={cn("space-y-6", className)} {...props} />
-	),
-);
+const Form = React.forwardRef<
+	HTMLFormElement,
+	React.FormHTMLAttributes<HTMLFormElement>
+>(({ className, ...props }, ref) => (
+	<form ref={ref} className={cn("space-y-6", className)} {...props} />
+));
 Form.displayName = "Form";
 
 // ---------- FormItem – group label, control and message ----------
-const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-	({ className, ...props }, ref) => (
-		<div ref={ref} className={cn("space-y-2", className)} {...props} />
-	),
-);
+const FormItem = React.forwardRef<
+	HTMLDivElement,
+	React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+	<div ref={ref} className={cn("space-y-2", className)} {...props} />
+));
 FormItem.displayName = "FormItem";
 
 // ---------- FormLabel – uses the shadcn Label ----------

@@ -9,7 +9,7 @@ import {
 	AlertDialogDescription,
 	AlertDialogTitle,
 } from "#/components/ui/alert-dialog";
-import { gooeyToast } from "#/components/ui/goey-toaster";
+import { toast } from "#/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { deleteCredentialAction } from "../update/-delete/delete-credential-action";
 import { getCSRFtoken } from "../../create/-actions/getCSRFtoken";
@@ -37,7 +37,7 @@ export function DeleteButton({
 				csrfToken: csrfRes.data.token,
 			});
 
-			gooeyToast.success("Credential deleted", {
+			toast.success("Credential deleted", {
 				description: `"${credentialTitle}" has been deleted`,
 			});
 
@@ -45,7 +45,7 @@ export function DeleteButton({
 			queryClient.invalidateQueries({ queryKey: ["trash-listings"] });
 			navigate({ to: "/credentials" });
 		} catch (err) {
-			gooeyToast.error("Failed to delete", {
+			toast.error("Failed to delete", {
 				description:
 					err instanceof Error ? err.message : "Something went wrong",
 			});
@@ -82,7 +82,7 @@ export function DeleteButton({
 							<span className="font-semibold text-foreground">
 								&ldquo;{credentialTitle}&rdquo;
 							</span>
-							 to trash.
+							to trash.
 						</span>
 						<br />
 						<span>

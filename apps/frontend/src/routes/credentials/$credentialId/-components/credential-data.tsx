@@ -9,10 +9,17 @@ interface CredentialDataRendererProps {
 
 // ── Copy-on-click display (single line) ─────────────────────────────
 
-function CopyDisplay({ value, isSecret = false }: { value: string; isSecret?: boolean }) {
+function CopyDisplay({
+	value,
+	isSecret = false,
+}: {
+	value: string;
+	isSecret?: boolean;
+}) {
 	const [copied, setCopied] = useState(false);
 	const [revealed, setRevealed] = useState(false);
-	const display = isSecret && !revealed ? "•".repeat(Math.min(value.length, 32)) : value;
+	const display =
+		isSecret && !revealed ? "•".repeat(Math.min(value.length, 32)) : value;
 
 	const handleCopy = useCallback(() => {
 		navigator.clipboard.writeText(value).then(() => {
@@ -31,7 +38,9 @@ function CopyDisplay({ value, isSecret = false }: { value: string; isSecret?: bo
 				if (e.key === "Enter" || e.key === " ") handleCopy();
 			}}
 		>
-			<span className="flex-1 font-mono text-sm tracking-wide break-all select-all">{display}</span>
+			<span className="flex-1 font-mono text-sm tracking-wide break-all select-all">
+				{display}
+			</span>
 			<div className="flex shrink-0 items-center gap-1.5">
 				{isSecret && (
 					<button
@@ -43,7 +52,11 @@ function CopyDisplay({ value, isSecret = false }: { value: string; isSecret?: bo
 						className="cursor-pointer rounded-md border-0 bg-transparent p-1 text-muted-foreground/40 transition-colors hover:bg-muted/60 hover:text-foreground"
 						aria-label={revealed ? "Hide" : "Reveal"}
 					>
-						{revealed ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+						{revealed ? (
+							<EyeOff className="size-3.5" />
+						) : (
+							<Eye className="size-3.5" />
+						)}
 					</button>
 				)}
 				{copied ? (
@@ -110,7 +123,11 @@ const SENSITIVE_FIELDS = new Set(["password", "key", "secret", "token"]);
 
 // ── Block renderers ─────────────────────────────────────────────────
 
-function SingleLabelBlock({ block }: { block: DataBlockEntry & { type: "single_label" } }) {
+function SingleLabelBlock({
+	block,
+}: {
+	block: DataBlockEntry & { type: "single_label" };
+}) {
 	return (
 		<div className="px-6 py-5">
 			<BlockLabel>Single Value</BlockLabel>
@@ -119,7 +136,11 @@ function SingleLabelBlock({ block }: { block: DataBlockEntry & { type: "single_l
 	);
 }
 
-function KeyValueBlock({ block }: { block: DataBlockEntry & { type: "key_value" } }) {
+function KeyValueBlock({
+	block,
+}: {
+	block: DataBlockEntry & { type: "key_value" };
+}) {
 	const isSecret = SENSITIVE_FIELDS.has(block.key);
 	return (
 		<div className="px-6 py-5">
@@ -131,7 +152,9 @@ function KeyValueBlock({ block }: { block: DataBlockEntry & { type: "key_value" 
 				<div>
 					<div className="mb-1.5 flex items-center gap-2">
 						<BlockLabel>Value</BlockLabel>
-						{isSecret && <span className="size-1.5 rounded-full bg-amber-400/60" />}
+						{isSecret && (
+							<span className="size-1.5 rounded-full bg-amber-400/60" />
+						)}
 					</div>
 					<CopyDisplay value={String(block.value)} isSecret={isSecret} />
 				</div>
@@ -140,7 +163,11 @@ function KeyValueBlock({ block }: { block: DataBlockEntry & { type: "key_value" 
 	);
 }
 
-function InformationBlock({ block }: { block: DataBlockEntry & { type: "information" } }) {
+function InformationBlock({
+	block,
+}: {
+	block: DataBlockEntry & { type: "information" };
+}) {
 	return (
 		<div className="px-6 py-5">
 			<BlockLabel>Information</BlockLabel>
@@ -219,7 +246,10 @@ const fallbackAccent = {
 
 // ── Main exported component ─────────────────────────────────────────
 
-export function CredentialDataRenderer({ typeValue, data }: CredentialDataRendererProps) {
+export function CredentialDataRenderer({
+	typeValue,
+	data,
+}: CredentialDataRendererProps) {
 	const accent = TYPE_ACCENTS[typeValue ?? ""] ?? fallbackAccent;
 
 	if (!data || data.length === 0) {
@@ -236,9 +266,13 @@ export function CredentialDataRenderer({ typeValue, data }: CredentialDataRender
 			<h4 className="text-xl font-medium mb-3">Data</h4>*/}
 			<div className="mb-5 flex items-center gap-2">
 				<Braces className="size-4.5" />
-				<h2 className="text-base font-semibold uppercase tracking-wider">Data</h2>
+				<h2 className="text-base font-semibold uppercase tracking-wider">
+					Data
+				</h2>
 			</div>
-			<div className={`rounded-lg border bg-gradient-to-br from-primary/[0.04] to-transparent ${accent.border} overflow-hidden dark:from-primary/[0.07]`}>
+			<div
+				className={`rounded-lg border bg-gradient-to-br from-primary/[0.04] to-transparent ${accent.border} overflow-hidden dark:from-primary/[0.07]`}
+			>
 				<DataBlocksRenderer blocks={data} />
 			</div>
 		</div>

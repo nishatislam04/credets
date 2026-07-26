@@ -119,7 +119,8 @@ function FavouriteEmptyState() {
 			</h2>
 			<p className="text-sm text-muted-foreground/60 max-w-sm text-center leading-relaxed">
 				Favourite credentials will appear here. Mark credentials as favourites
-				from the credential detail or listings page to save your most-used items.
+				from the credential detail or listings page to save your most-used
+				items.
 			</p>
 		</div>
 	);
@@ -233,9 +234,7 @@ function RouteComponent() {
 				)}
 
 				{/* Error state */}
-				{!isLoading && isError && (
-					<FavouriteErrorUI error={error as Error} />
-				)}
+				{!isLoading && isError && <FavouriteErrorUI error={error as Error} />}
 
 				{/* Empty state */}
 				{!isLoading && !isError && items.length === 0 && (

@@ -41,7 +41,9 @@ export class ErrorBoundary extends Component<
 					<span className="text-2xl text-destructive">!</span>
 				</div>
 				<h1 className="mb-2 text-lg font-semibold">Something broke</h1>
-				<p className="mb-6 text-sm text-muted-foreground">{this.state.message}</p>
+				<p className="mb-6 text-sm text-muted-foreground">
+					{this.state.message}
+				</p>
 				<Button
 					type="button"
 					onClick={() => {

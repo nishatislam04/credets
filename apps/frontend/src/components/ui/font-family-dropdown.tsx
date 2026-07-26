@@ -23,7 +23,10 @@ const FONT_CATEGORIES: FontCategory[] = [
 		label: "Sans-serif",
 		fonts: [
 			{ name: "Arial", value: "Arial" },
-			{ name: "Helvetica Neue", value: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
+			{
+				name: "Helvetica Neue",
+				value: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+			},
 			{ name: "Helvetica", value: "Helvetica" },
 			{ name: "Verdana", value: "Verdana, sans-serif" },
 			{ name: "Trebuchet MS", value: "'Trebuchet MS', sans-serif" },
@@ -31,7 +34,10 @@ const FONT_CATEGORIES: FontCategory[] = [
 			{ name: "Futura", value: "Futura, 'Century Gothic', sans-serif" },
 			{ name: "Frutiger", value: "Frutiger, 'Frutiger Linotype', sans-serif" },
 			{ name: "Segoe UI", value: "'Segoe UI', sans-serif" },
-			{ name: "Lucida Grande", value: "'Lucida Grande', 'Lucida Sans Unicode', sans-serif" },
+			{
+				name: "Lucida Grande",
+				value: "'Lucida Grande', 'Lucida Sans Unicode', sans-serif",
+			},
 			{ name: "Tahoma", value: "Tahoma, Geneva, sans-serif" },
 			{ name: "Impact", value: "Impact, sans-serif" },
 			{ name: "Inter", value: "'Inter Variable', sans-serif" },
@@ -51,7 +57,10 @@ const FONT_CATEGORIES: FontCategory[] = [
 			{ name: "Georgia", value: "Georgia, serif" },
 			{ name: "Garamond", value: "Garamond, 'Times New Roman', serif" },
 			{ name: "Palatino", value: "Palatino, 'Palatino Linotype', serif" },
-			{ name: "Baskerville", value: "Baskerville, 'Baskerville Old Face', serif" },
+			{
+				name: "Baskerville",
+				value: "Baskerville, 'Baskerville Old Face', serif",
+			},
 			{ name: "Book Antiqua", value: "'Book Antiqua', Palatino, serif" },
 			{ name: "Calisto MT", value: "'Calisto MT', serif" },
 			{ name: "Didot", value: "Didot, 'Didot LT Std', serif" },
@@ -62,10 +71,17 @@ const FONT_CATEGORIES: FontCategory[] = [
 		label: "Monospace",
 		fonts: [
 			{ name: "Courier New", value: "'Courier New', Courier, monospace" },
-			{ name: "Lucida Console", value: "'Lucida Console', 'Lucida Sans Typewriter', monospace" },
+			{
+				name: "Lucida Console",
+				value: "'Lucida Console', 'Lucida Sans Typewriter', monospace",
+			},
 			{ name: "Monaco", value: "Monaco, 'Courier New', monospace" },
 			{ name: "Consolas", value: "Consolas, monospace" },
-			{ name: "Monospace", value: "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" },
+			{
+				name: "Monospace",
+				value:
+					"ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace",
+			},
 		],
 	},
 ];
@@ -76,12 +92,16 @@ interface FontFamilyDropdownProps {
 	editor: Editor;
 }
 
-export default function FontFamilyDropdown({ editor }: FontFamilyDropdownProps) {
+export default function FontFamilyDropdown({
+	editor,
+}: FontFamilyDropdownProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const triggerRef = useRef<HTMLButtonElement>(null);
 
-	const currentFont = editor.getAttributes("textStyle").fontFamily as string | undefined;
+	const currentFont = editor.getAttributes("textStyle").fontFamily as
+		| string
+		| undefined;
 	const currentLabel = getFontLabel(currentFont);
 
 	// Close on outside click
@@ -136,7 +156,17 @@ export default function FontFamilyDropdown({ editor }: FontFamilyDropdownProps) 
 				title="Font family"
 			>
 				<span className="max-w-[80px] truncate">{currentLabel}</span>
-				<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-50">
+				<svg
+					width="10"
+					height="10"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					className="shrink-0 opacity-50"
+				>
 					<polyline points="6 9 12 15 18 9" />
 				</svg>
 			</button>
@@ -173,11 +203,24 @@ export default function FontFamilyDropdown({ editor }: FontFamilyDropdownProps) 
 												? "bg-primary text-primary-foreground"
 												: "text-popover-foreground",
 										)}
-										style={font.value ? { fontFamily: font.value, fontSize: "14px" } : undefined}
+										style={
+											font.value
+												? { fontFamily: font.value, fontSize: "14px" }
+												: undefined
+										}
 									>
 										<span className="w-3 shrink-0">
 											{isActive && (
-												<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+												<svg
+													width="10"
+													height="10"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													strokeWidth="3"
+													strokeLinecap="round"
+													strokeLinejoin="round"
+												>
 													<polyline points="20 6 9 17 4 12" />
 												</svg>
 											)}
@@ -198,8 +241,8 @@ export default function FontFamilyDropdown({ editor }: FontFamilyDropdownProps) 
 
 function getFontLabel(fontFamily: string | undefined): string {
 	if (!fontFamily) return "Default";
-	const entry = FONT_CATEGORIES.flatMap((c) => c.fonts).find((f) =>
-		normalizeFont(f.value) === normalizeFont(fontFamily),
+	const entry = FONT_CATEGORIES.flatMap((c) => c.fonts).find(
+		(f) => normalizeFont(f.value) === normalizeFont(fontFamily),
 	);
 	return entry?.name ?? "Default";
 }

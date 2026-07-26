@@ -16,7 +16,9 @@ export function createCredentialFormdata(value: CredentialCreateType) {
 		formdata.append("long_description", value.long_description || "");
 	value.thumbnail && formdata.append("thumbnail", value.thumbnail);
 
-	const cleanedDataBlock = value.data.filter((block) => !isDatablockEmpty(block));
+	const cleanedDataBlock = value.data.filter(
+		(block) => !isDatablockEmpty(block),
+	);
 	formdata.append("data", JSON.stringify(cleanedDataBlock));
 
 	value.notes && formdata.append("notes", value.notes || "");

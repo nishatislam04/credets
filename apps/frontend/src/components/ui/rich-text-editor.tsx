@@ -12,29 +12,51 @@ import { useEffect, useRef, useState } from "react";
 import { RichTextProvider } from "reactjs-tiptap-editor";
 import { themeActions } from "reactjs-tiptap-editor/theme";
 import { useTheme } from "#/hooks/theme-provider";
-import { Blockquote, RichTextBlockquote } from "reactjs-tiptap-editor/blockquote";
+import {
+	Blockquote,
+	RichTextBlockquote,
+} from "reactjs-tiptap-editor/blockquote";
 import { Bold, RichTextBold } from "reactjs-tiptap-editor/bold";
 import { RichTextBubbleText } from "reactjs-tiptap-editor/bubble";
-import { BulletList, RichTextBulletList } from "reactjs-tiptap-editor/bulletlist";
+import {
+	BulletList,
+	RichTextBulletList,
+} from "reactjs-tiptap-editor/bulletlist";
 import { TaskList, RichTextTaskList } from "reactjs-tiptap-editor/tasklist";
 import { Clear, RichTextClear } from "reactjs-tiptap-editor/clear";
 import { Code, RichTextCode } from "reactjs-tiptap-editor/code";
 import { CodeBlock } from "reactjs-tiptap-editor/codeblock";
 import { Heading } from "reactjs-tiptap-editor/heading";
 import HeadingDropdown from "#/components/ui/heading-dropdown";
-import { History, RichTextRedo, RichTextUndo } from "reactjs-tiptap-editor/history";
-import { HorizontalRule, RichTextHorizontalRule } from "reactjs-tiptap-editor/horizontalrule";
+import {
+	History,
+	RichTextRedo,
+	RichTextUndo,
+} from "reactjs-tiptap-editor/history";
+import {
+	HorizontalRule,
+	RichTextHorizontalRule,
+} from "reactjs-tiptap-editor/horizontalrule";
 import { Italic, RichTextItalic } from "reactjs-tiptap-editor/italic";
 import { Link, RichTextLink } from "reactjs-tiptap-editor/link";
-import { OrderedList, RichTextOrderedList } from "reactjs-tiptap-editor/orderedlist";
+import {
+	OrderedList,
+	RichTextOrderedList,
+} from "reactjs-tiptap-editor/orderedlist";
 import { RichTextStrike, Strike } from "reactjs-tiptap-editor/strike";
-import { RichTextUnderline, TextUnderline } from "reactjs-tiptap-editor/textunderline";
+import {
+	RichTextUnderline,
+	TextUnderline,
+} from "reactjs-tiptap-editor/textunderline";
 import { Color, RichTextColor } from "reactjs-tiptap-editor/color";
 import { Highlight, RichTextHighlight } from "reactjs-tiptap-editor/highlight";
 import { Emoji, RichTextEmoji } from "reactjs-tiptap-editor/emoji";
 import { FontFamily } from "reactjs-tiptap-editor/fontfamily";
 import FontFamilyDropdown from "#/components/ui/font-family-dropdown";
-import { LineHeight, RichTextLineHeight } from "reactjs-tiptap-editor/lineheight";
+import {
+	LineHeight,
+	RichTextLineHeight,
+} from "reactjs-tiptap-editor/lineheight";
 import { TextAlign, RichTextAlign } from "reactjs-tiptap-editor/textalign";
 import { Indent, RichTextIndent } from "reactjs-tiptap-editor/indent";
 import { Code2 } from "lucide-react";
@@ -137,7 +159,7 @@ lowlight.register("ts", ts);
  * Integrates with TanStack Form via `value` (JSON-stringified) and `onChange`.
  * Renders a rich toolbar above the content area with a bubble menu for inline
  * formatting (bold, italic, underline, strike, link).
- */	export default function RichTextEditor({
+ */ export default function RichTextEditor({
 	value,
 	onChange,
 	placeholder,
@@ -151,7 +173,9 @@ lowlight.register("ts", ts);
 	// ── Sync RTE theme with project theme ──────────────────────────
 	const resolvedTheme = (() => {
 		if (projectTheme === "system") {
-			return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+			return window.matchMedia("(prefers-color-scheme: dark)").matches
+				? "dark"
+				: "light";
 		}
 		return projectTheme;
 	})();
@@ -219,7 +243,13 @@ lowlight.register("ts", ts);
 			Indent.configure({
 				minIndent: 0,
 				maxIndent: 48,
-				types: ["paragraph", "heading", "blockquote", "orderedList", "bulletList"],
+				types: [
+					"paragraph",
+					"heading",
+					"blockquote",
+					"orderedList",
+					"bulletList",
+				],
 			}),
 			Color.configure({
 				colors: COLOR_PRESETS,
@@ -267,7 +297,9 @@ lowlight.register("ts", ts);
 			prevValueRef.current = value;
 
 			try {
-				const parsed = value ? (JSON.parse(value) as Record<string, unknown>) : null;
+				const parsed = value
+					? (JSON.parse(value) as Record<string, unknown>)
+					: null;
 				if (!parsed) {
 					editor.commands.setContent(EMPTY_DOC);
 					return;
@@ -305,7 +337,9 @@ lowlight.register("ts", ts);
 				)}
 				style={{ height: "358px" }}
 			>
-				<div className="animate-pulse text-muted-foreground">Loading editor…</div>
+				<div className="animate-pulse text-muted-foreground">
+					Loading editor…
+				</div>
 			</div>
 		);
 	}
@@ -317,12 +351,17 @@ lowlight.register("ts", ts);
 				disabled && "cursor-not-allowed opacity-50",
 				className,
 			)}
-		>			<RichTextProvider editor={editor}>
+		>
+			{" "}
+			<RichTextProvider editor={editor}>
 				<Toolbar editor={editor} />
 				{/* Bubble text menu — appears on text selection */}
 				<RichTextBubbleText buttonBubble={<BubbleContent editor={editor} />} />
 				<div className="px-3 pb-3" style={{ minHeight }}>
-					<EditorContent editor={editor} className="prose prose-sm dark:prose-invert max-w-none" />
+					<EditorContent
+						editor={editor}
+						className="prose prose-sm dark:prose-invert max-w-none"
+					/>
 				</div>
 			</RichTextProvider>
 		</div>
@@ -331,7 +370,11 @@ lowlight.register("ts", ts);
 
 // ── Bubble menu content ───────────────────────────────────────────
 
-function BubbleContent({ editor }: { editor: NonNullable<ReturnType<typeof useEditor>> }) {
+function BubbleContent({
+	editor,
+}: {
+	editor: NonNullable<ReturnType<typeof useEditor>>;
+}) {
 	return (
 		<div className="flex items-center gap-0.5 rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md outline-none">
 			<HeadingDropdown editor={editor} />
@@ -358,7 +401,11 @@ function BubbleContent({ editor }: { editor: NonNullable<ReturnType<typeof useEd
 
 // ── Custom code block button ──────────────────────────────────────
 
-function CodeBlockButton({ editor }: { editor: NonNullable<ReturnType<typeof useEditor>> }) {
+function CodeBlockButton({
+	editor,
+}: {
+	editor: NonNullable<ReturnType<typeof useEditor>>;
+}) {
 	const isActive = editor.isActive("codeBlock");
 
 	const handleClick = () => {
@@ -415,7 +462,11 @@ function CodeBlockButton({ editor }: { editor: NonNullable<ReturnType<typeof use
 
 // ── Toolbar ────────────────────────────────────────────────────────
 
-function Toolbar({ editor }: { editor: NonNullable<ReturnType<typeof useEditor>> }) {
+function Toolbar({
+	editor,
+}: {
+	editor: NonNullable<ReturnType<typeof useEditor>>;
+}) {
 	return (
 		<div className="flex flex-wrap items-center gap-0.5 border-b border-border/50 px-2 py-1.5">
 			<RichTextUndo />

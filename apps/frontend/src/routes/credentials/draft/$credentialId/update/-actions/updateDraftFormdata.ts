@@ -50,7 +50,9 @@ export function createUpdateDraftFormdata(value: UpdateDraftFormValues) {
 	}
 
 	// Clean and append data blocks
-	const cleanedDataBlock = value.data.filter((block) => !isDatablockEmpty(block as any));
+	const cleanedDataBlock = value.data.filter(
+		(block) => !isDatablockEmpty(block as any),
+	);
 	formdata.append("data", JSON.stringify(cleanedDataBlock));
 
 	if (value.notes) {
@@ -67,7 +69,10 @@ export function createUpdateDraftFormdata(value: UpdateDraftFormValues) {
 
 	// Existing images to keep
 	if (value.existingImagesKeep.length > 0) {
-		formdata.append("existing_images_keep", JSON.stringify(value.existingImagesKeep));
+		formdata.append(
+			"existing_images_keep",
+			JSON.stringify(value.existingImagesKeep),
+		);
 	}
 
 	// New image files

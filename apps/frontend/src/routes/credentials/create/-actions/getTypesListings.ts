@@ -1,6 +1,8 @@
 export async function getTypesListings() {
 	try {
-		const res = await fetch(`${import.meta.env.VITE_BACKEND_APP}/types/listings`);
+		const res = await fetch(
+			`${import.meta.env.VITE_BACKEND_APP}/types/listings`,
+		);
 
 		if (!res.ok) throw new Error("network error");
 

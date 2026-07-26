@@ -2,7 +2,11 @@
 
 import { Skeleton } from "#/components/ui/skeleton";
 
-export function CredentialListingsSkeleton({ isLoading }: { isLoading: boolean }) {
+export function CredentialListingsSkeleton({
+	isLoading,
+}: {
+	isLoading: boolean;
+}) {
 	return isLoading ? (
 		<div className="mx-auto w-full max-w-3xl px-4 py-8">
 			<div className="mb-8 flex items-start justify-between">

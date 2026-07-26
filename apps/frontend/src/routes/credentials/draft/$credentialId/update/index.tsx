@@ -4,7 +4,9 @@ import { Skeleton } from "#/components/ui/skeleton";
 import { getCredentialUpdate } from "#/routes/credentials/$credentialId/update/-actions/getCredentialUpdate";
 import { getCSRFtoken } from "#/routes/credentials/create/-actions/getCSRFtoken";
 
-export const Route = createFileRoute("/credentials/draft/$credentialId/update/")({
+export const Route = createFileRoute(
+	"/credentials/draft/$credentialId/update/",
+)({
 	loader: async ({ params }) => {
 		const [credential, csrfRes] = await Promise.all([
 			getCredentialUpdate(params.credentialId),

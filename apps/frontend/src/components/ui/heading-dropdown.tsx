@@ -3,11 +3,35 @@ import type { Editor } from "@tiptap/core";
 import { cn } from "#/lib/utils";
 
 const HEADING_LEVELS = [
-	{ label: "Paragraph", value: 0, command: (editor: Editor) => editor.chain().focus().setParagraph().run() },
-	{ label: "Heading 1", value: 1, command: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 1 }).run() },
-	{ label: "Heading 2", value: 2, command: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 2 }).run() },
-	{ label: "Heading 3", value: 3, command: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 3 }).run() },
-	{ label: "Heading 4", value: 4, command: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 4 }).run() },
+	{
+		label: "Paragraph",
+		value: 0,
+		command: (editor: Editor) => editor.chain().focus().setParagraph().run(),
+	},
+	{
+		label: "Heading 1",
+		value: 1,
+		command: (editor: Editor) =>
+			editor.chain().focus().toggleHeading({ level: 1 }).run(),
+	},
+	{
+		label: "Heading 2",
+		value: 2,
+		command: (editor: Editor) =>
+			editor.chain().focus().toggleHeading({ level: 2 }).run(),
+	},
+	{
+		label: "Heading 3",
+		value: 3,
+		command: (editor: Editor) =>
+			editor.chain().focus().toggleHeading({ level: 3 }).run(),
+	},
+	{
+		label: "Heading 4",
+		value: 4,
+		command: (editor: Editor) =>
+			editor.chain().focus().toggleHeading({ level: 4 }).run(),
+	},
 ];
 
 interface HeadingDropdownProps {
@@ -67,7 +91,17 @@ export default function HeadingDropdown({ editor }: HeadingDropdownProps) {
 				title="Text style"
 			>
 				<span className="max-w-[80px] truncate">{currentLabel}</span>
-				<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-50">
+				<svg
+					width="10"
+					height="10"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					className="shrink-0 opacity-50"
+				>
 					<polyline points="6 9 12 15 18 9" />
 				</svg>
 			</button>
@@ -100,7 +134,16 @@ export default function HeadingDropdown({ editor }: HeadingDropdownProps) {
 							>
 								<span className="w-3 shrink-0">
 									{isActive && (
-										<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+										<svg
+											width="10"
+											height="10"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth="3"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										>
 											<polyline points="20 6 9 17 4 12" />
 										</svg>
 									)}

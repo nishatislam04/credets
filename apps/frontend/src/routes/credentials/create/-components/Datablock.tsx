@@ -52,7 +52,9 @@ export function DataBlock({
 	// Auto-focus the first input in this block when it's newly created
 	useEffect(() => {
 		if (shouldFocus && blockRef.current) {
-			const firstInput = blockRef.current.querySelector("input, textarea") as HTMLElement | null;
+			const firstInput = blockRef.current.querySelector(
+				"input, textarea",
+			) as HTMLElement | null;
 			if (firstInput) {
 				firstInput.focus();
 				onFocused?.();
@@ -65,7 +67,8 @@ export function DataBlock({
 	// is still focused (arrayField.state.value may not have synced yet).
 	const currentValue: string = form.getFieldValue(`data.${idx}.value`) ?? "";
 	const currentKey: string = form.getFieldValue(`data.${idx}.key`) ?? "";
-	const hasValues = currentValue.trim().length > 0 || currentKey.trim().length > 0;
+	const hasValues =
+		currentValue.trim().length > 0 || currentKey.trim().length > 0;
 
 	const handleRemove = useCallback(() => {
 		// Re-check values in the callback for the freshest read
@@ -84,12 +87,16 @@ export function DataBlock({
 		onRemove?.();
 	}, [onRemove]);
 	return (
-		<Card ref={blockRef} className="rounded-lg border p-4 mb-3 relative space-y-4">
+		<Card
+			ref={blockRef}
+			className="rounded-lg border p-4 mb-3 relative space-y-4"
+		>
 			{item.type === "single_label" && (
 				<form.Field
 					name={`data.${idx}.value`}
 					children={(field) => {
-						const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						const isinvalid =
+							field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isinvalid}>
 								<Label htmlFor={field.name}>Value</Label>
@@ -112,7 +119,8 @@ export function DataBlock({
 					<form.Field
 						name={`data.${idx}.key`}
 						children={(field) => {
-							const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							const isinvalid =
+								field.state.meta.isTouched && !field.state.meta.isValid;
 							return (
 								<Field data-invalid={isinvalid}>
 									<Label htmlFor={field.name}>Key</Label>
@@ -131,7 +139,8 @@ export function DataBlock({
 					<form.Field
 						name={`data.${idx}.value`}
 						children={(field) => {
-							const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							const isinvalid =
+								field.state.meta.isTouched && !field.state.meta.isValid;
 							return (
 								<Field data-invalid={isinvalid}>
 									<Label htmlFor={field.name}>Value</Label>
@@ -154,7 +163,8 @@ export function DataBlock({
 				<form.Field
 					name={`data.${idx}.value`}
 					children={(field) => {
-						const isinvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						const isinvalid =
+							field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isinvalid}>
 								<Label htmlFor={field.name}>Information</Label>
@@ -193,12 +203,18 @@ export function DataBlock({
 							<AlertTriangle className="size-7 text-destructive" />
 						</div>
 
-						<AlertDialogTitle className="text-center text-lg">Remove data block?</AlertDialogTitle>
+						<AlertDialogTitle className="text-center text-lg">
+							Remove data block?
+						</AlertDialogTitle>
 
 						<AlertDialogDescription className="text-center">
-							This data block has <span className="font-semibold text-foreground">content</span>{" "}
+							This data block has{" "}
+							<span className="font-semibold text-foreground">content</span>{" "}
 							that will be lost.{" "}
-							<strong className="text-destructive">This action cannot be undone</strong>.
+							<strong className="text-destructive">
+								This action cannot be undone
+							</strong>
+							.
 						</AlertDialogDescription>
 
 						<div className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-2.5 text-xs text-destructive/70">

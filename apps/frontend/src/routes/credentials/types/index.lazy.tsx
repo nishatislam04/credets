@@ -18,7 +18,7 @@ import {
 	DialogContent,
 	DialogTitle,
 } from "#/components/ui/dialog";
-import { gooeyToast } from "#/components/ui/goey-toaster";
+import { toast } from "#/components/ui/toast";
 import { Input } from "#/components/ui/input";
 import { Skeleton } from "#/components/ui/skeleton";
 import { CredentialsShell } from "../-components/credentials-shell";
@@ -90,13 +90,13 @@ function TypeEditDialog({
 		setSaving(true);
 		try {
 			await updateTypeLabel(typeId, editLabel.trim());
-			gooeyToast.success("Type label updated", {
+			toast.success("Type label updated", {
 				description: `"${editLabel.trim()}" saved`,
 			});
 			setEditingId(null);
 			onUpdated();
 		} catch {
-			gooeyToast.error("Failed to update", {
+			toast.error("Failed to update", {
 				description: "Could not update the type label",
 			});
 		} finally {
@@ -124,7 +124,10 @@ function TypeEditDialog({
 										? "border-primary/30 bg-primary/[0.03] ring-1 ring-primary/10"
 										: "",
 								)}
-								style={{ paddingLeft: `${12 + idx * 24}px`, paddingRight: "16px" }}
+								style={{
+									paddingLeft: `${12 + idx * 24}px`,
+									paddingRight: "16px",
+								}}
 							>
 								{isEditing ? (
 									<>
@@ -179,9 +182,7 @@ function TypeEditDialog({
 				</div>
 
 				<div className="flex justify-center mt-6">
-					<DialogClose
-						className="rounded-lg border bg-card px-6 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground cursor-pointer"
-					>
+					<DialogClose className="rounded-lg border bg-card px-6 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground cursor-pointer">
 						Close
 					</DialogClose>
 				</div>
@@ -304,30 +305,30 @@ function RouteComponent() {
 						<hr className="border-t border-border/40" />
 
 						<div className="flex flex-wrap items-center gap-3">
-						<button
-							type="button"
-							onClick={() => refetch()}
-							disabled={isRefetching}
-							className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground/70 shadow-xs transition-all duration-200 hover:bg-accent hover:text-foreground hover:shadow-sm active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
-						>
-							<RefreshCw
-								className={`size-3.5 ${isRefetching ? "animate-spin" : ""}`}
-							/>
-							Refresh
-						</button>
-
-						<label className="flex items-center gap-2 cursor-pointer">
-							<input
-								type="checkbox"
-								className="size-4 rounded border-border text-primary focus:ring-primary/30"
-							/>
-							<span className="text-xs text-muted-foreground/70 select-none">
-								Select all
-							</span>
-						</label>							<p className="ml-auto text-xs text-muted-foreground/40">
-							{items.length} credential{items.length !== 1 ? "s" : ""}
-						</p>
-					</div>
+							<button
+								type="button"
+								onClick={() => refetch()}
+								disabled={isRefetching}
+								className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground/70 shadow-xs transition-all duration-200 hover:bg-accent hover:text-foreground hover:shadow-sm active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+							>
+								<RefreshCw
+									className={`size-3.5 ${isRefetching ? "animate-spin" : ""}`}
+								/>
+								Refresh
+							</button>
+							<label className="flex items-center gap-2 cursor-pointer">
+								<input
+									type="checkbox"
+									className="size-4 rounded border-border text-primary focus:ring-primary/30"
+								/>
+								<span className="text-xs text-muted-foreground/70 select-none">
+									Select all
+								</span>
+							</label>{" "}
+							<p className="ml-auto text-xs text-muted-foreground/40">
+								{items.length} credential{items.length !== 1 ? "s" : ""}
+							</p>
+						</div>
 					</div>
 				</div>
 

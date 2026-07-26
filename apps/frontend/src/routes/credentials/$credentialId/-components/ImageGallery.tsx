@@ -33,7 +33,9 @@ function SimpleStack({
 		<section className="mt-12">
 			<div className="mb-3 flex items-center gap-2">
 				<ImageIcon className="size-4.5" />
-				<h2 className="text-lg font-semibold uppercase tracking-wider">Gallery</h2>
+				<h2 className="text-lg font-semibold uppercase tracking-wider">
+					Gallery
+				</h2>
 				<span className="text-[13px] text-muted-foreground/90">
 					{images.length} image{images.length !== 1 ? "s" : ""}
 				</span>
@@ -52,8 +54,9 @@ function SimpleStack({
 							<CredetsImage
 								src={src}
 								alt={`Gallery image ${i + 1}`}
-								layout="fullWidth"										className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-										draggable={false}
+								layout="fullWidth"
+								className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+								draggable={false}
 							/>
 							<div className="absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/2" />
 						</button>
@@ -76,10 +79,9 @@ function CarouselGallery({
 	// Single source of truth for "which image is active"
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	// ── MAIN carousel: horizontal, wheel remapped to x-axis ────────
-	const [mainRef, mainApi] = useEmblaCarousel(
-		{ axis: "x", loop: false },
-		[WheelGesturesPlugin({ forceWheelAxis: "x" })],
-	);
+	const [mainRef, mainApi] = useEmblaCarousel({ axis: "x", loop: false }, [
+		WheelGesturesPlugin({ forceWheelAxis: "x" }),
+	]);
 
 	// ── Thumbnail scroll container ref ────────────────────────────
 	const thumbScrollRef = useRef<HTMLDivElement>(null);
@@ -126,7 +128,9 @@ function CarouselGallery({
 		<section className="mt-12">
 			<div className="mb-3 flex items-center gap-2">
 				<ImageIcon className="size-4.5" />
-				<h2 className="text-lg font-semibold uppercase tracking-wider">Gallery</h2>
+				<h2 className="text-lg font-semibold uppercase tracking-wider">
+					Gallery
+				</h2>
 				<span className="text-[13px] text-muted-foreground/90">
 					{total} image{total !== 1 ? "s" : ""}
 				</span>
@@ -144,7 +148,8 @@ function CarouselGallery({
 						aria-label="Previous image"
 					>
 						<ChevronUp className="size-5" />
-					</button>					{/* Scrollable thumbnail container */}
+					</button>{" "}
+					{/* Scrollable thumbnail container */}
 					<div
 						ref={thumbScrollRef}
 						className="w-full grow overflow-y-auto overscroll-contain scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
@@ -158,7 +163,8 @@ function CarouselGallery({
 									type="button"
 									onClick={() => onThumbClick(index)}
 									aria-label={`Show image ${index + 1}`}
-									aria-current={index === selectedIndex}									className={cn(
+									aria-current={index === selectedIndex}
+									className={cn(
 										"relative mb-3 aspect-[3/2] w-full shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 transition-all",
 										index === selectedIndex
 											? "border-primary opacity-100"
@@ -176,7 +182,6 @@ function CarouselGallery({
 							);
 						})}
 					</div>
-
 					{/* Chevron DOWN — navigate to next image */}
 					<button
 						type="button"
@@ -196,7 +201,10 @@ function CarouselGallery({
 							{images.map((img, index) => {
 								const src = imageSrc(img);
 								return (
-									<div key={img.id} className="min-w-0 shrink-0 grow-0 basis-full">
+									<div
+										key={img.id}
+										className="min-w-0 shrink-0 grow-0 basis-full"
+									>
 										<button
 											type="button"
 											onClick={() => onImageClick(index)}

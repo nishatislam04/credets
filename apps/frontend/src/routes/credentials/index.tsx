@@ -13,7 +13,10 @@ export const Route = createFileRoute("/credentials/")({
 			</div>
 			<div className="space-y-3">
 				{[...Array(12)].map((_) => (
-					<Skeleton key={crypto.randomUUID()} className="h-24 w-full rounded-xl" />
+					<Skeleton
+						key={crypto.randomUUID()}
+						className="h-24 w-full rounded-xl"
+					/>
 				))}
 			</div>
 		</div>

@@ -60,7 +60,10 @@ export default function CodeBlockView({
 	useEffect(() => {
 		if (!isOpen) return;
 		const handler = (e: MouseEvent) => {
-			if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+			if (
+				dropdownRef.current &&
+				!dropdownRef.current.contains(e.target as Node)
+			) {
 				setIsOpen(false);
 				setCustomMode(false);
 			}
@@ -109,12 +112,7 @@ export default function CodeBlockView({
 	const displayLabel = matched ? matched.label : currentLang;
 
 	return (
-		<NodeViewWrapper
-			className={cn(
-				"code-block-wrapper relative",
-				"group",
-			)}
-		>
+		<NodeViewWrapper className={cn("code-block-wrapper relative", "group")}>
 			{/* Language selector — top-right overlay */}
 			<div
 				ref={dropdownRef}
@@ -157,7 +155,7 @@ export default function CodeBlockView({
 					</svg>
 				</button>
 
-					{/* Dropdown menu */}
+				{/* Dropdown menu */}
 				{isOpen && (
 					<div
 						className={cn(
@@ -185,12 +183,7 @@ export default function CodeBlockView({
 									)}
 								>
 									{lang.id === currentLang && (
-										<svg
-											width="10"
-											height="10"
-											viewBox="0 0 12 12"
-											fill="none"
-										>
+										<svg width="10" height="10" viewBox="0 0 12 12" fill="none">
 											<path
 												d="M2.5 6L5 8.5L9.5 3.5"
 												stroke="currentColor"
