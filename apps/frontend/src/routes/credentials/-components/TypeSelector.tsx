@@ -18,6 +18,7 @@ import {
 	ComboboxItem,
 	ComboboxList,
 } from "#/components/ui/combobox";
+import { Skeleton } from "#/components/ui/skeleton";
 import { getTypeChildren, type TypeChild } from "#/routes/credentials/-actions/getTypeChildren";
 import { getTypesListings } from "#/routes/credentials/create/-actions/getTypesListings";
 
@@ -247,63 +248,71 @@ function TypeLevel({
 				<div className="flex items-center gap-2">
 					{/* Combobox at 30% width */}
 					<div className="w-[30%] min-w-[200px]">
-						<Combobox
-							value={currentType?.value ?? null}
-							onValueChange={handleValueChange}
-							onInputValueChange={(val: string) => setInputValue(val)}
-							filter={null}
-						>
-							<ComboboxInput
-								placeholder={
-									levelIndex === 0
-										? "Select or type a new type..."
-										: "Select or type a new sub-type..."
-								}
-								showClear={false}
-								showTrigger={true}
-								onKeyDown={(e: React.KeyboardEvent) => {
-									if (e.key === "Enter" && inputValue.trim()) {
-										e.preventDefault();
-										const trimmed = inputValue.trim();
-										// Check if input exactly matches an existing item
-										const exactMatch = items.find(
-											(item) =>
-												!item.isNew &&
-												(item.label.toLowerCase() === trimmed.toLowerCase() ||
-													item.value.toLowerCase() === trimmed.toLowerCase()),
-										);
-										if (exactMatch) {
-											onChange({ value: exactMatch.value, label: exactMatch.label });
-											setInputValue(exactMatch.label);
-										} else {
-											commitInputAsType();
-										}
+						{isOptionsLoading && !currentType ? (
+							<Skeleton className="h-9 w-full rounded-lg" aria-busy="true" aria-label="Loading types" />
+						) : (
+							<Combobox
+								value={currentType?.value ?? null}
+								onValueChange={handleValueChange}
+								onInputValueChange={(val: string) => setInputValue(val)}
+								filter={null}
+							>
+								<ComboboxInput
+									placeholder={
+										levelIndex === 0
+											? "Select or type a new type..."
+											: "Select or type a new sub-type..."
 									}
-								}}
-							/>
-							<ComboboxContent>
-								<ComboboxList>
-									{isOptionsLoading && items.length === 0 && (
-										<div className="px-3 py-2 text-sm text-muted-foreground">Loading...</div>
-									)}
-									{!isOptionsLoading && items.length === 0 && (
-										<ComboboxEmpty>No options found. Type to create a new one.</ComboboxEmpty>
-									)}
-									{items.map((item) => (
-										<ComboboxItem key={item.id} value={item.value}>
-											{item.isNew ? (
-												<span className="flex items-center gap-2">
-													<Plus className="size-3.5" />
-													<span className="italic">{item.label}</span>
-												</span>
-											) : (
-												item.label
-											)}
-										</ComboboxItem>
-									))}
-								</ComboboxList>
-							</ComboboxContent>
-						</Combobox>
+									showClear={false}
+									showTrigger={true}
+									onKeyDown={(e: React.KeyboardEvent) => {
+										if (e.key === "Enter" && inputValue.trim()) {
+											e.preventDefault();
+											const trimmed = inputValue.trim();
+											// Check if input exactly matches an existing item
+											const exactMatch = items.find(
+												(item) =>
+													!item.isNew &&
+													(item.label.toLowerCase() === trimmed.toLowerCase() ||
+														item.value.toLowerCase() === trimmed.toLowerCase()),
+											);
+											if (exactMatch) {
+												onChange({ value: exactMatch.value, label: exactMatch.label });
+												setInputValue(exactMatch.label);
+											} else {
+												commitInputAsType();
+											}
+										}
+									}}
+								/>
+								<ComboboxContent>
+									<ComboboxList>
+										{isOptionsLoading && items.length === 0 && (
+											<div className="space-y-2 px-3 py-2">
+												<Skeleton className="h-4 w-3/4" />
+												<Skeleton className="h-4 w-1/2" />
+												<Skeleton className="h-4 w-2/3" />
+											</div>
+										)}
+										{!isOptionsLoading && items.length === 0 && (
+											<ComboboxEmpty>No options found. Type to create a new one.</ComboboxEmpty>
+										)}
+										{items.map((item) => (
+											<ComboboxItem key={item.id} value={item.value}>
+												{item.isNew ? (
+													<span className="flex items-center gap-2">
+														<Plus className="size-3.5" />
+														<span className="italic">{item.label}</span>
+													</span>
+												) : (
+													item.label
+												)}
+											</ComboboxItem>
+										))}
+									</ComboboxList>
+								</ComboboxContent>
+							</Combobox>
+						)}
 					</div>
 
 					{/* X clear button — side by side with combobox */}

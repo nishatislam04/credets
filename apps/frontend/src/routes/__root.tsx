@@ -1,15 +1,14 @@
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createRootRoute, HeadContent, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { ErrorBoundary } from "#/components/error-boundary";
+import { ThemeProvider } from "#/hooks/theme-provider";
 import { GooeyToaster } from "@/components/ui/goey-toaster";
 
 import "../styles.css";
 
-export const Route = createRootRoute({
-	component: RootComponent,
-});
-
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "#/hooks/theme-provider";
+const showDevtools =
+	import.meta.env.DEV || import.meta.env.MODE === "staging";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -20,15 +19,46 @@ const queryClient = new QueryClient({
 	},
 });
 
+export const Route = createRootRoute({
+	head: () => ({
+		meta: [
+			{ title: "Credets" },
+			{
+				name: "description",
+				content: "Personal credential manager",
+			},
+			{
+				name: "robots",
+				content: "noindex, nofollow",
+			},
+			{
+				property: "og:title",
+				content: "Credets",
+			},
+			{
+				property: "og:description",
+				content: "Personal credential manager",
+			},
+			{
+				property: "og:type",
+				content: "website",
+			},
+		],
+	}),
+	component: RootComponent,
+});
+
 function RootComponent() {
 	return (
 		<ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-			<QueryClientProvider client={queryClient}>
-				<Outlet />
-			</QueryClientProvider>
+			<HeadContent />
+			<ErrorBoundary>
+				<QueryClientProvider client={queryClient}>
+					<Outlet />
+				</QueryClientProvider>
+			</ErrorBoundary>
 			<GooeyToaster />
-			{/*<TanStackRouterDevtools position="bottom-right" />*/}
-			{/*<TanStackDevtools plugins={[formDevtoolsPlugin()]} />*/}
+			{showDevtools && <TanStackRouterDevtools position="bottom-right" />}
 		</ThemeProvider>
 	);
 }

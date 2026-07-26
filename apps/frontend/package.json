@@ -8,6 +8,7 @@
 	"scripts": {
 		"dev": "vite dev --port 3000",
 		"build": "vite build",
+		"analyze": "ANALYZE=true vite build",
 		"preview": "vite preview",
 		"staging": "vite preview --port 3000",
 		"test": "vitest run",
