@@ -133,3 +133,15 @@ b3354cfc20ca9e06c0965e999f7dba8ad65912a71d64e824d8c7c29104722573
 ```
 
 now that i add this line. and remove the existing network block. i am getting this err
+without this line, i see above err, with this line, i see role nishat err
+what to do
+
+Step 2 — Fix your podman config (a landmine)
+Your ~/.config/containers/containers.conf has:
+// toml
+[containers]
+network_backend = "slirp4netns"
+…but slirp4netns is not installed ( command -v slirp4netns → nothing). After reboot, podman would fail looking for a binary that doesn't exist. Choose one:
+
+- Remove that line (recommended — pasta is installed and works fine after reboot), or
+- sudo pacman -S slirp4netns to keep the line.
