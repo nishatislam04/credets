@@ -25,8 +25,8 @@ log.info("service: credential created", { credentialId, title });
 
 // Errors — use `err` key with standard shape
 log.error("http: credential creation failed", {
-  err: { message: error.message, name: error.name },
-  credentialId,
+	err: { message: error.message, name: error.name },
+	credentialId,
 });
 
 // Warnings
@@ -57,24 +57,19 @@ err: { message: string; name?: string; stack?: string; code?: string }
 Do NOT use `logAlways` for data operations — it is reserved for startup
 banners and critical boot events in `index.ts`.
 
----
+## saving this prompt for later usage in other project
 
-## Key Features
+## for our minhaj-portfolio project
 
-- Encrypted Credential Vault — Store sensitive credentials with AES encryption at rest. Flexible
-data input supports single labels, key-value pairs, and rich text sections via a Tiptap editor. Each
-credential can have a hierarchical type, multiple images, and a thumbnail.
-- Full Lifecycle Workflow — Create credentials as drafts, iterate with Update & Draft, and publish
-when ready. Soft-delete sends items to Trash where they can be restored or permanently deleted. Mark
-favourites for quick access.
-- Security-First Authentication — Password-based sign-in with a dynamic date-verified special
-password (acts as a second factor without SMS or email dependency). CSRF token protection on every
-form submission. All sensitive credential data is encrypted before storage.
-- Dashboard & Resource Management — A live dashboard with usage statistics, trend charts, and
-quick-action links. Hierarchical type system, bulk export via email, cursor-based infinite scroll
-for smooth browsing, and local IndexedDB caching to mitigate server cold starts.
-
-**Tech Stack**
-Bun, TypeScript, React 19, TanStack Router, TanStack Query, TanStack Form, PostgreSQL, shadcn/ui,
-Base UI, Tailwind CSS 4, Zod, Tiptap Editor, AWS S3 (Supabase Storage), Lucide React, Framer Motion,
-Embla Carousel, Highlight.js, Biome, Vite, Podman, Render
+i want you to scan my whole repo. the root, the backend, the frontend
+and based on best practises, security practises, good coding practises, single responsibilty, tanstack
+router, tanstack form, shadcn/ui (baseui), bunjs, reactJS latest docs referencing and any other refactor,
+optimization, re-write and similar cases. write it out in single docs page. one docs for root dir
+coding and pkg and other stuffs, another docs for backend and another one for frontend side.
+since, we are publishing this app, and this is a credentials based web app and i want to learn
+best practises based on respective docs guide for learning purpose and for security purpose and
+for high speed web app and mobile responsiveness and following render best practises. since thats
+where we are publishing our monorepo app.
+in the docs, address all the concepts i issued earlier and add more concepts, concern, best practise
+and etc and lastly what good practises i am already following and implemented. so that i have a
+very good idea about this whole app architecture and coding part and pkg managements etc
